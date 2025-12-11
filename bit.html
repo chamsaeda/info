@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>비트와 바이트 - 컴퓨터 데이터의 기본 단위</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const BitByteEducation = () => {
+      const [bitState, setBitState] = useState(false);
+      const [byteStates, setByteStates] = useState([false, false, false, false, false, false, true, true]);
+
+      const toggleBit = () => {
+        setBitState(!bitState);
+      };
+
+      const toggleByte = (index) => {
+        const newStates = [...byteStates];
+        newStates[index] = !newStates[index];
+        setByteStates(newStates);
+      };
+
+      const countOnes = (states) => {
+        return states.filter(state => state).length;
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <div className="text-sm mb-2 text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+            <h1 className="text-3xl font-bold mb-2">💾 비트(bit)와 바이트(byte)</h1>
+            <p className="text-indigo-100">컴퓨터가 데이터를 저장하는 가장 기본적인 단위를 알아봅시다!</p>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <h3 className="font-bold text-indigo-900 text-lg mb-2">컴퓨터는 어떻게 데이터를 저장할까요?</h3>
+                <p className="leading-relaxed">
+                  컴퓨터는 모든 정보를 <span className="font-bold text-blue-600">0과 1</span>로만 표현합니다.
+                  마치 전구가 <span className="font-bold text-yellow-600">켜지거나(1)</span> <span className="font-bold text-gray-600">꺼지는(0)</span> 것처럼요!
+                  이 0과 1 하나하나를 <span className="font-bold text-purple-600">'비트(bit)'</span>라고 부르고,
+                  8개의 비트를 모으면 <span className="font-bold text-green-600">'바이트(byte)'</span>가 됩니다.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-4 mt-4">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-indigo-700 mb-2">💡 비트 (bit)</h4>
+                  <p className="text-sm">0 또는 1의 값을 가지는 컴퓨터 데이터의 <span className="font-bold">가장 작은 단위</span></p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-green-700 mb-2">📦 바이트 (byte)</h4>
+                  <p className="text-sm">8개의 비트가 모인 것. 하나의 <span className="font-bold">문자</span>를 표현할 수 있어요</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-orange-700 mb-2">🔢 표현 범위</h4>
+                  <p className="text-sm">1비트: 2가지 / 1바이트: <span className="font-bold">256가지</span> 표현 가능</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8">
+            <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+              <p className="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+              <p className="text-sm text-gray-700">
+                <span className="font-bold text-blue-600">전구를 클릭해보세요! </span> 
+                전구가 켜지면 1, 꺼지면 0이 됩니다. 
+                비트와 바이트의 차이를 직접 눈으로 확인할 수 있어요.
+              </p>
+            </div>
+
+            {/* 비트와 바이트 비교 영역 */}
+            <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-1g">
+              <div className="flex items-center justify-center gap-12 flex-wrap">
+                {/* 왼쪽: 1 bit */}
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold text-indigo-600 mb-6">1 bit</h2>
+                  <div className="flex flex-col items-center gap-4">
+                    <div 
+                      className="cursor-pointer transition-transform"
+                      onClick={toggleBit}
+                    >
+                      <img 
+                        src={bitState ? "src/on.png" : "src/off.png"}
+                        alt="전구"
+                        className="w-28 h-32"
+                      />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-800">
+                      {bitState ? '1' : '0'}
+                    </div>
+                    <div className="text-lg text-gray-600 bg-white px-4 py-2 rounded-lg">
+                      2<sup>1</sup> = <span className="font-bold text-indigo-600">2가지</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 화살표 */}
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600 mb-2">8개 모으면</div>
+                  <div className="text-6xl text-purple-500">▶</div>
+                </div>
+
+                {/* 오른쪽: 1 byte = 8 bit */}
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold text-green-600 mb-6">1 byte = 8 bit</h2>
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex gap-2">
+                      {byteStates.map((state, index) => (
+                        <div 
+                          key={index}
+                          className="flex flex-col items-center cursor-pointer  transition-transform"
+                          onClick={() => toggleByte(index)}
+                        >
+                          <img 
+                            src={state ? "src/on.png" : "src/off.png"}
+                            alt="전구"
+                            className="w-16 h-20"
+                          />
+                          <div className="text-2xl font-bold text-gray-800 mt-1">
+                            {state ? '1' : '0'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-lg text-gray-600 bg-white px-4 py-2 rounded-lg">
+                      2<sup>8</sup> = <span className="font-bold text-green-600">256가지</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 현재 상태 표시 */}
+              <div className="mt-8 grid md:grid-cols-2 gap-4">
+                <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                  <h3 className="font-bold text-indigo-900 mb-2">왼쪽 비트 상태</h3>
+                  <p className="text-sm text-gray-700">
+                    현재 값: <span className="font-bold text-indigo-600 text-lg">{bitState ? '1' : '0'}</span>
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    비트는 2가지 상태만 표현할 수 있어요
+                  </p>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h3 className="font-bold text-green-900 mb-2">오른쪽 바이트 상태</h3>
+                  <p className="text-sm text-gray-700">
+                    이진수: <span className="font-bold text-green-600 text-lg font-mono">
+                      {byteStates.map(s => s ? '1' : '0').join('')}
+                    </span>
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    켜진 전구: {countOnes(byteStates)}개 / 꺼진 전구: {8 - countOnes(byteStates)}개
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 설명 섹션들 */}
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-bold text-blue-900 mb-3">🔍 비트(bit)란?</h3>
+                <div className="space-y-3 text-sm text-gray-700">
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="font-bold mb-1">Binary Digit의 줄임말</p>
+                    <p>컴퓨터가 이해할 수 있는 <span className="font-bold text-blue-600">가장 작은 정보 단위</span></p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="font-bold mb-1">두 가지 상태만 가능</p>
+                    <p><span className="font-bold text-yellow-600">1 (참, True, On)</span> 또는 <span className="font-bold text-gray-600">0 (거짓, False, Off)</span></p>
+                  </div>
+                  <p className="pt-2 border-t border-blue-200">
+                    💡 1비트로는 2가지(2<sup>1</sup>) 정보만 표현 가능해요
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
+                <h3 className="text-lg font-bold text-green-900 mb-3">📦 바이트(byte)란?</h3>
+                <div className="space-y-3 text-sm text-gray-700">
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="font-bold mb-1">8개의 비트 = 1바이트</p>
+                    <p>하나의 <span className="font-bold text-green-600">문자</span>를 저장하는 기본 단위</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="font-bold mb-1">256가지 표현 가능</p>
+                    <p>2<sup>8</sup> = 2×2×2×2×2×2×2×2 = <span className="font-bold text-green-600">256</span></p>
+                  </div>
+                  <p className="pt-2 border-t border-green-200">
+                    💡 영어 대소문자, 숫자, 특수문자를 모두 표현할 수 있어요!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
+              <h3 className="text-lg font-bold text-purple-900 mb-3">📊 데이터 크기 단위</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <p className="font-bold text-indigo-600">1 bit (비트)</p>
+                    <p className="text-sm text-gray-700">0 또는 1</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <p className="font-bold text-blue-600">8 bits = 1 byte (바이트)</p>
+                    <p className="text-sm text-gray-700">문자 하나 (예: 'A', '1', '!')</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <p className="font-bold text-green-600">1,024 bytes = 1 KB (킬로바이트)</p>
+                    <p className="text-sm text-gray-700">짧은 문장 정도</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <p className="font-bold text-orange-600">1,024 KB = 1 MB (메가바이트)</p>
+                    <p className="text-sm text-gray-700">사진 한 장 정도</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <p className="font-bold text-red-600">1,024 MB = 1 GB (기가바이트)</p>
+                    <p className="text-sm text-gray-700">영화 한 편 정도</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <p className="font-bold text-purple-600">1,024 GB = 1 TB (테라바이트)</p>
+                    <p className="text-sm text-gray-700">수천 개의 영화</p>
+                  </div>
+                  <div className="bg-indigo-100 p-3 rounded-lg border-2 border-indigo-400">
+                    <p className="text-xs text-gray-600 font-bold">💡 재미있는 사실</p>
+                    <p className="text-xs text-gray-700 mt-1">
+                      1KB가 정확히 1,000바이트가 아니라 1,024바이트인 이유는 
+                      컴퓨터가 2진법(2<sup>10</sup>=1,024)을 사용하기 때문이에요!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-lg border border-orange-200 mt-6">
+              <h3 className="text-lg font-bold text-orange-900 mb-3">🎯 실생활 예시</h3>
+              <div className="space-y-3 text-sm text-gray-700">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
+                  <div className="flex-1 bg-white p-3 rounded-lg">
+                    <p className="font-bold text-blue-700">문자 'A' 저장하기</p>
+                    <p>'A'는 <span className="font-mono font-bold">01000001</span> (8비트 = 1바이트)로 저장됩니다</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+                  <div className="flex-1 bg-white p-3 rounded-lg">
+                    <p className="font-bold text-green-700">"안녕" 저장하기</p>
+                    <p>한글은 한 글자당 약 2~3바이트가 필요합니다 (유니코드 방식)</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+                  <div className="flex-1 bg-white p-3 rounded-lg">
+                    <p className="font-bold text-purple-700">USB 메모리 16GB</p>
+                    <p>약 16,000,000,000바이트 = 128,000,000,000비트의 데이터를 저장할 수 있어요!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-5 rounded-lg border border-cyan-200 mt-6">
+              <h3 className="text-lg font-bold text-cyan-900 mb-3">
+                <span 
+                  className="relative inline-block cursor-pointer hover:scale-110 transition-transform"
+                  onClick={() => {
+                    // 말풍선 잠깐 보여주기
+                    const tooltip = document.createElement('span');
+                    tooltip.textContent = '참새다!';
+                    tooltip.className = 'absolute left-1/2 -translate-x-1/2 -top-12 bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-base font-bold whitespace-nowrap shadow-2xl animate-bounce z-50';
+                    document.body.appendChild(tooltip);
+                    
+                    // 1.5초 후에 사라지게 하기
+                    setTimeout(() => {
+                      tooltip.remove();
+                    }, 1500);
+                  }}
+                >
+                  🤔
+                  <style jsx>{`
+                    @keyframes bounce {
+                      0%, 100% { transform: translateY(0); }
+                      50% { transform: translateY(-10px); }
+                    }
+                    .animate-bounce {
+                      animation: bounce 0.6s ease-in-out 2;
+                    }
+                  `}</style>
+                </span>
+                {' '}생각해보기
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-indigo-600 mb-2">Q. 왜 컴퓨터는 0과 1만 사용할까요?</h4>
+                  <p className="text-sm text-gray-700">
+                    컴퓨터는 전기 신호로 작동합니다. 전기가 <span className="font-bold text-yellow-600">흐르면(On) 1</span>, 
+                    <span className="font-bold text-gray-600">흐르지 않으면(Off) 0</span>으로 표현해요. 
+                    이렇게 두 가지 상태만 구분하면 되니까 간단하고 정확하답니다!
+                  </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-green-600 mb-2">Q. 왜 8개씩 묶어서 바이트를 만들까요?</h4>
+                  <p className="text-sm text-gray-700">
+                    8비트면 256가지(2<sup>8</sup>)를 표현할 수 있어요. 
+                    이 정도면 영어 알파벳 대소문자(52개), 숫자(10개), 
+                    특수문자들을 모두 표현하기에 충분해서 8개를 기본 단위로 정했어요!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<BitByteEducation />);
+  </script>
+</body>
+</html>
