@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔐 자물쇠로 배우는 경우의 수</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const LockSimulator = () => {
+      const [dials, setDials] = useState([0, 0, 0, 0]);
+      const [attempts, setAttempts] = useState(0);
+
+      const rotateDial = (index, direction) => {
+        const newDials = [...dials];
+        newDials[index] = (newDials[index] + direction + 10) % 10;
+        setDials(newDials);
+        setAttempts(prev => prev + 1);
+      };
+
+      const resetLock = () => {
+        setDials([0, 0, 0, 0]);
+        setAttempts(0);
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* 헤더 */}
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <div className="text-sm mb-2 text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+            <h1 className="text-3xl font-bold mb-2">🔐 자물쇠로 배우는 경우의 수</h1>
+            <p className="text-indigo-100">화살표를 클릭해서 자물쇠를 돌려보세요!</p>
+          </div>
+
+          {/* 질문 영역 */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <h3 className="font-bold text-indigo-900 text-lg mb-2">📌 자물쇠의 비밀번호는 몇 개일까?</h3>
+                <p className="leading-relaxed">
+                  아래 그림처럼 4자리 숫자 자물쇠가 있습니다. 각 자리마다 <span className="font-bold text-blue-600">0부터 9까지</span> 총 10개의 숫자를 선택할 수 있어요. 그렇다면 만들 수 있는 비밀번호의 개수는 총 몇 개일까요?
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8">
+            {/* 체험 방법 안내 */}
+            <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+              <p className="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+              <p className="text-sm text-gray-700">
+                <span className="font-bold text-blue-600">화살표 버튼을 클릭해서 자물쇠를 돌려보세요!</span> 
+                각 다이얼은 0부터 9까지 순환하며, 모든 조합을 만들어볼 수 있습니다.
+              </p>
+            </div>
+
+            {/* 자물쇠 시뮬레이터 */}
+            <div className="bg-gray-50 p-8 rounded-lg border border-gray-200 mb-6">
+              <div className="flex justify-center items-center gap-8 flex-wrap">
+                {/* 왼쪽 몸통 */}
+                <div className="w-20 h-44 bg-gradient-to-r from-gray-600 to-gray-700 rounded-l-3xl border-4 border-gray-800 shadow-xl"></div>
+
+                {/* 다이얼 영역 */}
+                <div className="flex gap-4">
+                  {dials.map((dial, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2">
+                      <button 
+                        onClick={() => rotateDial(idx, 1)}
+                        className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-lg flex items-center justify-center text-xl font-bold shadow-lg hover:scale-110 transition-transform"
+                      >
+                        ▲
+                      </button>
+                      <div className="w-16 h-28 bg-gradient-to-b from-gray-900 to-black rounded-xl border-2 border-gray-600 shadow-inner flex items-center justify-center">
+                        <span className="text-white text-5xl font-bold">{dial}</span>
+                      </div>
+                      <button 
+                        onClick={() => rotateDial(idx, -1)}
+                        className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-lg flex items-center justify-center text-xl font-bold shadow-lg hover:scale-110 transition-transform"
+                      >
+                        ▼
+                      </button>
+                      <div className="text-sm font-bold text-indigo-600 mt-1">
+                        {['첫째', '둘째', '셋째', '넷째'][idx]}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 오른쪽 U자형 막대 */}                
+                <div className="relative ml-24">
+                  <div className="w-20 h-44 bg-gradient-to-l from-gray-600 to-gray-700 rounded-r-3xl border-4 border-gray-800 shadow-xl"></div>
+                  <div className="absolute right-20 top-1/2 translate-x-[4px] -translate-y-1/2 w-32 h-9 bg-gradient-to-r from-gray-700 to-gray-500 border-4 border-gray-800 shadow-xl"></div>
+                  <div className="absolute right-20 top-1/2 -translate-y-[26px] -translate-x-16 w-6 h-8 bg-gradient-to-b from-gray-500 to-gray-700 border-4 border-gray-800 rounded-t-md -mt-5"></div>
+                </div>
+              </div>
+
+              {/* 현재 상태 표시 */}
+              <div className="mt-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-xl text-center">
+                <div className="text-lg mb-2">현재 번호</div>
+                <div className="text-5xl font-bold tracking-widest mb-3">{dials.join('')}</div>
+                <div className="text-sm opacity-90">
+                  시도 횟수: <span className="font-bold">{attempts}</span>회 / 전체 10,000가지
+                </div>
+              </div>
+
+              {/* 리셋 버튼 */}
+              <div className="text-center mt-6">
+                <button 
+                  onClick={resetLock}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform"
+                >
+                  🔄 초기화
+                </button>
+              </div>
+            </div>
+
+            {/* 경우의 수 계산 설명 */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 mb-6">
+              <h3 className="text-xl font-bold text-green-900 mb-4">📊 경우의 수 계산하기</h3>
+              <p className="text-gray-700 mb-4">각 자리마다 <span className="font-bold text-blue-600">0부터 9까지</span> 10가지 선택 가능</p>
+              
+              <div className="bg-yellow-50 border-3 border-dashed border-yellow-400 p-6 rounded-xl text-center">
+                <h4 className="text-lg font-bold text-gray-800 mb-3">💡 곱셈 원리 공식</h4>
+                <div className="text-4xl font-bold text-red-600 my-4">10 × 10 × 10 × 10 = 10⁴</div>
+                <div className="text-3xl font-bold text-indigo-600 mb-3">= 10,000가지</div>
+                <p className="text-gray-600">10을 4번 곱한다 = 만 가지의 경우의 수</p>
+              </div>
+            </div>
+
+            {/* 자릿수별 경우의 수 */}
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200 mb-6">
+              <h3 className="text-xl font-bold text-blue-900 mb-4">🎯 자릿수별 경우의 수</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-indigo-700">1자리 자물쇠</span>
+                    <span className="font-mono text-indigo-600 font-bold">10¹ = 10가지 (0~9)</span>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-green-700">2자리 자물쇠</span>
+                    <span className="font-mono text-green-600 font-bold">10² = 100가지 (00~99)</span>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-orange-700">3자리 자물쇠</span>
+                    <span className="font-mono text-orange-600 font-bold">10³ = 1,000가지 (000~999)</span>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-purple-700">4자리 자물쇠</span>
+                    <span className="font-mono text-purple-600 font-bold">10⁴ = 10,000가지 (0000~9999)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 왜 곱셈인가 */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border border-purple-200 mb-6">
+              <h3 className="text-xl font-bold text-purple-900 mb-4">🤔 왜 곱셈을 할까?</h3>
+              <div className="space-y-3 text-gray-700">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
+                  <p><strong>첫째 자리</strong>에서 숫자를 하나 선택하면 (예: 3)</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+                  <p><strong>둘째 자리</strong>에서는 다시 10가지를 선택할 수 있어요</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+                  <p>각 자리가 <strong className="text-indigo-600">독립적으로</strong> 선택되기 때문에</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
+                  <p><strong className="text-indigo-600 text-lg">곱셈</strong>을 사용합니다!</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 재미있는 사실 */}
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg border border-orange-200">
+              <h3 className="text-xl font-bold text-orange-900 mb-4">💡 재미있는 사실</h3>
+              <div className="bg-white p-5 rounded-lg shadow-sm">
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  만약 1초에 1개씩 비밀번호를 시도한다면, 모든 조합을 시도하는데 
+                  <span className="font-bold text-red-600 text-xl"> 약 2시간 47분</span>이 걸려요! 
+                  그래서 더 긴 비밀번호일수록 안전하답니다. 🔒
+                </p>
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    <strong className="text-blue-700">참고:</strong> 5자리면 10⁵ = 100,000가지 (약 27시간 47분), 
+                    6자리면 10⁶ = 1,000,000가지 (약 11.5일) 걸립니다!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<LockSimulator />);
+  </script>
+</body>
+</html>
