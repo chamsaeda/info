@@ -15,6 +15,10 @@
       margin: 0;
       padding: 20px;
     }
+    @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0) translateX(-50%); }
+      50% { transform: translateY(-10px) translateX(-50%); }
+    }
   </style>
 </head>
 <body>
@@ -25,7 +29,8 @@
     const BitByteEducation = () => {
       const [bitState, setBitState] = useState(false);
       const [byteStates, setByteStates] = useState([false, false, false, false, false, false, true, true]);
-
+      const [showSecret, setShowSecret] = useState(false);
+      
       const toggleBit = () => {
         setBitState(!bitState);
       };
@@ -38,6 +43,13 @@
 
       const countOnes = (states) => {
         return states.filter(state => state).length;
+      };
+
+      const handleEmojiClick = () => {
+        setShowSecret(true);
+        setTimeout(() => {
+          setShowSecret(false);
+        }, 500);
       };
 
       return (
@@ -88,7 +100,7 @@
             </div>
 
             {/* 비트와 바이트 비교 영역 */}
-            <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-1g">
+            <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-lg">
               <div className="flex items-center justify-center gap-12 flex-wrap">
                 {/* 왼쪽: 1 bit */}
                 <div className="text-center">
@@ -127,7 +139,7 @@
                       {byteStates.map((state, index) => (
                         <div 
                           key={index}
-                          className="flex flex-col items-center cursor-pointer  transition-transform"
+                          className="flex flex-col items-center cursor-pointer transition-transform"
                           onClick={() => toggleByte(index)}
                         >
                           <img 
@@ -281,30 +293,22 @@
             <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-5 rounded-lg border border-cyan-200 mt-6">
               <h3 className="text-lg font-bold text-cyan-900 mb-3">
                 <span 
-                  className="relative inline-block cursor-pointer hover:scale-110 transition-transform"
-                  onClick={() => {
-                    // 말풍선 잠깐 보여주기
-                    const tooltip = document.createElement('span');
-                    tooltip.textContent = '참새다!';
-                    tooltip.className = 'absolute left-1/2 -translate-x-1/2 -top-12 bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-base font-bold whitespace-nowrap shadow-2xl animate-bounce z-50';
-                    document.body.appendChild(tooltip);
-                    
-                    // 1.5초 후에 사라지게 하기
-                    setTimeout(() => {
-                      tooltip.remove();
-                    }, 1500);
-                  }}
+                  className="relative inline-block cursor-pointer"
+                  onClick={handleEmojiClick}
                 >
                   🤔
-                  <style jsx>{`
-                    @keyframes bounce {
-                      0%, 100% { transform: translateY(0); }
-                      50% { transform: translateY(-10px); }
-                    }
-                    .animate-bounce {
-                      animation: bounce 0.6s ease-in-out 2;
-                    }
-                  `}</style>
+                  {showSecret && (
+                    <span 
+                      className="absolute left-1/2 -translate-x-1/2 -top-12 
+                                 bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl 
+                                 text-lg font-bold whitespace-nowrap shadow-2xl z-50"
+                      style={{
+                        animation: 'bounceOnce 0.5s ease-in-out'
+                      }}
+                    >
+                      참새다!
+                    </span>
+                  )}
                 </span>
                 {' '}생각해보기
               </h3>
