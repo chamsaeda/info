@@ -1,1 +1,191 @@
-<a href="keyboard.html">⌨️ 키보드를 누르면 컴퓨터 안에서는 무슨 일이?</a>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>정보 학습 자료 - 메인</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .card {
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    .icon-animate {
+      transition: transform 0.3s ease;
+    }
+    .card:hover .icon-animate {
+      transform: scale(1.2) rotate(5deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
+        <div class="text-sm mb-2 text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+        <h1 class="text-4xl font-bold mb-3">💻 컴퓨터와 데이터의 세계</h1>
+        <p class="text-lg text-indigo-100">컴퓨터가 정보를 처리하는 원리를 알아볼까요?</p>
+      </div>
+      
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+        <div class="text-gray-700">
+          <h3 class="font-bold text-indigo-900 text-lg mb-2">🎯 학습 목표</h3>
+          <p class="leading-relaxed">
+            이 학습 자료를 통해 <span class="font-bold text-blue-600">컴퓨터가 데이터를 어떻게 표현하고 처리하는지</span> 이해할 수 있습니다.
+            키보드 입력부터 화면 출력까지의 과정을 직접 체험하면서 <span class="font-bold text-purple-600">비트와 바이트의 개념</span>을 배워봅시다!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학습 카드 그리드 -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- 카드 1: 키보드 입력 -->
+      <a href="keyboard.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
+        <div class="bg-gradient-to-r from-green-400 to-emerald-500 p-6 text-white">
+          <div class="text-5xl mb-3 icon-animate">⌨️</div>
+          <h2 class="text-2xl font-bold mb-2">키보드를 누르면 컴퓨터 안에서는 무슨 일이?</h2>
+          <p class="text-green-50">실시간 시뮬레이션으로 체험하기</p>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3 text-gray-700 mb-4">
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-green-600 font-bold text-sm">1</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">키보드 입력</span> → 전기 신호 발생</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-blue-600 font-bold text-sm">2</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">전기 신호</span> → 0과 1의 조합으로 변환</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-purple-600 font-bold text-sm">3</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">컴퓨터 처리</span> → 화면에 글자 출력</p>
+            </div>
+          </div>
+          <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+            <p class="text-sm text-green-800">
+              <span class="font-bold">💡 핵심 개념:</span> 이진법, 전기 신호, ASCII 코드
+            </p>
+          </div>
+          <div class="mt-4 text-right">
+            <span class="inline-flex items-center gap-2 text-green-600 font-bold text-sm">
+              체험하러 가기 →
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 카드 2: 비트와 바이트 -->
+      <a href="bit.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
+        <div class="bg-gradient-to-r from-orange-400 to-red-500 p-6 text-white">
+          <div class="text-5xl mb-3 icon-animate">🔢</div>
+          <h2 class="text-2xl font-bold mb-2">비트(bit)와 바이트(byte)</h2>
+          <p class="text-orange-50">컴퓨터 데이터의 기본 단위 이해하기</p>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3 text-gray-700 mb-4">
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-orange-600 font-bold text-sm">1</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">비트(bit)</span> → 0 또는 1, 가장 작은 단위</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-red-600 font-bold text-sm">2</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">바이트(byte)</span> → 8개의 비트 = 1바이트</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-pink-600 font-bold text-sm">3</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">데이터 용량</span> → KB, MB, GB, TB</p>
+            </div>
+          </div>
+          <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+            <p class="text-sm text-orange-800">
+              <span class="font-bold">💡 핵심 개념:</span> 비트, 바이트, 데이터 용량 단위
+            </p>
+          </div>
+          <div class="mt-4 text-right">
+            <span class="inline-flex items-center gap-2 text-orange-600 font-bold text-sm">
+              학습하러 가기 →
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- 학습 가이드 -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mt-8 p-8">
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+        <span class="text-3xl">📚</span>
+        학습 순서 안내
+      </h3>
+      
+      <div class="space-y-4">
+        <div class="flex items-start gap-4 bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border-l-4 border-green-500">
+          <div class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">1</div>
+          <div>
+            <h4 class="font-bold text-green-900 text-lg mb-1">키보드 입력 과정 체험</h4>
+            <p class="text-gray-700">먼저 키보드를 눌렀을 때 컴퓨터 내부에서 일어나는 일을 시뮬레이션으로 체험해보세요. 전기 신호가 어떻게 변하는지 실시간으로 확인할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 bg-gradient-to-r from-orange-50 to-red-50 p-5 rounded-xl border-l-4 border-orange-500">
+          <div class="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">2</div>
+          <div>
+            <h4 class="font-bold text-orange-900 text-lg mb-1">비트와 바이트 개념 학습</h4>
+            <p class="text-gray-700">컴퓨터가 사용하는 데이터의 기본 단위인 비트와 바이트를 배우고, 우리가 일상에서 사용하는 KB, MB, GB 등의 용량 단위를 이해해보세요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl mt-6 border border-blue-200">
+        <h4 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
+          <span class="text-xl">💭</span>
+          생각해볼 문제
+        </h4>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 font-bold">Q1.</span>
+            <span>컴퓨터는 왜 0과 1만 사용할까요?</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 font-bold">Q2.</span>
+            <span>1바이트로 표현할 수 있는 문자의 개수는 몇 개일까요?</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 font-bold">Q3.</span>
+            <span>한글은 영어와 다르게 왜 더 많은 비트가 필요할까요?</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="text-center mt-8 text-white text-sm">
+      <p>부산진여자상업고등학교 정보 교과 학습자료</p>
+      <p class="mt-1 text-indigo-200">© 2024 All rights reserved</p>
+    </div>
+  </div>
+</body>
+</html>
