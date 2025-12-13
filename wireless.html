@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>무선 네트워크 기술 - AP, Wi-Fi, Bluetooth, RFID, NFC</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      margin: 0;
+      padding: 20px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const WirelessNetworkEducation = () => {
+      const [selectedTech, setSelectedTech] = useState('ap');
+      const [quizAnswers, setQuizAnswers] = useState({});
+
+      const technologies = {
+        ap: {
+          icon: 'src/ap.png', //'🗼',
+          iconType: 'image',
+          name: 'AP',
+          fullName: 'Access Point (액세스 포인트)',
+          color: 'blue',
+          description: 'AP는 인터넷 선(유선)을 무선 신호로 바꿔서 여러 기기들이 동시에 인터넷을 사용할 수 있게 해주는 장치입니다. 집에 있는 공유기에도 AP기능이 포함되어 있어요. 학교 교실이나 카페의 천장에 달려있는 원반 모양의 장치입니다.',
+          specs: [
+            { label: '동시 연결', value: '50대+' },
+            { label: '역할', value: '중계기' },
+            { label: '작동 방식', value: '항상 켜짐' }
+          ],
+          examples: [
+            '학교 교실마디 설치된 무선 접속 장',
+            '공항, 전시장에 설치된 무선 접속 장치',
+            '대형 건물의 무료 Wi-Fi 제공 장치',
+            '공공장소(지하철, 버스)의 무료 Wi-Fi 장비'
+          ]
+        },
+        wifi: {
+          icon: '📶',
+          name: 'Wi-Fi',
+          fullName: '와이파이',
+          color: 'indigo',
+          description: 'Wi-Fi는 선 없이 인터넷에 연결할 수 있게 해주는 기술이에요. 집이나 카페에서 스마트폰, 노트북으로 인터넷을 사용할 때 바로 이 Wi-Fi를 사용하는 거예요! 케이블 없이 데이터를 무선으로 주고받을 수 있어 매우 편리합니다.',
+          specs: [
+            { label: '최대 거리', value: '~100m' },
+            { label: '속도', value: '빠름' },
+            { label: '전력 소모', value: '중간' }
+          ],
+          examples: [
+            '집에서 스마트폰으로 유튜브 보기',
+            '카페에서 노트북으로 인터넷 검색하기',
+            '학교에서 태블릿으로 온라인 수업 듣기',
+            '스마트 TV로 넷플릭스 시청하기'
+          ]
+        },
+        bluetooth: {
+          icon: '🎧',
+          name: 'Bluetooth',
+          fullName: '블루투스',
+          color: 'purple',
+          description: '블루투스는 가까운 거리에서 기기들을 무선으로 연결하는 기술이에요. 선 없이 이어폰으로 음악을 듣거나, 스마트폰에서 스피커로 소리를 보낼 때 사용합니다. Wi-Fi보다 거리는 짧지만, 전력을 적게 사용해서 배터리가 오래 가요!',
+          specs: [
+            { label: '최대 거리', value: '~10m' },
+            { label: '속도', value: '보통' },
+            { label: '전력 소모', value: '적음' }
+          ],
+          examples: [
+            '무선 이어폰으로 음악 듣기 (에어팟, 갤럭시 버즈)',
+            '블루투스 스피커로 음악 재생하기',
+            '무선 마우스, 키보드 사용하기',
+            '스마트워치와 스마트폰 연결하기'
+          ]
+        },
+        rfid: {
+          icon: '💳',
+          name: 'RFID',
+          fullName: 'Radio Frequency Identification',
+          color: 'green',
+          description: 'RFID는 "전파로 정보를 읽는 기술"이에요. 작은 태그(칩)에 정보를 저장하고, 리더기를 가까이 대면 그 정보를 읽을 수 있습니다. 교통카드처럼 찍기만 하면 바로 인식되는 것이 RFID 기술이에요.',
+          specs: [
+            { label: '인식 거리', value: '0.1~100m' },
+            { label: '인식 속도', value: '빠름' },
+            { label: '태그 전원', value: '불필요' }
+          ],
+          examples: [
+            '동물인식칩(반려동물 등록)',
+            '도서관 책 대출/반납 시스템',
+            '마트 도난 방지 태그',
+            '고속도로 하이패스'
+          ]
+        },
+        nfc: {
+          icon: '📱',
+          name: 'NFC',
+          fullName: 'Near Field Communication',
+          color: 'orange',
+          description: 'NFC는 "아주 가까운 거리에서 통신하는 기술"이에요. RFID의 한 종류인데, 거리가 더 짧고(4cm 이내) 보안이 더 좋아요. 스마트폰을 단말기에 가까이 대면 결제되는 것처럼, 기기끼리 거의 붙여야 작동하기 때문에 안전합니다.',
+          specs: [
+            { label: '최대 거리', value: '~10cm' },
+            { label: '연결 속도', value: '빠름' },
+            { label: '보안성', value: '높음' }
+          ],
+          examples: [
+            '스마트폰 간편결제 (삼성페이, 애플페이)',
+            '스마트폰끼리 사진 전송 (태그해서 공유)',
+            '체크인 태그 (호텔, 공연장)',
+            '스마트 포스터 (태그하면 정보 확인)'
+          ]
+        }
+      };
+
+      const quizData = [
+        {
+          id: 1,
+          question: '스마트폰으로 음악을 들을 때 무선 이어폰과 연결하는 기술은?',
+          options: ['Wi-Fi', 'Bluetooth', 'NFC', 'RFID'],
+          correct: 'Bluetooth'
+        },
+        {
+          id: 2,
+          question: '도서관에서 책을 대출할 때 책에 붙어있는 태그를 인식하는 기술은?',
+          options: ['Bluetooth', 'Wi-Fi', 'RFID', 'AP'],
+          correct: 'RFID'
+        },
+        {
+          id: 3,
+          question: '스마트폰을 단말기에 가까이 대서 결제할 때 사용하는 기술은?',
+          options: ['RFID', 'NFC', 'Bluetooth', 'Wi-Fi'],
+          correct: 'NFC'
+        },
+        {
+          id: 4,
+          question: '집에서 여러 기기가 동시에 무선 인터넷을 사용할 수 있게 해주는 장치는?',
+          options: ['AP (공유기)', 'NFC 태그', '블루투스 스피커', 'RFID 카드'],
+          correct: 'AP (공유기)'
+        },
+        {
+          id: 5,
+          question: '다음 중 통신 거리가 가장 짧은 기술은?',
+          options: ['Wi-Fi (100m)', 'Bluetooth (10m)', 'NFC (4cm)', 'RFID (10m)'],
+          correct: 'NFC (10cm)'
+        }
+      ];
+
+      const handleQuizAnswer = (questionId, selectedAnswer, correctAnswer) => {
+        setQuizAnswers({
+          ...quizAnswers,
+          [questionId]: {
+            selected: selectedAnswer,
+            correct: selectedAnswer === correctAnswer
+          }
+        });
+      };
+
+      const currentTech = technologies[selectedTech];
+      const colorMap = {
+        blue: { bg: 'from-blue-500 to-cyan-500', text: 'text-blue-600', border: 'border-blue-200', light: 'from-blue-50 to-cyan-50' },
+        indigo: { bg: 'from-indigo-500 to-purple-500', text: 'text-indigo-600', border: 'border-indigo-200', light: 'from-indigo-50 to-purple-50' },
+        purple: { bg: 'from-purple-500 to-pink-500', text: 'text-purple-600', border: 'border-purple-200', light: 'from-purple-50 to-pink-50' },
+        green: { bg: 'from-green-500 to-emerald-500', text: 'text-green-600', border: 'border-green-200', light: 'from-green-50 to-emerald-50' },
+        orange: { bg: 'from-orange-500 to-red-500', text: 'text-orange-600', border: 'border-orange-200', light: 'from-orange-50 to-red-50' }
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* 헤더 */}
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <div className="text-sm mb-2 text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+            <h1 className="text-3xl font-bold mb-2">🌐 무선 네트워크 기술</h1>
+            <p className="text-indigo-100">우리 주변의 다양한 무선 통신 기술을 알아봅시다!</p>
+          </div>
+
+          {/* 소개 섹션 */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <h3 className="font-bold text-indigo-900 text-lg mb-2">무선 네트워크가 뭔가요?</h3>
+                <p className="leading-relaxed">
+                  무선 네트워크는 <span className="font-bold text-blue-600">선 없이 데이터를 주고받는 기술</span>입니다.
+                  전파를 이용해서 스마트폰, 노트북, 이어폰 등 여러 기기들이 서로 연결되고 정보를 교환할 수 있어요.
+                  오늘날 우리가 편리하게 사용하는 대부분의 기술이 무선 네트워크 덕분이랍니다!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8">
+            {/* 기술 선택 카드 */}
+            <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+              <p className="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+              <p className="text-sm text-gray-700">
+                <span className="font-bold text-blue-600">아래 카드를 클릭해보세요! </span> 
+                각 무선 네트워크 기술의 특징과 실생활 예시를 확인할 수 있어요.
+              </p>
+            </div>
+
+            {/* 기술 카드 그리드 */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+              {Object.entries(technologies).map(([key, tech]) => (
+                <div
+                  key={key}
+                  onClick={() => setSelectedTech(key)}
+                  className={`cursor-pointer p-6 rounded-xl border-2 transition-all duration-300 text-center
+                    ${selectedTech === key 
+                      ? `bg-gradient-to-br ${colorMap[tech.color].bg} text-white shadow-xl scale-105 border-transparent` 
+                      : 'bg-white hover:shadow-lg hover:scale-105 border-gray-200'}`}
+                >
+                  {tech.iconType === 'image' ? (
+                    <img src={tech.icon} alt={tech.name} className="w-12 h-10 mx-auto mb-2  object-cover" />
+                  ) : (
+                    <div className="text-4xl mb-2">{tech.icon}</div>
+                  )}
+                  <div className="font-bold text-lg">{tech.name}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 선택된 기술 상세 정보 */}
+            <div className="fade-in">
+              <div className={`bg-gradient-to-r ${colorMap[currentTech.color].light} p-6 rounded-xl border ${colorMap[currentTech.color].border} mb-6`}>
+                <div className="flex items-center gap-4 mb-4">
+                  {currentTech.iconType === 'image' ? (
+                    <img src={currentTech.icon} alt={currentTech.name} className="w-20 h-18 object-cover" />
+                  ) : (
+                    <div className="text-6xl">{currentTech.icon}</div>
+                  )}
+                  <div>
+                    <h2 className={`text-3xl font-bold ${colorMap[currentTech.color].text}`}>{currentTech.name}</h2>
+                    <p className="text-gray-600 text-lg">{currentTech.fullName}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-5 rounded-lg mb-4">
+                  <h3 className="font-bold text-gray-900 mb-2 text-lg">📖 쉬운 설명</h3>
+                  <p className="text-gray-700 leading-relaxed">{currentTech.description}</p>
+                </div>
+
+                {/* 스펙 정보 */}
+                <div className="grid grid-cols-3 gap-4">
+                  {currentTech.specs.map((spec, idx) => (
+                    <div key={idx} className="bg-white p-4 rounded-lg text-center shadow-sm">
+                      <div className={`text-2xl font-bold ${colorMap[currentTech.color].text} mb-1`}>
+                        {spec.value}
+                      </div>
+                      <div className="text-sm text-gray-600">{spec.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 실생활 예시 */}
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-orange-200">
+                <h3 className="text-xl font-bold text-orange-900 mb-4">💡 실생활 예시</h3>
+                <div className="space-y-3">
+                  {currentTech.examples.map((example, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className={`w-8 h-8 bg-gradient-to-br ${colorMap[currentTech.color].bg} text-white rounded-full flex items-center justify-center font-bold flex-shrink-0`}>
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 bg-white p-3 rounded-lg shadow-sm">
+                        <p className="text-gray-700">{example}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 비교표 */}
+            <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+              <h3 className="text-xl font-bold text-purple-900 mb-4">📊 기술 비교하기</h3>
+              <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                    <tr>
+                      <th className="p-4 text-left">기술</th>
+                      <th className="p-4 text-left">거리</th>
+                      <th className="p-4 text-left">속도</th>
+                      <th className="p-4 text-left">주요 용도</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b hover:bg-blue-50">
+                      <td className="p-4 font-bold text-blue-600">AP</td>
+                      <td className="p-4">~100m</td>
+                      <td className="p-4">매우 빠름</td>
+                      <td className="p-4">Wi-Fi 신호 제공</td>
+                    </tr>
+                    <tr className="border-b hover:bg-indigo-50">
+                      <td className="p-4 font-bold text-indigo-600">Wi-Fi</td>
+                      <td className="p-4">~100m</td>
+                      <td className="p-4">매우 빠름</td>
+                      <td className="p-4">인터넷 연결</td>
+                    </tr>
+                    <tr className="border-b hover:bg-purple-50">
+                      <td className="p-4 font-bold text-purple-600">Bluetooth</td>
+                      <td className="p-4">~10m</td>
+                      <td className="p-4">보통</td>
+                      <td className="p-4">기기 간 연결</td>
+                    </tr>
+                    <tr className="border-b hover:bg-green-50">
+                      <td className="p-4 font-bold text-green-600">RFID</td>
+                      <td className="p-4">0.1~100m</td>
+                      <td className="p-4">빠름</td>
+                      <td className="p-4">자동 인식</td>
+                    </tr>
+                    <tr className="hover:bg-orange-50">
+                      <td className="p-4 font-bold text-orange-600">NFC</td>
+                      <td className="p-4">~10cm</td>
+                      <td className="p-4">매우 빠름</td>
+                      <td className="p-4">결제, 정보 교환</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 퀴즈 섹션 */}
+            <div className="mt-8 bg-gradient-to-r from-green-500 to-emerald-500 p-6 rounded-xl shadow-lg">
+              <h2 className="text-2xl font-bold text-white text-center mb-6">🎯 퀴즈로 복습하기!</h2>
+              
+              <div className="space-y-4">
+                {quizData.map((quiz) => (
+                  <div key={quiz.id} className="bg-white p-5 rounded-lg shadow-md">
+                    <p className="font-bold text-gray-900 mb-3">Q{quiz.id}. {quiz.question}</p>
+                    <div className="space-y-2">
+                      {quiz.options.map((option, idx) => {
+                        const isAnswered = quizAnswers[quiz.id];
+                        const isSelected = isAnswered?.selected === option;
+                        const isCorrect = option === quiz.correct;
+                        
+                        let bgColor = 'bg-gray-50 hover:bg-gray-100';
+                        if (isAnswered) {
+                          if (isSelected && isCorrect) bgColor = 'bg-green-100 border-2 border-green-500';
+                          else if (isSelected && !isCorrect) bgColor = 'bg-red-100 border-2 border-red-500';
+                          else if (isCorrect) bgColor = 'bg-green-100 border-2 border-green-500';
+                        }
+                        
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => !isAnswered && handleQuizAnswer(quiz.id, option, quiz.correct)}
+                            className={`p-3 rounded-lg ${bgColor} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'} transition-all`}
+                          >
+                            <span className="font-semibold">{'①②③④'[idx]}</span> {option}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {quizAnswers[quiz.id] && (
+                      <div className={`mt-3 p-3 rounded-lg ${quizAnswers[quiz.id].correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+                        {quizAnswers[quiz.id].correct 
+                          ? '✅ 정답입니다! 잘 이해하고 있어요! 👏' 
+                          : '❌ 아쉬워요! 위의 설명을 다시 읽어보세요. 💪'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 생각해보기 섹션 */}
+            <div className="mt-8 bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-200">
+              <h3 className="text-xl font-bold text-cyan-900 mb-4">🤔 생각해보기</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-blue-600 mb-3">Q. 왜 무선 기술마다 거리가 다를까요?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    각 기술은 목적에 따라 설계되었어요. <span className="font-bold text-blue-600">Wi-Fi</span>는 집 전체에서 인터넷을 사용해야 하니 거리가 길고,
+                    <span className="font-bold text-orange-600"> NFC</span>는 결제처럼 보안이 중요해서 아주 가까이 붙여야 작동하도록 만들었답니다.
+                  </p>
+                </div>
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-purple-600 mb-3">Q. 블루투스와 Wi-Fi의 차이는?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-bold text-indigo-600">Wi-Fi</span>는 주로 인터넷 연결용이고 속도가 빠르지만 전력을 많이 써요.
+                    <span className="font-bold text-purple-600"> 블루투스</span>는 기기끼리 직접 연결하는 용도이고, 속도는 느리지만 전력을 적게 사용해 배터리가 오래 간답니다!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WirelessNetworkEducation />);
+  </script>
+</body>
+</html>
