@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>유선 네트워크 - 케이블과 네트워크 장비</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #0f766e 0%, #0e7490 100%);
+      margin: 0;
+      padding: 20px;
+    }
+    @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-in {
+      animation: slideIn 0.5s ease-out;
+    }
+    .tooltip {
+      position: fixed;
+      background-color: #000011;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 10pt;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 1000;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const WiredNetworkEducation = () => {
+      const [selectedDevice, setSelectedDevice] = useState(null);
+      const [activeTab, setActiveTab] = useState('cables');
+      const [quizAnswers, setQuizAnswers] = useState({});
+      const [showQuizResult, setShowQuizResult] = useState(false);
+      const [showTooltip, setShowTooltip] = useState(false);
+      const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
+      const cables = [
+        {
+          id: 'utp',
+          emoji: '🔌',
+          name: 'UTP 케이블',
+          subtitle: '가장 흔한 랜선',
+          color: 'blue',
+          speed: 'cat6기준 10Gbps',
+          distance: '100m',
+          image: 'src/utp.png',
+          description: 'Unshielded Twisted Pair의 약자로, 8개의 구리선이 2개씩 꼬여있는 케이블입니다.',
+          features: [
+            '8개의 가는 구리선이 4쌍으로 꼬여있어요',
+            '전파 간섭을 줄이기 위해 꼬아놓았어요',
+            '집과 학교에서 가장 많이 사용해요',
+            '저렴하고 설치가 쉬워요'
+          ],
+          realLife: '여러분이 컴퓨터에 꽂는 인터넷 선이 바로 UTP 케이블입니다!'
+        },
+        {
+          id: 'coaxial',
+          emoji: '📺',
+          name: '동축 케이블',
+          subtitle: 'TV 안테나선',
+          color: 'orange',
+          speed: '1Gbps',
+          distance: '500m',
+          image: 'src/cox.png',
+          description: '중심 구리선 + 절연체 + 금속 망 + 겉껍질로 이루어진 4겹 구조의 케이블입니다.',
+          features: [
+            '중심선과 금속망이 같은 축에 있어서 동축이라고 불러요',
+            'UTP보다 전파 간섭에 강해요',
+            '두껍고 무거운 편이에요',
+            'TV나 케이블 인터넷에 사용돼요'
+          ],
+          realLife: 'TV 뒤에 연결된 둥근 케이블이 바로 동축 케이블이에요!'
+        },
+        {
+          id: 'fiber',
+          emoji: '💡',
+          name: '광케이블',
+          subtitle: '빛으로 통신',
+          color: 'purple',
+          speed: '100Gbps+',
+          distance: '수십 km',
+          image: 'src/opt.png',
+          description: '머리카락보다 얇은 유리섬유로 빛(레이저)을 이용해 데이터를 전송합니다.',
+          features: [
+            '전기 신호가 아닌 빛으로 데이터 전송!',
+            '초고속으로 먼 거리까지 전송 가능',
+            '전파 간섭이 전혀 없어요',
+            '대륙 간 해저 케이블로도 사용돼요'
+          ],
+          realLife: '기가 인터넷을 가능하게 하는 것이 바로 광케이블입니다!'
+        }
+      ];
+
+      const devices = [
+        {
+          id: 'switch',
+          emoji: '🎯',
+          name: '스위칭 허브',
+          subtitle: '똑똑한 네트워크 장비',
+          color: 'green',
+          image: 'src/sw.png',
+          description: '여러 대의 컴퓨터를 연결하고, MAC 주소를 인식하여 받을 컴퓨터에게만 정확히 데이터를 전송하는 장비입니다.',
+          analogy: '우체부',
+          analogyDesc: '주소를 확인하고 받을 사람에게만 정확히 배달합니다',
+          features: [
+            'MAC 주소를 보고 목적지에만 데이터 전송',
+            '여러 포트(8개, 16개, 24개 등)로 컴퓨터 연결',
+            '어떤 컴퓨터가 어디 있는지 스스로 학습해요',
+            '네트워크가 빠르고 안전해요',
+            '학교, 회사, 집에서 가장 많이 사용하는 장비'
+          ],
+          flow: 'A 컴퓨터 → 스위칭 허브(MAC 주소 확인) → B 컴퓨터만',
+          ports: '보통 5, 8, 16, 24, 48포트 등'
+        },
+        {
+          id: 'router',
+          emoji: '🗺️',
+          name: '라우터',
+          subtitle: '길 찾기 전문가',
+          color: 'blue',
+          image: 'src/router.png',
+          description: '서로 다른 네트워크를 연결하고 IP 주소를 사용하여 최적의 경로를 찾아주는 장비입니다.',
+          analogy: '내비게이션',
+          analogyDesc: '데이터가 목적지까지 가는 최고의 길을 찾아줍니다',
+          features: [
+            '서로 다른 네트워크를 연결 (우리집 ↔ 인터넷)',
+            'IP 주소를 사용하여 가장 빠른 길을 찾아요',
+            '방화벽 기능으로 나쁜 데이터 차단',
+            'NAT 기능으로 하나의 공인 IP를 여러 기기가 공유',
+            '집의 인터넷 공유기가 바로 라우터예요'
+          ],
+          flow: '우리 집 네트워크 ↔ 라우터(공유기) ↔ 인터넷',
+          ports: '보통 WAN 1개 + LAN 4개 포트'
+        }
+      ];
+
+      const quizData = [
+        {
+          id: 1,
+          question: '빛으로 데이터를 전송하는 케이블은?',
+          options: ['UTP 케이블', '동축 케이블', '광케이블', 'HDMI 케이블'],
+          correct: 2,
+          explanation: '광케이블은 빛(레이저)을 이용해 데이터를 전송합니다. 전기 신호가 아닌 빛을 사용하기 때문에 매우 빠르고 전파 간섭도 받지 않아요!'
+        },
+        {
+          id: 2,
+          question: '집에 있는 랜선의 정식 이름은?',
+          options: ['UTP 케이블', 'USB 케이블', '광케이블', '동축 케이블'],
+          correct: 0,
+          explanation: 'UTP 케이블은 "Unshielded Twisted Pair"의 약자로, 우리가 흔히 "랜선"이라고 부르는 케이블입니다.'
+        },
+        {
+          id: 3,
+          question: 'MAC 주소를 사용하여 받을 컴퓨터에게만 데이터를 보내는 장비는?',
+          options: ['스위칭 허브', '모뎀', '리피터', 'NIC'],
+          correct: 0,
+          explanation: '스위칭 허브는 MAC 주소를 확인하여 받을 컴퓨터에게만 데이터를 전송합니다. 마치 우체부가 주소를 보고 정확히 배달하는 것처럼요!'
+        },
+        {
+          id: 4,
+          question: '서로 다른 네트워크를 연결하고 IP 주소를 사용하는 장비는?',
+          options: ['스위칭 허브', '라우터', '모뎀', '브리지'],
+          correct: 1,
+          explanation: '라우터는 서로 다른 네트워크를 연결하고 IP 주소를 사용하여 데이터가 목적지까지 가는 최적의 경로를 찾아줍니다.'
+        },
+        {
+          id: 5,
+          question: '집에 있는 인터넷 공유기는 무엇일까요?',
+          options: ['스위칭 허브', '라우터', '모뎀', '허브'],
+          correct: 1,
+          explanation: '집에 있는 인터넷 공유기는 라우터입니다. 우리 집 네트워크와 인터넷을 연결해주고, 여러 기기가 인터넷을 함께 사용할 수 있게 해줍니다!'
+        }
+      ];
+
+      const handleQuizAnswer = (questionId, selectedOption) => {
+        setQuizAnswers({...quizAnswers, [questionId]: selectedOption});
+      };
+
+      const calculateScore = () => {
+        let correct = 0;
+        quizData.forEach(q => {
+          if (quizAnswers[q.id] === q.correct) correct++;
+        });
+        return correct;
+      };
+
+      const submitQuiz = () => {
+        setShowQuizResult(true);
+      };
+
+      const resetQuiz = () => {
+        setQuizAnswers({});
+        setShowQuizResult(false);
+      };
+
+      const getColorClasses = (color) => {
+        const colors = {
+          blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-900', gradient: 'from-blue-50 to-cyan-50', accent: 'text-blue-600' },
+          orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-900', gradient: 'from-orange-50 to-yellow-50', accent: 'text-orange-600' },
+          purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-900', gradient: 'from-purple-50 to-pink-50', accent: 'text-purple-600' },
+          red: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-900', gradient: 'from-red-50 to-orange-50', accent: 'text-red-600' },
+          green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-900', gradient: 'from-green-50 to-emerald-50', accent: 'text-green-600' }
+        };
+        return colors[color] || colors.blue;
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* 헤더 */}
+          <div className="bg-gradient-to-r from-teal-700 to-cyan-700 p-6 text-white">
+            <div className="text-sm mb-2 text-teal-100">부산진여자상업고등학교 정보 학습자료</div>
+            <h1 className="text-3xl font-bold mb-2">🌐 유선 네트워크</h1>
+            <p className="text-teal-100">케이블과 네트워크 장비의 세계를 탐험해봅시다!</p>
+          </div>
+
+          {/* 소개 */}
+          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 border-b border-teal-100">
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <h3 className="font-bold text-teal-900 text-lg mb-2">네트워크는 어떻게 연결될까요?</h3>
+                <p className="leading-relaxed">
+                  컴퓨터들은 <span className="font-bold text-blue-600">케이블</span>과 <span className="font-bold text-green-600">네트워크 장비</span>를 통해 연결됩니다.
+                  케이블은 데이터가 지나가는 <span className="font-bold text-orange-600">길</span>이고,
+                  네트워크 장비는 데이터를 <span className="font-bold text-purple-600">올바른 목적지</span>로 보내는 역할을 해요!
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-4 mt-4">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-teal-700 mb-2">
+                    <span 
+                      className="cursor-pointer hover:scale-125 inline-block transition-transform"
+                      onClick={(e) => {
+                        setTooltipPosition({ x: e.clientX, y: e.clientY });
+                        setShowTooltip(true);
+                        setTimeout(() => setShowTooltip(false), 500);
+                      }}
+                    >
+                      🔌
+                    </span>
+                    {' '}케이블
+                  </h4>
+                  <p className="text-sm">데이터가 이동하는 <span className="font-bold">물리적 통로</span></p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-cyan-700 mb-2">🎯 네트워크 장비</h4>
+                  <p className="text-sm">데이터를 <span className="font-bold">올바르게 전달</span>하는 장치</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-blue-700 mb-2">🌐 네트워크</h4>
+                  <p className="text-sm">컴퓨터들이 <span className="font-bold">연결된 망</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 탭 메뉴 */}
+          <div className="flex gap-2 p-6 bg-gray-50 border-b border-gray-200 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab('cables')}
+              className={`px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${
+                activeTab === 'cables'
+                  ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              📡 케이블
+            </button>
+            <button
+              onClick={() => setActiveTab('devices')}
+              className={`px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${
+                activeTab === 'devices'
+                  ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🔌 네트워크 장비
+            </button>
+            <button
+              onClick={() => setActiveTab('comparison')}
+              className={`px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${
+                activeTab === 'comparison'
+                  ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              ⚖️ 비교하기
+            </button>
+            <button
+              onClick={() => setActiveTab('quiz')}
+              className={`px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${
+                activeTab === 'quiz'
+                  ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🎯 퀴즈
+            </button>
+          </div>
+
+          {/* 메인 콘텐츠 */}
+          <div className="p-8">
+            {/* 케이블 탭 */}
+            {activeTab === 'cables' && (
+              <div className="slide-in">
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-300 mb-6">
+                  <p className="text-sm font-semibold text-yellow-900 mb-2">💡 학습 방법</p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-bold text-teal-600">케이블 카드를 클릭해보세요! </span> 
+                    각 케이블의 특징과 용도를 자세히 알 수 있어요.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6 mb-6">
+                  {cables.map(cable => {
+                    const colors = getColorClasses(cable.color);
+                    return (
+                      <div
+                        key={cable.id}
+                        onClick={() => setSelectedDevice(selectedDevice === cable.id ? null : cable.id)}
+                        className={`cursor-pointer transition-all duration-300 hover:scale-105 ${
+                          selectedDevice === cable.id ? 'ring-4 ring-teal-400' : ''
+                        }`}
+                      >
+                        <div className={`bg-gradient-to-br ${colors.gradient} p-6 rounded-lg border ${colors.border} shadow-lg h-full`}>
+                          <div className="mb-4 rounded-lg overflow-hidden bg-white">
+                            <img 
+                              src={cable.image} 
+                              alt={cable.name}
+                              className="w-full h-48 object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                            <div className="text-6xl h-48 items-center justify-center hidden" style={{display: 'none'}}>
+                              {cable.emoji}
+                            </div>
+                          </div>
+                          <h3 className={`text-xl font-bold ${colors.text} mb-2 text-center`}>{cable.name}</h3>
+                          <p className="text-sm text-gray-600 text-center mb-4">{cable.subtitle}</p>
+                          <div className="space-y-2">
+                            <div className="bg-white p-2 rounded text-sm">
+                              <span className="font-bold text-gray-700">속도:</span> {cable.speed}
+                            </div>
+                            <div className="bg-white p-2 rounded text-sm">
+                              <span className="font-bold text-gray-700">거리:</span> {cable.distance}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {selectedDevice && cables.find(c => c.id === selectedDevice) && (
+                  <div className="slide-in">
+                    {cables.filter(c => c.id === selectedDevice).map(cable => {
+                      const colors = getColorClasses(cable.color);
+                      return (
+                        <div key={cable.id} className={`bg-gradient-to-r ${colors.gradient} p-6 rounded-lg border ${colors.border}`}>
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-4xl">{cable.emoji}</span>
+                            <h3 className={`text-2xl font-bold ${colors.text}`}>{cable.name}</h3>
+                          </div>
+                          
+                          <div className="bg-white p-4 rounded-lg mb-4">
+                            <img 
+                              src={cable.image} 
+                              alt={cable.name}
+                              className="w-full h-64 object-cover rounded-lg mb-3"
+                            />
+                            <p className="text-gray-700 leading-relaxed">{cable.description}</p>
+                          </div>
+
+                          <div className="bg-white p-4 rounded-lg mb-4">
+                            <h4 className={`font-bold ${colors.accent} mb-3`}>🎯 주요 특징</h4>
+                            <ul className="space-y-2">
+                              {cable.features.map((feature, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="text-teal-600">✓</span>
+                                  <span className="text-sm text-gray-700">{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="bg-teal-100 p-4 rounded-lg border-2 border-teal-400">
+                            <p className="text-sm font-bold text-teal-900 mb-1">🏠 실생활 예시</p>
+                            <p className="text-sm text-gray-700">{cable.realLife}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 네트워크 장비 탭 */}
+            {activeTab === 'devices' && (
+              <div className="slide-in">
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-300 mb-6">
+                  <p className="text-sm font-semibold text-yellow-900 mb-2">💡 학습 방법</p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-bold text-teal-600">장비 카드를 클릭해보세요! </span> 
+                    각 장비의 역할과 비유를 통해 쉽게 이해할 수 있어요.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  {devices.map(device => {
+                    const colors = getColorClasses(device.color);
+                    return (
+                      <div
+                        key={device.id}
+                        onClick={() => setSelectedDevice(selectedDevice === device.id ? null : device.id)}
+                        className={`cursor-pointer transition-all duration-300 hover:scale-105 ${
+                          selectedDevice === device.id ? 'ring-4 ring-teal-400' : ''
+                        }`}
+                      >
+                        <div className={`bg-gradient-to-br ${colors.gradient} p-6 rounded-lg border ${colors.border} shadow-lg h-full`}>
+                          <div className="mb-4 rounded-lg overflow-hidden bg-white">
+                            <img 
+                              src={device.image} 
+                              alt={device.name}
+                              className="w-full h-48 object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                            <div className="text-6xl h-48 items-center justify-center hidden" style={{display: 'none'}}>
+                              {device.emoji}
+                            </div>
+                          </div>
+                          <h3 className={`text-xl font-bold ${colors.text} mb-2 text-center`}>{device.name}</h3>
+                          <p className="text-sm text-gray-600 text-center mb-4">{device.subtitle}</p>
+                          <div className="space-y-2">
+                            <div className="bg-white p-3 rounded text-center">
+                              <p className="text-sm font-bold text-gray-700 mb-1">비유</p>
+                              <p className={`text-lg font-bold ${colors.accent}`}>{device.analogy}</p>
+                            </div>
+                            <div className="bg-white p-2 rounded text-sm">
+                              <span className="font-bold text-gray-700">포트:</span> {device.ports}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {selectedDevice && devices.find(d => d.id === selectedDevice) && (
+                  <div className="slide-in">
+                    {devices.filter(d => d.id === selectedDevice).map(device => {
+                      const colors = getColorClasses(device.color);
+                      return (
+                        <div key={device.id} className={`bg-gradient-to-r ${colors.gradient} p-6 rounded-lg border ${colors.border}`}>
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-4xl">{device.emoji}</span>
+                            <h3 className={`text-2xl font-bold ${colors.text}`}>{device.name}</h3>
+                          </div>
+                          
+                          <div className="bg-white p-4 rounded-lg mb-4">
+                            <img 
+                              src={device.image} 
+                              alt={device.name}
+                              className="w-full h-64 object-cover rounded-lg mb-3"
+                            />
+                            <p className="text-gray-700 leading-relaxed">{device.description}</p>
+                          </div>
+
+                          <div className="bg-white p-4 rounded-lg mb-4">
+                            <h4 className={`font-bold ${colors.accent} mb-2`}>🎭 비유로 이해하기</h4>
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                              <span className="text-3xl">{device.analogy === '우체부' ? '📮' : '🧭'}</span>
+                              <div>
+                                <p className={`font-bold ${colors.accent}`}>{device.analogy}</p>
+                                <p className="text-sm text-gray-600">{device.analogyDesc}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-white p-4 rounded-lg mb-4">
+                            <h4 className={`font-bold ${colors.accent} mb-3`}>🎯 주요 특징</h4>
+                            <ul className="space-y-2">
+                              {device.features.map((feature, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="text-teal-600">✓</span>
+                                  <span className="text-sm text-gray-700">{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="bg-teal-100 p-4 rounded-lg border-2 border-teal-400">
+                            <p className="text-sm font-bold text-teal-900 mb-1">🔄 데이터 흐름</p>
+                            <p className="text-sm text-gray-700 font-mono">{device.flow}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 비교 탭 */}
+            {activeTab === 'comparison' && (
+              <div className="slide-in space-y-6">
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg border border-blue-200">
+                  <h3 className="text-lg font-bold text-blue-900 mb-4">📡 케이블 비교표</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full bg-white rounded-lg overflow-hidden shadow-sm">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
+                          <th className="p-3 text-left">항목</th>
+                          <th className="p-3 text-center">UTP 케이블</th>
+                          <th className="p-3 text-center">동축 케이블</th>
+                          <th className="p-3 text-center">광케이블</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm">
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">전송 방식</td>
+                          <td className="p-3 text-center">전기 신호</td>
+                          <td className="p-3 text-center">전기 신호</td>
+                          <td className="p-3 text-center font-bold text-purple-600">빛(레이저)</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">최대 속도</td>
+                          <td className="p-3 text-center">10Gbps</td>
+                          <td className="p-3 text-center">1Gbps</td>
+                          <td className="p-3 text-center font-bold text-purple-600">100Gbps+</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">최대 거리</td>
+                          <td className="p-3 text-center">100m</td>
+                          <td className="p-3 text-center">500m</td>
+                          <td className="p-3 text-center font-bold text-purple-600">수십 km</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">가격</td>
+                          <td className="p-3 text-center">💰 저렴</td>
+                          <td className="p-3 text-center">💰💰 중간</td>
+                          <td className="p-3 text-center">💰💰💰 비쌈</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">전파 간섭</td>
+                          <td className="p-3 text-center">⚠️ 약함</td>
+                          <td className="p-3 text-center">👍 강함</td>
+                          <td className="p-3 text-center">💪 매우 강함</td>
+                        </tr>
+                        <tr className="hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">주요 용도</td>
+                          <td className="p-3 text-center text-xs">집, 학교, 사무실</td>
+                          <td className="p-3 text-center text-xs">케이블 TV</td>
+                          <td className="p-3 text-center text-xs">통신사 기간망</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
+                  <h3 className="text-lg font-bold text-green-900 mb-4">🔌 네트워크 장비 비교표</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full bg-white rounded-lg overflow-hidden shadow-sm">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
+                          <th className="p-3 text-left">항목</th>
+                          <th className="p-3 text-center">스위칭 허브</th>
+                          <th className="p-3 text-center">라우터</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm">
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">OSI 계층</td>
+                          <td className="p-3 text-center">2계층 (데이터링크)</td>
+                          <td className="p-3 text-center">3계층 (네트워크)</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">주소 사용</td>
+                          <td className="p-3 text-center font-bold text-green-600">MAC 주소</td>
+                          <td className="p-3 text-center font-bold text-blue-600">IP 주소</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">데이터 전송</td>
+                          <td className="p-3 text-center">목적지 포트만</td>
+                          <td className="p-3 text-center">최적 경로 계산</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">비유</td>
+                          <td className="p-3 text-center">📮 우체부</td>
+                          <td className="p-3 text-center">🧭 내비게이션</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">네트워크 연결</td>
+                          <td className="p-3 text-center">같은 네트워크만</td>
+                          <td className="p-3 text-center font-bold text-blue-600">다른 네트워크 연결</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">속도</td>
+                          <td className="p-3 text-center">🚗 빠름</td>
+                          <td className="p-3 text-center">🚗 빠름</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">보안</td>
+                          <td className="p-3 text-center">🔒 보통</td>
+                          <td className="p-3 text-center">🛡️ 강함</td>
+                        </tr>
+                        <tr className="hover:bg-gray-50">
+                          <td className="p-3 font-bold text-gray-700">주요 역할</td>
+                          <td className="p-3 text-center text-xs">여러 컴퓨터를 연결</td>
+                          <td className="p-3 text-center text-xs">인터넷 연결 및 공유</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="bg-cyan-100 p-5 rounded-lg border-2 border-cyan-400">
+                  <h4 className="font-bold text-cyan-900 mb-3">💡 쉽게 기억하기</h4>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="font-bold text-green-600 mb-1">스위칭 허브 = 우체부 📮</p>
+                      <p className="text-xs text-gray-600">MAC 주소 보고 정확히 배달</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="font-bold text-blue-600 mb-1">라우터 = 내비게이션 🧭</p>
+                      <p className="text-xs text-gray-600">IP 주소로 최적 경로 탐색</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 퀴즈 탭 */}
+            {activeTab === 'quiz' && (
+              <div className="slide-in">
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mb-6">
+                  <h3 className="text-lg font-bold text-purple-900 mb-2">🎯 배운 내용 확인하기</h3>
+                  <p className="text-sm text-gray-700">총 {quizData.length}문제를 풀어보세요!</p>
+                </div>
+
+                {!showQuizResult ? (
+                  <div className="space-y-6">
+                    {quizData.map((quiz, qIdx) => (
+                      <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                        <h4 className="font-bold text-gray-800 mb-4">
+                          Q{qIdx + 1}. {quiz.question}
+                        </h4>
+                        <div className="space-y-2">
+                          {quiz.options.map((option, oIdx) => {
+                            const isSelected = quizAnswers[quiz.id] === oIdx;
+                            const isCorrect = quiz.correct === oIdx;
+                            let bgColor = 'bg-gray-50 hover:bg-gray-100';
+                            if (quizAnswers[quiz.id] !== undefined) {
+                              if (oIdx === quiz.correct) {
+                                bgColor = 'bg-green-100 border-green-400';
+                              } else if (isSelected && !isCorrect) {
+                                bgColor = 'bg-red-100 border-red-400';
+                              }
+                            }
+                            return (
+                              <button
+                                key={oIdx}
+                                onClick={() => handleQuizAnswer(quiz.id, oIdx)}
+                                disabled={quizAnswers[quiz.id] !== undefined}
+                                className={`w-full text-left p-3 rounded-lg border-2 transition-all ${bgColor} ${
+                                  quizAnswers[quiz.id] === undefined ? 'cursor-pointer' : 'cursor-not-allowed'
+                                }`}
+                              >
+                                {oIdx + 1}. {option}
+                                {quizAnswers[quiz.id] !== undefined && oIdx === quiz.correct && (
+                                  <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
+                                )}
+                                {isSelected && !isCorrect && (
+                                  <span className="ml-2 text-red-600 font-bold">✗</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        
+                        {quizAnswers[quiz.id] !== undefined && (
+                          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm text-gray-700">
+                              <span className="font-bold text-blue-600">설명:</span> {quiz.explanation}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    {Object.keys(quizAnswers).length === quizData.length && (
+                      <button
+                        onClick={submitQuiz}
+                        className="w-full py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all"
+                      >
+                        결과 확인하기
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                      <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
+                      <div className="text-6xl font-bold text-teal-600 mb-4">
+                        {calculateScore()} / {quizData.length}
+                      </div>
+                      <p className="text-lg text-gray-700">
+                        {calculateScore() === quizData.length
+                          ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+                          : calculateScore() >= quizData.length * 0.7
+                          ? '잘하셨어요! 조금만 더 공부하면 완벽할 거예요! 👍'
+                          : '다시 한 번 복습해보세요! 💪'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={resetQuiz}
+                      className="px-8 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all"
+                    >
+                      다시 풀기
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          {showTooltip && (
+          <div 
+            className="tooltip"
+            style={{
+              top: `${tooltipPosition.y}px`,
+              left: `${tooltipPosition.x}px`,
+              transform: 'translate(-50%, -100%)'
+            }}
+          >
+            참새다! 
+          </div>
+          )}
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WiredNetworkEducation />);
+  </script>
+</body>
+</html>
