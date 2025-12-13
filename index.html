@@ -4,5 +4,58 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>정보 학습 자료 - 메인</title>
-  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .card {
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    .icon-animate {
+      transition: transform 0.3s ease;
+    }
+    .card:hover .icon-animate {
+      transform: scale(1.2) rotate(5deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-7xl mx-auto">
+    <!-- 헤더 -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
+        <div class="text-sm mb-2 text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+        <h1 class="text-4xl font-bold mb-3">💻 컴퓨터와 데이터의 세계</h1>
+        <p class="text-lg text-indigo-100">컴퓨터가 정보를 처리하는 원리를 알아볼까요?</p>
+      </div>
+      
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+        <div class="text-gray-700">
+          <h3 class="font-bold text-indigo-900 text-lg mb-2">🎯 학습 목표</h3>
+          <p class="leading-relaxed">
+            이 학습 자료를 통해 <span class="font-bold text-blue-600">컴퓨터가 데이터를 어떻게 표현하고 처리하는지</span> 이해할 수 있습니다.
+            키보드 입력부터 화면 출력까지의 과정을 직접 체험하면서 <span class="font-bold text-purple-600">비트와 바이트의 개념</span>을 배워봅시다!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <!-- 푸터 -->
+    <div class="text-center mt-8 text-white text-sm">
+      <p>부산진여자상업고등학교 정보 교과 학습자료</p>
+      <p class="mt-1 text-indigo-200">© 2024 All rights reserved</p>
+    </div>
+  </div>
+</body>
 </html>
