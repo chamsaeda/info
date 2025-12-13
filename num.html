@@ -15,6 +15,10 @@
       margin: 0;
       padding: 20px;
     }
+      @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0) translateX(-50%); }
+      50% { transform: translateY(-10px) translateX(-50%); }
+    }
   </style>
 </head>
 <body>
@@ -25,6 +29,7 @@
     const LockSimulator = () => {
       const [dials, setDials] = useState([0, 0, 0, 0]);
       const [attempts, setAttempts] = useState(0);
+      const [showTooltip, setShowTooltip] = useState(false);
 
       const rotateDial = (index, direction) => {
         const newDials = [...dials];
@@ -36,6 +41,12 @@
       const resetLock = () => {
         setDials([0, 0, 0, 0]);
         setAttempts(0);
+      };
+      const handleTooltipClick = () => {
+        setShowTooltip(true);
+        setTimeout(() => {
+          setShowTooltip(false);
+        }, 500);
       };
 
       return (
@@ -144,7 +155,27 @@
 
             {/* 자릿수별 경우의 수 */}
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200 mb-6">
-              <h3 className="text-xl font-bold text-blue-900 mb-4">🎯 자릿수별 경우의 수</h3>
+              <h3 className="text-xl font-bold text-blue-900 mb-4">
+                <span 
+                  className="relative inline-block cursor-pointer"
+                  onClick={handleTooltipClick}
+                >
+                  🎯
+                  {showTooltip && (
+                    <span 
+                      className="absolute left-1/2 -translate-x-1/2 -top-16 
+                                 bg-pink-200 text-gray-900 px-4 py-2 rounded-xl 
+                                 text-sm font-bold whitespace-nowrap shadow-2xl z-50"
+                      style={{
+                        animation: 'bounceOnce 0.5s ease-in-out'
+                      }}
+                    >
+                      참새다!
+                    </span>
+                  )}
+                </span>
+                {' '}자릿수별 경우의 수
+              </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
                   <div className="flex justify-between items-center">
