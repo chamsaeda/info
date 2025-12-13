@@ -50,7 +50,7 @@
     </div>
 
     <!-- 학습 카드 그리드 -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
       <!-- 카드 1: 키보드 입력 -->
       <a href="keyboard.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
         <div class="bg-gradient-to-r from-green-400 to-emerald-500 p-6 text-white">
@@ -255,6 +255,47 @@
           </div>
         </div>
       </a>
+
+      <!-- 카드 6: 무선 네트워크 (새로 추가) -->
+      <a href="wireless.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
+        <div class="bg-gradient-to-r from-pink-400 to-rose-500 p-6 text-white">
+          <div class="text-5xl mb-3 icon-animate">📡</div>
+          <h2 class="text-2xl font-bold mb-2">무선 네트워크</h2>
+          <p class="text-pink-50">WiFi와 무선 통신 이해하기</p>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3 text-gray-700 mb-4">
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-pink-600 font-bold text-sm">1</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">무선 통신</span> → 전파로 데이터 전송</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-rose-600 font-bold text-sm">2</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">WiFi 표준</span> → 802.11 규격</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-red-600 font-bold text-sm">3</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">보안</span> → 암호화와 인증</p>
+            </div>
+          </div>
+          <div class="bg-pink-50 p-3 rounded-lg border border-pink-200">
+            <p class="text-sm text-pink-800">
+              <span class="font-bold">💡 핵심 개념:</span> WiFi, 무선 주파수, 보안
+            </p>
+          </div>
+          <div class="mt-4 text-right">
+            <span class="inline-flex items-center gap-2 text-pink-600 font-bold text-sm">
+              학습하러 가기 →
+            </span>
+          </div>
+        </div>
+      </a>
     </div>
 
     <!-- 학습 가이드 -->
@@ -304,6 +345,14 @@
             <p class="text-gray-700">컴퓨터를 연결하는 LAN 케이블의 종류를 배우고, 직렬 케이블과 교차 케이블의 차이점과 사용 목적을 이해해보세요.</p>
           </div>
         </div>
+
+        <div class="flex items-start gap-4 bg-gradient-to-r from-pink-50 to-rose-50 p-5 rounded-xl border-l-4 border-pink-500">
+          <div class="w-10 h-10 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">6</div>
+          <div>
+            <h4 class="font-bold text-pink-900 text-lg mb-1">무선 네트워크 이해하기</h4>
+            <p class="text-gray-700">케이블 없이 데이터를 전송하는 WiFi의 원리를 배우고, 무선 네트워크의 표준과 보안 방법을 이해해보세요.</p>
+          </div>
+        </div>
       </div>
 
       <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl mt-6 border border-blue-200">
@@ -336,13 +385,17 @@
             <span class="text-blue-600 font-bold">Q6.</span>
             <span>컴퓨터끼리 직접 연결할 때 어떤 케이블을 사용해야 할까요?</span>
           </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 font-bold">Q7.</span>
+            <span>무선 네트워크는 어떻게 케이블 없이 데이터를 전송할까요?</span>
+          </li>
         </ul>
       </div>
     </div>
 
     <!-- 푸터 -->
     <div class="text-center mt-8 text-white text-sm">
-      <p>부산진여자상업고등학교 정보 학습자료</p>
+      <p>부산진여자상업고등학교 정보 교과 학습자료</p>
       <p class="mt-1 text-indigo-200">© 2024 All rights reserved</p>
     </div>
   </div>
