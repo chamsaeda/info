@@ -32,6 +32,7 @@
     const WirelessNetworkEducation = () => {
       const [selectedTech, setSelectedTech] = useState('ap');
       const [quizAnswers, setQuizAnswers] = useState({});
+      const [showTooltip, setShowTooltip] = useState(false);
 
       const technologies = {
         ap: {
@@ -249,7 +250,22 @@
                 </div>
                 
                 <div className="bg-white p-5 rounded-lg mb-4">
-                  <h3 className="font-bold text-gray-900 mb-2 text-lg">📖 쉬운 설명</h3>
+                  <h3 className="font-bold text-gray-900 mb-2 text-lg relative">
+                    <span 
+                      onClick={() => {
+                        setShowTooltip(true);
+                        setTimeout(() => setShowTooltip(false), 500);
+                      }}
+                      style={{cursor: 'pointer'}}
+                    >
+                      📖
+                    </span> 쉬운 설명
+                    {showTooltip && (
+                      <span className="absolute left-0 -top-5 bg-gray-200 text-black px-2 py-1 rounded text-sm font-normal animate-pulse">
+                        참새다!
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-gray-700 leading-relaxed">{currentTech.description}</p>
                 </div>
 
