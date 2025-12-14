@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>무선 네트워크 기술 - AP, Wi-Fi, Bluetooth, RFID, NFC</title>
+  <title>무선 네트워크 기술 - AP, Wi-Fi, Bluetooth, RFID, NFC, 미러링</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -125,6 +125,24 @@
             '체크인 태그 (호텔, 공연장)',
             '스마트 포스터 (태그하면 정보 확인)'
           ]
+        },
+        mirroring: {
+          icon: '🖥️',
+          name: '미러링',
+          fullName: 'Screen Mirroring (화면 공유)',
+          color: 'cyan',
+          description: '미러링은 스마트폰이나 태블릿의 화면을 TV나 모니터 같은 큰 화면에 그대로 보여주는 기술이에요. 마치 거울(Mirror)처럼 내 화면이 큰 화면에 똑같이 비춰진다고 해서 미러링이라고 불러요. Wi-Fi나 케이블을 통해 화면을 실시간으로 전송합니다.',
+          specs: [
+            { label: '화질', value: 'HD~4K' },
+            { label: '지연시간', value: '매우 적음' },
+            { label: '연결방식', value: 'Wi-Fi/유선' }
+          ],
+          examples: [
+            '스마트폰 사진/동영상을 TV에서 보기',
+            '수업시간에 태블릿 화면을 프로젝터로 보여주기',
+            '게임 화면을 큰 TV로 즐기기',
+            '유튜브를 스마트폰에서 재생하고 TV로 보기'
+          ]
         }
       };
 
@@ -158,6 +176,12 @@
           question: '다음 중 통신 거리가 가장 짧은 기술은?',
           options: ['Wi-Fi (100m)', 'Bluetooth (10m)', 'NFC (4cm)', 'RFID (10m)'],
           correct: 'NFC (10cm)'
+        },
+        {
+          id: 6,
+          question: '스마트폰 화면을 TV에 그대로 보여주는 기술은?',
+          options: ['미러링', 'NFC', 'RFID', 'Bluetooth'],
+          correct: '미러링'
         }
       ];
 
@@ -177,7 +201,8 @@
         indigo: { bg: 'from-indigo-500 to-purple-500', text: 'text-indigo-600', border: 'border-indigo-200', light: 'from-indigo-50 to-purple-50' },
         purple: { bg: 'from-purple-500 to-pink-500', text: 'text-purple-600', border: 'border-purple-200', light: 'from-purple-50 to-pink-50' },
         green: { bg: 'from-green-500 to-emerald-500', text: 'text-green-600', border: 'border-green-200', light: 'from-green-50 to-emerald-50' },
-        orange: { bg: 'from-orange-500 to-red-500', text: 'text-orange-600', border: 'border-orange-200', light: 'from-orange-50 to-red-50' }
+        orange: { bg: 'from-orange-500 to-red-500', text: 'text-orange-600', border: 'border-orange-200', light: 'from-orange-50 to-red-50' },
+        cyan: { bg: 'from-cyan-500 to-blue-500', text: 'text-cyan-600', border: 'border-cyan-200', light: 'from-cyan-50 to-blue-50' }
       };
 
       return (
@@ -344,6 +369,12 @@
                       <td className="p-4">매우 빠름</td>
                       <td className="p-4">결제, 정보 교환</td>
                     </tr>
+                    <tr className="hover:bg-cyan-50">
+                      <td className="p-4 font-bold text-cyan-600">미러링</td>
+                      <td className="p-4">Wi-Fi 범위</td>
+                      <td className="p-4">빠름</td>
+                      <td className="p-4">화면 공유</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -409,6 +440,20 @@
                   <p className="text-sm text-gray-700 leading-relaxed">
                     <span className="font-bold text-indigo-600">Wi-Fi</span>는 주로 인터넷 연결용이고 속도가 빠르지만 전력을 많이 써요.
                     <span className="font-bold text-purple-600"> 블루투스</span>는 기기끼리 직접 연결하는 용도이고, 속도는 느리지만 전력을 적게 사용해 배터리가 오래 간답니다!
+                  </p>
+                </div>
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-cyan-600 mb-3">Q. 미러링은 어떻게 작동할까요?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-bold text-cyan-600">미러링</span>은 주로 Wi-Fi를 사용해요. 스마트폰과 TV가 같은 Wi-Fi에 연결되면,
+                    스마트폰 화면 정보가 실시간으로 TV로 전송되어 큰 화면에 똑같이 보여진답니다!
+                  </p>
+                </div>
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-green-600 mb-3">Q. 미러링과 유튜브 캐스팅의 차이는?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-bold text-cyan-600">미러링</span>은 스마트폰 화면 전체를 보여주지만,
+                    <span className="font-bold text-green-600"> 캐스팅</span>은 특정 앱(유튜브 등)의 영상만 TV로 보내요. 캐스팅은 스마트폰으로 다른 작업도 가능하답니다!
                   </p>
                 </div>
               </div>
