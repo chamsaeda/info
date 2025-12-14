@@ -50,7 +50,7 @@
     </div>
 
     <!-- 학습 카드 그리드 -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <!-- 카드 1: 키보드 입력 -->
       <a href="keyboard.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
         <div class="bg-gradient-to-r from-green-400 to-emerald-500 p-6 text-white">
@@ -215,6 +215,47 @@
         </div>
       </a>
 
+      <!-- 카드 4-1: IP 주소의 종류 (새로 추가) -->
+      <a href="ip1.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
+        <div class="bg-gradient-to-r from-teal-400 to-cyan-500 p-6 text-white">
+          <div class="text-5xl mb-3 icon-animate">🔀</div>
+          <h2 class="text-2xl font-bold mb-2">IP 주소의 종류</h2>
+          <p class="text-teal-50">고정/유동 IP와 공인/사설 IP, NAT</p>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3 text-gray-700 mb-4">
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-teal-600 font-bold text-sm">1</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">고정/유동 IP</span> → 변하지 않는 주소 vs 바뀌는 주소</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-cyan-600 font-bold text-sm">2</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">공인/사설 IP</span> → 인터넷 주소 vs 집 안 주소</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-blue-600 font-bold text-sm">3</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">NAT</span> → 사설 IP를 공인 IP로 변환</p>
+            </div>
+          </div>
+          <div class="bg-teal-50 p-3 rounded-lg border border-teal-200">
+            <p class="text-sm text-teal-800">
+              <span class="font-bold">💡 핵심 개념:</span> 고정/유동 IP, 공인/사설 IP, NAT
+            </p>
+          </div>
+          <div class="mt-4 text-right">
+            <span class="inline-flex items-center gap-2 text-teal-600 font-bold text-sm">
+              학습하러 가기 →
+            </span>
+          </div>
+        </div>
+      </a>
+
       <!-- 카드 5: 유선 네트워크 장비 (수정) -->
       <a href="cable.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
         <div class="bg-gradient-to-r from-yellow-400 to-amber-500 p-6 text-white">
@@ -300,60 +341,7 @@
 
     <!-- 학습 가이드 -->
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mt-8 p-8">
-      <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <span class="text-3xl">📚</span>
-        학습 순서 안내
-      </h3>
       
-      <div class="space-y-4">
-        <div class="flex items-start gap-4 bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border-l-4 border-green-500">
-          <div class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">1</div>
-          <div>
-            <h4 class="font-bold text-green-900 text-lg mb-1">키보드 입력 과정 체험</h4>
-            <p class="text-gray-700">먼저 키보드를 눌렀을 때 컴퓨터 내부에서 일어나는 일을 시뮬레이션으로 체험해보세요. 전기 신호가 어떻게 변하는지 실시간으로 확인할 수 있습니다.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4 bg-gradient-to-r from-orange-50 to-red-50 p-5 rounded-xl border-l-4 border-orange-500">
-          <div class="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">2</div>
-          <div>
-            <h4 class="font-bold text-orange-900 text-lg mb-1">비트와 바이트 개념 학습</h4>
-            <p class="text-gray-700">컴퓨터가 사용하는 데이터의 기본 단위인 비트와 바이트를 배우고, 우리가 일상에서 사용하는 KB, MB, GB 등의 용량 단위를 이해해보세요.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4 bg-gradient-to-r from-indigo-50 to-blue-50 p-5 rounded-xl border-l-4 border-indigo-500">
-          <div class="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">3</div>
-          <div>
-            <h4 class="font-bold text-indigo-900 text-lg mb-1">자물쇠로 경우의 수 이해하기</h4>
-            <p class="text-gray-700">4자리 자물쇠 시뮬레이터를 통해 곱셈 원리와 경우의 수를 직접 체험하며 배워보세요. 비밀번호가 왜 길수록 안전한지 이해할 수 있습니다.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4 bg-gradient-to-r from-cyan-50 to-teal-50 p-5 rounded-xl border-l-4 border-cyan-500">
-          <div class="w-10 h-10 bg-cyan-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">4</div>
-          <div>
-            <h4 class="font-bold text-cyan-900 text-lg mb-1">IP 주소와 네트워크 학습</h4>
-            <p class="text-gray-700">컴퓨터가 인터넷에서 사용하는 고유 주소인 IP 주소를 배우고, IPv4 주소 체계와 네트워크 통신 원리를 이해해보세요.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4 bg-gradient-to-r from-yellow-50 to-amber-50 p-5 rounded-xl border-l-4 border-yellow-500">
-          <div class="w-10 h-10 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">5</div>
-          <div>
-            <h4 class="font-bold text-yellow-900 text-lg mb-1">유선 네트워크 장비 이해하기</h4>
-            <p class="text-gray-700">UTP 케이블, 동축 케이블, 광케이블의 특징을 비교하고, 스위칭 허브와 라우터가 네트워크에서 어떤 역할을 하는지 이해해보세요.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4 bg-gradient-to-r from-pink-50 to-rose-50 p-5 rounded-xl border-l-4 border-pink-500">
-          <div class="w-10 h-10 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">6</div>
-          <div>
-            <h4 class="font-bold text-pink-900 text-lg mb-1">무선 네트워크 기술의 종류</h4>
-            <p class="text-gray-700">AP와 WiFi를 이용한 무선 인터넷, 블루투스의 근거리 통신, RFID와 NFC의 태그 인식 기술 등 다양한 무선 통신 방식의 특징과 활용 사례를 이해해보세요.</p>
-          </div>
-        </div>
-      </div>
 
       <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl mt-6 border border-blue-200">
         <h4 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
@@ -395,7 +383,7 @@
 
     <!-- 푸터 -->
     <div class="text-center mt-8 text-white text-sm">
-      <p>부산진여자상업고등학교 정보 교과 학습자료</p>
+      <p>부산진여자상업고등학교 정보 학습자료</p>
       <p class="mt-1 text-indigo-200">© 2024 All rights reserved</p>
     </div>
   </div>
