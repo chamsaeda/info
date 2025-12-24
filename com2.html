@@ -458,8 +458,8 @@
                         <h3 style="color: #f5576c; margin-bottom: 15px;">🔍 색상 압축 단계별 비교</h3>
                         
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0;">
-                            <div class="image-compare-item" onclick="showImageDetail('sr/1.png', '원본', 92)">
-                                <img src="1.png" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                            <div class="image-compare-item" onclick="showImageDetail('src/1.png', '원본', 92)">
+                                <img src="src/1.png" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">원본 PNG</strong>
                                     <p style="font-size: 0.9em; color: #666;">24비트 (1,677만색)</p>
@@ -468,7 +468,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/256.gif', '256색', 43)">
-                                <img src="256.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/256.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">256색</strong>
                                     <p style="font-size: 0.9em; color: #666;">8비트</p>
@@ -477,7 +477,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/128.gif', '128색', 35)">
-                                <img src="128.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/128.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">128색</strong>
                                     <p style="font-size: 0.9em; color: #666;">7비트</p>
@@ -486,7 +486,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/64.gif', '64색', 26)">
-                                <img src="64.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/64.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">64색</strong>
                                     <p style="font-size: 0.9em; color: #666;">6비트</p>
@@ -495,7 +495,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/32.gif', '32색', 21)">
-                                <img src="32.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/32.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">32색</strong>
                                     <p style="font-size: 0.9em; color: #666;">5비트</p>
@@ -504,7 +504,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/16.gif', '16색', 16)">
-                                <img src="16.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/16.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">16색</strong>
                                     <p style="font-size: 0.9em; color: #666;">4비트</p>
@@ -513,7 +513,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/8.gif', '8색', 11)">
-                                <img src="8.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/8.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">8색</strong>
                                     <p style="font-size: 0.9em; color: #666;">3비트</p>
@@ -522,7 +522,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/4.gif', '4색', 7.2)">
-                                <img src="4.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/4.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">4색</strong>
                                     <p style="font-size: 0.9em; color: #666;">2비트</p>
@@ -531,7 +531,7 @@
                             </div>
 
                             <div class="image-compare-item" onclick="showImageDetail('src/2.gif', '2색', 3.5)">
-                                <img src="2.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <img src="src/2.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
                                 <div style="text-align: center; margin-top: 10px;">
                                     <strong style="color: #f5576c;">2색 (흑백)</strong>
                                     <p style="font-size: 0.9em; color: #666;">1비트</p>
@@ -620,6 +620,110 @@
                         <p>PNG와 GIF는 이런 방식으로 색상 수를 제한해서 파일 크기를 줄여요. 
                         사진보다는 그림이나 로고처럼 색상이 단순한 이미지에 적합해요!</p>
                     </div>
+                </div>
+                <!-- DCT (이산 코사인 변환) 체험 섹션 -->
+                <div class="section">
+                <h2>🌊 이산 코사인 변환(DCT) 체험하기</h2>
+                <div class="info-box">
+                    <h3>💡 DCT란 무엇인가요?</h3>
+                    <p><strong>이산 코사인 변환(Discrete Cosine Transform, DCT)</strong>은 이미지를 주파수 성분으로 변환하는 수학적 기법입니다.</p>
+                    <p>🎵 마치 소리를 높은 음과 낮은 음으로 나누듯이, 이미지도 "자주 변하는 부분(고주파)"과 "천천히 변하는 부분(저주파)"으로 나눌 수 있어요!</p>
+                    <p>📸 <strong>JPEG 이미지 압축의 핵심 기술</strong>이며, 사람 눈에 덜 중요한 고주파 정보를 제거해서 파일 크기를 줄입니다.</p>
+                </div>
+
+                <div class="example-box">
+                    <h3>📤 이미지 업로드</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
+                        <button onclick="document.getElementById('imageUpload').click()">
+                            🖼️ 이미지 선택하기
+                        </button>
+                        <p style="margin-top: 10px; color: #666;">
+                            💡 추천: 풍경 사진이나 사람 얼굴 사진을 업로드해보세요!
+                        </p>
+                    </div>
+
+                    <div class="slider-container">
+                        <label for="qualitySlider">압축 품질 조절:</label>
+                        <input type="range" id="qualitySlider" class="slider" 
+                               min="1" max="100" value="50" 
+                               oninput="updateQuality()">
+                        <div class="value-display" id="qualityValue">50%</div>
+                    </div>
+
+                    <div class="slider-container">
+                        <label for="blockSizeSlider">블록 크기 조절:</label>
+                        <input type="range" id="blockSizeSlider" class="slider" 
+                               min="4" max="32" step="4" value="8" 
+                               oninput="updateBlockSize()">
+                        <div class="value-display" id="blockSizeValue">8x8</div>
+                        <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                            💡 JPEG는 기본적으로 8x8 블록을 사용해요!
+                        </p>
+                    </div>
+
+                    <div class="canvas-container">
+                        <div class="canvas-box">
+                            <h4>원본 이미지</h4>
+                            <canvas id="originalCanvas" width="400" height="300" style="max-width: 100%;"></canvas>
+                        </div>
+                        <div class="canvas-box">
+                            <h4>주파수 영역 (DCT)</h4>
+                            <canvas id="frequencyCanvas" width="400" height="400" style="max-width: 100%;"></canvas>
+                            <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
+                                빨간 박스: 저주파(중요)<br>
+                                밝을수록 큰 값, 회색은 0
+                            </p>
+                        </div>
+                        <div class="canvas-box">
+                            <h4>압축된 이미지</h4>
+                            <canvas id="dctcompressedCanvas" width="400" height="300" style="max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="comparison">
+                        <div class="comparison-item">
+                            <div class="icon">📦</div>
+                            <h4>원본 크기</h4>
+                            <div class="file-size" id="dctOriginalSize">-</div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="icon">💾</div>
+                            <h4>압축 후 크기</h4>
+                            <div class="file-size" id="dctCompressedSize">-</div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="icon">📊</div>
+                            <h4>데이터 보관률</h4>
+                            <div class="file-size" id="dctCompressionRatio">-</div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="icon">✨</div>
+                            <h4>공간 절약</h4>
+                            <div class="file-size" id="dctSavedSpace">-</div>
+                        </div>
+                    </div>
+
+                    <div class="result" id="dctExplanation">
+                        <h4>📚 어떻게 작동하나요?</h4>
+                        <p id="dctExplanationText">
+                            이미지를 업로드하면 DCT가 어떻게 작동하는지 볼 수 있어요!
+                        </p>
+                    </div>
+
+                    <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                        <h4 style="color: #0277bd; margin-bottom: 10px;">🔬 DCT의 비밀</h4>
+                        <p style="line-height: 1.6;">
+                            <strong>1단계:</strong> 이미지를 작은 블록(보통 8x8)으로 나눕니다.<br>
+                            <strong>2단계:</strong> 각 블록을 DCT로 변환하여 주파수 정보를 얻습니다.<br>
+                            <strong>3단계:</strong> 고주파(세밀한 디테일)를 제거합니다 - 사람 눈은 이걸 잘 못봐요!<br>
+                            <strong>4단계:</strong> 역DCT로 이미지로 다시 변환합니다.<br><br>
+                            💡 <strong>왜 효과적일까요?</strong><br>
+                            사람의 눈은 급격한 변화(고주파)보다 완만한 변화(저주파)에 더 민감합니다. 
+                            DCT는 이 특성을 이용해서 중요한 정보만 남기고 나머지를 버려 파일 크기를 줄입니다!
+                        </p>
+                    </div>
+                </div>
                 </div>
             </div>
 
@@ -756,109 +860,7 @@
                 </div>
             </div>
         </div>
-        <!-- DCT (이산 코사인 변환) 체험 섹션 -->
-        <div class="section">
-        <h2>🌊 6. 이산 코사인 변환(DCT) 체험하기</h2>
-        <div class="info-box">
-            <h3>💡 DCT란 무엇인가요?</h3>
-            <p><strong>이산 코사인 변환(Discrete Cosine Transform, DCT)</strong>은 이미지를 주파수 성분으로 변환하는 수학적 기법입니다.</p>
-            <p>🎵 마치 소리를 높은 음과 낮은 음으로 나누듯이, 이미지도 "자주 변하는 부분(고주파)"과 "천천히 변하는 부분(저주파)"으로 나눌 수 있어요!</p>
-            <p>📸 <strong>JPEG 이미지 압축의 핵심 기술</strong>이며, 사람 눈에 덜 중요한 고주파 정보를 제거해서 파일 크기를 줄입니다.</p>
-        </div>
-
-        <div class="example-box">
-            <h3>📤 이미지 업로드</h3>
-            <div style="text-align: center; margin: 20px 0;">
-                <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
-                <button onclick="document.getElementById('imageUpload').click()">
-                    🖼️ 이미지 선택하기
-                </button>
-                <p style="margin-top: 10px; color: #666;">
-                    💡 추천: 풍경 사진이나 사람 얼굴 사진을 업로드해보세요!
-                </p>
-            </div>
-
-            <div class="slider-container">
-                <label for="qualitySlider">압축 품질 조절:</label>
-                <input type="range" id="qualitySlider" class="slider" 
-                       min="1" max="100" value="50" 
-                       oninput="updateQuality()">
-                <div class="value-display" id="qualityValue">50%</div>
-            </div>
-
-            <div class="slider-container">
-                <label for="blockSizeSlider">블록 크기 조절:</label>
-                <input type="range" id="blockSizeSlider" class="slider" 
-                       min="4" max="32" step="4" value="8" 
-                       oninput="updateBlockSize()">
-                <div class="value-display" id="blockSizeValue">8x8</div>
-                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
-                    💡 JPEG는 기본적으로 8x8 블록을 사용해요!
-                </p>
-            </div>
-
-            <div class="canvas-container">
-                <div class="canvas-box">
-                    <h4>원본 이미지</h4>
-                    <canvas id="originalCanvas" width="400" height="300" style="max-width: 100%;"></canvas>
-                </div>
-                <div class="canvas-box">
-                    <h4>주파수 영역 (DCT)</h4>
-                    <canvas id="frequencyCanvas" width="400" height="400" style="max-width: 100%;"></canvas>
-                    <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
-                        빨간 박스: 저주파(중요)<br>
-                        밝을수록 큰 값, 회색은 0
-                    </p>
-                </div>
-                <div class="canvas-box">
-                    <h4>압축된 이미지</h4>
-                    <canvas id="compressedCanvas" width="400" height="300" style="max-width: 100%;"></canvas>
-                </div>
-            </div>
-
-            <div class="comparison">
-                <div class="comparison-item">
-                    <div class="icon">📦</div>
-                    <h4>원본 크기</h4>
-                    <div class="file-size" id="dctOriginalSize">-</div>
-                </div>
-                <div class="comparison-item">
-                    <div class="icon">💾</div>
-                    <h4>압축 후 크기</h4>
-                    <div class="file-size" id="dctCompressedSize">-</div>
-                </div>
-                <div class="comparison-item">
-                    <div class="icon">📊</div>
-                    <h4>데이터 보관률</h4>
-                    <div class="file-size" id="dctCompressionRatio">-</div>
-                </div>
-                <div class="comparison-item">
-                    <div class="icon">✨</div>
-                    <h4>공간 절약</h4>
-                    <div class="file-size" id="dctSavedSpace">-</div>
-                </div>
-            </div>
-
-            <div class="result" id="dctExplanation">
-                <h4>📚 어떻게 작동하나요?</h4>
-                <p id="dctExplanationText">
-                    이미지를 업로드하면 DCT가 어떻게 작동하는지 볼 수 있어요!
-                </p>
-            </div>
-
-            <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                <h4 style="color: #0277bd; margin-bottom: 10px;">🔬 DCT의 비밀</h4>
-                <p style="line-height: 1.6;">
-                    <strong>1단계:</strong> 이미지를 작은 블록(보통 8x8)으로 나눕니다.<br>
-                    <strong>2단계:</strong> 각 블록을 DCT로 변환하여 주파수 정보를 얻습니다.<br>
-                    <strong>3단계:</strong> 고주파(세밀한 디테일)를 제거합니다 - 사람 눈은 이걸 잘 못봐요!<br>
-                    <strong>4단계:</strong> 역DCT로 이미지로 다시 변환합니다.<br><br>
-                    💡 <strong>왜 효과적일까요?</strong><br>
-                    사람의 눈은 급격한 변화(고주파)보다 완만한 변화(저주파)에 더 민감합니다. 
-                    DCT는 이 특성을 이용해서 중요한 정보만 남기고 나머지를 버려 파일 크기를 줄입니다!
-                </p>
-            </div>
-        </div>
+        
 
     </div>
 
@@ -1354,7 +1356,7 @@
             if (!uploadedImage) return;
             
             const originalCanvas = document.getElementById('originalCanvas');
-            const compressedCanvas = document.getElementById('compressedCanvas');
+            const compressedCanvas = document.getElementById('dctcompressedCanvas');
             
             // 원본 이미지 그리기
             const ctx = originalCanvas.getContext('2d');
@@ -1678,7 +1680,7 @@
                 <div class="detail-comparison fade-in">
                     <div class="detail-image">
                         <h4 style="color: #f5576c; margin-bottom: 10px;">원본 (PNG)</h4>
-                        <img src="1.png" alt="원본">
+                        <img src="src/1.png" alt="원본">
                         <p style="margin-top: 10px;"><strong>24비트 (1,677만색)</strong></p>
                         <p style="font-size: 1.2em; color: #059669; font-weight: bold;">92 KB</p>
                     </div>
