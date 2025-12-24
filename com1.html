@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>무손실 압축 체험하기 - RLE, 허프만, 사전 기반, LZ</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      margin: 0;
+      padding: 20px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .pixel-cell {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .pixel-cell:hover {
+      transform: scale(1.1);
+    }
+    .tree-node {
+      position: relative;
+      display: inline-block;
+      padding: 10px 15px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      min-width: 50px;
+      text-align: center;
+      }
+
+    .tree-leaf {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .tree-line {
+      stroke: #64748b;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .tree-label {
+      font-size: 14px;
+      font-weight: bold;
+      fill: #1e293b;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const LosslessCompressionEducation = () => {
+      const [selectedMethod, setSelectedMethod] = useState('rle');
+      const [runlengthInput, setRunlengthInput] = useState('cchaaaammm');
+      const [runlengthResult, setRunlengthResult] = useState(null);
+      const [huffmanInput, setHuffmanInput] = useState('cchaaaammm');
+      const [huffmanResult, setHuffmanResult] = useState(null);
+      const [dictionaryInput, setDictionaryInput] = useState('Sorry Sorry Sorry Sorry\n내가 내가 내가 먼저\n네게 네게 네게 빠져');
+      const [dictionaryResult, setDictionaryResult] = useState(null);
+      const [lzInput, setLzInput] = useState('chamsaechamda');
+      const [lzResult, setLzResult] = useState(null);
+      const [pixels, setPixels] = useState(Array(66).fill('white'));
+      const [currentColor, setCurrentColor] = useState('black');
+      const [imageResult, setImageResult] = useState(null);
+      const [quizAnswers, setQuizAnswers] = useState({});
+
+      const compressionMethods = {
+        rle: {
+          icon: '🔄',
+          name: 'RLE',
+          fullName: 'Run-Length Encoding (런 렝스 부호화)',
+          color: 'cyan',
+          description: '같은 데이터가 연속으로 반복될 때 "문자+개수"로 표현하는 압축 방법이에요. 예를 들어 "aaaaaabbbb"라는 문자열을 "a6b4"로 줄일 수 있어요. 6개의 a와 4개의 b라는 의미죠! 간단하지만 효과적인 압축 방법이에요!',
+          features: [
+            { label: '원리', value: '반복 횟수 기록' },
+            { label: '복원', value: '100% 가능' },
+            { label: '효율', value: '반복 많을수록 좋음' }
+          ],
+          examples: [
+            '흑백 이미지 압축 (같은 색 연속)',
+            '팩스 문서 전송',
+            '단순한 그림 파일',
+            '같은 값이 많은 데이터베이스'
+          ]
+        },
+        huffman: {
+          icon: '🌳',
+          name: '허프만 코딩',
+          fullName: 'Huffman Coding',
+          color: 'blue',
+          description: '허프만 코딩은 자주 나오는 문자에 짧은 코드를 주고, 드물게 나오는 문자에 긴 코드를 주는 방법이에요. 마치 자주 쓰는 단어는 짧게 줄여 쓰는 것처럼요!',
+          features: [
+            { label: '원리', value: '빈도 기반 코드' },
+            { label: '복원', value: '100% 가능' },
+            { label: '효율', value: '빈도 차이 클수록 좋음' }
+          ],
+          examples: [
+            'ZIP 파일 압축',
+            'JPEG 이미지의 일부',
+            '텍스트 파일 압축',
+            '데이터 전송 최적화'
+          ]
+        },
+        dictionary: {
+          icon: '📖',
+          name: '사전 기반',
+          fullName: 'Dictionary-based Compression',
+          color: 'indigo',
+          description: '사전 기반 압축은 자주 나오는 단어나 패턴을 미리 사전에 등록하고, 짧은 기호로 바꾸는 방법이에요. 마치 "ㅋㅋ"을 웃음으로 약속하는 것처럼요!',
+          features: [
+            { label: '원리', value: '패턴을 기호로' },
+            { label: '복원', value: '100% 가능' },
+            { label: '효율', value: '패턴 많을수록 좋음' }
+          ],
+          examples: [
+            '문서 파일 압축',
+            '반복되는 문구가 많은 텍스트',
+            '프로그램 코드',
+            'HTML 웹페이지'
+          ]
+        },
+        lz: {
+          icon: '🔍',
+          name: 'LZ 압축 (LZ77)',
+          fullName: 'Lempel-Ziv Compression',
+          color: 'purple',
+          description: 'LZ 압축은 이전에 나온 데이터를 참조하는 방법이에요. "7칸 전으로 가서 4글자 가져와"처럼 위치와 길이로 표현합니다. ZIP 파일이 이 방법을 사용해요!',
+          features: [
+            { label: '원리', value: '이전 데이터 참조' },
+            { label: '복원', value: '100% 가능' },
+            { label: '효율', value: '패턴 반복 많을수록' }
+          ],
+          examples: [
+            'ZIP, RAR 압축 파일',
+            'PNG 이미지',
+            'GIF 이미지',
+            '소프트웨어 설치 파일'
+          ]
+        }
+      };
+
+      const colorMap = {
+        cyan: { bg: 'from-cyan-400 to-cyan-600', text: 'text-cyan-600', border: 'border-cyan-500' },
+        blue: { bg: 'from-blue-400 to-blue-600', text: 'text-blue-600', border: 'border-blue-500' },
+        indigo: { bg: 'from-indigo-400 to-indigo-600', text: 'text-indigo-600', border: 'border-indigo-500' },
+        purple: { bg: 'from-purple-400 to-purple-600', text: 'text-purple-600', border: 'border-purple-500' }
+      };
+
+      const quizData = [
+        {
+          id: 1,
+          question: '"AAAAABBB"를 "A5B3"으로 압축하는 방법은?',
+          options: ['RLE', '허프만 코딩', 'LZ 압축', '사전 기반'],
+          correct: 'RLE'
+        },
+        {
+          id: 2,
+          question: '자주 나오는 문자에 짧은 코드를 주는 압축 방법은?',
+          options: ['RLE', '허프만 코딩', 'LZ 압축', '사전 기반'],
+          correct: '허프만 코딩'
+        },
+        {
+          id: 3,
+          question: 'ZIP 파일이 주로 사용하는 압축 방법은?',
+          options: ['RLE만', '허프만 코딩만', 'LZ 압축', '사전 기반만'],
+          correct: 'LZ 압축'
+        },
+        {
+          id: 4,
+          question: '무손실 압축의 특징으로 옳은 것은?',
+          options: ['원본을 100% 복원할 수 있다', '원본보다 화질이 좋아진다', '용량이 항상 절반이 된다', '속도가 매우 빠르다'],
+          correct: '원본을 100% 복원할 수 있다'
+        }
+      ];
+
+      const handleQuizAnswer = (quizId, selected, correct) => {
+        setQuizAnswers(prev => ({
+          ...prev,
+          [quizId]: { selected, correct: selected === correct }
+        }));
+      };
+
+      const compressRunLength = () => {
+        if (!runlengthInput) {
+          setRunlengthResult({ error: '텍스트를 입력해주세요!' });
+          return;
+        }
+
+        let compressed = '';
+        let count = 1;
+        let current = runlengthInput[0];
+
+        for (let i = 1; i < runlengthInput.length; i++) {
+          if (runlengthInput[i] === current) {
+            count++;
+          } else {
+            compressed += current + count;
+            current = runlengthInput[i];
+            count = 1;
+          }
+        }
+        compressed += current + count;
+
+        const originalBits = runlengthInput.length * 8;
+        const compressedBits = compressed.length * 8;
+        const ratio = ((1 - compressedBits / originalBits) * 100).toFixed(1);
+
+        let rleMessage = "연속된 같은 색이 많을수록 효과가 좋고, 색이 자주 바뀌면 오히려 데이터가 더 커질 수 있어요.";
+
+        if (parseFloat(ratio) > 0) {
+          rleMessage = "잘 압축됐어요! " + rleMessage;
+        } else if (parseFloat(ratio) < 0) {
+          rleMessage = "색상이 자주 바뀌어서 오히려 커졌네요. " + rleMessage;
+        } else {
+          rleMessage = "압축 효과가 거의 없어요. " + rleMessage;
+        }
+
+        setRunlengthResult({ compressed, originalBits, compressedBits, ratio });
+      };
+
+      // 허프만 트리 시각화 컴포넌트
+      const HuffmanTreeVisualization = ({ tree }) => {
+      if (!tree) return null;
+
+  const calculateTreeLayout = (node, x = 400, y = 50, level = 0, xOffset = 200) => {
+    if (!node) return [];
+
+    const positions = [];
+    const nodeSize = 50;
+    
+    positions.push({
+      x,
+      y,
+      char: node.char,
+      count: node.count,
+      isLeaf: node.char !== null
+    });
+
+    if (node.left) {
+      const leftX = x - xOffset / (level + 1);
+      const leftY = y + 80;
+      positions.push({
+        type: 'line',
+        x1: x,
+        y1: y + nodeSize / 2,
+        x2: leftX,
+        y2: leftY - nodeSize / 2,
+        label: '0'
+      });
+      positions.push(...calculateTreeLayout(node.left, leftX, leftY, level + 1, xOffset));
+    }
+
+    if (node.right) {
+      const rightX = x + xOffset / (level + 1);
+      const rightY = y + 80;
+      positions.push({
+        type: 'line',
+        x1: x,
+        y1: y + nodeSize / 2,
+        x2: rightX,
+        y2: rightY - nodeSize / 2,
+        label: '1'
+      });
+      positions.push(...calculateTreeLayout(node.right, rightX, rightY, level + 1, xOffset));
+    }
+
+    return positions;
+  };
+
+  const elements = calculateTreeLayout(tree);
+  const lines = elements.filter(e => e.type === 'line');
+  const nodes = elements.filter(e => !e.type);
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+      <h4 className="font-bold text-blue-800 mb-4 text-center">🌳 허프만 트리 구조</h4>
+      <svg width="800" height="400" className="mx-auto">
+        {lines.map((line, idx) => (
+          <g key={`line-${idx}`}>
+            <line
+              x1={line.x1}
+              y1={line.y1}
+              x2={line.x2}
+              y2={line.y2}
+              className="tree-line"
+            />
+            <text
+              x={(line.x1 + line.x2) / 2}
+              y={(line.y1 + line.y2) / 2 - 5}
+              className="tree-label"
+              textAnchor="middle"
+            >
+              {line.label}
+            </text>
+          </g>
+        ))}
+
+        {nodes.map((node, idx) => (
+          <g key={`node-${idx}`}>
+            <circle
+              cx={node.x}
+              cy={node.y}
+              r="25"
+              fill={node.isLeaf ? '#10b981' : '#3b82f6'}
+              stroke="#1e293b"
+              strokeWidth="2"
+            />
+            <text
+              x={node.x}
+              y={node.y + 5}
+              textAnchor="middle"
+              fill="white"
+              fontWeight="bold"
+              fontSize="14"
+            >
+              {node.char || node.count}
+            </text>
+            {node.isLeaf && (
+              <text
+                x={node.x}
+                y={node.y + 45}
+                textAnchor="middle"
+                fill="#1e293b"
+                fontSize="12"
+              >
+                빈도: {node.count}
+              </text>
+            )}
+          </g>
+        ))}
+      </svg>
+      <div className="mt-4 text-sm text-gray-600 text-center">
+        <p>💡 <span className="font-bold text-green-600">초록색 원</span>은 실제 문자(리프 노드), <span className="font-bold text-blue-600">파란색 원</span>은 빈도수 합(내부 노드)</p>
+        <p>💡 왼쪽 가지는 <span className="font-bold">0</span>, 오른쪽 가지는 <span className="font-bold">1</span>을 의미해요</p>
+      </div>
+    </div>
+  );
+};
+
+      const compressHuffman = () => {
+        if (!huffmanInput) {
+          setHuffmanResult({ error: '텍스트를 입력해주세요!' });
+          return;
+        }
+
+        // 1단계: 빈도수 계산
+        const freq = {};
+        for (let char of huffmanInput) {
+          freq[char] = (freq[char] || 0) + 1;
+        }
+
+        // 2단계: 노드 생성 (빈도수 오름차순 정렬)
+        let nodes = Object.entries(freq).map(([char, count]) => ({
+          char: char,
+          count: count,
+          left: null,
+          right: null
+        }));
+        nodes.sort((a, b) => a.count - b.count);
+
+        // 3단계: 허프만 트리 구성
+        while (nodes.length > 1) {
+          // 가장 작은 빈도수 2개 꺼내기
+          const left = nodes.shift();
+          const right = nodes.shift();
+          
+          // 새 부모 노드 생성
+          const parent = {
+            char: null,
+            count: left.count + right.count,
+            left: left,
+            right: right
+          };
+          
+          // 부모 노드를 다시 삽입 (정렬된 위치에)
+          let inserted = false;
+          for (let i = 0; i < nodes.length; i++) {
+            if (parent.count <= nodes[i].count) {
+              nodes.splice(i, 0, parent);
+              inserted = true;
+              break;
+            }
+          }
+          if (!inserted) nodes.push(parent);
+        }
+        
+        const tree = nodes[0];  // 트리 저장
+
+        // 4단계: 트리에서 코드 추출
+        const codes = {};
+        const generateCodes = (node, code = '') => {
+          if (node.char !== null) {
+            // 리프 노드 (문자)
+            codes[node.char] = code || '0';
+          } else {
+            // 내부 노드
+            if (node.left) generateCodes(node.left, code + '0');
+            if (node.right) generateCodes(node.right, code + '1');
+          }
+        };
+        
+        if (tree) {
+          generateCodes(tree);
+        }
+        /* if (nodes.length > 0) {
+          generateCodes(nodes[0]);
+        } */
+
+        // 5단계: 압축
+        let compressed = '';
+        for (let char of huffmanInput) {
+          compressed += codes[char];
+        }
+
+        const originalBits = huffmanInput.length * 8;
+        const compressedBits = compressed.length;
+        const ratio = ((1 - compressedBits / originalBits) * 100).toFixed(1);
+
+        // 빈도순 정렬 (결과 표시용)
+        const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+
+        setHuffmanResult({ compressed, codes, sorted, originalBits, compressedBits, ratio, tree: tree, freq: freq });
+      };
+
+       const compressDictionary = () => {
+        if (!dictionaryInput) {
+          setDictionaryResult({ error: '텍스트를 입력해주세요!' });
+          return;
+        }
+
+        // 구두점과 공백을 기준으로 단어 분리
+        const words = dictionaryInput.split(/[\s,.\?!;:]+/).filter(word => word.length > 0);
+        const wordCount = {};
+        words.forEach(word => {
+          wordCount[word] = (wordCount[word] || 0) + 1;
+        });
+
+        // 2번 이상 나온 단어를 사전에 등록
+        const dictionary = {};
+        const symbols = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+        let symbolIndex = 0;
+        Object.keys(wordCount).forEach(word => {
+          if (wordCount[word] >= 2 && symbolIndex < symbols.length) {
+            dictionary[word] = symbols[symbolIndex];
+            symbolIndex++;
+          }
+        });
+
+        // 압축 실행 (긴 단어부터 치환)
+        let compressed = dictionaryInput;
+        const sortedEntries = Object.entries(dictionary).sort((a, b) => b[0].length - a[0].length);
+        sortedEntries.forEach(([word, symbol]) => {
+          compressed = compressed.replaceAll(word, symbol);
+        });
+
+        const ratio = Math.round((1 - compressed.length / dictionaryInput.length) * 100);
+
+        setDictionaryResult({
+          original: dictionaryInput,
+          compressed: compressed,
+          dictionary: dictionary,
+          ratio: ratio > 0 ? ratio : 0
+        });
+      };
+
+      const compressLZ = () => {
+        if (!lzInput) {
+          setLzResult({ error: '텍스트를 입력해주세요!' });
+          return;
+        }
+
+        const MIN_MATCH_LENGTH = 3; // 최소 매칭 길이
+        const WINDOW_SIZE = 100; // 검색 윈도우 크기
+        
+        let compressed = '';
+        let i = 0;
+        const steps = []; // 압축 과정 시각화용
+
+        while (i < lzInput.length) {
+          let bestMatch = { distance: 0, length: 0, position: i };
+          
+          // 현재 위치 이전의 데이터에서 매칭 찾기
+          const searchStart = Math.max(0, i - WINDOW_SIZE);
+          
+          for (let j = searchStart; j < i; j++) {
+            let matchLength = 0;
+            
+            // 현재 위치(i)부터 시작해서 j 위치와 얼마나 매칭되는지 확인
+            while (
+              i + matchLength < lzInput.length &&
+              lzInput[j + matchLength] === lzInput[i + matchLength]
+            ) {
+              matchLength++;
+            }
+            
+            // 더 긴 매칭을 찾으면 업데이트
+            if (matchLength > bestMatch.length) {
+              bestMatch = {
+                distance: i - j,
+                length: matchLength,
+                position: j
+              };
+            }
+          }
+          
+          // 최소 길이 이상 매칭되면 압축, 아니면 그대로 출력
+          if (bestMatch.length >= MIN_MATCH_LENGTH) {
+            compressed += `(${bestMatch.distance},${bestMatch.length})`;
+            steps.push({
+              type: 'match',
+              original: lzInput.substring(i, i + bestMatch.length),
+              compressed: `(${bestMatch.distance},${bestMatch.length})`,
+              position: i
+            });
+            i += bestMatch.length;
+          } else {
+            compressed += lzInput[i];
+            steps.push({
+              type: 'literal',
+              char: lzInput[i],
+              position: i
+            });
+            i++;
+          }
+        }
+
+        const originalBytes = lzInput.length;
+
+        // 압축 크기 계산: 일반 문자는 1바이트, (거리,길이)는 2바이트
+        let compressedBytes = 0;
+        for (let idx = 0; idx < compressed.length; idx++) {
+          if (compressed[idx] === '(') {
+            // (거리,길이) 형태를 찾아서 2바이트로 계산
+            const closeIdx = compressed.indexOf(')', idx);
+            compressedBytes += 2;  // (거리,길이) = 2바이트
+            idx = closeIdx;  // ) 다음으로 이동
+          } else {
+            compressedBytes += 1;  // 일반 문자 = 1바이트
+          }
+        }
+
+        const ratio = ((1 - compressedBytes / originalBytes) * 100).toFixed(1);
+
+        setLzResult({ 
+          compressed, 
+          originalBytes,
+          compressedBytes,
+          ratio,
+          steps 
+        });
+      };
+
+      const paintPixel = (index) => {
+        const newPixels = [...pixels];
+        newPixels[index] = currentColor;
+        setPixels(newPixels);
+      };
+
+      const compressImage = () => {
+        const COLS = 11;
+        const ROWS = 6;
+        let compressedRows = [];
+        let totalCompressed = 0;
+
+        // 각 행별로 RLE 압축 (흰색부터 시작, 번갈아 표시)
+        for (let row = 0; row < ROWS; row++) {
+          let rowData = [];
+          let isWhite = true; // 항상 흰색부터 시작
+          let count = 0;
+
+          for (let col = 0; col < COLS; col++) {
+            const idx = row * COLS + col;
+            const currentIsWhite = pixels[idx] === 'white';
+
+            if (currentIsWhite === isWhite) {
+              count++;
+            } else {
+              // 현재 색상의 개수 기록
+              rowData.push(count);
+              totalCompressed++;
+              // 다음 색상으로 전환
+              isWhite = !isWhite;
+              count = 1;
+            }
+          }
+          // 마지막 색상 개수 기록
+          rowData.push(count);
+          totalCompressed++;
+          
+          compressedRows.push(rowData.join(', '));
+        }
+
+        const originalBits = pixels.length * 1; // 흑백: 1비트/픽셀
+        const compressedBits = totalCompressed * 3; // 0~5 표현에 3비트 필요
+        const ratio = ((1 - compressedBits / originalBits) * 100).toFixed(1);
+
+        let rleMessage = "연속된 같은 색이 많을수록 효과가 좋고, 색이 자주 바뀌면 오히려 데이터가 더 커질 수 있어요.";
+
+        if (parseFloat(ratio) > 0) {
+          rleMessage = "잘 압축됐어요! " + rleMessage;
+        } else if (parseFloat(ratio) < 0) {
+          rleMessage = "색상이 자주 바뀌어서 오히려 커졌네요. " + rleMessage;
+        } else {
+          rleMessage = "압축 효과가 거의 없어요. " + rleMessage;
+        }
+
+        setImageResult({ 
+          compressedRows, 
+          originalBits, 
+          compressedBits, 
+          ratio, 
+          message: rleMessage  // 새로 추가!
+        });
+      };
+
+      const currentMethod = compressionMethods[selectedMethod];
+
+      return (
+        <div className="min-h-screen p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* 헤더 */}
+            <div className="bg-gradient-to-r from-cyan-600 to-blue-600 p-6 text-white rounded-2xl shadow-xl mb-6">
+              <div className="text-sm mb-2 text-cyan-100">부산진여자상업고등학교 정보 학습자료</div>
+              <h1 className="text-3xl font-bold mb-2">🗜️ 무손실 압축 체험하기</h1>
+              <p className="text-cyan-100">데이터를 줄여도 원래대로 복구할 수 있는 마법 같은 기술!</p>
+            </div>
+            {/* 무손실 압축 소개 */}
+            <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-2xl shadow-xl p-6 mb-6">
+              <h2 className="text-2xl font-bold mb-3">💡 무손실 압축이란?</h2>
+              <p className="leading-relaxed text-lg">
+                원본 데이터를 더 작은 용량으로 만들되, <span className="font-bold text-yellow-300">압축을 풀면 원본과 똑같이 복원</span>되는 압축 방법입니다.
+              </p>
+              <div className="mt-4 grid md:grid-cols-3 gap-4">
+                <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl mb-2">📦</div>
+                  <div className="font-bold mb-1 text-gray-800">용도</div>
+                  <div className="text-sm text-gray-700">문서, 프로그램, 데이터베이스</div>
+                </div>
+                <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl mb-2">✨</div>
+                  <div className="font-bold mb-1 text-gray-800">특징</div>
+                  <div className="text-sm text-gray-700">완벽한 복원 가능</div>
+                </div>
+                <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl mb-2">🎯</div>
+                  <div className="font-bold mb-1 text-gray-800">예시</div>
+                  <div className="text-sm text-gray-700">ZIP, PNG, FLAC</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 압축 방법 선택 버튼 */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">🎨 압축 방법 선택하기</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(compressionMethods).map(([key, method]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedMethod(key)}
+                    className={`p-4 rounded-xl font-bold transition-all ${
+                      selectedMethod === key
+                        ? `bg-gradient-to-br ${colorMap[method.color].bg} text-white shadow-lg transform scale-105`
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className="text-3xl mb-2">{method.icon}</div>
+                    <div>{method.name}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 선택된 압축 방법 상세 정보 */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 fade-in">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="text-6xl">{currentMethod.icon}</div>
+                <div>
+                  <h2 className={`text-3xl font-bold ${colorMap[currentMethod.color].text}`}>
+                    {currentMethod.name}
+                  </h2>
+                  <p className="text-gray-600 text-lg">{currentMethod.fullName}</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* 설명 */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl">
+                  
+                  <p className="text-gray-700 leading-relaxed">{currentMethod.description}</p>
+                </div>
+
+                {/* 특징 정보 */}
+                <div className="grid grid-cols-3 gap-4">
+                  {currentMethod.features.map((feature, idx) => (
+                    <div key={idx} className="bg-white p-4 rounded-lg text-center shadow-sm border-2 border-gray-100">
+                      <div className={`text-2xl font-bold ${colorMap[currentMethod.color].text} mb-1`}>
+                        {feature.value}
+                      </div>
+                      <div className="text-sm text-gray-600">{feature.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 실생활 예시 */}
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-orange-200 mt-6">
+                <h3 className="text-xl font-bold text-orange-900 mb-4">💡 실생활 예시</h3>
+                <div className="space-y-3">
+                  {currentMethod.examples.map((example, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className={`w-8 h-8 bg-gradient-to-br ${colorMap[currentMethod.color].bg} text-white rounded-full flex items-center justify-center font-bold flex-shrink-0`}>
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 bg-white p-3 rounded-lg shadow-sm">
+                        <p className="text-gray-700">{example}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 체험하기 섹션 */}
+            {selectedMethod === 'rle' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <h3 className="text-2xl font-bold text-cyan-600 mb-4">🎮 RLE 압축 체험하기</h3>
+                
+                {/* 텍스트 압축 */}
+                <div className="mb-6">
+                  <h4 className="font-bold text-lg mb-3">1️⃣ 텍스트 압축해보기</h4>
+                  <input
+                    type="text"
+                    value={runlengthInput}
+                    onChange={(e) => setRunlengthInput(e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg mb-3 font-mono text-lg"
+                    placeholder="같은 문자가 반복되는 텍스트를 입력하세요"
+                  />
+                  <button
+                    onClick={compressRunLength}
+                    className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
+                  >
+                    압축하기!
+                  </button>
+                  
+                  {runlengthResult && !runlengthResult.error && (
+                    <div className="mt-4 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                      <h4 className="font-bold text-green-800 mb-2">압축 결과:</h4>
+                      <p><strong>원본:</strong> {runlengthInput} ({runlengthInput.length}글자 × 8비트 = {runlengthResult.originalBits}비트)</p>
+                      <p><strong>압축:</strong> {runlengthResult.compressed} ({runlengthResult.compressed.length}글자 × 8비트 = {runlengthResult.compressedBits}비트)</p>
+                      <p className={`text-2xl font-bold mt-2 ${parseFloat(runlengthResult.ratio) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        압축률: {runlengthResult.ratio}% {parseFloat(runlengthResult.ratio) >= 0 ? '절약!' : '증가'} 🎉
+                      </p>
+                      <p className="mt-2 text-sm">💡 같은 문자가 연속될 때 <strong>문자+개수</strong>로 표현했어요.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 이미지 압축 */}
+                <div>
+                  <h4 className="font-bold text-lg mb-3">2️⃣ 이미지 압축해보기 (픽셀 클릭으로 그림 그리기)</h4>
+                  <div className="mb-3 flex gap-2">
+                    <button
+                      onClick={() => setCurrentColor('black')}
+                      className={`px-4 py-2 rounded ${currentColor === 'black' ? 'bg-black text-white' : 'bg-gray-300'}`}
+                    >
+                      검은색
+                    </button>
+                    <button
+                      onClick={() => setCurrentColor('white')}
+                      className={`px-4 py-2 rounded border-2 ${currentColor === 'white' ? 'bg-white border-black' : 'bg-gray-300'}`}
+                    >
+                      흰색
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-6 items-start">
+                    {/* 왼쪽: 픽셀 그리드 */}
+                    <div className="flex flex-col gap-1">
+                      {[0, 1, 2, 3, 4, 5].map(row => (
+                        <div key={`row-${row}`} className="flex gap-1">
+                          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(col => {
+                            const idx = row * 11 + col;
+                            return (
+                              <div
+                                key={idx}
+                                className="pixel-cell"
+                                style={{ 
+                                  backgroundColor: pixels[idx],
+                                  width: '50px',
+                                  height: '50px',
+                                  border: '2px solid #666'
+                                }}
+                                onClick={() => paintPixel(idx)}
+                              />
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 오른쪽: 압축 결과 */}
+                    {imageResult && (
+                      <div className="bg-gray-100 p-4 rounded-lg flex-1 -mt-12">
+                        <h5 className="font-bold text-gray-800 mb-3">행별 RLE 압축 결과:</h5>
+                        <div className="font-mono text-lg space-y-2">
+                          {imageResult.compressedRows.map((row, idx) => (
+                            <div key={idx} className="bg-white p-2 rounded border border-gray-300">
+                              <span className="text-cyan-600 font-bold">{idx + 1}행:</span> {row}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-4 pt-4 border-t-2 border-gray-300">
+                          <p className="text-sm"><strong>원본:</strong> {pixels.length}픽셀 × 1비트 = {imageResult.originalBits}비트</p>
+                          <p className="text-sm"><strong>압축:</strong> {imageResult.compressedBits}비트 (각 숫자 3비트)</p>
+                          <p className={`text-xl font-bold mt-3 ${parseFloat(imageResult.ratio) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            압축률: {imageResult.ratio}% {parseFloat(imageResult.ratio) >= 0 ? '절약!' : '증가'} 🎉
+                          </p>
+                          <p className="mt-3 text-sm text-gray-700 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                            💡 {imageResult.message}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4">
+                    <button
+                      onClick={compressImage}
+                      className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all mr-2"
+                    >
+                      이미지 압축하기!
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPixels(Array(66).fill('white'));
+                        setImageResult(null);
+                      }}
+                      className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-400 transition-all"
+                    >
+                      초기화
+                    </button>
+                  </div>
+
+                  <div className="mt-4 bg-cyan-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      💡 <strong>RLE 압축 규칙:</strong><br/>
+                      • 항상 <strong>흰색부터 시작</strong>하여 흰색과 검은색이 번갈아 나타난다고 가정합니다.<br/>
+                      • 각 숫자는 해당 색상의 연속 개수를 의미합니다.<br/>
+                      • 예: "0, 3, 1, 1" = 흰색 0개, 검은색 3개, 흰색 1개, 검은색 1개<br/>
+                      • 예: "5" = 흰색 5개 (검은색 없음)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedMethod === 'huffman' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <h3 className="text-2xl font-bold text-blue-600 mb-4">🎮 허프만 코딩 체험하기</h3>
+                {/* 여기부터 추가 */}
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-xl mb-4 border border-blue-200">
+                  <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                    <span className="text-2xl">🌲</span>
+                    허프만 트리 만들기 과정
+                  </h4>
+                  <div className="space-y-2 text-gray-700">
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-blue-600 min-w-[24px]">1.</span>
+                      <span>각 문자의 <strong className="text-blue-600">빈도수</strong>를 계산합니다.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-blue-600 min-w-[24px]">2.</span>
+                      <span>빈도수가 <strong className="text-blue-600">낮은 순서</strong>대로 정렬합니다.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-blue-600 min-w-[24px]">3.</span>
+                      <span>가장 낮은 <strong className="text-blue-600">2개를 합쳐</strong> 노드(정점)를 만듭니다.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-blue-600 min-w-[24px]">4.</span>
+                      <span><strong className="text-blue-600">트리가 완성</strong>될 때까지 반복합니다.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-blue-600 min-w-[24px]">5.</span>
+                      <span>왼쪽은 <strong className="text-blue-600">0</strong>, 오른쪽은 <strong className="text-blue-600">1</strong>을 부여합니다.</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <input
+                  type="text"
+                  value={huffmanInput}
+                  onChange={(e) => setHuffmanInput(e.target.value)}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg mb-3 font-mono text-lg"
+                  placeholder="텍스트를 입력하세요 (예: AAABBC)"
+                />
+                <button
+                  onClick={compressHuffman}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
+                >
+                  허프만 압축하기!
+                </button>
+
+                {huffmanResult && !huffmanResult.error && (
+                  <div className="mt-4 space-y-6">
+                    {/* 1단계: 빈도수 표 */}
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                      <h4 className="font-bold text-blue-800 mb-3">📊 1단계: 각 문자의 빈도수 세기</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {huffmanResult.sorted.map(([char, count]) => (
+                          <div key={char} className="bg-white p-3 rounded-lg shadow text-center">
+                            <div className="text-2xl font-bold text-blue-600 mb-1">'{char}'</div>
+                            <div className="text-sm text-gray-600">빈도: {count}번</div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="mt-3 text-sm text-gray-700">💡 문자가 얼마나 자주 나타나는지 세었어요!</p>
+                    </div>
+
+                    {/* 2단계: 허프만 트리 */}
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                      <h4 className="font-bold text-blue-800 mb-3">🌳 2단계: 허프만 트리 만들기</h4>
+                      <HuffmanTreeVisualization tree={huffmanResult.tree} />
+                    </div>
+
+                    {/* 3단계: 허프만 코드 */}
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                      <h4 className="font-bold text-blue-800 mb-3">🔢 3단계: 각 문자의 허프만 코드</h4>
+                      <div className="overflow-x-auto mb-4">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="bg-blue-600 text-white">
+                              <th className="p-3 border">문자</th>
+                              <th className="p-3 border">빈도</th>
+                              <th className="p-3 border">코드</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {huffmanResult.sorted.map(([char, count], idx) => (
+                              <tr key={idx} className="bg-white">
+                                <td className="p-3 border text-center font-bold">{char}</td>
+                                <td className="p-3 border text-center">{count}회</td>
+                                <td className="p-3 border text-center font-mono">{huffmanResult.codes[char]}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <p className="mt-3 text-sm text-gray-700">💡 자주 나오는 문자일수록 짧은 코드를 받았어요!</p>
+                      <p className="text-sm text-gray-700">💡 트리에서 왼쪽으로 가면 0, 오른쪽으로 가면 1을 추가해요!</p>
+                    </div>
+
+                    {/* 4단계: 압축 결과 (기존 코드 유지) */}
+                    <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                      <h4 className="font-bold text-green-800 mb-2">압축 결과:</h4>
+                      <p><strong>원본:</strong> {huffmanInput} ({huffmanInput.length}글자 × 8비트 = {huffmanResult.originalBits}비트)</p>
+                      <p><strong>압축:</strong> {huffmanResult.compressed} ({huffmanResult.compressedBits}비트)</p>
+                      <div className="bg-white p-4 rounded-lg">
+                        <p className="text-2xl font-bold text-green-600 mb-2">
+                          압축률: {huffmanResult.ratio}% 절약! 🎉
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          💡 원본 {huffmanResult.originalBits}비트 → 압축 {huffmanResult.compressedBits}비트로 줄었어요!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedMethod === 'dictionary' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <h3 className="text-2xl font-bold text-indigo-600 mb-4">🎮 사전 기반 압축 체험하기</h3>
+                <p className="text-gray-600 mb-4">자주 나오는 단어를 짧은 기호로 바꿉니다!</p>
+                
+                <textarea
+                  value={dictionaryInput}
+                  onChange={(e) => setDictionaryInput(e.target.value)}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg mb-3 font-mono text-lg"
+                  rows="3"
+                  placeholder="'아리랑'이나 '아라리요'가 포함된 텍스트를 입력하세요"
+                />
+                <button
+                  onClick={compressDictionary}
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
+                >
+                  사전 기반 압축하기!
+                </button>
+
+                {dictionaryResult && !dictionaryResult.error && (
+                  <div className="mt-4 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                    <h4 className="font-bold text-green-800 mb-2">압축 결과:</h4>
+                    <p><strong>원본:</strong> {dictionaryInput} ({dictionaryInput.length}글자)</p>
+                    <p><strong>압축:</strong> {dictionaryResult.compressed} ({dictionaryResult.compressed.length}글자)</p>
+                    
+                    {Object.keys(dictionaryResult.dictionary).length > 0 && (
+                      <div className="mt-3 bg-white p-3 rounded">
+                        <p className="font-bold text-indigo-600 mb-2">📖 생성된 사전:</p>
+                        {Object.entries(dictionaryResult.dictionary).map(([word, symbol]) => (
+                          <div key={word} className="text-sm mb-1">
+                            <code className="bg-indigo-100 px-2 py-1 rounded">{symbol}</code> = "{word}"
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <p className="text-2xl font-bold text-green-600 mt-2">압축률: {dictionaryResult.ratio}% 절약! 🎉</p>
+                    <p className="mt-2 text-sm">💡 반복되는 단어를 <strong>짧은 기호</strong>로 바꿨어요!</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedMethod === 'lz' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <h3 className="text-2xl font-bold text-purple-600 mb-4">🎮 LZ 압축 체험하기</h3>
+                <p className="text-gray-600 mb-4">이전에 나온 데이터를 참조합니다! (예: chamsaechamda)</p>
+                
+                <input
+                  type="text"
+                  value={lzInput}
+                  onChange={(e) => setLzInput(e.target.value)}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg mb-3 font-mono text-lg"
+                  placeholder="반복되는 패턴이 있는 텍스트를 입력하세요"
+                />
+                <button
+                  onClick={compressLZ}
+                  className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
+                >
+                  LZ 압축하기!
+                </button>
+
+                {lzResult && !lzResult.error && (
+  <div className="mt-4 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+    <h4 className="font-bold text-green-800 mb-2">압축 결과:</h4>
+    <p><strong>원본:</strong> {lzInput} ({lzResult.originalBytes}글자)</p>
+    <p><strong>압축:</strong> {lzResult.compressed} ({lzResult.compressedBytes}글자)</p>
+    <p className="text-2xl font-bold text-green-600 mt-2">
+      압축률: {lzResult.ratio}% {parseFloat(lzResult.ratio) >= 0 ? '절약!' : '증가'} 🎉
+    </p>
+    
+    {/* 압축 과정 시각화 */}
+    {lzResult.steps && lzResult.steps.length > 0 && (
+      <div className="mt-4 bg-white p-3 rounded">
+        <p className="font-bold text-purple-600 mb-2">🔍 압축 과정:</p>
+        <div className="space-y-1 text-sm">
+          {lzResult.steps.map((step, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              {step.type === 'match' ? (
+                <>
+                  <span className="text-gray-600">위치 {step.position}:</span>
+                  <code className="bg-yellow-100 px-2 py-1 rounded">"{step.original}"</code>
+                  <span>→</span>
+                  <code className="bg-purple-100 px-2 py-1 rounded">{step.compressed}</code>
+                  <span className="text-xs text-gray-500">(이전 데이터 참조)</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-gray-600">위치 {step.position}:</span>
+                  <code className="bg-gray-100 px-2 py-1 rounded">'{step.char}'</code>
+                  <span className="text-xs text-gray-500">(매칭 없음, 그대로 출력)</span>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    <p className="mt-2 text-sm">💡 <code className="bg-purple-100 px-2 py-1 rounded">(거리,길이)</code>는 "현재 위치에서 왼쪽으로 '거리'만큼 이동한 곳부터 '길이'만큼 가져와라"는 뜻이에요! 2글자로 취급해요.</p>
+    <p className="text-sm mt-1">예: (7,4)는 7칸 왼쪽부터 4글자를 복사한다는 의미입니다.</p>
+  </div>
+)}
+              </div>
+            )}
+
+            {/* 비교표 */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-6 border border-purple-200">
+              <h3 className="text-2xl font-bold text-purple-900 mb-4">📊 압축 방법 비교하기</h3>
+              <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+                    <tr>
+                      <th className="p-4 text-left">압축 방법</th>
+                      <th className="p-4 text-left">원리</th>
+                      <th className="p-4 text-left">장점</th>
+                      <th className="p-4 text-left">대표 활용</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b hover:bg-cyan-50">
+                      <td className="p-4 font-bold text-cyan-600">RLE</td>
+                      <td className="p-4">반복 횟수 기록</td>
+                      <td className="p-4">간단하고 빠름</td>
+                      <td className="p-4">흑백 이미지, 팩스</td>
+                    </tr>
+                    <tr className="border-b hover:bg-blue-50">
+                      <td className="p-4 font-bold text-blue-600">허프만 코딩</td>
+                      <td className="p-4">빈도 기반 코드</td>
+                      <td className="p-4">효율적 압축</td>
+                      <td className="p-4">ZIP, JPEG 일부</td>
+                    </tr>
+                    <tr className="border-b hover:bg-indigo-50">
+                      <td className="p-4 font-bold text-indigo-600">사전 기반</td>
+                      <td className="p-4">패턴을 기호로</td>
+                      <td className="p-4">패턴 압축 우수</td>
+                      <td className="p-4">문서, HTML</td>
+                    </tr>
+                    <tr className="hover:bg-purple-50">
+                      <td className="p-4 font-bold text-purple-600">LZ 압축</td>
+                      <td className="p-4">이전 데이터 참조</td>
+                      <td className="p-4">범용성 높음</td>
+                      <td className="p-4">ZIP, PNG, GIF</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 퀴즈 섹션 */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 mb-6 shadow-lg">
+              <h2 className="text-3xl font-bold text-white text-center mb-6">🎯 퀴즈로 복습하기!</h2>
+              
+              <div className="space-y-4">
+                {quizData.map((quiz) => (
+                  <div key={quiz.id} className="bg-white p-5 rounded-lg shadow-md">
+                    <p className="font-bold text-gray-900 mb-3">Q{quiz.id}. {quiz.question}</p>
+                    <div className="space-y-2">
+                      {quiz.options.map((option, idx) => {
+                        const isAnswered = quizAnswers[quiz.id];
+                        const isSelected = isAnswered?.selected === option;
+                        const isCorrect = option === quiz.correct;
+                        
+                        let bgColor = 'bg-gray-50 hover:bg-gray-100';
+                        if (isAnswered) {
+                          if (isSelected && isCorrect) bgColor = 'bg-green-100 border-2 border-green-500';
+                          else if (isSelected && !isCorrect) bgColor = 'bg-red-100 border-2 border-red-500';
+                          else if (isCorrect) bgColor = 'bg-green-100 border-2 border-green-500';
+                        }
+                        
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => !isAnswered && handleQuizAnswer(quiz.id, option, quiz.correct)}
+                            className={`p-3 rounded-lg ${bgColor} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'} transition-all`}
+                          >
+                            <span className="font-semibold">{'①②③④'[idx]}</span> {option}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {quizAnswers[quiz.id] && (
+                      <div className={`mt-3 p-3 rounded-lg ${quizAnswers[quiz.id].correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+                        {quizAnswers[quiz.id].correct 
+                          ? '✅ 정답입니다! 잘 이해하고 있어요! 👏' 
+                          : '❌ 아쉬워요! 위의 설명을 다시 읽어보세요. 💪'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 생각해보기 섹션 */}
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-6 border border-cyan-200">
+              <h3 className="text-2xl font-bold text-cyan-900 mb-4">🤔 생각해보기</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-cyan-600 mb-3">Q. 무손실 압축과 손실 압축의 차이는?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-bold text-cyan-600">무손실 압축</span>은 원본을 100% 복원할 수 있어요. 문서, 프로그램처럼 정확해야 하는 파일에 사용합니다.
+                    <span className="font-bold text-orange-600"> 손실 압축</span>은 일부 정보를 버려서 더 작게 만들어요. 사진, 음악, 동영상처럼 약간의 손실이 괜찮은 파일에 사용합니다.
+                  </p>
+                </div>
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-blue-600 mb-3">Q. ZIP 파일은 어떤 압축을 사용하나요?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-bold text-blue-600">ZIP 파일</span>은 주로 LZ 압축과 허프만 코딩을 함께 사용해요.
+                    먼저 LZ로 반복 패턴을 찾고, 그 다음 허프만 코딩으로 빈도가 높은 데이터를 더 압축합니다!
+                  </p>
+                </div>
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-indigo-600 mb-3">Q. 압축률은 항상 좋을까요?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    아니요! <span className="font-bold text-indigo-600">반복이나 패턴이 적은 데이터</span>는 압축률이 낮아요.
+                    예를 들어 완전히 랜덤한 데이터나 이미 압축된 파일은 더 이상 압축이 안 될 수 있어요.
+                  </p>
+                </div>
+                <div className="bg-white p-5 rounded-lg shadow-sm">
+                  <h4 className="font-bold text-purple-600 mb-3">Q. 실생활에서 무손실 압축을 어디에 쓸까요?</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-bold text-purple-600">문서 전송</span>, <span className="font-bold text-cyan-600">프로그램 설치파일</span>,
+                    <span className="font-bold text-green-600"> 의료 이미지</span>, <span className="font-bold text-orange-600">법률 문서</span> 등
+                    원본이 중요한 모든 곳에서 사용됩니다!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<LosslessCompressionEducation />);
+  </script>
+</body>
+</html>

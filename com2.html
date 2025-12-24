@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>손실 압축 체험하기 - 부산진여자상업고등학교</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        /* 헤더 스타일 */
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+        
+        .school-name {
+            font-size: 0.8em;      
+            
+            opacity: 0.95;
+        }
+        
+        .main-title {
+            font-size: 2.0em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        /* 콘텐츠 영역 */
+        .content {
+            padding: 30px;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+        
+        .info-box h2 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #f5576c;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section h2 {
+            color: #f5576c;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .example-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(245, 87, 108, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #fff0f6 0%, #ffe4ec 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #f5576c;
+        }
+        
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .canvas-box {
+            text-align: center;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: crosshair;
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #f5576c;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #f5576c;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .value-display {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 10px 0;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .comparison-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.3);
+        }
+        
+        .comparison-item h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        
+        .file-size {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 10px 0;
+        }
+        
+        .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .compression-ratio {
+            font-size: 1.2em;
+            color: #059669;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .highlight {
+            background: linear-gradient(to right, #fff0f6, #ffe4ec);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #f5576c;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            background: #e9ecef;
+            color: #495057;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: #d1f2eb;
+            border-left: 4px solid #059669;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            border: 3px solid #ddd;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: #f5576c;
+        }
+
+        .color-option.selected {
+            border-color: #f5576c;
+            box-shadow: 0 0 10px rgba(245, 87, 108, 0.5);
+            transform: scale(1.1);
+        }
+
+        .compression-visual {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .bar-container {
+            margin: 15px 0;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .bar {
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-weight: bold;
+            color: white;
+            transition: width 0.5s ease;
+        }
+
+        .bar-original {
+            background: linear-gradient(to right, #dc2626, #ef4444);
+            width: 100%;
+        }
+
+        .bar-compressed {
+            background: linear-gradient(to right, #059669, #10b981);
+        }
+
+        .image-compare-item {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .image-compare-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .image-compare-item img {
+            transition: transform 0.3s;
+        }
+
+        .image-compare-item:hover img {
+            transform: scale(1.05);
+        }
+
+        #imageDetailResult {
+            margin-top: 20px;
+        }
+
+        .detail-comparison {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .detail-image {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .detail-image img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="school-name">부산진여자상업고등학교</div>
+            <div class="main-title">🎨 손실 압축 체험하기</div>
+            <div class="subtitle">이미지와 영상, 음악 파일이 어떻게 작아지는지 직접 체험해봐요!</div>
+        </div>
+
+        <div class="content">
+            <div class="info-box fade-in">
+                <h2>💡 손실 압축이란?</h2>
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    파일을 작게 만들기 위해 일부 데이터를 버리는 방법이에요. 
+                    사람의 눈이나 귀로는 잘 느끼지 못하는 부분을 제거해서 파일 크기를 확 줄일 수 있어요!
+                </p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('imageTab')">🖼️ 이미지 압축</button>
+                <button class="tab-button" onclick="showTab('videoTab')">🎬 영상 압축</button>
+                <button class="tab-button" onclick="showTab('audioTab')">🎵 음악 압축</button>
+            </div>
+
+            <!-- 이미지 압축 탭 -->
+            <div id="imageTab" class="tab-content active">
+                <div class="section fade-in">
+                    <h2>📸 실제 이미지 압축 비교하기</h2>
+                    <p style="margin-bottom: 20px;">
+                        같은 사진을 다양한 색상 수로 압축했을 때 어떻게 변하는지 직접 비교해봐요!
+                    </p>
+
+                    <div class="example-box">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">🔍 색상 압축 단계별 비교</h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0;">
+                            <div class="image-compare-item" onclick="showImageDetail('1.png', '원본', 92)">
+                                <img src="1.png" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">원본 PNG</strong>
+                                    <p style="font-size: 0.9em; color: #666;">24비트 (1,677만색)</p>
+                                    <p style="font-weight: bold; color: #059669;">92 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('256.gif', '256색', 43)">
+                                <img src="256.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">256색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">8비트</p>
+                                    <p style="font-weight: bold; color: #059669;">43 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('128.gif', '128색', 35)">
+                                <img src="128.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">128색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">7비트</p>
+                                    <p style="font-weight: bold; color: #059669;">35 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('64.gif', '64색', 26)">
+                                <img src="64.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">64색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">6비트</p>
+                                    <p style="font-weight: bold; color: #059669;">26 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('32.gif', '32색', 21)">
+                                <img src="32.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">32색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">5비트</p>
+                                    <p style="font-weight: bold; color: #059669;">21 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('16.gif', '16색', 16)">
+                                <img src="16.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">16색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">4비트</p>
+                                    <p style="font-weight: bold; color: #059669;">16 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('8.gif', '8색', 11)">
+                                <img src="8.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">8색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">3비트</p>
+                                    <p style="font-weight: bold; color: #059669;">11 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('4.gif', '4색', 7.2)">
+                                <img src="4.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">4색</strong>
+                                    <p style="font-size: 0.9em; color: #666;">2비트</p>
+                                    <p style="font-weight: bold; color: #059669;">7.2 KB</p>
+                                </div>
+                            </div>
+
+                            <div class="image-compare-item" onclick="showImageDetail('2.gif', '2색', 3.5)">
+                                <img src="2.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <strong style="color: #f5576c;">2색 (흑백)</strong>
+                                    <p style="font-size: 0.9em; color: #666;">1비트</p>
+                                    <p style="font-weight: bold; color: #059669;">3.5 KB</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="imageDetailResult"></div>
+
+                        <div class="compression-visual" style="margin-top: 30px;">
+                            <h4 style="color: #f5576c; margin-bottom: 15px;">📊 파일 크기 변화 그래프</h4>
+                            <div style="position: relative; height: 300px; background: #f8f9fa; border-radius: 10px; padding: 20px;">
+                                <canvas id="compressionChart" width="800" height="260"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="success" style="margin-top: 20px;">
+                            <h4>💡 관찰해보세요!</h4>
+                            <p>✅ 색상 수가 줄어들수록 파일 크기도 작아져요</p>
+                            <p>✅ 256색까지는 사진의 품질이 크게 나빠지지 않아요</p>
+                            <p>✅ 16색 이하로 줄어들면 사진의 디테일이 많이 손실돼요</p>
+                            <p>✅ 2색(흑백)은 원본의 3.8%만 차지해요! (92KB → 3.5KB)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section fade-in">
+                    <h2>🎨 색상 압축 체험하기 (PNG/GIF 방식)</h2>
+                    <p style="margin-bottom: 20px;">
+                        직접 그림을 그리고 색상 수를 줄여보면서 압축 효과를 체험해봐요!
+                    </p>
+
+                    <div class="example-box">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">🎨 그림 그리기</h3>
+                        
+                        <div class="color-palette">
+                            <div class="color-option selected" style="background: black;" onclick="selectColor('black', this)"></div>
+                            <div class="color-option" style="background: red;" onclick="selectColor('red', this)"></div>
+                            <div class="color-option" style="background: orange;" onclick="selectColor('orange', this)"></div>
+                            <div class="color-option" style="background: yellow;" onclick="selectColor('yellow', this)"></div>
+                            <div class="color-option" style="background: green;" onclick="selectColor('green', this)"></div>
+                            <div class="color-option" style="background: blue;" onclick="selectColor('blue', this)"></div>
+                            <div class="color-option" style="background: purple;" onclick="selectColor('purple', this)"></div>
+                        </div>
+
+                        <div style="text-align: center; margin: 20px 0;">
+                            <button onclick="drawRainbow()">🌈 무지개 그리기</button>
+                            <button onclick="clearCanvas()">🗑️ 지우기</button>
+                        </div>
+
+                        <div class="slider-container">
+                            <label><strong>색상 수 선택:</strong></label>
+                            <input type="range" 
+                                   id="colorCountSlider" 
+                                   class="slider" 
+                                   min="1" 
+                                   max="4" 
+                                   value="4" 
+                                   oninput="updateColorCount()">
+                            <div class="value-display">
+                                <span id="colorCountValue">16</span> 색상
+                            </div>
+                        </div>
+
+                        <div class="canvas-container">
+                            <div class="canvas-box">
+                                <h4>원본</h4>
+                                <canvas id="drawCanvas" width="300" height="300"></canvas>
+                            </div>
+                            <div class="canvas-box">
+                                <h4>압축 후</h4>
+                                <canvas id="compressedCanvas" width="300" height="300"></canvas>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button onclick="compressColors()">🎯 색상 압축 실행</button>
+                        </div>
+
+                        <div id="colorResult"></div>
+                    </div>
+
+                    <div class="success">
+                        <h4>💡 알아두세요!</h4>
+                        <p>PNG와 GIF는 이런 방식으로 색상 수를 제한해서 파일 크기를 줄여요. 
+                        사진보다는 그림이나 로고처럼 색상이 단순한 이미지에 적합해요!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 영상 압축 탭 -->
+            <div id="videoTab" class="tab-content">
+                <div class="section fade-in">
+                    <h2>🎬 영상 압축 체험하기 (MPEG 방식)</h2>
+                    <p style="margin-bottom: 20px;">
+                        연속된 프레임에서 변화가 있는 부분만 저장하는 방식이에요.
+                        배경은 그대로이고 사람만 움직이면 사람 부분만 저장하면 되겠죠?
+                    </p>
+
+                    <div class="example-box">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">⏱️ 연속된 장면 만들기</h3>
+                        <p>각 프레임에 그림을 그리고 변화를 감지해보세요!</p>
+
+                        <div class="canvas-container">
+                            <div class="canvas-box">
+                                <h4>프레임 1</h4>
+                                <canvas id="frame1Canvas" width="250" height="250"></canvas>
+                            </div>
+                            <div class="canvas-box">
+                                <h4>프레임 2</h4>
+                                <canvas id="frame2Canvas" width="250" height="250"></canvas>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button onclick="clearFrame1()">프레임 1 지우기</button>
+                            <button onclick="clearFrame2()">프레임 2 지우기</button>
+                            <button onclick="detectChanges()">🔍 변화 감지하기</button>
+                        </div>
+
+                        <div id="frameResult"></div>
+                    </div>
+
+                    <div class="note">
+                        <h4>💡 영상 압축의 비밀!</h4>
+                        <p>MPEG 같은 영상 압축은 이전 프레임과 비교해서 변한 부분만 저장해요. 
+                        그래서 정지된 배경이 많은 영상일수록 압축이 잘 돼요!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 음악 압축 탭 -->
+            <div id="audioTab" class="tab-content">
+                <div class="section fade-in">
+                    <h2>🎵 음악 압축 체험하기 (MP3 방식)</h2>
+                    <p style="margin-bottom: 20px;">
+                        사람의 귀로 잘 들리지 않는 소리를 제거하는 방식이에요!
+                    </p>
+
+                    <div class="example-box">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">👂 소리의 주파수</h3>
+                        <p>사람은 약 20Hz ~ 20,000Hz 사이의 소리를 들을 수 있어요.</p>
+
+                        <canvas id="waveCanvas" width="600" height="200"></canvas>
+
+                        <div class="slider-container">
+                            <label><strong>주파수:</strong></label>
+                            <input type="range" 
+                                   id="freqSlider" 
+                                   class="slider" 
+                                   min="20" 
+                                   max="20000" 
+                                   value="440" 
+                                   oninput="updateFrequency()">
+                            <div class="value-display">
+                                <span id="freqValue">440</span> Hz
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin: 20px 0;">
+                            <button onclick="playTone()">▶️ 소리 들어보기 (3초)</button>
+                            <button onclick="stopTone()">⏹️ 정지</button>
+                        </div>
+
+                        <div class="warning">
+                            <p>⚠️ 높은 주파수는 귀가 아플 수 있으니 볼륨을 낮춰주세요!</p>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">💿 비트레이트와 음질</h3>
+                        <p>비트레이트가 높을수록 음질이 좋지만 파일 크기도 커져요.</p>
+
+                        <div class="slider-container">
+                            <label><strong>비트레이트:</strong></label>
+                            <input type="range" 
+                                   id="bitrateSlider" 
+                                   class="slider" 
+                                   min="64" 
+                                   max="320" 
+                                   step="32" 
+                                   value="128" 
+                                   oninput="updateBitrate()">
+                            <div class="value-display">
+                                <span id="bitrateValue">128</span> kbps
+                            </div>
+                        </div>
+
+                        <div id="bitrateResult" class="result">
+                            <p><strong>128 kbps:</strong> 일반적인 음질, 대부분 사람들이 만족</p>
+                            <p><strong>예상 파일 크기 (3분 곡):</strong> 약 2.8 MB</p>
+                        </div>
+                    </div>
+
+                    <div class="success">
+                        <h4>💡 MP3의 비밀!</h4>
+                        <p>MP3는 사람의 귀로 잘 들리지 않는 주파수나 작은 소리를 제거해요. 
+                        그래서 원본 CD 음질보다 10분의 1 정도로 작아져도 거의 차이를 느낄 수 없답니다!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison fade-in">
+                <div class="comparison-item">
+                    <div class="icon">🖼️</div>
+                    <h4>이미지 압축</h4>
+                    <p>PNG, GIF: 색상 수 제한</p>
+                    <p class="file-size">2~10배 압축</p>
+                </div>
+                <div class="comparison-item">
+                    <div class="icon">🎬</div>
+                    <h4>영상 압축</h4>
+                    <p>MPEG: 변화 부분만 저장</p>
+                    <p class="file-size">10~50배 압축</p>
+                </div>
+                <div class="comparison-item">
+                    <div class="icon">🎵</div>
+                    <h4>음악 압축</h4>
+                    <p>MP3: 안 들리는 소리 제거</p>
+                    <p class="file-size">10~12배 압축</p>
+                </div>
+            </div>
+        </div>
+        <!-- DCT (이산 코사인 변환) 체험 섹션 -->
+        <div class="section">
+        <h2>🌊 6. 이산 코사인 변환(DCT) 체험하기</h2>
+        <div class="info-box">
+            <h3>💡 DCT란 무엇인가요?</h3>
+            <p><strong>이산 코사인 변환(Discrete Cosine Transform, DCT)</strong>은 이미지를 주파수 성분으로 변환하는 수학적 기법입니다.</p>
+            <p>🎵 마치 소리를 높은 음과 낮은 음으로 나누듯이, 이미지도 "자주 변하는 부분(고주파)"과 "천천히 변하는 부분(저주파)"으로 나눌 수 있어요!</p>
+            <p>📸 <strong>JPEG 이미지 압축의 핵심 기술</strong>이며, 사람 눈에 덜 중요한 고주파 정보를 제거해서 파일 크기를 줄입니다.</p>
+        </div>
+
+        <div class="example-box">
+            <h3>📤 이미지 업로드</h3>
+            <div style="text-align: center; margin: 20px 0;">
+                <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
+                <button onclick="document.getElementById('imageUpload').click()">
+                    🖼️ 이미지 선택하기
+                </button>
+                <p style="margin-top: 10px; color: #666;">
+                    💡 추천: 풍경 사진이나 사람 얼굴 사진을 업로드해보세요!
+                </p>
+            </div>
+
+            <div class="slider-container">
+                <label for="qualitySlider">압축 품질 조절:</label>
+                <input type="range" id="qualitySlider" class="slider" 
+                       min="1" max="100" value="50" 
+                       oninput="updateQuality()">
+                <div class="value-display" id="qualityValue">50%</div>
+            </div>
+
+            <div class="slider-container">
+                <label for="blockSizeSlider">블록 크기 조절:</label>
+                <input type="range" id="blockSizeSlider" class="slider" 
+                       min="4" max="32" step="4" value="8" 
+                       oninput="updateBlockSize()">
+                <div class="value-display" id="blockSizeValue">8x8</div>
+                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                    💡 JPEG는 기본적으로 8x8 블록을 사용해요!
+                </p>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-box">
+                    <h4>원본 이미지</h4>
+                    <canvas id="originalCanvas" width="400" height="300" style="max-width: 100%;"></canvas>
+                </div>
+                <div class="canvas-box">
+                    <h4>주파수 영역 (DCT)</h4>
+                    <canvas id="frequencyCanvas" width="400" height="400" style="max-width: 100%;"></canvas>
+                    <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
+                        빨간 박스: 저주파(중요)<br>
+                        밝을수록 큰 값, 회색은 0
+                    </p>
+                </div>
+                <div class="canvas-box">
+                    <h4>압축된 이미지</h4>
+                    <canvas id="compressedCanvas" width="400" height="300" style="max-width: 100%;"></canvas>
+                </div>
+            </div>
+
+            <div class="comparison">
+                <div class="comparison-item">
+                    <div class="icon">📦</div>
+                    <h4>원본 크기</h4>
+                    <div class="file-size" id="dctOriginalSize">-</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="icon">💾</div>
+                    <h4>압축 후 크기</h4>
+                    <div class="file-size" id="dctCompressedSize">-</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="icon">📊</div>
+                    <h4>데이터 보관률</h4>
+                    <div class="file-size" id="dctCompressionRatio">-</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="icon">✨</div>
+                    <h4>공간 절약</h4>
+                    <div class="file-size" id="dctSavedSpace">-</div>
+                </div>
+            </div>
+
+            <div class="result" id="dctExplanation">
+                <h4>📚 어떻게 작동하나요?</h4>
+                <p id="dctExplanationText">
+                    이미지를 업로드하면 DCT가 어떻게 작동하는지 볼 수 있어요!
+                </p>
+            </div>
+
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <h4 style="color: #0277bd; margin-bottom: 10px;">🔬 DCT의 비밀</h4>
+                <p style="line-height: 1.6;">
+                    <strong>1단계:</strong> 이미지를 작은 블록(보통 8x8)으로 나눕니다.<br>
+                    <strong>2단계:</strong> 각 블록을 DCT로 변환하여 주파수 정보를 얻습니다.<br>
+                    <strong>3단계:</strong> 고주파(세밀한 디테일)를 제거합니다 - 사람 눈은 이걸 잘 못봐요!<br>
+                    <strong>4단계:</strong> 역DCT로 이미지로 다시 변환합니다.<br><br>
+                    💡 <strong>왜 효과적일까요?</strong><br>
+                    사람의 눈은 급격한 변화(고주파)보다 완만한 변화(저주파)에 더 민감합니다. 
+                    DCT는 이 특성을 이용해서 중요한 정보만 남기고 나머지를 버려 파일 크기를 줄입니다!
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 전역 변수
+        let isDrawing = false;
+        let currentColor = 'black';
+        let audioContext = null;
+        let oscillator = null;
+        let gainNode = null;
+
+        // 캔버스 설정
+        const drawCanvas = document.getElementById('drawCanvas');
+        const drawCtx = drawCanvas.getContext('2d');
+        const compressedCanvas = document.getElementById('compressedCanvas');
+        const compressedCtx = compressedCanvas.getContext('2d');
+
+        // 초기 캔버스 배경색 설정
+        drawCtx.fillStyle = 'white';
+        drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+        compressedCtx.fillStyle = 'white';
+        compressedCtx.fillRect(0, 0, compressedCanvas.width, compressedCanvas.height);
+
+        // 그리기 이벤트
+        drawCanvas.addEventListener('mousedown', startDrawing);
+        drawCanvas.addEventListener('mousemove', draw);
+        drawCanvas.addEventListener('mouseup', stopDrawing);
+        drawCanvas.addEventListener('mouseout', stopDrawing);
+
+        // 터치 이벤트
+        drawCanvas.addEventListener('touchstart', handleTouchStart);
+        drawCanvas.addEventListener('touchmove', handleTouchMove);
+        drawCanvas.addEventListener('touchend', stopDrawing);
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            isDrawing = true;
+            drawCtx.beginPath();
+            drawCtx.moveTo(x, y);
+        }
+
+        function handleTouchMove(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            drawCtx.lineTo(x, y);
+            drawCtx.strokeStyle = currentColor;
+            drawCtx.lineWidth = 3;
+            drawCtx.lineCap = 'round';
+            drawCtx.stroke();
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            drawCtx.beginPath();
+            drawCtx.moveTo(x, y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            drawCtx.lineTo(x, y);
+            drawCtx.strokeStyle = currentColor;
+            drawCtx.lineWidth = 3;
+            drawCtx.lineCap = 'round';
+            drawCtx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            drawCtx.beginPath();
+        }
+
+        function selectColor(color, element) {
+            currentColor = color;
+            document.querySelectorAll('.color-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        function clearCanvas() {
+            drawCtx.fillStyle = 'white';
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+            compressedCtx.fillStyle = 'white';
+            compressedCtx.fillRect(0, 0, compressedCanvas.width, compressedCanvas.height);
+            document.getElementById('colorResult').innerHTML = '';
+        }
+
+        // 5.html의 무지개 그리기 함수 적용
+        function drawRainbow() {
+            const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+            const h = drawCanvas.height / colors.length;
+
+            colors.forEach((c, i) => {
+                drawCtx.fillStyle = c;
+                drawCtx.fillRect(0, i * h, drawCanvas.width, h);
+            });
+        }
+
+        function updateColorCount() {
+            const value = document.getElementById('colorCountSlider').value;
+            const colorCount = Math.pow(2, value);
+            document.getElementById('colorCountValue').textContent = colorCount;
+        }
+
+        // 5.html의 정확한 무지개 팔레트 사용
+        const RAINBOW_PALETTE = [
+            [255, 0, 0],      // red
+            [255, 165, 0],    // orange
+            [255, 255, 0],    // yellow
+            [0, 128, 0],      // green
+            [0, 0, 255],      // blue
+            [75, 0, 130],     // indigo
+            [238, 130, 238]   // violet
+        ];
+
+        function getPalette(colorCount) {
+            if (colorCount >= 8) {
+                return RAINBOW_PALETTE;
+            } else if (colorCount === 4) {
+                return [
+                    [255, 0, 0],    // red
+                    [255, 255, 0],  // yellow
+                    [0, 128, 0],    // green
+                    [0, 0, 255]     // blue
+                ];
+            } else {
+                return [
+                    [0, 0, 0],      // black
+                    [255, 255, 255] // white
+                ];
+            }
+        }
+
+        function findClosestColor(r, g, b, palette) {
+            let minDistance = Infinity;
+            let closestColor = palette[0];
+
+            for (const [pr, pg, pb] of palette) {
+                const distance = Math.pow(r - pr, 2) + Math.pow(g - pg, 2) + Math.pow(b - pb, 2);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestColor = [pr, pg, pb];
+                }
+            }
+
+            return closestColor;
+        }
+
+        function isExactMatch(r, g, b, palette) {
+            for (const [pr, pg, pb] of palette) {
+                if (r === pr && g === pg && b === pb) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function compressColors() {
+            const canvas = document.getElementById('drawCanvas');
+            const compressedCanvas = document.getElementById('compressedCanvas');
+            const compressedCtx = compressedCanvas.getContext('2d');
+
+            compressedCtx.drawImage(canvas, 0, 0);
+
+            const imageData = compressedCtx.getImageData(0, 0, compressedCanvas.width, compressedCanvas.height);
+            const data = imageData.data;
+            
+            const sliderValue = parseInt(document.getElementById('colorCountSlider').value);
+            const colorCount = Math.pow(2, sliderValue);
+            
+            let actualColors, levelsText;
+
+            if (colorCount === 2) {
+                actualColors = 2;
+                levelsText = '흑백 (2색)';
+            } else if (colorCount === 4) {
+                actualColors = 4;
+                levelsText = '기본 4색';
+            } else {
+                actualColors = colorCount;
+                levelsText = `무지개 ${colorCount}색`;
+            }
+
+            const palette = getPalette(colorCount);
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                if (isExactMatch(r, g, b, palette)) continue;
+
+                const [nr, ng, nb] = findClosestColor(r, g, b, palette);
+                data[i] = nr;
+                data[i + 1] = ng;
+                data[i + 2] = nb;
+            }
+
+            compressedCtx.putImageData(imageData, 0, 0);
+            
+            const originalColors = 16777216;
+            const imagePixels = canvas.width * canvas.height;
+            const bitsPerPixel = Math.ceil(Math.log2(actualColors));
+            const dataSizeReduction = ((1 - bitsPerPixel / 24) * 100).toFixed(1);
+            const colorReductionFactor = Math.round(originalColors / actualColors).toLocaleString();
+            const originalSizeBytes = imagePixels * 3;
+            const compressedSizeBytes = Math.ceil((imagePixels * bitsPerPixel) / 8);
+            const originalSize = (originalSizeBytes / (1024 * 1024)).toFixed(2);
+            const compressedSize = (compressedSizeBytes / (1024 * 1024)).toFixed(2);
+            const savedSizeMB = ((originalSizeBytes - compressedSizeBytes) / (1024 * 1024)).toFixed(2);
+            const barWidth = Math.max(5, (compressedSizeBytes / originalSizeBytes * 100)).toFixed(1);
+
+            document.getElementById('colorResult').innerHTML = `
+                <div class="result">
+                    <h4>압축 결과:</h4>
+                    <p><strong>원본:</strong> 약 1,677만 가지 색상 사용 가능 (24비트)</p>
+                    <p><strong>압축 후:</strong> 약 ${actualColors.toLocaleString()}가지 색상 (${bitsPerPixel}비트, ${levelsText})</p>
+                    <p><strong>색상 감소:</strong> ${colorReductionFactor}분의 1로 줄어듦!</p>
+                    <p class="compression-ratio">데이터 크기 ${dataSizeReduction}% 절약! 🎉</p>
+                    <p style="margin-top:10px;">💡 24비트 → ${bitsPerPixel}비트로 줄어서 파일이 작아져요!</p>
+                </div>
+                
+                <div class="compression-visual">
+                    <h4 style="color: #f5576c; margin-bottom: 15px;">📊 파일 크기 비교 (무압축 비트맵 기준)</h4>
+                    
+                    <div class="bar-container">
+                        <div class="bar-label">
+                            <span>원본</span>
+                            <span>${originalSize} MB</span>
+                        </div>
+                        <div class="bar bar-original">100%</div>
+                    </div>
+                    
+                    <div class="bar-container">
+                        <div class="bar-label">
+                            <span>압축 후</span>
+                            <span>${compressedSize} MB</span>
+                        </div>
+                        <div class="bar bar-compressed" style="width: ${barWidth}%">${barWidth}%</div>
+                    </div>
+                    
+                    <p style="margin-top: 15px; text-align: center; font-size: 1.2em; color: #059669; font-weight: bold;">
+                        💾 ${savedSizeMB} MB 절약! (${dataSizeReduction}% 압축)
+                    </p>
+                    <p style="margin-top: 10px; text-align: center; font-size: 0.9em; color: #666;">
+                        ※ PNG나 GIF 형식은 팔레트 방식으로 색상을 제한하여 파일 크기를 줄여요!
+                    </p>
+                </div>
+            `;
+        }
+
+        // 영상 압축 관련 함수
+        const frame1Canvas = document.getElementById('frame1Canvas');
+        const frame2Canvas = document.getElementById('frame2Canvas');
+        const frame1Ctx = frame1Canvas.getContext('2d');
+        const frame2Ctx = frame2Canvas.getContext('2d');
+
+        frame1Ctx.fillStyle = 'white';
+        frame1Ctx.fillRect(0, 0, frame1Canvas.width, frame1Canvas.height);
+        frame2Ctx.fillStyle = 'white';
+        frame2Ctx.fillRect(0, 0, frame2Canvas.width, frame2Canvas.height);
+
+        let currentFrame = 1;
+
+        frame1Canvas.addEventListener('mousedown', (e) => {
+            currentFrame = 1;
+            startFrameDrawing(e, frame1Canvas, frame1Ctx);
+        });
+        frame1Canvas.addEventListener('mousemove', (e) => {
+            if (currentFrame === 1) drawFrame(e, frame1Canvas, frame1Ctx);
+        });
+        frame1Canvas.addEventListener('mouseup', stopDrawing);
+
+        frame2Canvas.addEventListener('mousedown', (e) => {
+            currentFrame = 2;
+            startFrameDrawing(e, frame2Canvas, frame2Ctx);
+        });
+        frame2Canvas.addEventListener('mousemove', (e) => {
+            if (currentFrame === 2) drawFrame(e, frame2Canvas, frame2Ctx);
+        });
+        frame2Canvas.addEventListener('mouseup', stopDrawing);
+
+        function startFrameDrawing(e, canvas, ctx) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function drawFrame(e, canvas, ctx) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+
+        function clearFrame1() {
+            frame1Ctx.fillStyle = 'white';
+            frame1Ctx.fillRect(0, 0, frame1Canvas.width, frame1Canvas.height);
+        }
+
+        function clearFrame2() {
+            frame2Ctx.fillStyle = 'white';
+            frame2Ctx.fillRect(0, 0, frame2Canvas.width, frame2Canvas.height);
+        }
+
+        function detectChanges() {
+            const canvas1 = document.getElementById('frame1Canvas');
+            const canvas2 = document.getElementById('frame2Canvas');
+            const ctx1 = canvas1.getContext('2d');
+            const ctx2 = canvas2.getContext('2d');
+            
+            const data1 = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
+            const data2 = ctx2.getImageData(0, 0, canvas2.width, canvas2.height);
+            
+            let changedPixels = 0;
+            let totalPixels = canvas1.width * canvas1.height;
+            
+            for (let i = 0; i < data1.data.length; i += 4) {
+                if (data1.data[i] !== data2.data[i] ||
+                    data1.data[i + 1] !== data2.data[i + 1] ||
+                    data1.data[i + 2] !== data2.data[i + 2]) {
+                    changedPixels++;
+                }
+            }
+            
+            const changePercent = ((changedPixels / totalPixels) * 100).toFixed(1);
+            const savedPercent = (100 - parseFloat(changePercent)).toFixed(1);
+            
+            document.getElementById('frameResult').innerHTML = `
+                <div class="result">
+                    <h4>변화 감지 결과:</h4>
+                    <p><strong>전체 픽셀:</strong> ${totalPixels.toLocaleString()}개</p>
+                    <p><strong>변화된 픽셀:</strong> ${changedPixels.toLocaleString()}개 (${changePercent}%)</p>
+                    <p><strong>같은 픽셀:</strong> ${(totalPixels - changedPixels).toLocaleString()}개 (${savedPercent}%)</p>
+                    <p class="compression-ratio">약 ${savedPercent}%의 데이터 절약 가능! 🎉</p>
+                    <p style="margin-top:10px;">💡 MPEG는 변화된 ${changePercent}%의 픽셀만 저장해요!</p>
+                </div>
+            `;
+        }
+
+        // 음악 압축 관련 함수
+        function drawWaveform() {
+            const canvas = document.getElementById('waveCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.strokeStyle = '#f5576c';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const frequency = document.getElementById('freqSlider').value;
+            const amplitude = height / 3;
+            const centerY = height / 2;
+            const wavelength = width / (frequency / 100);
+            
+            for (let x = 0; x < width; x++) {
+                const y = centerY + amplitude * Math.sin((x / wavelength) * Math.PI * 2);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Malgun Gothic';
+            ctx.fillText('20Hz', 10, height - 10);
+            ctx.fillText('20,000Hz', width - 70, height - 10);
+        }
+
+        function updateFrequency() {
+            const value = document.getElementById('freqSlider').value;
+            document.getElementById('freqValue').textContent = value + ' Hz';
+            drawWaveform();
+        }
+
+        function playTone() {
+            stopTone();
+            
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            oscillator = audioContext.createOscillator();
+            gainNode = audioContext.createGain();
+            
+            const frequency = document.getElementById('freqSlider').value;
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.value = 0.3;
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            
+            setTimeout(stopTone, 3000);
+        }
+
+        function stopTone() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
+
+        function updateBitrate() {
+            const value = document.getElementById('bitrateSlider').value;
+            document.getElementById('bitrateValue').textContent = value + ' kbps';
+            
+            const fileSize = (value * 180 / 8 / 1024).toFixed(1);
+            
+            let quality = '';
+            if (value <= 96) quality = '낮은 음질, 작은 파일';
+            else if (value <= 192) quality = '일반적인 음질, 대부분 사람들이 만족';
+            else quality = '높은 음질, 음악 애호가용';
+            
+            document.getElementById('bitrateResult').innerHTML = `
+                <p><strong>${value} kbps:</strong> ${quality}</p>
+                <p><strong>예상 파일 크기 (3분 곡):</strong> 약 ${fileSize} MB</p>
+            `;
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 초기화
+        drawWaveform();
+        updateBitrate();
+        drawCompressionChart();
+
+        // ===== DCT 관련 변수 및 함수 =====
+        let uploadedImage = null;
+        let currentQuality = 50;
+        let currentBlockSize = 8;
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedImage = img;
+                    processImage();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processImage() {
+            if (!uploadedImage) return;
+            
+            const originalCanvas = document.getElementById('originalCanvas');
+            const compressedCanvas = document.getElementById('compressedCanvas');
+            
+            // 원본 이미지 그리기
+            const ctx = originalCanvas.getContext('2d');
+            originalCanvas.width = uploadedImage.width;
+            originalCanvas.height = uploadedImage.height;
+            ctx.drawImage(uploadedImage, 0, 0);
+            
+            // DCT 압축 적용
+            const result = applyDCTCompression(originalCanvas, currentQuality / 100, currentBlockSize);
+            
+            // 압축된 이미지 그리기
+            compressedCanvas.width = uploadedImage.width;
+            compressedCanvas.height = uploadedImage.height;
+            const compressedCtx = compressedCanvas.getContext('2d');
+            compressedCtx.putImageData(result.imageData, 0, 0);
+            
+            // 주파수 시각화
+            visualizeFrequency(result.frequencyData);
+            
+            // 통계 업데이트
+            updateDCTStats(result.stats);
+            updateExplanation();
+        }
+
+        function updateQuality() {
+            const value = document.getElementById('qualitySlider').value;
+            currentQuality = value;
+            document.getElementById('qualityValue').textContent = value + '%';
+            if (uploadedImage) processImage();
+        }
+
+        function updateBlockSize() {
+            const value = document.getElementById('blockSizeSlider').value;
+            currentBlockSize = parseInt(value);
+            document.getElementById('blockSizeValue').textContent = value + 'x' + value;
+            if (uploadedImage) processImage();
+        }
+
+        function applyDCTCompression(canvas, keepRatio, blockSize) {
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const rChannel = new Float32Array(width * height);
+            const gChannel = new Float32Array(width * height);
+            const bChannel = new Float32Array(width * height);
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const idx = i / 4;
+                rChannel[idx] = data[i];
+                gChannel[idx] = data[i + 1];
+                bChannel[idx] = data[i + 2];
+            }
+            
+            const newImageData = ctx.createImageData(width, height);
+            const newData = newImageData.data;
+            const frequencyData = [];
+            let totalCoefficients = 0;
+            let keptCoefficients = 0;
+            
+            for (let y = 0; y < height; y += blockSize) {
+                for (let x = 0; x < width; x += blockSize) {
+                    const rBlock = extractBlock(rChannel, x, y, blockSize, width, height);
+                    const gBlock = extractBlock(gChannel, x, y, blockSize, width, height);
+                    const bBlock = extractBlock(bChannel, x, y, blockSize, width, height);
+                    
+                    const rDct = performDCT(rBlock, blockSize);
+                    const gDct = performDCT(gBlock, blockSize);
+                    const bDct = performDCT(bBlock, blockSize);
+                    
+                    const rQuantized = quantizeBlock(rDct, blockSize, keepRatio);
+                    const gQuantized = quantizeBlock(gDct, blockSize, keepRatio);
+                    const bQuantized = quantizeBlock(bDct, blockSize, keepRatio);
+                    
+                    const rIdct = performIDCT(rQuantized, blockSize);
+                    const gIdct = performIDCT(gQuantized, blockSize);
+                    const bIdct = performIDCT(bQuantized, blockSize);
+                    
+                    insertColorBlock(newData, rIdct, gIdct, bIdct, x, y, blockSize, width, height);
+                    
+                    totalCoefficients += blockSize * blockSize * 3;
+                    keptCoefficients += (countNonZero(rQuantized) + countNonZero(gQuantized) + countNonZero(bQuantized));
+                    
+                    if (frequencyData.length === 0 && x < 200 && y < 200) {
+                        frequencyData.push({dct: rDct, quantized: rQuantized});
+                    }
+                }
+            }
+            
+            const compressionRatio = (keptCoefficients / totalCoefficients * 100).toFixed(1);
+            
+            return {
+                imageData: newImageData,
+                frequencyData: frequencyData,
+                stats: {
+                    originalSize: (width * height * 3 / 1024).toFixed(1),
+                    compressedSize: (width * height * 3 * keptCoefficients / totalCoefficients / 1024).toFixed(1),
+                    ratio: compressionRatio,
+                    saved: (100 - parseFloat(compressionRatio)).toFixed(1)
+                }
+            };
+        }
+        
+        function extractBlock(data, x, y, blockSize, width, height) {
+            const block = new Float32Array(blockSize * blockSize);
+            for (let j = 0; j < blockSize; j++) {
+                for (let i = 0; i < blockSize; i++) {
+                    const px = Math.min(x + i, width - 1);
+                    const py = Math.min(y + j, height - 1);
+                    block[j * blockSize + i] = data[py * width + px];
+                }
+            }
+            return block;
+        }
+        
+        function performDCT(block, N) {
+            const dct = new Float32Array(N * N);
+            const pi = Math.PI;
+            
+            for (let v = 0; v < N; v++) {
+                for (let u = 0; u < N; u++) {
+                    let sum = 0;
+                    for (let y = 0; y < N; y++) {
+                        for (let x = 0; x < N; x++) {
+                            const pixel = block[y * N + x] - 128;
+                            sum += pixel * 
+                                   Math.cos((2 * x + 1) * u * pi / (2 * N)) *
+                                   Math.cos((2 * y + 1) * v * pi / (2 * N));
+                        }
+                    }
+                    
+                    const cu = u === 0 ? 1 / Math.sqrt(2) : 1;
+                    const cv = v === 0 ? 1 / Math.sqrt(2) : 1;
+                    dct[v * N + u] = 0.25 * cu * cv * sum;
+                }
+            }
+            
+            return dct;
+        }
+        
+        function quantizeBlock(dctBlock, N, keepRatio) {
+            const quantized = new Float32Array(N * N);
+            const keepCount = Math.floor(N * N * keepRatio);
+            
+            const zigzag = generateZigzagOrder(N);
+            const values = [];
+            
+            for (let i = 0; i < N * N; i++) {
+                const idx = zigzag[i];
+                values.push({value: Math.abs(dctBlock[idx]), index: idx, original: dctBlock[idx]});
+            }
+            
+            for (let i = 0; i < Math.min(keepCount, values.length); i++) {
+                quantized[values[i].index] = values[i].original;
+            }
+            
+            return quantized;
+        }
+        
+        function generateZigzagOrder(N) {
+            const order = [];
+            for (let sum = 0; sum < 2 * N; sum++) {
+                if (sum % 2 === 0) {
+                    for (let y = Math.min(sum, N - 1); y >= Math.max(0, sum - N + 1); y--) {
+                        const x = sum - y;
+                        if (x < N && y < N) {
+                            order.push(y * N + x);
+                        }
+                    }
+                } else {
+                    for (let x = Math.min(sum, N - 1); x >= Math.max(0, sum - N + 1); x--) {
+                        const y = sum - x;
+                        if (x < N && y < N) {
+                            order.push(y * N + x);
+                        }
+                    }
+                }
+            }
+            return order;
+        }
+        
+        function performIDCT(dctBlock, N) {
+            const block = new Float32Array(N * N);
+            const pi = Math.PI;
+            
+            for (let y = 0; y < N; y++) {
+                for (let x = 0; x < N; x++) {
+                    let sum = 0;
+                    for (let v = 0; v < N; v++) {
+                        for (let u = 0; u < N; u++) {
+                            const cu = u === 0 ? 1 / Math.sqrt(2) : 1;
+                            const cv = v === 0 ? 1 / Math.sqrt(2) : 1;
+                            sum += cu * cv * dctBlock[v * N + u] *
+                                   Math.cos((2 * x + 1) * u * pi / (2 * N)) *
+                                   Math.cos((2 * y + 1) * v * pi / (2 * N));
+                        }
+                    }
+                    block[y * N + x] = Math.max(0, Math.min(255, sum * 0.25 + 128));
+                }
+            }
+            
+            return block;
+        }
+        
+        function insertColorBlock(data, rBlock, gBlock, bBlock, x, y, blockSize, width, height) {
+            for (let j = 0; j < blockSize; j++) {
+                for (let i = 0; i < blockSize; i++) {
+                    const px = x + i;
+                    const py = y + j;
+                    if (px < width && py < height) {
+                        const idx = (py * width + px) * 4;
+                        data[idx] = rBlock[j * blockSize + i];
+                        data[idx + 1] = gBlock[j * blockSize + i];
+                        data[idx + 2] = bBlock[j * blockSize + i];
+                        data[idx + 3] = 255;
+                    }
+                }
+            }
+        }
+        
+        function countNonZero(arr) {
+            let count = 0;
+            for (let i = 0; i < arr.length; i++) {
+                if (Math.abs(arr[i]) > 0.1) count++;
+            }
+            return count;
+        }
+        
+        function visualizeFrequency(frequencyData) {
+            const canvas = document.getElementById('frequencyCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if (frequencyData.length === 0) return;
+            
+            const N = currentBlockSize;
+            const cellSize = Math.min(400 / N, 50);
+            canvas.width = N * cellSize;
+            canvas.height = N * cellSize;
+            
+            const dct = frequencyData[0].quantized;
+            
+            let max = 0;
+            for (let i = 0; i < dct.length; i++) {
+                max = Math.max(max, Math.abs(dct[i]));
+            }
+            
+            for (let y = 0; y < N; y++) {
+                for (let x = 0; x < N; x++) {
+                    const value = dct[y * N + x];
+                    const normalized = Math.abs(value) / max;
+                    const brightness = Math.floor(normalized * 255);
+                    
+                    if (Math.abs(value) < 0.1) {
+                        ctx.fillStyle = '#f0f0f0';
+                    } else {
+                        ctx.fillStyle = `rgb(${255-brightness}, ${255-brightness}, 255)`;
+                    }
+                    
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize - 1, cellSize - 1);
+                    
+                    if (N <= 16) {
+                        ctx.fillStyle = normalized > 0.5 ? 'white' : 'black';
+                        ctx.font = `${cellSize/3}px monospace`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(
+                            Math.abs(value) < 0.1 ? '0' : Math.round(value),
+                            x * cellSize + cellSize/2,
+                            y * cellSize + cellSize/2
+                        );
+                    }
+                }
+            }
+            
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(0, 0, cellSize * 3, cellSize * 3);
+            
+            ctx.font = '14px bold sans-serif';
+            ctx.fillStyle = '#ff0000';
+            ctx.fillText('저주파', 5, 20);
+            ctx.fillText('(중요!)', 5, 40);
+        }
+        
+        function updateDCTStats(stats) {
+            document.getElementById('dctOriginalSize').textContent = stats.originalSize + ' KB';
+            document.getElementById('dctCompressedSize').textContent = stats.compressedSize + ' KB';
+            document.getElementById('dctCompressionRatio').textContent = stats.ratio + '%';
+            document.getElementById('dctSavedSpace').textContent = stats.saved + '%';
+        }
+        
+        function updateExplanation() {
+            const quality = currentQuality;
+            const blockSize = currentBlockSize;
+            
+            let text = `현재 이미지를 ${blockSize}x${blockSize} 크기의 블록으로 나누고, RGB 각 색상 채널에 독립적으로 DCT를 적용하고 있습니다. `;
+            
+            if (quality >= 70) {
+                text += `품질 ${quality}%는 높은 품질로, 대부분의 주파수 성분을 유지하고 있어 원본과 거의 구별이 안 됩니다. `;
+            } else if (quality >= 40) {
+                text += `품질 ${quality}%는 중간 품질로, 중요한 저주파 성분은 유지하면서 고주파(세밀한 디테일)는 일부 제거합니다. `;
+            } else {
+                text += `품질 ${quality}%는 낮은 품질로, 저주파 성분만 남기고 대부분의 고주파를 제거하여 뭉개진 느낌이 납니다. `;
+            }
+            
+            text += `\n\n🎨 가운데 이미지(주파수 영역)에서 왼쪽 위 모서리의 빨간 박스가 "저주파" 영역입니다. 이 부분이 이미지의 전체적인 색상과 밝기를 담당하며, 사람 눈에 가장 중요합니다. 나머지 영역은 세밀한 디테일(고주파)을 담당하는데, 이 부분을 줄여도 우리 눈은 크게 차이를 못 느낍니다!\n\n💡 실제 JPEG 압축은 빨강(R), 초록(G), 파랑(B) 각 채널에 DCT를 적용해서 컬러를 유지합니다.`;
+            
+            document.getElementById('dctExplanationText').textContent = text;
+        }
+
+        // 이미지 비교 관련 함수
+        function showImageDetail(filename, colorName, sizeKB) {
+            const originalSize = 92; // 원본 PNG 크기
+            const compressionRatio = ((1 - sizeKB / originalSize) * 100).toFixed(1);
+            const sizeRatio = (originalSize / sizeKB).toFixed(1);
+
+            document.getElementById('imageDetailResult').innerHTML = `
+                <div class="detail-comparison fade-in">
+                    <div class="detail-image">
+                        <h4 style="color: #f5576c; margin-bottom: 10px;">원본 (PNG)</h4>
+                        <img src="1.png" alt="원본">
+                        <p style="margin-top: 10px;"><strong>24비트 (1,677만색)</strong></p>
+                        <p style="font-size: 1.2em; color: #059669; font-weight: bold;">92 KB</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; font-size: 2em; color: #f5576c;">
+                        →
+                    </div>
+                    <div class="detail-image">
+                        <h4 style="color: #f5576c; margin-bottom: 10px;">${colorName}</h4>
+                        <img src="${filename}" alt="${colorName}">
+                        <p style="margin-top: 10px;"><strong>${colorName}</strong></p>
+                        <p style="font-size: 1.2em; color: #059669; font-weight: bold;">${sizeKB} KB</p>
+                    </div>
+                </div>
+                <div class="result">
+                    <h4>📊 압축 분석:</h4>
+                    <p><strong>파일 크기:</strong> ${originalSize} KB → ${sizeKB} KB</p>
+                    <p><strong>압축률:</strong> ${compressionRatio}% 감소</p>
+                    <p><strong>크기 비율:</strong> 원본의 ${(sizeKB/originalSize*100).toFixed(1)}% (약 ${sizeRatio}분의 1)</p>
+                    <p class="compression-ratio">💾 ${(originalSize - sizeKB).toFixed(1)} KB 절약!</p>
+                    <p style="margin-top:10px;">💡 ${colorName}으로 압축하면 파일이 ${sizeRatio}배 작아져요!</p>
+                </div>
+            `;
+        }
+
+        // 압축 차트 그리기
+        function drawCompressionChart() {
+            const canvas = document.getElementById('compressionChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 데이터
+            const data = [
+                { label: '원본', size: 92, color: '#dc2626' },
+                { label: '256색', size: 43, color: '#f97316' },
+                { label: '128색', size: 35, color: '#f59e0b' },
+                { label: '64색', size: 26, color: '#eab308' },
+                { label: '32색', size: 21, color: '#84cc16' },
+                { label: '16색', size: 16, color: '#22c55e' },
+                { label: '8색', size: 11, color: '#10b981' },
+                { label: '4색', size: 7.2, color: '#14b8a6' },
+                { label: '2색', size: 3.5, color: '#06b6d4' }
+            ];
+            
+            const maxSize = 100;
+            const barWidth = (width - 100) / data.length;
+            const padding = 40;
+            
+            // 배경
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 그리드 라인
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (height - padding * 2) * (i / 5);
+                ctx.beginPath();
+                ctx.moveTo(50, y);
+                ctx.lineTo(width - 20, y);
+                ctx.stroke();
+                
+                // Y축 레이블
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Malgun Gothic';
+                ctx.textAlign = 'right';
+                const value = maxSize - (maxSize * i / 5);
+                ctx.fillText(value + 'KB', 45, y + 4);
+            }
+            
+            // 막대 그래프
+            data.forEach((item, index) => {
+                const x = 60 + index * barWidth;
+                const barHeight = (item.size / maxSize) * (height - padding * 2);
+                const y = height - padding - barHeight;
+                
+                // 막대
+                ctx.fillStyle = item.color;
+                ctx.fillRect(x, y, barWidth - 10, barHeight);
+                
+                // 레이블
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 11px Malgun Gothic';
+                ctx.textAlign = 'center';
+                ctx.save();
+                ctx.translate(x + (barWidth - 10) / 2, height - 10);
+                ctx.rotate(-Math.PI / 4);
+                ctx.fillText(item.label, 0, 0);
+                ctx.restore();
+                
+                // 값 표시
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 11px Malgun Gothic';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.size + 'KB', x + (barWidth - 10) / 2, y - 5);
+            });
+            
+            // 제목
+            ctx.fillStyle = '#f5576c';
+            ctx.font = 'bold 14px Malgun Gothic';
+            ctx.textAlign = 'center';
+            ctx.fillText('색상 수에 따른 파일 크기 변화', width / 2, 20);
+        }
+    </script>
+</body>
+</html>
