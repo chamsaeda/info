@@ -178,7 +178,15 @@
       return (
         <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-            <div className="text-sm mb-2 text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-sm text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
+              <a 
+                href="index.html" 
+                className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                🏠 홈으로
+              </a>
+            </div>
             <h1 className="text-3xl font-bold mb-2">⌨️ 키보드를 누르면 컴퓨터 안에서는 무슨 일이?</h1>
             <p className="text-indigo-100">키보드를 누르면 컴퓨터 안에서 어떤 일이 일어날까요?</p>
           </div>
@@ -415,6 +423,15 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <a 
+                href="index.html" 
+                className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              >
+                🏠 홈으로 돌아가기
+              </a>
             </div>
           </div>
         </div>
