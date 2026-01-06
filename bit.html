@@ -45,6 +45,25 @@
         return states.filter(state => state).length;
       };
 
+      const binaryToDecimal = (states) => {
+        const powers = [128, 64, 32, 16, 8, 4, 2, 1]; // 2^7, 2^6, ..., 2^0
+        let parts = [];
+        let total = 0;
+        
+        states.forEach((state, index) => {
+          if (state) {
+            parts.push(powers[index]);
+            total += powers[index];
+          }
+        });
+        
+        if (parts.length === 0) {
+          return '0';
+        }
+        
+        return parts.join('+') + ' = ' + total;
+      };
+
       const handleEmojiClick = () => {
         setShowSecret(true);
         setTimeout(() => {
@@ -185,6 +204,7 @@
                     이진수: <span className="font-bold text-green-600 text-lg font-mono">
                       {byteStates.map(s => s ? '1' : '0').join('')}
                     </span>
+                    {' '}<span className="ml-2">십진수: <span className="font-bold text-blue-600">{binaryToDecimal(byteStates)}</span></span>
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     켜진 전구: {countOnes(byteStates)}개 / 꺼진 전구: {8 - countOnes(byteStates)}개
