@@ -227,7 +227,15 @@
         <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* 헤더 */}
           <div className="bg-gradient-to-r from-teal-700 to-cyan-700 p-6 text-white">
-            <div className="text-sm mb-2 text-teal-100">부산진여자상업고등학교 정보 학습자료</div>
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-sm text-teal-100">부산진여자상업고등학교 정보 학습자료</div>
+              <a 
+                href="index.html" 
+                className="bg-white text-teal-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-teal-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                🏠 홈으로
+              </a>
+            </div>
             <h1 className="text-3xl font-bold mb-2">🌐 유선 네트워크</h1>
             <p className="text-teal-100">케이블과 네트워크 장비의 세계를 탐험해봅시다!</p>
           </div>
@@ -748,6 +756,16 @@
               </div>
             )}
           </div>
+
+          <div className="mt-6 text-center p-6">
+            <a 
+              href="index.html" 
+              className="inline-block bg-gradient-to-r from-teal-700 to-cyan-700 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-teal-800 hover:to-cyan-800 transition-all shadow-lg hover:shadow-xl"
+            >
+              🏠 홈으로 돌아가기
+            </a>
+          </div>
+
           {showTooltip && (
           <div 
             className="tooltip"
