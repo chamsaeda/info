@@ -673,7 +673,7 @@
                             <p>✅ 색상 수가 줄어들수록 파일 크기도 작아져요</p>
                             <p>✅ 256색까지는 사진의 품질이 크게 나빠지지 않아요</p>
                             <p>✅ 16색 이하로 줄어들면 사진의 디테일이 많이 손실돼요</p>
-                            <p>✅ 2색(흑백)은 원본의 3.8%만 차지해요! (92KB → 3.5KB)</p>
+                            <p>✅ 2색(흑백)은 원본의 4.2%만 차지해요! (1,820KB → 77KB)</p>
                         </div>
                     </div>
                 </div>
@@ -1451,15 +1451,50 @@
             event.target.classList.add('active');
         }
 
-        // 초기화
-        drawWaveform();
-        updateBitrate();
-        drawCompressionChart();
+        // 초기화        
+        window.addEventListener('DOMContentLoaded', function() {
+            drawWaveform();
+            updateBitrate();
+            drawCompressionChart();
+
+            // DCT 초기 이미지 로드
+            loadInitialImage();
+        });
 
         // ===== DCT 관련 변수 및 함수 =====
         let uploadedImage = null;
         let currentQuality = 50;
         let currentBlockSize = 8;
+
+        function loadInitialImage() {
+            console.log('🖼️ 초기 이미지 로딩 시작...');
+            
+            // fetch를 사용해서 이미지를 blob으로 가져온 후 FileReader로 변환
+            fetch('src/ex01.png')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('이미지 로드 실패');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('✅ 이미지 로드 성공!', img.width, 'x', img.height);
+                            uploadedImage = img;
+                            processImage();
+                        };
+                        img.src = e.target.result;  // base64 데이터
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => {
+                    console.error('❌ 이미지 로드 실패:', error);
+                    console.log('💡 웹 서버에서 실행하거나 이미지 경로를 확인해주세요!');
+                });
+        }
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -1478,32 +1513,54 @@
         }
 
         function processImage() {
-            if (!uploadedImage) return;
+            console.log('🔄 processImage 호출됨');
+            
+            if (!uploadedImage) {
+                console.error('❌ uploadedImage가 없습니다!');
+                return;
+            }
+            
+            console.log('📊 uploadedImage:', uploadedImage.width, 'x', uploadedImage.height);
             
             const originalCanvas = document.getElementById('originalCanvas');
             const compressedCanvas = document.getElementById('dctcompressedCanvas');
+            
+            console.log('🎨 originalCanvas:', originalCanvas);
+            console.log('🎨 compressedCanvas:', compressedCanvas);
+            
+            if (!originalCanvas || !compressedCanvas) {
+                console.error('❌ 캔버스를 찾을 수 없습니다!');
+                return;
+            }
             
             // 원본 이미지 그리기
             const ctx = originalCanvas.getContext('2d');
             originalCanvas.width = uploadedImage.width;
             originalCanvas.height = uploadedImage.height;
             ctx.drawImage(uploadedImage, 0, 0);
+            console.log('✅ 원본 이미지 그리기 완료');
             
             // DCT 압축 적용
+            console.log('🔄 DCT 압축 시작...');
             const result = applyDCTCompression(originalCanvas, currentQuality / 100, currentBlockSize);
+            console.log('✅ DCT 압축 완료:', result);
             
             // 압축된 이미지 그리기
             compressedCanvas.width = uploadedImage.width;
             compressedCanvas.height = uploadedImage.height;
             const compressedCtx = compressedCanvas.getContext('2d');
             compressedCtx.putImageData(result.imageData, 0, 0);
+            console.log('✅ 압축된 이미지 그리기 완료');
             
             // 주파수 시각화
+            console.log('🔄 주파수 시각화 시작...');
             visualizeFrequency(result.frequencyData);
+            console.log('✅ 주파수 시각화 완료');
             
             // 통계 업데이트
             updateDCTStats(result.stats);
             updateExplanation();
+            console.log('✅ processImage 완료!');
         }
 
         function updateQuality() {
@@ -1841,18 +1898,18 @@
             
             // 데이터
             const data = [
-                { label: '원본', size: 92, color: '#dc2626' },
-                { label: '256색', size: 43, color: '#f97316' },
-                { label: '128색', size: 35, color: '#f59e0b' },
-                { label: '64색', size: 26, color: '#eab308' },
-                { label: '32색', size: 21, color: '#84cc16' },
-                { label: '16색', size: 16, color: '#22c55e' },
-                { label: '8색', size: 11, color: '#10b981' },
-                { label: '4색', size: 7.2, color: '#14b8a6' },
-                { label: '2색', size: 3.5, color: '#06b6d4' }
+                { label: '원본', size: 1820, color: '#dc2626' },
+                { label: '256색', size: 703, color: '#f97316' },
+                { label: '128색', size: 544, color: '#f59e0b' },
+                { label: '64색', size: 419, color: '#eab308' },
+                { label: '32색', size: 341, color: '#84cc16' },
+                { label: '16색', size: 229, color: '#22c55e' },
+                { label: '8색', size: 188, color: '#10b981' },
+                { label: '4색', size: 130, color: '#14b8a6' },
+                { label: '2색', size: 77, color: '#06b6d4' }
             ];
             
-            const maxSize = 100;
+            const maxSize = 2000;
             const barWidth = (width - 100) / data.length;
             const padding = 40;
             
