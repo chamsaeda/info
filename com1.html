@@ -19,6 +19,12 @@
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0) translateX(-50%); }
+      50% { transform: translateY(-10px) translateX(-50%); }
+    }   
+
     .fade-in {
       animation: fadeIn 0.5s ease-in-out;
     }
@@ -82,6 +88,7 @@
       const [currentColor, setCurrentColor] = useState('black');
       const [imageResult, setImageResult] = useState(null);
       const [quizAnswers, setQuizAnswers] = useState({});
+      const [showTooltip, setShowTooltip] = useState(false);
 
       const compressionMethods = {
         rle: {
@@ -197,6 +204,13 @@
           ...prev,
           [quizId]: { selected, correct: selected === correct }
         }));
+      };
+
+      const handleTooltipClick = () => {
+        setShowTooltip(true);
+        setTimeout(() => {
+          setShowTooltip(false);
+        }, 500);
       };
 
       const compressRunLength = () => {
@@ -1152,7 +1166,33 @@
               <div className="space-y-4">
                 {quizData.map((quiz) => (
                   <div key={quiz.id} className="bg-white p-5 rounded-lg shadow-md">
-                    <p className="font-bold text-gray-900 mb-3">Q{quiz.id}. {quiz.question}</p>
+                    <p className="font-bold text-gray-900 mb-3">
+                      {quiz.id === 4 ? (
+                        <>
+                          <span 
+                            className="relative inline-block cursor-pointer"
+                            onClick={handleTooltipClick}
+                          >
+                            Q{quiz.id}
+                            {showTooltip && (
+                              <span 
+                                className="absolute left-1/2 -translate-x-1/2 -top-16 
+                                           bg-pink-200 text-gray-900 px-3 py-1 rounded-xl 
+                                           text-sm font-bold whitespace-nowrap shadow-2xl z-50"
+                                style={{
+                                  animation: 'bounceOnce 0.5s ease-in-out'
+                                }}
+                              >
+                                참새다!
+                              </span>
+                            )}
+                          </span>
+                          . {quiz.question}
+                        </>
+                      ) : (
+                        <>Q{quiz.id}. {quiz.question}</>
+                      )}
+                    </p>
                     <div className="space-y-2">
                       {quiz.options.map((option, idx) => {
                         const isAnswered = quizAnswers[quiz.id];
