@@ -445,7 +445,7 @@
 
         .detail-image img {
             width: 100%;
-            max-width: 300px;
+            max-width: 900px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
@@ -568,6 +568,93 @@
                                     <p style="font-size: 0.9em; color: #666;">1비트</p>
                                     <p style="font-weight: bold; color: #059669;">3.5 KB</p>
                                 </div>
+                            </div>
+                            <!-- 디더링 압축 비교 추가 -->
+                            <h3 style="color: #f5576c; margin: 30px 0 15px 0;">🎨 디더링 압축 단계별 비교</h3>
+                            <p style="margin-bottom: 15px; color: #666;">
+                                디더링은 적은 색상으로도 더 자연스러운 표현을 만드는 기법이에요!
+                            </p>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0;">
+                                <div class="image-compare-item" onclick="showImageDetail('src/256_1.gif', '256색 디더링', 45)">
+                                    <img src="src/dither-256.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">256색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">8비트</p>
+                                        <p style="font-weight: bold; color: #059669;">45 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/128_1.gif', '128색 디더링', 37)">
+                                    <img src="src/dither-128.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">128색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">7비트</p>
+                                        <p style="font-weight: bold; color: #059669;">37 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/64_1.gif', '64색 디더링', 28)">
+                                    <img src="src/dither-64.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">64색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">6비트</p>
+                                        <p style="font-weight: bold; color: #059669;">28 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/32_1.gif', '32색 디더링', 23)">
+                                    <img src="src/dither-32.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">32색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">5비트</p>
+                                        <p style="font-weight: bold; color: #059669;">23 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/16_1.gif', '16색 디더링', 18)">
+                                    <img src="src/dither-16.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">16색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">4비트</p>
+                                        <p style="font-weight: bold; color: #059669;">18 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/8_1.gif', '8색 디더링', 13)">
+                                    <img src="src/dither-8.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">8색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">3비트</p>
+                                        <p style="font-weight: bold; color: #059669;">13 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/4_1.gif', '4색 디더링', 8.5)">
+                                    <img src="src/dither-4.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">4색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">2비트</p>
+                                        <p style="font-weight: bold; color: #059669;">8.5 KB</p>
+                                    </div>
+                                </div>
+
+                                <div class="image-compare-item" onclick="showImageDetail('src/2_1.gif', '2색 디더링', 4.2)">
+                                    <img src="src/dither-2.gif" style="width: 100%; border-radius: 8px; cursor: pointer;">
+                                    <div style="text-align: center; margin-top: 10px;">
+                                        <strong style="color: #f5576c;">2색 디더링</strong>
+                                        <p style="font-size: 0.9em; color: #666;">1비트</p>
+                                        <p style="font-weight: bold; color: #059669;">4.2 KB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="success" style="margin-top: 20px;">
+                                <h4>🎨 디더링의 장점!</h4>
+                                <p>✅ 같은 색상 수에도 더 부드럽고 자연스러워 보여요</p>
+                                <p>✅ 점을 섞어서 중간색을 표현하는 착시 효과를 이용해요</p>
+                                <p>✅ 옛날 게임이나 신문 인쇄에서 많이 사용했어요</p>
+                                <p>✅ 파일 크기는 비슷하지만 시각적 품질이 더 좋아요!</p>
                             </div>
                         </div>
 
