@@ -123,7 +123,7 @@
         
         .section h3 {
             color: #5a67d8;
-            margin: 25px 0 15px 0;
+            margin: 0px 0 15px 0;
             font-size: 1.5em;
         }
         
@@ -194,6 +194,30 @@
             transform: translateY(0);
         }
         
+        .upload-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 8px;
+            font-size: 1.15em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            display: inline-block;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .upload-button:active {
+            transform: translateY(0);
+        }
+
         .interactive-box {
             background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
             padding: 30px;
@@ -694,6 +718,8 @@
                         <button onclick="loadSampleImage('sky')">🌅 하늘 (저주파 많음)</button>
                         <button onclick="loadSampleImage('portrait')">😊 얼굴 (중간)</button>
                         <button onclick="loadSampleImage('building')">🏢 건물 (고주파 많음)</button>
+                        <label for="imageUpload" class="upload-button">📁 내 이미지 선택</label>
+                        <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="loadUserImage(event)">
                     </div>
 
                     <div class="slider-container">
@@ -786,22 +812,22 @@
                 
                 <div class="concept-box">
                     <p style="font-size: 1.2em; line-height: 2.2;">
-                        <strong>1.</strong> 이미지는 <span class="highlight">저주파</span>(큰 변화)와 <span class="highlight">고주파</span>(작은 변화)로 이루어져 있어요<br><br>
+                        <strong>1.</strong> 이미지는 <span class="highlight">저주파</span>(큰 변화)와 <span class="highlight">고주파</span>(작은 변화)로 이루어져 있어요<br>
                         
-                        <strong>2.</strong> JPEG은 이미지를 <span class="highlight">8×8 블록</span>으로 나눠요<br><br>
+                        <strong>2.</strong> JPEG은 이미지를 <span class="highlight">8×8 블록</span>으로 나눠요<br>
                         
-                        <strong>3.</strong> <span class="highlight">DCT</span>로 각 블록의 주파수를 계산해요<br><br>
+                        <strong>3.</strong> <span class="highlight">DCT</span>로 각 블록의 주파수를 계산해요<br>
                         
-                        <strong>4.</strong> <span class="highlight">양자화</span>로 고주파를 0으로 만들어 압축해요<br><br>
+                        <strong>4.</strong> <span class="highlight">양자화</span>로 고주파를 0으로 만들어 압축해요<br>
                         
-                        <strong>5.</strong> 결과: 파일 크기는 <span class="highlight">1/10~1/20</span>로 줄고, 품질은 거의 그대로!<br><br>
+                        <strong>5.</strong> 결과: 파일 크기는 <span class="highlight">1/10~1/20</span>로 줄고, 품질은 거의 그대로!<br>
                         
                         <strong>6.</strong> 너무 많이 압축하면 <span class="highlight">블록 무늬</span>가 생겨요 (JPEG 아티팩트)
                     </p>
                 </div>
 
-                <div class="concept-box" style="margin-top: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
-                    <h3 style="color: #92400e; margin-bottom: 15px;">💡 더 알아두면 좋아요!</h3>
+                <div class="concept-box" style="margin-top: 15px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                    <h3 style="color: #92400e; margin-top: 0px; margin-bottom: 15px;">💡 더 알아두면 좋아요!</h3>
                     <p style="font-size: 1.05em; line-height: 2;">
                         • 사람 눈은 저주파에 민감하고 고주파에 둔감해요<br>
                         • 그래서 고주파를 버려도 티가 안 나요!<br>
@@ -1386,6 +1412,55 @@
             updateQuality(80);
         }
 
+        // 사용자 이미지 로드
+        function loadUserImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 이미지 파일인지 확인
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 선택할 수 있습니다!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                
+                img.onload = function() {
+                    const canvas = document.getElementById('originalCanvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = canvas.width;
+                    
+                    // 캔버스 초기화
+                    ctx.clearRect(0, 0, size, size);
+                    
+                    // 이미지 비율 유지하면서 캔버스에 맞게 그리기
+                    const scale = Math.min(size / img.width, size / img.height);
+                    const x = (size - img.width * scale) / 2;
+                    const y = (size - img.height * scale) / 2;
+                    
+                    // 배경을 흰색으로
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, size, size);
+                    
+                    // 이미지 그리기
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                    
+                    // 이미지 데이터 저장
+                    currentImageData = ctx.getImageData(0, 0, size, size);
+                    
+                    // 초기 압축 적용
+                    updateQuality(80);
+                };
+                
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
         // 품질 업데이트 및 압축 적용
         function updateQuality(value) {
             document.getElementById('qualityValue').textContent = value;
