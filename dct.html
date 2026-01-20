@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이미지는 어떻게 작아질까? - JPEG 압축의 비밀</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .school-name {
+            font-size: 0.9em;
+            opacity: 0.95;
+            text-align: left;
+        }
+        
+        .home-button {
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .home-button:hover {
+            background: #f0f4ff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .main-title {
+            font-size: 2.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 35px;
+        }
+        
+        .intro-box {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .intro-box h2 {
+            color: #5a67d8;
+            margin-bottom: 15px;
+            font-size: 1.9em;
+        }
+        
+        .intro-box p {
+            font-size: 1.15em;
+            line-height: 2;
+            color: #2d3748;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.9em;
+        }
+        
+        .section h3 {
+            color: #5a67d8;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .concept-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .concept-box p {
+            font-size: 1.1em;
+            line-height: 2;
+        }
+        
+        .concept-box strong {
+            color: #667eea;
+            font-size: 1.15em;
+        }
+        
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .example-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .example-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .example-card p {
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 8px;
+            font-size: 1.15em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .interactive-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+        
+        .interactive-box h3 {
+            color: #c05621;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+        }
+        
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        
+        .canvas-box {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .canvas-box h4 {
+            margin-bottom: 15px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .slider-container {
+            margin: 25px 0;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .value-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .result-box {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-box p {
+            font-size: 1.15em;
+            line-height: 2;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 1em;
+            margin: 5px;
+            font-weight: bold;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #92400e;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 1.1em;
+        }
+        
+        .block-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            width: 240px;
+            height: 240px;
+            margin: 20px auto;
+            border: 3px solid #667eea;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .block-cell {
+            background: #e5e7eb;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s;
+        }
+        
+        .block-cell:hover {
+            background: #fbbf24;
+            transform: scale(1.1);
+        }
+        
+        .frequency-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 40px);
+            grid-template-rows: repeat(8, 40px);
+            gap: 0;
+            width: 320px;
+            height: 320px;
+            margin: 20px auto;
+            border: 3px solid #667eea;
+            border-radius: 8px;
+            overflow: visible;
+            padding: 0;
+            box-sizing: content-box;  /* 이 줄 추가 */
+        }
+        
+        .freq-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65em;
+            font-weight: bold;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
+            box-sizing: border-box;
+        }
+        
+        .freq-cell .freq-value {
+            font-size: 0.9em;
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+            margin: 20px 0;
+        }
+        
+        .warning-box h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #fff0f6 0%, #ffe4ec 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 1.8em;
+            }
+            
+            .canvas-container {
+                flex-direction: column;
+            }
+            
+            .block-grid, .frequency-grid {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        @keyframes bounceOnce {
+            0%, 100% { transform: translateY(0) translateX(-50%); }
+            50% { transform: translateY(-10px) translateX(-50%); }
+        }
+
+        .tooltip-trigger {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip-message {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -60px;
+            background: #fbcfe8;
+            color: #1f2937;
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 50;
+            animation: bounceOnce 0.5s ease-in-out;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="school-name">부산진여자상업고등학교 정보 학습자료</div>
+                <a href="index.html" class="home-button">🏠 홈으로</a>
+            </div>
+            <div class="main-title">📸 이미지는 어떻게 작아질까?</div>
+            <div class="subtitle">JPEG 압축과 DCT의 비밀을 쉽게 알아보자!</div>
+        </div>
+        
+        <div class="content">
+            <!-- 도입부 -->
+            <div class="intro-box">
+                <h2>🤔 왜 이미지 파일이 작아져야 할까?</h2>
+                <p>
+                    여러분이 스마트폰으로 찍은 사진 한 장은 보통 <strong>1~3MB</strong> 정도예요. 
+                    만약 압축을 안 하면 이 크기가 <strong>10배~20배</strong>나 커질 거예요! 
+                    그럼 카카오톡으로 사진 보내는데 엄청 오래 걸리고, 휴대폰 용량도 금방 차겠죠?
+                    <br><br>
+                    그래서 <strong>'압축'</strong>이라는 기술로 사진을 작게 만들어요. 
+                    오늘은 JPEG이라는 사진 형식에서 사용하는 <strong>DCT(이산 코사인 변환)</strong>라는 
+                    압축 방법을 아주 쉽게 배워볼 거예요!
+                </p>
+            </div>
+
+            <!-- 1단계: 주파수 이해 -->
+            <div class="section">
+                <h2><span class="step-number">1</span>먼저 '파도'를 이해해 봐요</h2>
+                
+                <div class="concept-box">
+                    <p>
+                        이미지 압축을 이해하려면 먼저 <strong>'파도'</strong> 개념을 알아야 해요. 
+                        바다의 파도를 생각해보세요. 파도에는 <span class="highlight">큰 파도</span>도 있고 <span class="highlight">작은 파도</span>도 있죠?
+                    </p>
+                </div>
+
+                <div class="example-grid">
+                    <div class="example-card">
+                        <h4>🌊 큰 파도 (저주파)</h4>
+                        <canvas id="lowFreqWave" width="250" height="150"></canvas>
+                        <p><strong>색이 천천히 변해요</strong><br><br>
+                        예) 하늘처럼 넓은 영역에서 색이 비슷하거나 서서히 바뀌는 부분<br><br>
+                        → 이미지의 <span class="highlight">전체적인 모양</span>을 만들어요</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>〰️ 작은 파도 (고주파)</h4>
+                        <canvas id="highFreqWave" width="250" height="150"></canvas>
+                        <p><strong>색이 빠르게 변해요</strong><br><br>
+                        예) 머리카락, 잎사귀의 가는 선처럼 날카로운 경계선<br><br>
+                        → 이미지의 <span class="highlight">세밀한 디테일</span>을 만들어요</p>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <p style="font-size: 1.2em; text-align: center;">
+                        💡 <strong>핵심!</strong> 사람 눈은 저주파(전체 모양)는 잘 보지만, 
+                        고주파(세밀한 디테일)는 조금 없어져도 잘 모른답니다!
+                    </p>
+                </div>
+
+                <h3>🔍 실제 이미지 예시로 이해하기</h3>
+                
+                <div class="interactive-box">
+                    <h3>✏️ 간단한 이미지 그리기</h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        아래 캔버스를 클릭하여 픽셀을 검은색으로 칠해보세요!
+                    </p>
+                    <div class="button-group">
+                        <button onclick="clearCanvas()">🗑️ 지우기</button>
+                        <button onclick="drawLowFrequency()">저주파 예시</button>
+                        <button onclick="drawHighFrequency()">고주파 예시</button>
+                    </div>
+                    <div class="canvas-container">
+                        <div class="canvas-box">
+                            <h4>그림 그리기 (클릭하세요)</h4>
+                            <canvas id="drawCanvas" width="320" height="320"></canvas>
+                        </div>
+                    </div>
+                    <div id="drawResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 2단계: 블록으로 나누기 -->
+            <div class="section">
+                <h2><span class="step-number">2</span>이미지를 작은 블록으로 나눠요</h2>
+                
+                <div class="concept-box">
+                    <p>
+                        JPEG 압축의 첫 번째 단계는 이미지를 <strong>8×8 픽셀</strong> 크기의 작은 네모 조각으로 나누는 거예요. 
+                        왜 그럴까요? 큰 이미지를 한 번에 처리하기 힘드니까 작은 조각으로 쪼개서 하나씩 압축하는 거죠!
+                    </p>
+                </div>
+
+                <div class="interactive-box">
+                    <h3>📸 실제 이미지가 블록으로 나뉘는 과정</h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        아래 버튼을 눌러서 이미지가 어떻게 8×8 블록으로 나뉘는지 확인해보세요!
+                    </p>
+                    <div class="canvas-container" style="justify-content: center; align-items: center; gap: 30px;">
+                        <div class="canvas-box">
+                            <h4>원본 이미지</h4>
+                            <canvas id="blockDemoCanvas" width="320" height="320"></canvas>
+                            <p style="margin-top: 10px; font-size: 0.95em; color: #666;">
+                                전체 이미지 (320×320 픽셀)
+                            </p>
+                        </div>
+                        <div style="text-align: center; font-size: 2em; color: #667eea;">
+                            ➜
+                        </div>
+                        <div class="canvas-box">
+                            <h4>선택된 8×8 블록</h4>
+                            <canvas id="singleBlockCanvas" width="160" height="160"></canvas>
+                            <p style="margin-top: 10px; font-size: 0.95em; color: #666;">
+                                확대된 8×8 픽셀 블록
+                            </p>
+                        </div>
+                    </div>
+                    <div class="button-group" style="margin-top: 20px;">
+                        <button onclick="toggleBlockGrid()">격자 보기/숨기기</button>
+                        <button onclick="highlightRandomBlock()">다른 블록 보기</button>
+                    </div>
+                    <p style="text-align: center; margin-top: 15px; color: #666; font-size: 1.05em;">
+                        💡 <strong>원본 이미지를 클릭</strong>하면 해당 위치의 8×8 블록을 볼 수 있어요!<br>
+                        각 블록은 64개(8×8)의 픽셀로 이루어져 있답니다.
+                    </p>
+                </div>
+
+                <div class="concept-box">
+                    <p>
+                        예를 들어, 800×600 픽셀 이미지라면:<br>
+                        → 가로로 100개 블록, 세로로 75개 블록<br>
+                        → 이 <strong>7,500개의 블록</strong>으로 나뉘어요!<br>
+                        → 각 블록을 하나씩 압축합니다
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3단계: DCT 변환 -->
+            <div class="section">
+                <h2><span class="step-number">3</span>DCT로 주파수를 찾아요</h2>
+                
+                <div class="concept-box">
+                    <p>
+                        이제 각 블록에 <strong>DCT(이산 코사인 변환)</strong>를 적용해요. 
+                        DCT는 블록 안에 <strong>어떤 주파수(파도)가 얼마나 들어있는지</strong> 계산하는 수학 도구예요.
+                        <br><br>
+                        복잡한 음악을 "높은 음", "중간 음", "낮은 음"으로 나누는 것처럼, 
+                        DCT는 이미지를 여러 주파수로 나눠요!
+                    </p>
+                </div>
+
+                <div class="interactive-box">
+                    <h3>🎯 DCT 결과: 주파수 지도</h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        DCT를 하면 이런 주파수 지도가 나와요. 각 칸의 숫자는 해당 주파수가 얼마나 많이 들어있는지를 나타냅니다!
+                    </p>
+                    <div class="frequency-grid" id="frequencyGrid"></div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <p style="font-size: 1.05em; line-height: 1.8;">
+                            <span class="highlight">왼쪽 위 (빨간 테두리)</span> = 저주파 영역<br>
+                            DC 계수 <strong>415</strong>는 이미지의 평균 밝기를 나타내요 (가장 중요!)<br>
+                            주변 값들(<strong>-33, -28, -24</strong> 등)은 전체적인 색 변화예요<br><br>
+                            <span class="highlight">오른쪽 아래</span> = 고주파 영역<br>
+                            값이 점점 작아지고 <strong>대부분 0</strong>이에요! (세밀한 디테일, 버려도 됨)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4단계: 양자화 -->
+            <div class="section">
+                <h2><span class="step-number">4</span>양자화: 고주파를 버려요!</h2>
+                
+                <div class="concept-box">
+                    <p>
+                        이제 압축의 핵심 단계예요! <strong>양자화(Quantization)</strong>라는 과정에서 
+                        고주파 부분의 숫자를 <strong>작게 만들거나 0으로</strong> 바꿔요.
+                        <br><br>
+                        왜 그럴까요? 사람 눈이 고주파(세밀한 디테일)는 잘 못 느끼니까, 
+                        버려도 이미지 품질이 크게 나빠지지 않아요!
+                    </p>
+                </div>
+
+                <div class="example-grid">
+                    <div class="example-card">
+                        <h4>압축 전</h4>
+                        <p style="font-size: 0.9em;">
+                            모든 주파수 값 보관<br>
+                            150, 120, 80, 45, 30, 15, 8, 3<br>
+                            100, 90, 60, 25, 12, 6, 2, 1<br>
+                            70, 55, 35, 18, 8, 3, 1, 0<br>
+                            ...<br>
+                            <br>
+                            파일 크기: <strong>큼</strong>
+                        </p>
+                    </div>
+                    <div class="example-card">
+                        <h4>압축 후 (양자화)</h4>
+                        <p style="font-size: 0.9em;">
+                            고주파 부분을 0으로!<br>
+                            150, 120, 80, 45, 0, 0, 0, 0<br>
+                            100, 90, 60, 0, 0, 0, 0, 0<br>
+                            70, 55, 0, 0, 0, 0, 0, 0<br>
+                            ...<br>
+                            <br>
+                            파일 크기: <strong>작음!</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <p style="text-align: center; font-size: 1.2em;">
+                        <span class="tooltip-trigger" onclick="showTooltip(this)">
+                            💾
+                            <span class="tooltip-message" style="display: none;">참새다!</span>
+                        </span>
+                         0이 많으면 압축이 잘 돼요! 
+                        파일 크기가 <span class="highlight">1/10 ~ 1/20</span>로 줄어들어요!
+                    </p>
+                </div>
+            </div>
+
+            <!-- 5단계: 실제 압축 체험 -->
+            <div class="section">
+                <h2><span class="step-number">5</span>직접 압축해보기</h2>
+                
+                <div class="interactive-box">
+                    <h3>🎮 이미지를 선택하고 압축해보세요!</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button onclick="loadSampleImage('sky')">🌅 하늘 (저주파 많음)</button>
+                        <button onclick="loadSampleImage('portrait')">😊 얼굴 (중간)</button>
+                        <button onclick="loadSampleImage('building')">🏢 건물 (고주파 많음)</button>
+                    </div>
+
+                    <div class="slider-container">
+                        <label style="font-weight: bold; display: block; margin-bottom: 15px; font-size: 1.2em;">
+                            압축 품질: <span id="qualityValue" class="value-display">80</span>%
+                        </label>
+                        <input type="range" min="10" max="100" value="80" class="slider" 
+                               id="qualitySlider" oninput="updateQuality(this.value)">
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; color: #666; font-size: 1.05em;">
+                            <span>← 많이 압축<br>(고주파 많이 버림)</span>
+                            <span>적게 압축 →<br>(고주파 조금 버림)</span>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <div class="canvas-box">
+                            <h4>원본 (100 KB)</h4>
+                            <canvas id="originalCanvas" width="320" height="320"></canvas>
+                        </div>
+                        <div class="canvas-box">
+                            <h4>압축 후 (<span id="compressedSize">80</span> KB)</h4>
+                            <canvas id="compressedCanvas" width="320" height="320"></canvas>
+                            <div style="margin-top: 15px;">
+                                <div class="info-badge">
+                                    <span id="savedSize">20</span> KB 절약!
+                                </div>
+                                <div class="info-badge" style="background: #10b981;">
+                                    <span id="savedPercent">20</span>% 줄어듦
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-box" id="resultExplanation">
+                        <p><strong>결과:</strong> 품질 80% - 좋은 균형이에요! 파일은 작아지고 품질은 거의 그대로입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6단계: JPEG 아티팩트 -->
+            <div class="section">
+                <h2><span class="step-number">6</span>너무 많이 압축하면 어떻게 될까?</h2>
+                
+                <div class="warning-box">
+                    <h4>⚠️ JPEG 아티팩트 (압축 부작용)</h4>
+                    <p style="font-size: 1.05em; line-height: 1.8;">
+                        압축을 너무 많이 하면 (품질 30% 이하) 이미지에 <strong>네모 무늬</strong>가 생기고 
+                        세밀한 부분이 <strong>뭉개져요</strong>. 이걸 'JPEG 아티팩트'라고 불러요.
+                        <br><br>
+                        왜 그럴까요? 8×8 블록 단위로 압축하다 보니, 너무 많이 압축하면 
+                        블록 경계가 눈에 보이게 되는 거예요!
+                    </p>
+                </div>
+
+                <div class="interactive-box">
+                    <h3>🔍 아티팩트 확인하기</h3>
+                    <p style="text-align: center; font-size: 1.1em; margin-bottom: 20px;">
+                        위의 슬라이더를 10~20%로 내려보세요. 블록 무늬가 보이나요?
+                    </p>
+                </div>
+            </div>
+
+            <!-- 7단계: 실생활 응용 -->
+            <div class="section">
+                <h2><span class="step-number">7</span>우리 생활에서는 어떻게 쓰일까?</h2>
+                
+                <div class="example-grid">
+                    <div class="example-card">
+                        <h4>📱 카카오톡 / 인스타그램</h4>
+                        <p>이미지를 보낼 때 자동으로 JPEG 압축을 해서 빠르게 전송해요</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>📷 디지털 카메라</h4>
+                        <p>사진을 JPEG로 저장하면 메모리 카드 용량을 10배 이상 아낄 수 있어요</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>🌐 웹사이트</h4>
+                        <p>웹페이지의 이미지를 압축하면 페이지가 빠르게 열려요</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>🎬 유튜브 / 넷플릭스</h4>
+                        <p>동영상도 비슷한 방법으로 압축해서 스트리밍해요 (H.264, H.265)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 정리 -->
+            <div class="section" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);">
+                <h2>📝 오늘 배운 내용 정리!</h2>
+                
+                <div class="concept-box">
+                    <p style="font-size: 1.2em; line-height: 2.2;">
+                        <strong>1.</strong> 이미지는 <span class="highlight">저주파</span>(큰 변화)와 <span class="highlight">고주파</span>(작은 변화)로 이루어져 있어요<br><br>
+                        
+                        <strong>2.</strong> JPEG은 이미지를 <span class="highlight">8×8 블록</span>으로 나눠요<br><br>
+                        
+                        <strong>3.</strong> <span class="highlight">DCT</span>로 각 블록의 주파수를 계산해요<br><br>
+                        
+                        <strong>4.</strong> <span class="highlight">양자화</span>로 고주파를 0으로 만들어 압축해요<br><br>
+                        
+                        <strong>5.</strong> 결과: 파일 크기는 <span class="highlight">1/10~1/20</span>로 줄고, 품질은 거의 그대로!<br><br>
+                        
+                        <strong>6.</strong> 너무 많이 압축하면 <span class="highlight">블록 무늬</span>가 생겨요 (JPEG 아티팩트)
+                    </p>
+                </div>
+
+                <div class="concept-box" style="margin-top: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                    <h3 style="color: #92400e; margin-bottom: 15px;">💡 더 알아두면 좋아요!</h3>
+                    <p style="font-size: 1.05em; line-height: 2;">
+                        • 사람 눈은 저주파에 민감하고 고주파에 둔감해요<br>
+                        • 그래서 고주파를 버려도 티가 안 나요!<br>
+                        • JPEG 품질은 보통 80~90%가 적당해요<br>
+                        • PNG는 다른 방식(무손실)으로 압축해요<br>
+                        • 동영상도 비슷한 원리로 압축해요 (MPEG, H.264 등)
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 홈으로 버튼 -->
+            <div style="text-align: center; padding: 30px 0;">
+                <a href="index.html" class="home-button" style="font-size: 1.1em; padding: 12px 30px;">
+                    🏠 홈으로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let currentImageData = null;
+        let blockGridVisible = true;
+        let currentBlockX = 0;
+        let currentBlockY = 0;
+        
+        // 툴팁 표시 함수
+        function showTooltip(element) {
+            const tooltip = element.querySelector('.tooltip-message');
+            tooltip.style.display = 'block';
+            
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 500);
+        }
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            initializeFrequencyGrid();
+            drawWaves();
+            initDrawCanvas();
+            loadSampleImage('sky');
+            initBlockDemo();
+        };
+
+        // 8x8 블록 그리드 초기화
+        function initializeBlockGrid() {
+            const grid = document.getElementById('blockGrid');
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'block-cell';
+                grid.appendChild(cell);
+            }
+        }
+
+        // 블록 데모 초기화
+        function initBlockDemo() {
+            const canvas = document.getElementById('blockDemoCanvas');
+            
+            // 클릭 이벤트 추가 (한 번만)
+            canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left) / 40) * 40;
+                const y = Math.floor((e.clientY - rect.top) / 40) * 40;
+                currentBlockX = x;
+                currentBlockY = y;
+                updateBlockDemo();
+            });
+            
+            // 초기 블록 표시
+            currentBlockX = 200;
+            currentBlockY = 200;
+            drawDemoImage();
+            updateBlockDemo();
+        }
+
+        // 데모 이미지 그리기 (분리된 함수)
+        function drawDemoImage() {
+            const canvas = document.getElementById('blockDemoCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 샘플 이미지 그리기 (간단한 풍경)
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.5, '#98D8E8');
+            gradient.addColorStop(0.7, '#90EE90');
+            gradient.addColorStop(1, '#228B22');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 태양
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(80, 60, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 집
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(200, 220, 80, 60);
+            ctx.fillStyle = '#DC143C';
+            ctx.beginPath();
+            ctx.moveTo(190, 220);
+            ctx.lineTo(240, 180);
+            ctx.lineTo(290, 220);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 창문
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(215, 240, 20, 20);
+            ctx.fillRect(255, 240, 20, 20);
+            
+            // 나무
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(100, 240, 20, 60);
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.arc(110, 230, 35, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 구름들
+            drawCloud(ctx, 180, 50, 0.8);
+            drawCloud(ctx, 280, 70, 0.6);
+        }
+
+        // 구름 그리기 헬퍼 함수
+        function drawCloud(ctx, x, y, scale) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            ctx.arc(x, y, 15 * scale, 0, Math.PI * 2);
+            ctx.arc(x + 15 * scale, y, 20 * scale, 0, Math.PI * 2);
+            ctx.arc(x + 30 * scale, y, 15 * scale, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 블록 데모 업데이트
+        function updateBlockDemo() {
+            const mainCanvas = document.getElementById('blockDemoCanvas');
+            const mainCtx = mainCanvas.getContext('2d');
+            const blockCanvas = document.getElementById('singleBlockCanvas');
+            const blockCtx = blockCanvas.getContext('2d');
+            
+            // 메인 캔버스 다시 그리기
+            drawDemoImage();
+            
+            // 격자 그리기 (토글 상태에 따라)
+            if (blockGridVisible) {
+                mainCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                mainCtx.lineWidth = 2;
+                for (let i = 0; i <= mainCanvas.width; i += 40) {
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(i, 0);
+                    mainCtx.lineTo(i, mainCanvas.height);
+                    mainCtx.stroke();
+                    
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(0, i);
+                    mainCtx.lineTo(mainCanvas.width, i);
+                    mainCtx.stroke();
+                }
+            }
+            
+            // 선택된 블록 강조
+            mainCtx.strokeStyle = '#FF0000';
+            mainCtx.lineWidth = 4;
+            mainCtx.strokeRect(currentBlockX + 1, currentBlockY + 1, 38, 38);
+            
+            // 선택된 블록 복사
+            const imageData = mainCtx.getImageData(currentBlockX, currentBlockY, 40, 40);
+            
+            // 확대하여 표시 (40x40 -> 160x160, 즉 8x8 픽셀 블록)
+            blockCtx.clearRect(0, 0, blockCanvas.width, blockCanvas.height);
+            
+            // 각 픽셀을 5x5 크기로 확대
+            const pixelSize = 20;
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    // 5x5 영역의 평균 색상 계산
+                    let r = 0, g = 0, b = 0, count = 0;
+                    for (let dy = 0; dy < 5; dy++) {
+                        for (let dx = 0; dx < 5; dx++) {
+                            const srcX = x * 5 + dx;
+                            const srcY = y * 5 + dy;
+                            if (srcX < 40 && srcY < 40) {
+                                const idx = (srcY * 40 + srcX) * 4;
+                                r += imageData.data[idx];
+                                g += imageData.data[idx + 1];
+                                b += imageData.data[idx + 2];
+                                count++;
+                            }
+                        }
+                    }
+                    r = Math.round(r / count);
+                    g = Math.round(g / count);
+                    b = Math.round(b / count);
+                    
+                    blockCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                    blockCtx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                }
+            }
+            
+            // 8x8 격자 그리기
+            blockCtx.strokeStyle = '#666';
+            blockCtx.lineWidth = 2;
+            for (let i = 0; i <= 8; i++) {
+                blockCtx.beginPath();
+                blockCtx.moveTo(i * pixelSize, 0);
+                blockCtx.lineTo(i * pixelSize, blockCanvas.height);
+                blockCtx.stroke();
+                
+                blockCtx.beginPath();
+                blockCtx.moveTo(0, i * pixelSize);
+                blockCtx.lineTo(blockCanvas.width, i * pixelSize);
+                blockCtx.stroke();
+            }
+            
+            // 픽셀 번호 표시
+            blockCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            blockCtx.font = 'bold 11px Arial';
+            blockCtx.textAlign = 'center';
+            blockCtx.textBaseline = 'middle';
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const num = y * 8 + x + 1;
+                    blockCtx.fillText(num.toString(), x * pixelSize + pixelSize/2, y * pixelSize + pixelSize/2);
+                }
+            }
+        }
+
+        // 격자 토글
+        function toggleBlockGrid() {
+            blockGridVisible = !blockGridVisible;
+            updateBlockDemo();
+        }
+
+        // 랜덤 블록 강조
+        function highlightRandomBlock() {
+            currentBlockX = Math.floor(Math.random() * 8) * 40;
+            currentBlockY = Math.floor(Math.random() * 8) * 40;
+            updateBlockDemo();
+        }
+
+        // 주파수 그리드 초기화
+        function initializeFrequencyGrid() {
+            const grid = document.getElementById('frequencyGrid');
+            
+            // 현실적인 DCT 계수 값 (8x8 행렬)
+            // 특징: 왼쪽 위는 큰 값, 오른쪽 아래로 갈수록 작아지고 0이 많아짐
+            const dctValues = [
+                [415, -33, -12, 8, 4, -3, 1, 0],
+                [-28, -24, 6, 5, -2, 1, 0, 0],
+                [-19, 13, -7, 3, 1, 0, 0, 0],
+                [11, -8, 4, -2, 1, 0, 0, 0],
+                [7, -5, 2, -1, 0, 0, 0, 0],
+                [-4, 3, -1, 0, 0, 0, 0, 0],
+                [2, -1, 0, 0, 0, 0, 0, 0],
+                [-1, 0, 0, 0, 0, 0, 0, 0]
+            ];
+            
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'freq-cell';
+                    
+                    // 거리에 따라 색상 변경 (저주파는 밝은 베이지, 고주파는 어두운 갈색/검정)
+                    const dist = Math.sqrt(x * x + y * y);
+                    const maxDist = Math.sqrt(7 * 7 + 7 * 7); // 대각선 최대 거리
+                    const ratio = dist / maxDist; // 0 (저주파) ~ 1 (고주파)
+                    
+                    // 베이지(255,220,180) → 갈색(100,70,40) → 검정(30,20,10)
+                    let r, g, b;
+                    if (ratio < 0.5) {
+                        // 저주파 → 중간: 밝은 베이지 → 갈색
+                        const t = ratio * 2;
+                        r = Math.round(255 - t * 55);
+                        g = Math.round(255 - t * 55);
+                        b = Math.round(255 - t * 55);
+                    } else {
+                        // 중간 → 고주파: 갈색 → 어두운 검정
+                        const t = (ratio - 0.5) * 2;
+                        r = Math.round(200 - t * 80);
+                        g = Math.round(200 - t * 80);
+                        b = Math.round(200 - t * 80);
+                    }
+                    
+                    cell.style.background = `rgb(${r}, ${g}, ${b})`;
+                    
+                    // 텍스트 색상 결정 (밝은 배경이면 어두운 텍스트, 어두운 배경이면 밝은 텍스트)
+                    const brightness = (r + g + b) / 3;
+                    cell.style.color = brightness > 128 ? '#333' : '#fff';
+                    
+                    // DCT 계수 값 표시
+                    const value = dctValues[y][x];
+                    const valueSpan = document.createElement('span');
+                    valueSpan.className = 'freq-value';
+                    valueSpan.textContent = value;
+                    cell.appendChild(valueSpan);
+                    
+                    // 특별한 위치 표시 (왼쪽 위에 빨간 테두리)
+                    if (x <= 2 && y <= 2) {
+                        cell.style.border = '2px solid rgba(255, 0, 0, 0.6)';
+                    }
+                    
+                    // 저주파/고주파 레이블 추가 (작게)
+                    if (x === 0 && y === 0) {
+                        const label = document.createElement('div');
+                        label.style.fontSize = '0.55em';
+                        label.style.marginBottom = '2px';
+                        label.textContent = '저주파';
+                        cell.insertBefore(label, valueSpan);
+                    } else if (x === 7 && y === 7) {
+                        const label = document.createElement('div');
+                        label.style.fontSize = '0.5em';
+                        label.style.marginBottom = '2px';
+                        label.textContent = '고주파';
+                        cell.insertBefore(label, valueSpan);
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // 파도 그리기
+        function drawWaves() {
+            // 저주파 파도
+            const lowCanvas = document.getElementById('lowFreqWave');
+            const lowCtx = lowCanvas.getContext('2d');
+            lowCtx.clearRect(0, 0, lowCanvas.width, lowCanvas.height);
+            
+            // 배경
+            lowCtx.fillStyle = '#f0f9ff';
+            lowCtx.fillRect(0, 0, lowCanvas.width, lowCanvas.height);
+            
+            // 저주파 파도 그리기
+            lowCtx.strokeStyle = '#3b82f6';
+            lowCtx.lineWidth = 4;
+            lowCtx.beginPath();
+            for (let x = 0; x < lowCanvas.width; x++) {
+                const y = lowCanvas.height/2 + Math.sin(x * 0.015) * 45;
+                if (x === 0) lowCtx.moveTo(x, y);
+                else lowCtx.lineTo(x, y);
+            }
+            lowCtx.stroke();
+            
+            // 텍스트
+            lowCtx.fillStyle = '#1e40af';
+            lowCtx.font = 'bold 14px Malgun Gothic';
+            lowCtx.fillText('천천히 변함', 10, 25);
+
+            // 고주파 파도
+            const highCanvas = document.getElementById('highFreqWave');
+            const highCtx = highCanvas.getContext('2d');
+            highCtx.clearRect(0, 0, highCanvas.width, highCanvas.height);
+            
+            // 배경
+            highCtx.fillStyle = '#fef2f2';
+            highCtx.fillRect(0, 0, highCanvas.width, highCanvas.height);
+            
+            // 고주파 파도 그리기
+            highCtx.strokeStyle = '#ef4444';
+            highCtx.lineWidth = 3;
+            highCtx.beginPath();
+            for (let x = 0; x < highCanvas.width; x++) {
+                const y = highCanvas.height/2 + Math.sin(x * 0.15) * 25;
+                if (x === 0) highCtx.moveTo(x, y);
+                else highCtx.lineTo(x, y);
+            }
+            highCtx.stroke();
+            
+            // 텍스트
+            highCtx.fillStyle = '#991b1b';
+            highCtx.font = 'bold 14px Malgun Gothic';
+            highCtx.fillText('빠르게 변함', 10, 25);
+        }
+
+        // 그리기 캔버스 초기화
+        function initDrawCanvas() {
+            const canvas = document.getElementById('drawCanvas');
+            const ctx = canvas.getContext('2d');
+            const pixelSize = 20;
+            
+            // 흰색 배경
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 그리드 그리기
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= canvas.width; i += pixelSize) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // 클릭 이벤트
+            canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left) / pixelSize) * pixelSize;
+                const y = Math.floor((e.clientY - rect.top) / pixelSize) * pixelSize;
+                
+                ctx.fillStyle = 'black';
+                ctx.fillRect(x, y, pixelSize, pixelSize);
+            });
+        }
+
+        // 캔버스 지우기
+        function clearCanvas() {
+            initDrawCanvas();
+            document.getElementById('drawResult').style.display = 'none';
+        }
+
+        // 저주파 예시 그리기
+        function drawLowFrequency() {
+            const canvas = document.getElementById('drawCanvas');
+            const ctx = canvas.getContext('2d');
+            const pixelSize = 20;
+            
+            clearCanvas();
+            
+            // 부드러운 그라데이션 (저주파)
+            ctx.fillStyle = 'black';
+            for (let y = 0; y < 16; y++) {
+                for (let x = 0; x < 16; x++) {
+                    const distance = Math.sqrt((x - 8) ** 2 + (y - 8) ** 2);
+                    const alpha = Math.max(0, 1 - distance / 8);
+                    ctx.globalAlpha = alpha;
+                    ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                }
+            }
+            ctx.globalAlpha = 1;
+            
+            document.getElementById('drawResult').innerHTML = 
+                '<strong>저주파 이미지:</strong> 천천히, 부드럽게 변합니다. 가운데가 진하고 주변으로 갈수록 옅어집니다.';
+            document.getElementById('drawResult').style.display = 'block';
+        }
+
+        // 고주파 예시 그리기
+        function drawHighFrequency() {
+            const canvas = document.getElementById('drawCanvas');
+            const ctx = canvas.getContext('2d');
+            const pixelSize = 20;
+            
+            clearCanvas();
+            
+            // 체스판 패턴 (고주파)
+            ctx.fillStyle = 'black';
+            for (let y = 0; y < 16; y++) {
+                for (let x = 0; x < 16; x++) {
+                    if ((x + y) % 2 === 0) {
+                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                    }
+                }
+            }
+            
+            document.getElementById('drawResult').innerHTML = 
+                '<strong>고주파 이미지:</strong> 빠르게, 급격하게 변합니다. 픽셀마다 색이 바뀌어 경계선이 많습니다.';
+            document.getElementById('drawResult').style.display = 'block';
+        }
+
+        // 샘플 이미지 로드
+        function loadSampleImage(type) {
+            const canvas = document.getElementById('originalCanvas');
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            
+            ctx.clearRect(0, 0, size, size);
+            
+            if (type === 'sky') {
+                // 하늘 - 저주파 많음
+                const gradient = ctx.createLinearGradient(0, 0, 0, size);
+                gradient.addColorStop(0, '#93c5fd');
+                gradient.addColorStop(0.35, '#60a5fa');
+                gradient.addColorStop(0.65, '#fbbf24');
+                gradient.addColorStop(1, '#fb923c');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // 태양
+                ctx.fillStyle = '#fef08a';
+                ctx.shadowColor = '#fbbf24';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(size * 0.75, size * 0.25, 45, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // 구름
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.beginPath();
+                ctx.arc(90, 70, 35, 0, Math.PI * 2);
+                ctx.arc(125, 70, 40, 0, Math.PI * 2);
+                ctx.arc(160, 70, 35, 0, Math.PI * 2);
+                ctx.fill();
+                
+            } else if (type === 'portrait') {
+                // 얼굴 - 중간
+                ctx.fillStyle = '#fef3c7';
+                ctx.fillRect(0, 0, size, size);
+                
+                // 얼굴
+                ctx.fillStyle = '#fde047';
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, 110, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 눈
+                ctx.fillStyle = '#1f2937';
+                ctx.beginPath();
+                ctx.arc(size/2 - 40, size/2 - 30, 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(size/2 + 40, size/2 - 30, 14, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 눈동자
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(size/2 - 37, size/2 - 33, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(size/2 + 43, size/2 - 33, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 입
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.arc(size/2, size/2 + 25, 45, 0, Math.PI);
+                ctx.stroke();
+                
+            } else if (type === 'building') {
+                // 건물 - 고주파 많음
+                ctx.fillStyle = '#bae6fd';
+                ctx.fillRect(0, 0, size, size);
+                
+                // 건물들
+                const buildings = [
+                    {x: 35, y: 130, w: 70, h: 190},
+                    {x: 115, y: 100, w: 80, h: 220},
+                    {x: 205, y: 150, w: 60, h: 170},
+                ];
+                
+                buildings.forEach(b => {
+                    // 건물 본체
+                    ctx.fillStyle = '#475569';
+                    ctx.fillRect(b.x, b.y, b.w, b.h);
+                    
+                    // 건물 테두리
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(b.x, b.y, b.w, b.h);
+                    
+                    // 창문들 (고주파!)
+                    ctx.fillStyle = '#fef3c7';
+                    const cols = Math.floor(b.w / 20);
+                    const rows = Math.floor(b.h / 28);
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
+                            const winX = b.x + 10 + c * 20;
+                            const winY = b.y + 15 + r * 28;
+                            ctx.fillRect(winX, winY, 12, 18);
+                            // 창문 테두리
+                            ctx.strokeStyle = '#92400e';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(winX, winY, 12, 18);
+                        }
+                    }
+                });
+            }
+            
+            // 이미지 데이터 저장
+            currentImageData = ctx.getImageData(0, 0, size, size);
+            
+            // 초기 압축 적용
+            updateQuality(80);
+        }
+
+        // 품질 업데이트 및 압축 적용
+        function updateQuality(value) {
+            document.getElementById('qualityValue').textContent = value;
+            
+            if (!currentImageData) return;
+            
+            // 파일 크기 계산
+            const originalSize = 100; // KB
+            const compressedSize = Math.round(originalSize * (value / 100));
+            const savedSize = originalSize - compressedSize;
+            const savedPercent = Math.round((savedSize / originalSize) * 100);
+            
+            document.getElementById('compressedSize').textContent = compressedSize;
+            document.getElementById('savedSize').textContent = savedSize;
+            document.getElementById('savedPercent').textContent = savedPercent;
+            
+            // 압축 캔버스에 복사 및 효과 적용
+            const canvas = document.getElementById('compressedCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.putImageData(currentImageData, 0, 0);
+            
+            // 블러 효과로 고주파 제거 시뮬레이션
+            const blurAmount = Math.round((100 - value) / 12);
+            if (blurAmount > 0) {
+                applyBoxBlur(ctx, canvas.width, canvas.height, blurAmount);
+            }
+            
+            // 블록 아티팩트 효과 (낮은 품질일 때)
+            if (value < 40) {
+                addBlockArtifact(ctx, canvas.width, canvas.height, value);
+            }
+            
+            // 결과 설명
+            let explanation = '';
+            if (value >= 80) {
+                explanation = '<p><strong>높은 품질 (80~100%):</strong> 고주파를 거의 버리지 않아요. 원본과 거의 똑같지만 압축률은 낮아요. (' + savedPercent + '% 절약)</p>';
+            } else if (value >= 50) {
+                explanation = '<p><strong>적절한 품질 (50~79%):</strong> 저주파는 그대로 두고 고주파를 조금만 버려요. 품질과 크기의 좋은 균형! 대부분 이 정도로 저장해요. (' + savedPercent + '% 절약)</p>';
+            } else if (value >= 30) {
+                explanation = '<p><strong>낮은 품질 (30~49%):</strong> 고주파를 많이 버려서 세밀한 부분이 흐려져요. 파일은 많이 작아지지만 품질이 떨어져요. (' + savedPercent + '% 절약)</p>';
+            } else {
+                explanation = '<p><strong>⚠️ 매우 낮은 품질 (10~29%):</strong> 고주파를 거의 다 버려서 <span class="highlight">블록 무늬(JPEG 아티팩트)</span>가 생겨요! 파일은 아주 작지만 품질이 많이 나빠요. (' + savedPercent + '% 절약)</p>';
+            }
+            
+            document.getElementById('resultExplanation').innerHTML = explanation;
+        }
+
+        // 박스 블러 적용 (고주파 제거 시뮬레이션)
+        function applyBoxBlur(ctx, width, height, radius) {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            const tempData = new Uint8ClampedArray(data);
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let r = 0, g = 0, b = 0, count = 0;
+                    
+                    for (let dy = -radius; dy <= radius; dy++) {
+                        for (let dx = -radius; dx <= radius; dx++) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+                            
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                const idx = (ny * width + nx) * 4;
+                                r += tempData[idx];
+                                g += tempData[idx + 1];
+                                b += tempData[idx + 2];
+                                count++;
+                            }
+                        }
+                    }
+                    
+                    const idx = (y * width + x) * 4;
+                    data[idx] = r / count;
+                    data[idx + 1] = g / count;
+                    data[idx + 2] = b / count;
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // 블록 아티팩트 추가 (낮은 품질 시뮬레이션)
+        function addBlockArtifact(ctx, width, height, quality) {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            const blockSize = 8;
+            const strength = (40 - quality) / 40; // 0~1
+            
+            // 8x8 블록 경계에 약간의 불연속성 추가
+            for (let y = 0; y < height; y += blockSize) {
+                for (let x = 0; x < width; x += blockSize) {
+                    // 블록 경계 강조
+                    if (x > 0 && y > 0) {
+                        for (let i = 0; i < blockSize && y + i < height; i++) {
+                            const idx = ((y + i) * width + x) * 4;
+                            const offset = strength * 15;
+                            data[idx] = Math.min(255, data[idx] + offset);
+                            data[idx + 1] = Math.min(255, data[idx + 1] + offset);
+                            data[idx + 2] = Math.min(255, data[idx + 2] + offset);
+                        }
+                        for (let i = 0; i < blockSize && x + i < width; i++) {
+                            const idx = (y * width + (x + i)) * 4;
+                            const offset = strength * 15;
+                            data[idx] = Math.min(255, data[idx] + offset);
+                            data[idx + 1] = Math.min(255, data[idx + 1] + offset);
+                            data[idx + 2] = Math.min(255, data[idx + 2] + offset);
+                        }
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+    </script>
+</body>
+</html>
