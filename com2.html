@@ -459,7 +459,7 @@
                 <a href="index.html" class="home-button">🏠 홈으로</a>
             </div>
             <div class="main-title">🎨 손실 압축 체험하기</div>
-            <div class="subtitle">이미지와 영상, 음악 파일이 어떻게 작아지는지 직접 체험해봐요!</div>
+            <div class="subtitle">이미지와 영상, 소리 파일이 어떻게 작아지는지 직접 체험해봐요!</div>
         </div>
 
         <div class="content">
@@ -473,8 +473,8 @@
 
             <div class="tabs">
                 <button class="tab-button active" onclick="showTab('imageTab')">🖼️ 이미지 압축</button>
+                <button class="tab-button" onclick="showTab('audioTab')">🎵 소리 압축</button>
                 <button class="tab-button" onclick="showTab('videoTab')">🎬 영상 압축</button>
-                <button class="tab-button" onclick="showTab('audioTab')">🎵 음악 압축</button>
             </div>
 
             <!-- 이미지 압축 탭 -->
@@ -676,7 +676,6 @@
                             <p>✅ 2색(흑백)은 원본의 4.2%만 차지해요! (1,820KB → 77KB)</p>
                         </div>
                     </div>
-                </div>
 
                 <div class="section fade-in">
                     <h2>🎨 색상 압축 체험하기 (PNG/GIF 방식)</h2>
@@ -846,51 +845,10 @@
                 </div>
             </div>
 
-            <!-- 영상 압축 탭 -->
-            <div id="videoTab" class="tab-content">
-                <div class="section fade-in">
-                    <h2>🎬 영상 압축 체험하기 (MPEG 방식)</h2>
-                    <p style="margin-bottom: 20px;">
-                        연속된 프레임에서 변화가 있는 부분만 저장하는 방식이에요.
-                        배경은 그대로이고 사람만 움직이면 사람 부분만 저장하면 되겠죠?
-                    </p>
-
-                    <div class="example-box">
-                        <h3 style="color: #f5576c; margin-bottom: 15px;">⏱️ 연속된 장면 만들기</h3>
-                        <p>각 프레임에 그림을 그리고 변화를 감지해보세요!</p>
-
-                        <div class="canvas-container">
-                            <div class="canvas-box">
-                                <h4>프레임 1</h4>
-                                <canvas id="frame1Canvas" width="250" height="250"></canvas>
-                            </div>
-                            <div class="canvas-box">
-                                <h4>프레임 2</h4>
-                                <canvas id="frame2Canvas" width="250" height="250"></canvas>
-                            </div>
-                        </div>
-
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button onclick="clearFrame1()">프레임 1 지우기</button>
-                            <button onclick="clearFrame2()">프레임 2 지우기</button>
-                            <button onclick="detectChanges()">🔍 변화 감지하기</button>
-                        </div>
-
-                        <div id="frameResult"></div>
-                    </div>
-
-                    <div class="note">
-                        <h4>💡 영상 압축의 비밀!</h4>
-                        <p>MPEG 같은 영상 압축은 이전 프레임과 비교해서 변한 부분만 저장해요. 
-                        그래서 정지된 배경이 많은 영상일수록 압축이 잘 돼요!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 음악 압축 탭 -->
+            <!-- 소리 압축 탭 -->
             <div id="audioTab" class="tab-content">
                 <div class="section fade-in">
-                    <h2>🎵 음악 압축 체험하기 (MP3 방식)</h2>
+                    <h2>🎵 소리 압축 체험하기 (MP3 방식)</h2>
                     <p style="margin-bottom: 20px;">
                         사람의 귀로 잘 들리지 않는 소리를 제거하는 방식이에요!
                     </p>
@@ -958,6 +916,48 @@
                 </div>
             </div>
 
+
+            <!-- 영상 압축 탭 -->
+            <div id="videoTab" class="tab-content">
+                <div class="section fade-in">
+                    <h2>🎬 영상 압축 체험하기 (MPEG 방식)</h2>
+                    <p style="margin-bottom: 20px;">
+                        연속된 프레임에서 변화가 있는 부분만 저장하는 방식이에요.
+                        배경은 그대로이고 사람만 움직이면 사람 부분만 저장하면 되겠죠?
+                    </p>
+
+                    <div class="example-box">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">⏱️ 연속된 장면 만들기</h3>
+                        <p>각 프레임에 그림을 그리고 변화를 감지해보세요!</p>
+
+                        <div class="canvas-container">
+                            <div class="canvas-box">
+                                <h4>프레임 1</h4>
+                                <canvas id="frame1Canvas" width="250" height="250"></canvas>
+                            </div>
+                            <div class="canvas-box">
+                                <h4>프레임 2</h4>
+                                <canvas id="frame2Canvas" width="250" height="250"></canvas>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button onclick="clearFrame1()">프레임 1 지우기</button>
+                            <button onclick="clearFrame2()">프레임 2 지우기</button>
+                            <button onclick="detectChanges()">🔍 변화 감지하기</button>
+                        </div>
+
+                        <div id="frameResult"></div>
+                    </div>
+
+                    <div class="note">
+                        <h4>💡 영상 압축의 비밀!</h4>
+                        <p>MPEG 같은 영상 압축은 이전 프레임과 비교해서 변한 부분만 저장해요. 
+                        그래서 정지된 배경이 많은 영상일수록 압축이 잘 돼요!</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="comparison fade-in">
                 <div class="comparison-item">
                     <div class="icon">🖼️</div>
@@ -973,7 +973,7 @@
                 </div>
                 <div class="comparison-item">
                     <div class="icon">🎵</div>
-                    <h4>음악 압축</h4>
+                    <h4>소리 압축</h4>
                     <p>MP3: 안 들리는 소리 제거</p>
                     <p class="file-size">10~12배 압축</p>
                 </div>
@@ -1348,7 +1348,7 @@
             `;
         }
 
-        // 음악 압축 관련 함수
+        // 소리 압축 관련 함수
         function drawWaveform() {
             const canvas = document.getElementById('waveCanvas');
             const ctx = canvas.getContext('2d');
@@ -1387,7 +1387,7 @@
 
         function updateFrequency() {
             const value = document.getElementById('freqSlider').value;
-            document.getElementById('freqValue').textContent = value + ' Hz';
+            document.getElementById('freqValue').textContent = value;
             drawWaveform();
         }
 
@@ -1425,7 +1425,7 @@
 
         function updateBitrate() {
             const value = document.getElementById('bitrateSlider').value;
-            document.getElementById('bitrateValue').textContent = value + ' kbps';
+            document.getElementById('bitrateValue').textContent = value;
             
             const fileSize = (value * 180 / 8 / 1024).toFixed(1);
             
@@ -1441,14 +1441,30 @@
         }
 
         function showTab(tabName) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
+            console.log('🔍 탭 전환 시작:', tabName);
             
+            // 1단계: 모든 탭을 명시적으로 숨김
+            document.getElementById('imageTab').style.display = 'none';
+            document.getElementById('imageTab').classList.remove('active');
+            
+            document.getElementById('videoTab').style.display = 'none';
+            document.getElementById('videoTab').classList.remove('active');
+            
+            document.getElementById('audioTab').style.display = 'none';
+            document.getElementById('audioTab').classList.remove('active');
+            
+            // 2단계: 모든 버튼 비활성화
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
             
+            // 3단계: 선택한 탭만 표시
+            document.getElementById(tabName).style.display = 'block';
             document.getElementById(tabName).classList.add('active');
+            
+            // 4단계: 클릭한 버튼 활성화
             event.target.classList.add('active');
+            
+            console.log('✅ 탭 전환 완료:', tabName);
         }
 
         // 초기화        
