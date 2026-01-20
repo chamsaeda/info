@@ -721,6 +721,9 @@
                         <label for="imageUpload" class="upload-button">📁 내 이미지 선택</label>
                         <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="loadUserImage(event)">
                     </div>
+                    <p style="text-align: center; color: #666; font-size: 0.95em; margin-top: 10px;">
+                        💡 <strong>안내:</strong> 용량이 큰 이미지(5MB 이상)는 처리 시간이 다소 걸릴 수 있어요.
+                    </p>
 
                     <div class="slider-container">
                         <label style="font-weight: bold; display: block; margin-bottom: 15px; font-size: 1.2em;">
@@ -736,7 +739,7 @@
 
                     <div class="canvas-container">
                         <div class="canvas-box">
-                            <h4>원본 (100 KB)</h4>
+                            <h4>원본 (<span id="originalSize">100</span> KB)</h4>
                             <canvas id="originalCanvas" width="320" height="320"></canvas>
                         </div>
                         <div class="canvas-box">
@@ -853,6 +856,7 @@
         let blockGridVisible = true;
         let currentBlockX = 0;
         let currentBlockY = 0;
+        let originalFileSize = 100; // 원본 파일 크기 (KB) - 기본값 100KB
         
         // 툴팁 표시 함수
         function showTooltip(element) {
@@ -1296,6 +1300,9 @@
 
         // 샘플 이미지 로드
         function loadSampleImage(type) {
+            // 샘플 이미지는 기본 크기로 설정
+            originalFileSize = 100;
+            
             const canvas = document.getElementById('originalCanvas');
             const ctx = canvas.getContext('2d');
             const size = canvas.width;
@@ -1423,6 +1430,28 @@
                 return;
             }
             
+            // 원본 파일 크기 저장 (KB 단위로 변환)
+            originalFileSize = Math.round(file.size / 1024);
+            
+            // 파일 크기 확인 및 경고
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            if (file.size > 5 * 1024 * 1024) { // 5MB 이상
+                if (!confirm(`선택한 이미지 크기가 ${fileSizeMB}MB로 큽니다.\n처리에 시간이 걸릴 수 있습니다. 계속하시겠습니까?`)) {
+                    event.target.value = ''; // 파일 선택 취소
+                    return;
+                }
+            }
+            
+            // 로딩 표시
+            const canvas = document.getElementById('originalCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f3f4f6';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 20px Malgun Gothic';
+            ctx.textAlign = 'center';
+            ctx.fillText('이미지 처리 중...', canvas.width/2, canvas.height/2);
+            
             const reader = new FileReader();
             
             reader.onload = function(e) {
@@ -1460,22 +1489,23 @@
             
             reader.readAsDataURL(file);
         }
-        
+
         // 품질 업데이트 및 압축 적용
         function updateQuality(value) {
             document.getElementById('qualityValue').textContent = value;
             
             if (!currentImageData) return;
             
-            // 파일 크기 계산
-            const originalSize = 100; // KB
-            const compressedSize = Math.round(originalSize * (value / 100));
-            const savedSize = originalSize - compressedSize;
-            const savedPercent = Math.round((savedSize / originalSize) * 100);
+            // 파일 크기 계산 (실제 원본 크기 기반)
+            const compressedSize = Math.round(originalFileSize * (value / 100));
+            const savedSize = originalFileSize - compressedSize;
+            const savedPercent = Math.round((savedSize / originalFileSize) * 100);
             
+            // 화면에 표시
+            document.getElementById('originalSize').textContent = originalFileSize; // 원본 크기 표시 추가
             document.getElementById('compressedSize').textContent = compressedSize;
             document.getElementById('savedSize').textContent = savedSize;
-            document.getElementById('savedPercent').textContent = savedPercent;
+            document.getElementById('savedPercent').textContent = savedPercent
             
             // 압축 캔버스에 복사 및 효과 적용
             const canvas = document.getElementById('compressedCanvas');
