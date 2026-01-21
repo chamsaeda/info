@@ -583,6 +583,85 @@
             font-size: 0.8em;
             font-weight: bold;
         }
+        /* 이미지 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #f5576c;
+        }
+
+        .clickable-image {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .clickable-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* 툴팁 스타일 */
+        @keyframes bounceOnce {
+            0%, 100% { transform: translateY(0) translateX(-50%); }
+            50% { transform: translateY(-10px) translateX(-50%); }
+        }
+
+        .tooltip-trigger {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip-message {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -60px;
+            background: #fbcfe8;
+            color: #1f2937;
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 50;
+            animation: bounceOnce 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -1125,6 +1204,35 @@
 
                         <div class="note" style="margin-top: 15px;">
                             <p>💡 <strong>64 kbps</strong>는 음질이 낮아 뭉개진 느낌이 들고, <strong>320 kbps</strong>는 원음에 가까운 고음질이에요!</p>
+                            
+                            <div style="display: flex; justify-content: space-around; align-items: center; margin-top: 20px; gap: 15px;">
+                                <div style="text-align: center;">
+                                    <img src="src/s064.png" 
+                                         class="clickable-image" 
+                                         onclick="openModal('src/s064.png')"
+                                         style="width: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <p style="margin-top: 8px; font-weight: bold; color: #dc2626;">64 kbps</p>
+                                    <p style="font-size: 0.9em; color: #666;">낮은 음질 (클릭하면 크게 보여요)</p>
+                                </div>
+                                
+                                <div style="text-align: center;">
+                                    <img src="src/s192.png" 
+                                         class="clickable-image" 
+                                         onclick="openModal('src/s192.png')"
+                                         style="width: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <p style="margin-top: 8px; font-weight: bold; color: #f59e0b;">192 kbps</p>
+                                    <p style="font-size: 0.9em; color: #666;">일반 음질 (클릭하면 크게 보여요)</p>
+                                </div>
+                                
+                                <div style="text-align: center;">
+                                    <img src="src/s320.png" 
+                                         class="clickable-image" 
+                                         onclick="openModal('src/s320.png')"
+                                         style="width: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <p style="margin-top: 8px; font-weight: bold; color: #059669;">320 kbps</p>
+                                    <p style="font-size: 0.9em; color: #666;">고음질 (클릭하면 크게 보여요)</p>
+                                </div>
+                            </div>                        
                         </div>
                     </div>
 
@@ -1179,7 +1287,13 @@
                     </p>
 
                     <div class="example-box">
-                        <h3 style="color: #f5576c; margin-bottom: 15px;">⏱️ 연속된 장면 만들기</h3>
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">
+                            <span class="tooltip-trigger" onclick="showTooltip(this)">
+                                ⏱️
+                                <span class="tooltip-message" style="display: none;">참새다!</span>
+                            </span>
+                             연속된 장면 만들기
+                        </h3>
                         <p>각 프레임에 그림을 그리고 변화를 감지해보세요!</p>
 
                         <div class="canvas-container">
@@ -2074,6 +2188,16 @@
             console.log('✅ 탭 전환 완료:', tabName);
         }
 
+        // 툴팁 표시 함수
+        function showTooltip(element) {
+            const tooltip = element.querySelector('.tooltip-message');
+            tooltip.style.display = 'block';
+            
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 500);
+        }
+        
         // 초기화        
         window.addEventListener('DOMContentLoaded', function() {
             drawWaveform();
@@ -2603,6 +2727,32 @@
             stopAllSounds();
             resetMaskingSound();
         });
+
+        // 이미지 모달 관련 함수
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
+    <!-- 이미지 모달 -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="확대 이미지">
+        </div>
+    </div>
 </body>
 </html>
