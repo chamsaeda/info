@@ -57,6 +57,19 @@
       }
     }
     
+    @keyframes lineFlash {
+      0%, 100% {
+        stroke: #10b981;
+        stroke-opacity: 0.4;
+        stroke-width: 3;
+      }
+      50% {
+        stroke: #3b82f6;
+        stroke-opacity: 1;
+        stroke-width: 6;
+      }
+    }
+    
     @keyframes bounceOnce {
       0%, 100% { transform: translateY(0) translateX(-50%); }
       50% { transform: translateY(-10px) translateX(-50%); }
@@ -72,6 +85,7 @@
     
     .network-node {
       transition: all 0.3s ease;
+      transform-origin: center;
     }
     
     .network-node.active {
@@ -184,7 +198,7 @@
         phones.forEach((phone) => {
           const pos = getNodePosition(phone.id);
           const isActive = 
-            (callingFrom === phone.id || callingTo === phone.id);
+            (callingFrom === phone.id || callingTo === phone.id) && showPhoneConnection;
           
           connections.push(
             <line
@@ -196,8 +210,9 @@
               stroke={isActive ? "#3b82f6" : "#d1d5db"}
               strokeWidth={isActive ? "4" : "3"}
               strokeDasharray="5,5"
-              className={isActive ? "line-glow" : ""}
+              className={isActive ? "line-flash" : ""}
               opacity={isActive ? "1" : "0.5"}
+              style={isActive ? { animation: 'lineFlash 1s ease-in-out infinite' } : {}}
             >
               {!isActive && (
                 <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite" />
@@ -308,6 +323,7 @@
           const pos = getDevicePosition(device.name);
           const deviceId = device.name.replace(/\s/g, '_');
           const isActive = activeNodes.includes(deviceId);
+          const isInConnection = (device.name === ipFrom || device.name === ipTo) && showIPConnection;
           
           connections.push(
             <line
@@ -316,13 +332,14 @@
               y1={center.y}
               x2={pos.x}
               y2={pos.y}
-              stroke={isActive ? "#10b981" : "#d1d5db"}
-              strokeWidth={isActive ? "4" : "3"}
+              stroke={isInConnection ? "#10b981" : "#d1d5db"}
+              strokeWidth={isInConnection ? "4" : "3"}
               strokeDasharray="5,5"
-              className={isActive ? "line-glow" : ""}
-              opacity={isActive ? "1" : "0.5"}
+              className={isInConnection ? "line-flash" : ""}
+              opacity={isInConnection ? "1" : "0.5"}
+              style={isInConnection ? { animation: 'lineFlash 1s ease-in-out infinite' } : {}}
             >
-              {!isActive && (
+              {!isInConnection && (
                 <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite" />
               )}
             </line>
@@ -698,7 +715,7 @@
                         const isReceiving = callingTo === phone.id;
                         
                         return (
-                          <g key={phone.id} className={`network-node ${isActive ? 'active' : ''} ${isReceiving ? 'receiving' : ''}`}>
+                          <g key={phone.id} className={`network-node ${isActive ? 'active' : ''} ${isReceiving ? 'receiving' : ''}`} style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}>
                             <circle
                               cx={pos.x}
                               cy={pos.y}
@@ -946,6 +963,7 @@
                           <g 
                             key={device.name}
                             className={`network-node ${isActive ? 'active' : ''} ${isInConnection && showIPConnection ? 'receiving' : ''}`}
+                            style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}
                           >
                             <circle 
                               cx={pos.x} 
