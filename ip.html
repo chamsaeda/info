@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IP 주소와 도메인 이름</title>
+  <title>IP 주소와 도메인 이름 - 통합 학습</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { 
@@ -13,573 +13,1859 @@
       padding: 20px;
       min-height: 100vh;
     }
-    .pulse {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    
+    /* 탭 스타일 */
+    .main-tab {
+      transition: all 0.3s ease;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+    .main-tab.active {
+      background: white;
+      color: #1e40af;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
     }
+    
+    .sub-tab {
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    .sub-tab.active {
+      background: white;
+      color: #1e40af;
+      border-bottom-color: #3b82f6;
+      font-weight: bold;
+    }
+    
+    /* 애니메이션 */
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
     .slide-in {
       animation: slideIn 0.5s ease-out;
     }
     @keyframes slideIn {
-      from {
-        transform: translateY(20px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
-    .dns-arrow {
-      animation: moveRight 1.5s ease-in-out infinite;
+    
+    /* 진행 바 */
+    .progress-step {
+      transition: all 0.3s ease;
     }
-    @keyframes moveRight {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(10px); }
+    .progress-step.completed {
+      background: #10b981;
+      color: white;
     }
-    @keyframes bounceOnce {
-      0%, 100% { transform: translateY(0) translateX(-50%); }
-      50% { transform: translateY(-10px) translateX(-50%); }
+    .progress-step.active {
+      background: #3b82f6;
+      color: white;
+      transform: scale(1.1);
     }
-
+    
+    /* 비트 칸 */
+    .bit-cell { 
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .bit-cell:hover {
+      transform: translateY(-2px);
+    }
+    .bit-cell .bit-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 50;
+      pointer-events: none;
+    }
+    .bit-cell .bit-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .bit-cell:hover .bit-tooltip {
+      display: block;
+    }
+    
+    /* 도메인 파트 */
+    .domain-part {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .domain-part:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    /* 비교 테이블 */
+    .compare-table th {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+    }
+    .compare-table td {
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <div class="max-w-6xl mx-auto">
+  <div class="max-w-7xl mx-auto">
     <!-- 헤더 -->
-    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
-      <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-8 text-white">
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
+      <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 text-white">
         <div class="flex justify-between items-center mb-2">
-          <div class="text-sm text-blue-100">부산진여자상업고등학교 정보 학습자료</div>
-          <a 
-            href="index.html" 
+          <div class="text-sm text-blue-100">고등학교 정보 학습자료</div>
+          <a
+            href="index.html"
             class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
           >
             🏠 홈으로
           </a>
         </div>
-        <h1 class="text-4xl font-bold mb-3">🌐 IP 주소와 도메인 이름</h1>
-        <p class="text-lg text-blue-100">인터넷 주소의 비밀을 알아볼까요?</p>
+        <h1 class="text-5xl font-black mb-2">🌐 IP 주소와 도메인 이름</h1>
+        <p class="text-xl text-blue-100">인터넷 주소의 비밀, 같이 알아볼까요? 🚀</p>
       </div>
       
-      <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-b border-blue-100">
-        <div class="text-gray-700">
-          <h3 class="font-bold text-blue-900 text-lg mb-2">🎯 학습 목표</h3>
-          <p class="leading-relaxed">
-            컴퓨터가 인터넷에서 서로를 찾아가는 방법을 이해하고, 
-            <span class="font-bold text-blue-600">IP 주소</span>와 
-            <span class="font-bold text-cyan-600">도메인 이름</span>의 관계를 배워봅시다!
-          </p>
-        </div>
+      <!-- 메인 탭 네비게이션 -->
+      <div class="bg-gray-100 p-2 flex gap-2">
+        <button onclick="showMainTab('concept', this)" class="main-tab active flex-1 py-3 rounded-xl font-bold text-gray-600">
+          📚 개념 학습
+        </button>
+        <button onclick="showMainTab('playground', this)" class="main-tab flex-1 py-3 rounded-xl font-bold text-gray-600">
+          🎮 체험 놀이터
+        </button>
+        <button onclick="showMainTab('advanced', this)" class="main-tab flex-1 py-3 rounded-xl font-bold text-gray-600">
+          🧩 심화 학습
+        </button>
+        <button onclick="showMainTab('quiz', this)" class="main-tab flex-1 py-3 rounded-xl font-bold text-gray-600">
+          ✅ 퀴즈
+        </button>
       </div>
     </div>
 
-    <!-- 개념 설명 섹션 -->
-    <div class="grid md:grid-cols-2 gap-6 mb-8">
-      <!-- IP 주소 설명 -->
-      <div class="bg-white rounded-2xl shadow-xl p-6">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="text-4xl">🏠</div>
-          <h2 class="text-2xl font-bold text-gray-800">IP 주소란?</h2>
-        </div>
-        <div class="space-y-3 text-gray-700">
-          <p class="leading-relaxed">
-            <span class="font-bold text-blue-600">IP 주소</span>는 인터넷에 연결된 
-            컴퓨터의 <span class="font-bold">고유한 주소</span>예요. 
-            마치 우리 집의 도로명 주소처럼 말이죠!
-          </p>
-          <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-            <p class="font-mono text-lg text-blue-900 font-bold mb-2">192.168.0.1</p>
-            <p class="text-sm text-gray-600">
-              숫자 4개를 점(.)으로 연결한 형태<br>
-              각 숫자는 0~255 사이의 값
-            </p>
-          </div>
-          <div class="bg-yellow-50 p-3 rounded-lg">
-            <p class="text-sm">
-              💡 <span class="font-bold">예를 들면?</span><br>
-              집 주소: 서울시 강남구 테헤란로 123<br>
-              IP 주소: 192.168.0.1
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 도메인 이름 설명 -->
-      <div class="bg-white rounded-2xl shadow-xl p-6">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="text-4xl">📝</div>
-          <h2 class="text-2xl font-bold text-gray-800">도메인 이름이란?</h2>
-        </div>
-        <div class="space-y-3 text-gray-700">
-          <p class="leading-relaxed">
-            <span class="font-bold text-cyan-600">도메인 이름</span>은 
-            외우기 어려운 IP 주소 대신 사용하는 <span class="font-bold">쉬운 이름</span>이에요!
-          </p>
-          <div class="bg-cyan-50 p-4 rounded-lg border-l-4 border-cyan-500">
-            <p class="font-mono text-lg text-cyan-900 font-bold mb-2">www.naver.com</p>
-            <p class="text-sm text-gray-600">
-              사람이 기억하기 쉬운 문자 형태<br>
-              알파벳, 숫자, 하이픈(-) 사용 가능
-            </p>
-          </div>
-          <div class="bg-yellow-50 p-3 rounded-lg">
-            <p class="text-sm">
-              💡 <span class="font-bold">왜 필요할까?</span><br>
-              223.130.195.95 ❌ 외우기 어려워요!<br>
-              www.naver.com ✅ 쉽게 기억해요!
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DNS 변환 시뮬레이션 -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <span class="text-3xl">🔄</span>
-        DNS: 도메인을 IP로 변환하기
-      </h2>
-      
-      <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6">
-        <p class="text-gray-700 leading-relaxed mb-3">
-          <span class="font-bold text-purple-600">DNS (Domain Name System)</span>는 
-          도메인 이름을 IP 주소로 바꿔주는 시스템이에요. 
-          마치 전화번호부처럼 "이름 → 번호"를 찾아주는 역할을 합니다!
-        </p>
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-gray-700 font-bold mb-3">
-          🌐 도메인 이름을 입력하고 변환해보세요:
-        </label>
-        <div class="flex gap-3">
-          <input 
-            type="text" 
-            id="domainInput" 
-            placeholder="예: www.naver.com"
-            class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
-          >
-          <button 
-            onclick="convertDomain()"
-            class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
-          >
-            변환하기 🔍
+    <!-- ==================== 메인 탭 1: 개념 학습 ==================== -->
+    <div id="main-concept" class="main-content">
+      <div class="bg-white rounded-3xl shadow-2xl p-6 mb-6">
+        <!-- 서브 탭 -->
+        <div class="flex gap-2 mb-6 border-b-2 border-gray-200 overflow-x-auto">
+          <button onclick="showConceptTab('ipv4', this)" class="sub-tab active px-6 py-3 rounded-t-xl">
+            IPv4 주소
+          </button>
+          <button onclick="showConceptTab('ipv6', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            IPv6 주소
+          </button>
+          <button onclick="showConceptTab('domain', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            도메인 이름
+          </button>
+          <button onclick="showConceptTab('structure', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            도메인 구조
+          </button>
+          <button onclick="showConceptTab('dns', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            DNS
           </button>
         </div>
-        <div class="mt-3 flex gap-2">
-          <button onclick="setExample('www.naver.com')" class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-gray-300">www.naver.com</button>
-          <button onclick="setExample('www.google.com')" class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-gray-300">www.google.com</button>
-          <button onclick="setExample('www.youtube.com')" class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-gray-300">www.youtube.com</button>
+
+        <!-- IPv4 주소 -->
+        <div id="concept-ipv4" class="concept-content">
+          <div class="mb-6">
+            <h2 class="text-3xl font-black text-gray-800 mb-3 flex items-center gap-3">
+              <span class="text-4xl">🔵</span>
+              IPv4 주소란?
+            </h2>
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border-l-4 border-blue-500 mb-6">
+              <p class="text-gray-700 text-lg leading-relaxed mb-3">
+                <span class="font-bold text-blue-600">IPv4 주소</span>는 인터넷에 연결된 모든 기기에 부여되는 <span class="font-bold">고유한 주소</span>예요.
+                마치 우리 집 주소처럼, 컴퓨터도 인터넷에서 자신만의 주소가 필요해요!
+              </p>
+              <div class="bg-white p-4 rounded-lg">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="text-2xl">📌</span>
+                  <span class="font-bold text-gray-800">형식</span>
+                </div>
+                <ul class="space-y-2 text-gray-700">
+                  <li>• <span class="font-bold">0~255</span> 사이의 숫자 4개 영역</li>
+                  <li>• 마침표(.)로 구분</li>
+                  <li>• 총 <span class="font-bold text-blue-600">32비트</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 예시 -->
+            <div class="bg-white rounded-xl p-6 border-2 border-blue-200 mb-6">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">📝 예시</h3>
+              
+              <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-xl mb-4">
+                <div class="text-center mb-4">
+                  <div class="text-4xl font-black text-blue-600 font-mono mb-2">27.101.207.36</div>
+                  <div class="text-sm text-gray-600">10진수 표기</div>
+                </div>
+                
+                <div class="flex items-center justify-center gap-2 mb-4">
+                  <div class="text-3xl">⬇️</div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="text-center mb-2">
+                    <div class="text-sm text-gray-600 mb-2">2진수 표기 (8비트씩)</div>
+                    <div class="font-mono text-lg font-bold text-indigo-600 break-all">
+                      00011011.01100101.11001111.00100100
+                    </div>
+                  </div>
+                  <div class="text-center text-sm text-gray-500 mt-3">
+                    8 + 8 + 8 + 8 = 32비트
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2진수 설명 -->
+              <div class="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300">
+                <div class="font-bold text-yellow-800 mb-2">💡 왜 2진수로 표현할까요?</div>
+                <div class="text-sm text-gray-700">
+                  컴퓨터는 모든 정보를 0과 1로만 저장하고 처리해요. 
+                  따라서 사람이 보기 편한 10진수(27.101.207.36)를 컴퓨터는 
+                  2진수(00011011.01100101.11001111.00100100)로 변환해서 사용합니다!
+                </div>
+              </div>
+            </div>
+
+            <!-- 주소 개수 -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-300">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">🔢 IPv4 주소는 몇 개나 있을까?</h3>
+              
+              <div class="bg-white p-6 rounded-xl mb-4">
+                <div class="text-center">
+                  <div class="text-5xl font-black text-purple-600 mb-3">
+                    2<sup>32</sup>
+                  </div>
+                  <div class="text-3xl font-bold text-gray-800 mb-2">=</div>
+                  <div class="text-4xl font-black text-pink-600">
+                    4,294,967,296
+                  </div>
+                  <div class="text-lg text-gray-600 mt-3">약 43억 개</div>
+                </div>
+              </div>
+
+              <div class="bg-red-50 p-4 rounded-lg border-2 border-red-300">
+                <div class="font-bold text-red-800 mb-2">⚠️ 문제점</div>
+                <div class="text-sm text-gray-700">
+                  전 세계 인구가 80억 명이 넘고, 한 사람당 여러 기기(컴퓨터, 스마트폰, 태블릿 등)를 
+                  사용하기 때문에 IPv4 주소가 부족해지고 있어요. 그래서 <span class="font-bold text-red-600">IPv6</span>가 
+                  개발되었습니다!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IPv6 주소 -->
+        <div id="concept-ipv6" class="concept-content hidden">
+          <div class="mb-6">
+            <h2 class="text-3xl font-black text-gray-800 mb-3 flex items-center gap-3">
+              <span class="text-4xl">🟣</span>
+              IPv6 주소란?
+            </h2>
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border-l-4 border-purple-500 mb-6">
+              <p class="text-gray-700 text-lg leading-relaxed mb-3">
+                <span class="font-bold text-purple-600">IPv6</span>는 IPv4 주소가 거의 다 떨어져서
+                만들어진 <span class="font-bold">새로운 버전의 인터넷 주소</span>예요.
+                주소 수가 엄청나게 늘어나서 앞으로 수십억 개의 기기도 문제없이 연결할 수 있어요!
+              </p>
+              <div class="bg-white p-4 rounded-lg">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="text-2xl">📌</span>
+                  <span class="font-bold text-gray-800">형식</span>
+                </div>
+                <ul class="space-y-2 text-gray-700">
+                  <li>• <span class="font-bold">16진수</span> 8개 그룹</li>
+                  <li>• 콜론(:)으로 구분</li>
+                  <li>• 총 <span class="font-bold text-purple-600">128비트</span></li>
+                  <li>• 각 그룹은 16비트 (16 × 8 = 128비트)</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 예시 -->
+            <div class="bg-white rounded-xl p-6 border-2 border-purple-200 mb-6">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">📝 예시</h3>
+              
+              <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-4">
+                <div class="text-center">
+                  <div class="text-2xl font-black text-purple-600 font-mono break-all">
+                    2001:0db8:0000:0042:0000:8a2e:0370:7334
+                  </div>
+                  <div class="text-sm text-gray-600 mt-2">16진수 8그룹</div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg mt-4">
+                  <div class="text-center">
+                    <div class="text-sm text-gray-600 mb-2">각 그룹: 16비트</div>
+                    <div class="text-lg font-bold text-indigo-600">
+                      16 × 8 = <span class="text-2xl text-purple-600">128비트</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-green-50 p-4 rounded-lg border-2 border-green-300">
+                <div class="font-bold text-green-800 mb-2">💡 압축 표기법</div>
+                <div class="text-sm text-gray-700 space-y-2">
+                  <div>• 연속된 0000은 ::로 압축 가능</div>
+                  <div>• 예시: 2001:0db8::8a2e:0370:7334</div>
+                  <div>• 앞의 0은 생략 가능: 0042 → 42</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- IPv4 vs IPv6 비교 -->
+            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-300">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">⚖️ IPv4 vs IPv6 비교</h3>
+              
+              <div class="overflow-x-auto">
+                <table class="compare-table w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th class="p-3 text-left rounded-tl-lg">항목</th>
+                      <th class="p-3 text-left">IPv4</th>
+                      <th class="p-3 text-left rounded-tr-lg">IPv6</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white">
+                    <tr>
+                      <td class="p-3 font-bold">주소 길이</td>
+                      <td class="p-3">32비트</td>
+                      <td class="p-3">128비트</td>
+                    </tr>
+                    <tr>
+                      <td class="p-3 font-bold">표기법</td>
+                      <td class="p-3 font-mono text-xs">192.168.1.1 (10진수)</td>
+                      <td class="p-3 font-mono text-xs">2001:db8::1 (16진수)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-3 font-bold">주소 개수</td>
+                      <td class="p-3">약 43억 개</td>
+                      <td class="p-3">약 340간 개 (거의 무한)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-3 font-bold">그룹 수</td>
+                      <td class="p-3">4개 (점으로 구분)</td>
+                      <td class="p-3">8개 (콜론으로 구분)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-3 font-bold">보안</td>
+                      <td class="p-3">선택 사항</td>
+                      <td class="p-3">IPSec 기본 내장</td>
+                    </tr>
+                    <tr>
+                      <td class="p-3 font-bold">주소 고갈</td>
+                      <td class="p-3">⚠️ 고갈 위기</td>
+                      <td class="p-3">✅ 충분함</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-4 bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300">
+                <div class="font-bold text-yellow-800 mb-2">🚀 왜 IPv6로 전환해야 할까?</div>
+                <div class="text-sm text-gray-700 space-y-1">
+                  <div>1. <span class="font-bold">주소 부족 해결</span>: 43억 개 → 340간 개</div>
+                  <div>2. <span class="font-bold">보안 강화</span>: 암호화 기능 기본 탑재</div>
+                  <div>3. <span class="font-bold">성능 향상</span>: 더 빠른 데이터 전송</div>
+                  <div>4. <span class="font-bold">IoT 시대 대비</span>: 수십억 개의 기기 연결</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 도메인 이름 -->
+        <div id="concept-domain" class="concept-content hidden">
+          <div class="mb-6">
+            <h2 class="text-3xl font-black text-gray-800 mb-3 flex items-center gap-3">
+              <span class="text-4xl">🟢</span>
+              도메인 이름이란?
+            </h2>
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border-l-4 border-green-500 mb-6">
+              <p class="text-gray-700 text-lg leading-relaxed mb-3">
+                <span class="font-bold text-green-600">도메인 이름</span>은 
+                숫자로만 된 IP 주소 대신 사람이 쉽게 기억할 수 있도록
+                <span class="font-bold">영문이나 한글로 만든 인터넷 주소</span>예요.
+              </p>
+              <div class="bg-white p-4 rounded-lg">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="text-2xl">📌</span>
+                  <span class="font-bold text-gray-800">왜 필요할까?</span>
+                </div>
+                <div class="text-gray-700 space-y-2">
+                  <div>❌ <span class="font-mono">223.130.195.95</span> → 외우기 어려워요!</div>
+                  <div>✅ <span class="font-mono font-bold text-green-600">www.naver.com</span> → 쉽게 기억해요!</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 비교 -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-50 rounded-xl p-6 border-2 border-red-300">
+                <div class="text-center mb-4">
+                  <div class="text-3xl mb-3">❌</div>
+                  <h3 class="font-bold text-red-800 text-lg mb-3">IP 주소만 사용</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="font-mono text-lg text-red-600 mb-3">192.168.1.100</div>
+                  <ul class="text-sm text-gray-700 space-y-2">
+                    <li>• 숫자만 있어서 외우기 어려움</li>
+                    <li>• 의미를 알 수 없음</li>
+                    <li>• 실수하기 쉬움</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="bg-green-50 rounded-xl p-6 border-2 border-green-300">
+                <div class="text-center mb-4">
+                  <div class="text-3xl mb-3">✅</div>
+                  <h3 class="font-bold text-green-800 text-lg mb-3">도메인 이름 사용</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="font-mono text-lg text-green-600 mb-3">www.naver.com</div>
+                  <ul class="text-sm text-gray-700 space-y-2">
+                    <li>• 단어로 구성되어 기억하기 쉬움</li>
+                    <li>• 의미를 바로 알 수 있음</li>
+                    <li>• 입력하기 편함</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 예시 -->
+            <div class="bg-white rounded-xl p-6 border-2 border-cyan-200">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">📝 도메인 이름 예시</h3>
+              
+              <div class="space-y-4">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg">
+                  <div class="font-mono text-xl font-bold text-green-600 mb-2">www.naver.com</div>
+                  <div class="text-sm text-gray-600">네이버 포털 사이트</div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg">
+                  <div class="font-mono text-xl font-bold text-blue-600 mb-2">www.google.com</div>
+                  <div class="text-sm text-gray-600">구글 검색 엔진</div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg">
+                  <div class="font-mono text-xl font-bold text-purple-600 mb-2">www.youtube.com</div>
+                  <div class="text-sm text-gray-600">유튜브 동영상 사이트</div>
+                </div>
+              </div>
+
+              <div class="mt-4 bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300">
+                <div class="font-bold text-yellow-800 mb-2">💡 규칙</div>
+                <div class="text-sm text-gray-700 space-y-1">
+                  <div>• 영문자(a-z), 숫자(0-9), 하이픈(-) 사용 가능</div>
+                  <div>• 대소문자 구분 없음 (NAVER.com = naver.com)</div>
+                  <div>• 공백이나 특수문자 사용 불가</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 도메인 구조 -->
+        <div id="concept-structure" class="concept-content hidden">
+          <div class="mb-6">
+            <h2 class="text-3xl font-black text-gray-800 mb-3 flex items-center gap-3">
+              <span class="text-4xl">🏗️</span>
+              도메인 이름의 구조
+            </h2>
+            <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl border-l-4 border-cyan-500 mb-6">
+              <p class="text-gray-700 text-lg leading-relaxed">
+                도메인 이름은 사실 여러 조각으로 나뉘어져 있어요! 각 조각은 <span class="font-bold text-cyan-600">점(.)</span>으로 
+                구분되고, 각각 다른 의미를 담고 있답니다. 같이 분해해볼까요?
+              </p>
+            </div>
+
+            <!-- 도메인 분해 -->
+            <div class="bg-white rounded-xl p-8 border-2 border-cyan-200 mb-6">
+              <h3 class="font-bold text-gray-800 mb-6 text-xl text-center">🔍 도메인 이름 분해하기</h3>
+
+              <!-- 예시: www.moe.go.kr -->
+              <div class="mb-8">
+                <div class="text-center mb-6">
+                  <div class="text-4xl font-black font-mono text-cyan-600 mb-4">
+                    www.moe.go.kr
+                  </div>
+                  <div class="text-sm text-gray-600">교육부 웹사이트</div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4">
+                  <!-- 서버명 (고정) -->
+                  <div class="domain-part bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-xl text-center border-2 border-blue-400">
+                    <div class="text-3xl mb-2">🖥️</div>
+                    <div class="font-mono font-bold text-blue-700 text-lg mb-2">www</div>
+                    <div class="text-xs text-gray-700 font-bold mb-1">서버명</div>
+                    <div class="text-xs text-gray-600">World Wide Web</div>
+                  </div>
+
+                  <!-- 기관명 (고정) -->
+                  <div class="domain-part bg-gradient-to-br from-green-100 to-green-200 p-4 rounded-xl text-center border-2 border-green-400">
+                    <div class="text-3xl mb-2">🏢</div>
+                    <div class="font-mono font-bold text-green-700 text-lg mb-2">moe</div>
+                    <div class="text-xs text-gray-700 font-bold mb-1">기관명</div>
+                    <div class="text-xs text-gray-600">Ministry of Education</div>
+                  </div>
+
+                  <!-- 기관 성격 (입력 가능) -->
+                  <div class="domain-part bg-gradient-to-br from-purple-100 to-purple-200 p-4 rounded-xl text-center border-2 border-purple-400">
+                    <div class="text-2xl mb-1" id="di-type-emoji">🏛️</div>
+                    <div class="font-mono font-bold text-purple-700 text-lg mb-1" id="di-type-code">go</div>
+                    <div class="text-xs text-gray-700 font-bold mb-2">기관의 성격</div>
+                    <div class="text-xs font-bold text-purple-800 mb-2" id="di-type-name">정부 기관</div>
+                    <div class="border-t border-purple-300 pt-2 mt-1">
+                      <div class="text-xs text-purple-600 mb-1">다른 코드 입력해보기</div>
+                      <input id="di-type-input" type="text" maxlength="5" placeholder="예: ac"
+                        oninput="updateTypeCode(this.value)"
+                        class="w-full text-center text-sm font-mono font-bold text-purple-700 bg-white border border-purple-300 rounded-lg px-2 py-1 focus:outline-none focus:border-purple-500">
+                    </div>
+                  </div>
+
+                  <!-- 국가 (입력 가능) -->
+                  <div class="domain-part bg-gradient-to-br from-pink-100 to-pink-200 p-4 rounded-xl text-center border-2 border-pink-400">
+                    <div class="text-2xl mb-1" id="di-country-emoji">🇰🇷</div>
+                    <div class="font-mono font-bold text-pink-700 text-lg mb-1" id="di-country-code">kr</div>
+                    <div class="text-xs text-gray-700 font-bold mb-2">국가명</div>
+                    <div class="text-xs font-bold text-pink-800 mb-2" id="di-country-name">대한민국</div>
+                    <div class="border-t border-pink-300 pt-2 mt-1">
+                      <div class="text-xs text-pink-600 mb-1">다른 국가코드 입력해보기</div>
+                      <input id="di-country-input" type="text" maxlength="3" placeholder="예: jp"
+                        oninput="updateCountryCode(this.value)"
+                        class="w-full text-center text-sm font-mono font-bold text-pink-700 bg-white border border-pink-300 rounded-lg px-2 py-1 focus:outline-none focus:border-pink-500">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 화살표 설명 -->
+              <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl">
+                <div class="flex items-center justify-between text-center">
+                  <div class="flex-1">
+                    <div class="font-bold text-blue-700 mb-1">서버명</div>
+                    <div class="text-xs text-gray-600">어떤 서버인지</div>
+                  </div>
+                  <div class="text-2xl text-gray-400">→</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-green-700 mb-1">기관명</div>
+                    <div class="text-xs text-gray-600">어떤 기관인지</div>
+                  </div>
+                  <div class="text-2xl text-gray-400">→</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-purple-700 mb-1">기관 성격</div>
+                    <div class="text-xs text-gray-600">기관 유형</div>
+                  </div>
+                  <div class="text-2xl text-gray-400">→</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-pink-700 mb-1">국가</div>
+                    <div class="text-xs text-gray-600">어느 나라인지</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 기관 성격 코드표 -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-300">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">📋 기관 성격 분류 코드</h3>
+              
+              <div class="grid md:grid-cols-4 gap-3">
+                <div class="bg-white p-4 rounded-lg border-2 border-blue-200 text-center">
+                  <div class="text-2xl mb-2">🏢</div>
+                  <div class="font-mono font-bold text-blue-600 text-lg mb-1">co</div>
+                  <div class="text-sm font-bold text-gray-700">기업</div>
+                  <div class="text-xs text-gray-500 mt-1">Company</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-green-200 text-center">
+                  <div class="text-2xl mb-2">🤝</div>
+                  <div class="font-mono font-bold text-green-600 text-lg mb-1">or</div>
+                  <div class="text-sm font-bold text-gray-700">비영리</div>
+                  <div class="text-xs text-gray-500 mt-1">Organization</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-purple-200 text-center">
+                  <div class="text-2xl mb-2">🏛️</div>
+                  <div class="font-mono font-bold text-purple-600 text-lg mb-1">go</div>
+                  <div class="text-sm font-bold text-gray-700">정부</div>
+                  <div class="text-xs text-gray-500 mt-1">Government</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-orange-200 text-center">
+                  <div class="text-2xl mb-2">🎓</div>
+                  <div class="font-mono font-bold text-orange-600 text-lg mb-1">ac</div>
+                  <div class="text-sm font-bold text-gray-700">대학</div>
+                  <div class="text-xs text-gray-500 mt-1">Academic</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-cyan-200 text-center">
+                  <div class="text-2xl mb-2">🏫</div>
+                  <div class="font-mono font-bold text-cyan-600 text-lg mb-1">hs</div>
+                  <div class="text-sm font-bold text-gray-700">고등학교</div>
+                  <div class="text-xs text-gray-500 mt-1">High School</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-pink-200 text-center">
+                  <div class="text-2xl mb-2">🔬</div>
+                  <div class="font-mono font-bold text-pink-600 text-lg mb-1">re</div>
+                  <div class="text-sm font-bold text-gray-700">연구소</div>
+                  <div class="text-xs text-gray-500 mt-1">Research</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-indigo-200 text-center">
+                  <div class="text-2xl mb-2">📚</div>
+                  <div class="font-mono font-bold text-indigo-600 text-lg mb-1">sc</div>
+                  <div class="text-sm font-bold text-gray-700">교육기관</div>
+                  <div class="text-xs text-gray-500 mt-1">School</div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-yellow-200 text-center">
+                  <div class="text-2xl mb-2">👤</div>
+                  <div class="font-mono font-bold text-yellow-600 text-lg mb-1">pe</div>
+                  <div class="text-sm font-bold text-gray-700">개인</div>
+                  <div class="text-xs text-gray-500 mt-1">Personal</div>
+                </div>
+              </div>
+
+              <div class="mt-4 bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300">
+                <div class="font-bold text-yellow-800 mb-2">💡 알아두세요!</div>
+                <div class="text-sm text-gray-700">
+                  기관 성격 코드를 보면 그 웹사이트가 어떤 유형의 기관인지 바로 알 수 있어요. 
+                  예를 들어 <span class="font-mono font-bold">.go.kr</span>로 끝나면 정부 기관, 
+                  <span class="font-mono font-bold">.ac.kr</span>로 끝나면 대학교입니다!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DNS -->
+        <div id="concept-dns" class="concept-content hidden">
+          <div class="mb-6">
+            <h2 class="text-3xl font-black text-gray-800 mb-3 flex items-center gap-3">
+              <span class="text-4xl">🔄</span>
+              DNS (Domain Name System)
+            </h2>
+            <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl border-l-4 border-orange-500 mb-6">
+              <p class="text-gray-700 text-lg leading-relaxed mb-3">
+                <span class="font-bold text-orange-600">DNS</span>는 도메인 이름을 IP 주소로 바꿔주는 시스템이에요. 
+                우리가 "www.naver.com"을 입력하면, DNS가 "아, 그건 이 IP 주소야!" 하고 알려주는 거죠.
+                마치 <span class="font-bold">전화번호부</span>처럼요!
+              </p>
+            </div>
+
+            <!-- 비유 설명 -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-300">
+                <h3 class="font-bold text-blue-800 mb-4 text-lg">📱 전화번호부</h3>
+                <div class="bg-white p-4 rounded-lg mb-3">
+                  <div class="text-sm text-gray-700 space-y-2">
+                    <div class="flex justify-between">
+                      <span class="font-bold">홍길동</span>
+                      <span class="font-mono">010-1234-5678</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="font-bold">홍길순</span>
+                      <span class="font-mono">010-9876-5432</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-sm text-gray-600">
+                  이름만 알면 번호를 찾을 수 있어요!
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-300">
+                <h3 class="font-bold text-purple-800 mb-4 text-lg">🌐 DNS</h3>
+                <div class="bg-white p-4 rounded-lg mb-3">
+                  <div class="text-sm text-gray-700 space-y-2">
+                    <div class="flex justify-between items-center">
+                      <span class="font-bold">www.naver.com</span>
+                      <span class="font-mono text-xs">223.130.195.95</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="font-bold">www.google.com</span>
+                      <span class="font-mono text-xs">142.250.196.68</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-sm text-gray-600">
+                  도메인만 알면 IP를 찾을 수 있어요!
+                </div>
+              </div>
+            </div>
+
+            <!-- 작동 과정 -->
+            <div class="bg-white rounded-xl p-6 border-2 border-orange-200 mb-6">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">🔄 DNS 작동 과정</h3>
+              
+              <div class="space-y-4">
+                <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
+                  <div class="text-3xl flex-shrink-0">1️⃣</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-blue-800 mb-2">사용자가 도메인 입력</div>
+                    <div class="text-sm text-gray-700">
+                      브라우저 주소창에 <span class="font-mono font-bold">www.naver.com</span> 입력
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
+                  <div class="text-3xl flex-shrink-0">2️⃣</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-purple-800 mb-2">DNS 서버에 질의</div>
+                    <div class="text-sm text-gray-700">
+                      컴퓨터가 DNS 서버에게 "www.naver.com의 IP 주소가 뭐예요?" 질문
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl">
+                  <div class="text-3xl flex-shrink-0">3️⃣</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-pink-800 mb-2">IP 주소 응답</div>
+                    <div class="text-sm text-gray-700">
+                      DNS 서버가 <span class="font-mono font-bold">223.130.195.95</span> 라고 알려줌
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl">
+                  <div class="text-3xl flex-shrink-0">4️⃣</div>
+                  <div class="flex-1">
+                    <div class="font-bold text-green-800 mb-2">웹사이트 접속</div>
+                    <div class="text-sm text-gray-700">
+                      찾은 IP 주소로 네이버 서버에 접속 성공!
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 중요성 -->
+            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-yellow-300">
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">⭐ DNS가 없다면?</h3>
+              
+              <div class="space-y-3">
+                <div class="bg-white p-4 rounded-lg border-2 border-red-300">
+                  <div class="font-bold text-red-700 mb-2">❌ 문제점</div>
+                  <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• 모든 웹사이트를 IP 주소로만 접속해야 함</li>
+                    <li>• <span class="font-mono">223.130.195.95</span>, <span class="font-mono">142.250.196.68</span> 등을 외워야 함</li>
+                    <li>• 실수하기 쉽고 기억하기 어려움</li>
+                  </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-2 border-green-300">
+                  <div class="font-bold text-green-700 mb-2">✅ DNS 덕분에</div>
+                  <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• <span class="font-mono">www.naver.com</span>처럼 쉬운 이름으로 접속</li>
+                    <li>• 기억하기 쉽고 입력하기 편함</li>
+                    <li>• 인터넷이 훨씬 사용하기 편해짐!</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- 변환 과정은 생략하고 결과만 표시 -->
+    <!-- ==================== 메인 탭 2: 체험 놀이터 ==================== -->
+    <div id="main-playground" class="main-content hidden">
+      <div class="bg-white rounded-3xl shadow-2xl p-6 mb-6">
+        <div class="text-center mb-6">
+          <h2 class="text-3xl font-black text-gray-800 mb-2">🎮 IP 주소 놀이터</h2>
+          <p class="text-gray-600">숫자를 바꾸고, 비트를 눌러보면서 직접 체험해봐요!</p>
+        </div>
 
-      <!-- 결과 표시 -->
-      <div id="result" class="hidden slide-in">
-        <div class="bg-green-50 p-6 rounded-xl border-2 border-green-400">
-          <h3 class="font-bold text-green-900 mb-3 text-lg flex items-center gap-2">
-            <span class="text-2xl">✅</span>
-            변환 완료!
+        <!-- 서브 탭 -->
+        <div class="flex gap-2 mb-6 border-b-2 border-gray-200 overflow-x-auto">
+          <button onclick="showPlaygroundTab('input', this)" class="sub-tab active px-6 py-3 rounded-t-xl">
+            IP 입력
+          </button>
+          <button onclick="showPlaygroundTab('binary', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            2진수 변환
+          </button>
+          <button onclick="showPlaygroundTab('subnet', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            서브넷 계산
+          </button>
+          <button onclick="showPlaygroundTab('dns-sim', this)" class="sub-tab px-6 py-3 rounded-t-xl text-gray-600">
+            DNS 시뮬레이터
+          </button>
+        </div>
+
+        <!-- IP 입력 -->
+        <div id="playground-input" class="playground-content">
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 text-sm text-blue-800 leading-relaxed">
+            💡 <strong>IP 주소는 4개의 숫자를 점(.)으로 연결한 형태예요.</strong>
+            각 칸에는 <strong>0부터 255까지</strong>의 숫자만 들어갈 수 있어요.
+            숫자를 바꿔보면서 어떤 종류의 IP인지 확인해보세요!
+          </div>
+
+          <!-- 오류 배너 -->
+          <div id="ip-error-banner" class="hidden mb-4 flex items-start gap-3 bg-red-50 border-2 border-red-300 rounded-xl p-4">
+            <span class="text-xl">⚠️</span>
+            <div class="text-sm text-red-700" id="ip-error-text"></div>
+          </div>
+
+          <!-- 입력 칸 4개 -->
+          <div class="flex items-start justify-center gap-1 flex-wrap mb-2">
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-xs text-gray-400 font-bold">1번째</span>
+              <input id="ip-o1" type="number" min="0" max="255" value="192" oninput="ipUpdateAll()"
+                class="w-20 h-16 text-center text-2xl font-bold border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none font-mono bg-white text-blue-700" style="-moz-appearance:textfield;">
+              <span class="text-xs text-red-500 h-4 font-mono" id="ip-err1"></span>
+            </div>
+            <span class="text-3xl font-bold text-gray-400 mt-5">.</span>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-xs text-gray-400 font-bold">2번째</span>
+              <input id="ip-o2" type="number" min="0" max="255" value="168" oninput="ipUpdateAll()"
+                class="w-20 h-16 text-center text-2xl font-bold border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none font-mono bg-white text-blue-700" style="-moz-appearance:textfield;">
+              <span class="text-xs text-red-500 h-4 font-mono" id="ip-err2"></span>
+            </div>
+            <span class="text-3xl font-bold text-gray-400 mt-5">.</span>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-xs text-gray-400 font-bold">3번째</span>
+              <input id="ip-o3" type="number" min="0" max="255" value="1" oninput="ipUpdateAll()"
+                class="w-20 h-16 text-center text-2xl font-bold border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none font-mono bg-white text-blue-700" style="-moz-appearance:textfield;">
+              <span class="text-xs text-red-500 h-4 font-mono" id="ip-err3"></span>
+            </div>
+            <span class="text-3xl font-bold text-gray-400 mt-5">.</span>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-xs text-gray-400 font-bold">4번째</span>
+              <input id="ip-o4" type="number" min="0" max="255" value="100" oninput="ipUpdateAll()"
+                class="w-20 h-16 text-center text-2xl font-bold border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none font-mono bg-white text-blue-700" style="-moz-appearance:textfield;">
+              <span class="text-xs text-red-500 h-4 font-mono" id="ip-err4"></span>
+            </div>
+          </div>
+
+          <!-- 클래스 배지 -->
+          <div class="text-center my-4">
+            <span id="ip-class-badge" class="inline-block px-5 py-2 rounded-full text-sm font-bold border-2 border-blue-400 bg-blue-50 text-blue-700">C클래스</span>
+          </div>
+
+          <!-- 특수 배지 -->
+          <div class="text-center mb-4" id="ip-special-badges"></div>
+
+          <!-- 클래스 종류 표 -->
+          <div class="bg-white border border-gray-200 rounded-xl p-4 mb-4 overflow-x-auto">
+            <div class="font-bold text-gray-700 text-sm mb-3">📊 IP 클래스 종류</div>
+            <table class="w-full text-xs text-center border-collapse">
+              <thead>
+                <tr class="bg-blue-100 text-blue-800">
+                  <th class="p-2 rounded-tl-lg">클래스</th>
+                  <th class="p-2">1번째 숫자 범위</th>
+                  <th class="p-2">용도</th>
+                  <th class="p-2 rounded-tr-lg">연결 가능 기기 수</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-600">
+                <tr class="border-t border-gray-100"><td class="p-2 font-bold text-blue-700">A클래스</td><td class="p-2">1 ~ 126</td><td class="p-2">대형 네트워크</td><td class="p-2 font-bold text-green-700">약 1,600만 대</td></tr>
+                <tr class="border-t border-gray-100 bg-gray-50"><td class="p-2 font-bold text-purple-700">B클래스</td><td class="p-2">128 ~ 191</td><td class="p-2">중형 네트워크</td><td class="p-2 font-bold text-blue-700">약 65,000 대</td></tr>
+                <tr class="border-t border-gray-100"><td class="p-2 font-bold text-orange-700">C클래스</td><td class="p-2">192 ~ 223</td><td class="p-2">소형 네트워크 (가정용)</td><td class="p-2 font-bold text-orange-700">254 대</td></tr>
+                <tr class="border-t border-gray-100 bg-gray-50"><td class="p-2 font-bold text-yellow-700">D클래스</td><td class="p-2">224 ~ 239</td><td class="p-2">멀티캐스트</td><td class="p-2 text-gray-500">특수 용도</td></tr>
+                <tr class="border-t border-gray-100"><td class="p-2 font-bold text-red-700">E클래스</td><td class="p-2">240 ~ 255</td><td class="p-2">연구·예약용</td><td class="p-2 text-gray-500">사용 불가</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 결과 카드들 -->
+          <div id="ip-results-area">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">10진수 (우리가 쓰는 방식)</div>
+                <div class="font-mono font-bold text-blue-700 text-sm break-all" id="ip-decimal-full">192.168.1.100</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">컴퓨터 내부 저장값 (32비트 정수)</div>
+                <div class="font-mono font-bold text-purple-700 text-sm" id="ip-int-val">3232235876</div>
+                <div class="text-xs text-gray-400 mt-1">4개 숫자를 하나로 합친 값</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">16진수</div>
+                <div class="font-mono font-bold text-green-700 text-sm" id="ip-hex-val">C0.A8.01.64</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">이진수 전체</div>
+                <div class="font-mono font-bold text-orange-700 text-xs break-all leading-relaxed" id="ip-binary-full">11000000.10101000.00000001.01100100</div>
+              </div>
+            </div>
+            <!-- 클래스 설명 -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-gray-700 leading-relaxed" id="ip-class-explain"></div>
+          </div>
+        </div>
+
+        <!-- 2진수 변환 -->
+        <div id="playground-binary" class="playground-content hidden">
+          <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl mb-6 border-l-4 border-indigo-500">
+            <p class="text-gray-700 leading-relaxed">
+              💡 <strong>비트 칸을 클릭하면 0↔1이 바뀌어요!</strong> 
+              마우스를 올려보면 그 자리의 값을 확인할 수 있습니다.
+            </p>
+          </div>
+
+          <div id="binary-interactive" class="space-y-4 mb-6"></div>
+
+          <div class="bg-white p-6 rounded-xl border-2 border-indigo-300 text-center">
+            <div class="text-sm text-gray-600 mb-2">완성된 IP 주소</div>
+            <div id="binary-result" class="font-mono text-3xl font-bold text-indigo-600">192.168.1.100</div>
+          </div>
+        </div>
+
+
+
+        <!-- 서브넷 계산 -->
+        <div id="playground-subnet" class="playground-content hidden">
+
+          <!-- ① 서브넷이란? -->
+          <div class="bg-green-50 border border-green-200 rounded-xl p-5 mb-4 text-sm text-gray-700 leading-relaxed">
+            <div class="font-bold text-green-800 text-base mb-2">🏘️ 서브넷(Subnet)이 뭐예요?</div>
+            <p class="mb-2">
+              인터넷 전체를 <strong>거대한 도시</strong>라고 하면, 서브넷은 그 도시 안의 <strong>아파트 단지</strong>예요.
+              하나의 큰 네트워크를 용도나 장소에 따라 <strong>작은 구역으로 나눈 것</strong>이 서브넷이에요.
+            </p>
+            <div class="bg-white rounded-lg p-3 border border-green-200 font-mono text-xs leading-loose text-gray-600">
+              🌆 인터넷 (거대한 도시)<br>
+              &nbsp;├── 🏢 1반 네트워크 &nbsp;(192.168.1.???)<br>
+              &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── PC-01 (192.168.1.1)<br>
+              &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└── PC-02 (192.168.1.2)<br>
+              &nbsp;└── 🏢 2반 네트워크 &nbsp;(192.168.2.???)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PC-01 (192.168.2.1)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── PC-02 (192.168.2.2)
+            </div>
+          </div>
+
+          <!-- ② 왜 나눠요? -->
+          <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-4 text-sm text-gray-700 leading-relaxed">
+            <div class="font-bold text-yellow-800 text-base mb-3">🤔 왜 굳이 나눌까요?</div>
+            <div class="space-y-2">
+              <div class="flex items-start gap-2">
+                <span class="text-lg">🚦</span>
+                <div><strong>교통 정리</strong> — 컴퓨터가 많을수록 신호가 뒤엉켜요. 반별로 나누면 각 반 안에서만 신호가 돌아서 훨씬 빠르고 조용해져요.</div>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-lg">🔒</span>
+                <div><strong>보안</strong> — 서버실(2반)과 학생 PC(1반)를 다른 서브넷으로 분리하면, 학생이 실수로 서버에 접근하는 걸 막을 수 있어요.</div>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-lg">📦</span>
+                <div><strong>효율</strong> — 필요한 만큼만 IP를 나눠쓰기 때문에 IP 주소 낭비가 없어요.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ③ 라우터가 경비원 역할 -->
+          <div class="bg-red-50 border border-red-200 rounded-xl p-5 mb-4 text-sm text-gray-700 leading-relaxed">
+            <div class="font-bold text-red-800 text-base mb-2">🚧 그럼 어떻게 접근을 막아요? — 라우터가 경비원!</div>
+            <p class="mb-3">
+              서브넷을 나누는 것만으로는 자동으로 막히지 않아요.
+              서로 다른 서브넷 사이에는 반드시 <strong>라우터(Router)</strong>를 거쳐야 하는데,
+              바로 이 라우터에 <strong>"1반 → 2반 통행 금지"</strong> 규칙을 설정하면 차단돼요.
+            </p>
+            <div class="bg-white rounded-lg p-3 border border-red-200 font-mono text-xs leading-loose text-gray-600">
+              🖥️ 1반 PC (192.168.1.10)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ "2반 서버에 접속하고 싶어요!"<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▼<br>
+              &nbsp;&nbsp;🚦 라우터 (교문 경비원)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ 규칙 확인 중... ❌ 1반은 2반 접근 불가!<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✖ 차단!<br>
+              🖥️ 2반 서버 (192.168.2.10) ← 도달 못 함
+            </div>
+            <p class="mt-3 text-xs text-gray-500">
+              💡 같은 서브넷 안의 컴퓨터끼리는 라우터를 거치지 않고 직접 통신해요.
+              다른 서브넷으로 가려면 무조건 라우터를 통과해야 하기 때문에, 라우터가 <strong>유일한 출입구</strong>가 되는 거예요.
+            </p>
+          </div>
+
+          <!-- ④ /숫자의 의미 -->
+          <div class="bg-purple-50 border border-purple-200 rounded-xl p-5 mb-5 text-sm text-gray-700 leading-relaxed">
+            <div class="font-bold text-purple-800 text-base mb-2">✂️ 슬라이더의 /숫자는 무슨 뜻이에요?</div>
+            <p class="mb-2">
+              IP 주소 32비트 중에서 <strong>앞 몇 비트를 "동 번호(네트워크)"로 쓸지</strong> 결정해요.
+              숫자가 클수록 네트워크가 작아지고, 연결 가능한 기기 수도 줄어요.
+            </p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-center border-collapse">
+                <thead>
+                  <tr class="bg-purple-100 text-purple-800">
+                    <th class="p-2 rounded-tl-lg">CIDR</th>
+                    <th class="p-2">네트워크 (동 번호)</th>
+                    <th class="p-2">기기 번호 (호수)</th>
+                    <th class="p-2 rounded-tr-lg">연결 가능 기기 수</th>
+                  </tr>
+                </thead>
+                <tbody class="text-gray-600">
+                  <tr class="border-t border-purple-100"><td class="p-2 font-mono font-bold">/8</td><td class="p-2">8비트 고정</td><td class="p-2">24비트 자유</td><td class="p-2 font-bold text-green-700">약 1,600만 대</td></tr>
+                  <tr class="border-t border-purple-100"><td class="p-2 font-mono font-bold">/16</td><td class="p-2">16비트 고정</td><td class="p-2">16비트 자유</td><td class="p-2 font-bold text-green-700">약 65,000 대</td></tr>
+                  <tr class="border-t border-purple-100 bg-purple-50"><td class="p-2 font-mono font-bold">/24</td><td class="p-2">24비트 고정</td><td class="p-2">8비트 자유</td><td class="p-2 font-bold text-blue-700">254 대 ← 가정용</td></tr>
+                  <tr class="border-t border-purple-100"><td class="p-2 font-mono font-bold">/32</td><td class="p-2">32비트 전부 고정</td><td class="p-2">없음</td><td class="p-2 font-bold text-red-600">1 대 (딱 한 컴퓨터)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ⑤ 계산기 -->
+          <div class="bg-white border-2 border-purple-200 rounded-xl p-5">
+            <div class="font-bold text-purple-800 text-base mb-4">🧮 직접 계산해보기 — 슬라이더를 움직여보세요!</div>
+
+            <div class="flex items-center gap-3 mb-3 flex-wrap">
+              <span class="text-sm text-gray-600 font-bold w-28">현재 IP:</span>
+              <span class="font-mono font-bold text-blue-700" id="ip-subnet-ip">192.168.1.100</span>
+              <span class="text-xs text-gray-400">(IP 빌더 탭에서 수정)</span>
+            </div>
+            <div class="flex items-center gap-3 mb-4 flex-wrap">
+              <span class="text-sm text-gray-600 font-bold w-28">구역 크기:</span>
+              <span class="font-bold text-purple-700 text-lg font-mono">/</span>
+              <input id="ip-cidr" type="number" min="1" max="32" value="24" oninput="ipSyncCidr('input')"
+                class="w-20 h-10 text-center text-lg font-bold border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:outline-none font-mono" style="-moz-appearance:textfield;">
+              <span class="text-xs text-gray-400">← 이 숫자가 클수록 구역이 좁아져요</span>
+            </div>
+
+            <input type="range" id="ip-cidr-range" min="1" max="32" value="24" oninput="ipSyncCidr('range')"
+              class="w-full mb-1 accent-purple-500">
+            <div class="flex justify-between text-xs text-gray-400 mb-5">
+              <span>/1 (매우 큰 구역)</span><span>/8</span><span>/16</span><span>/24</span><span>/32 (딱 1대)</span>
+            </div>
+
+            <!-- 비트 시각화 -->
+            <div class="mb-5">
+              <div class="text-xs text-gray-500 mb-2">
+                <span class="bg-purple-200 text-purple-800 px-2 py-0.5 rounded font-bold">■ 네트워크 비트 (동 번호 — 고정)</span>&nbsp;
+                <span class="bg-orange-200 text-orange-800 px-2 py-0.5 rounded font-bold">■ 기기 번호 비트 (호수 — 자유)</span>
+              </div>
+              <div class="flex flex-wrap gap-1" id="ip-subnet-bits"></div>
+            </div>
+
+            <!-- 결과 표 -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">서브넷 마스크</div>
+                <div class="font-mono font-bold text-gray-800 text-sm" id="ip-sub-mask">255.255.255.0</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">네트워크 주소 (구역 이름)</div>
+                <div class="font-mono font-bold text-blue-700 text-sm" id="ip-sub-network">192.168.1.0</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">브로드캐스트 (구역 방송)</div>
+                <div class="font-mono font-bold text-red-600 text-sm" id="ip-sub-broadcast">192.168.1.255</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">연결 가능한 기기 수</div>
+                <div class="font-mono font-bold text-green-700 text-sm" id="ip-sub-hosts">254개</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">첫 번째 기기 IP</div>
+                <div class="font-mono font-bold text-indigo-700 text-sm" id="ip-sub-first">192.168.1.1</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <div class="text-xs text-gray-500 mb-1">마지막 기기 IP</div>
+                <div class="font-mono font-bold text-indigo-700 text-sm" id="ip-sub-last">192.168.1.254</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DNS 시뮬레이터 -->
+        <div id="playground-dns-sim" class="playground-content hidden">
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6 border-l-4 border-purple-500">
+            <p class="text-gray-700 leading-relaxed">
+              도메인 이름을 입력하면 DNS가 IP 주소로 변환해줘요!
+            </p>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-3">도메인 이름 입력</label>
+            <div class="flex gap-3">
+              <input type="text" id="dns-input" placeholder="www.naver.com" class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-lg">
+              <button onclick="simulateDNS()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:from-purple-600 hover:to-pink-600">
+                변환 🔍
+              </button>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button onclick="document.getElementById('dns-input').value='www.naver.com'; simulateDNS();" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">www.naver.com</button>
+              <button onclick="document.getElementById('dns-input').value='www.google.com'; simulateDNS();" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">www.google.com</button>
+              <button onclick="document.getElementById('dns-input').value='www.youtube.com'; simulateDNS();" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">www.youtube.com</button>
+            </div>
+          </div>
+
+          <div id="dns-result" class="hidden">
+            <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-xl border-2 border-green-400">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="text-3xl">✅</div>
+                <div class="font-bold text-green-800 text-xl">변환 완료!</div>
+              </div>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="text-sm text-gray-600 mb-1">도메인 이름</div>
+                  <div id="dns-domain" class="font-mono text-lg font-bold text-cyan-600">www.naver.com</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="text-sm text-gray-600 mb-1">IP 주소</div>
+                  <div id="dns-ip" class="font-mono text-lg font-bold text-blue-600">223.130.195.95</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 메인 탭 3: 심화 학습 ==================== -->
+    <div id="main-advanced" class="main-content hidden">
+      <div class="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+        <h2 class="text-3xl font-black text-gray-800 mb-6 flex items-center gap-3">
+          <span class="text-4xl">🧩</span>
+          왜 IP 주소로는 접속이 안 될까?
+        </h2>
+
+        <div class="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-xl mb-6 border-2 border-red-300">
+          <h3 class="font-bold text-red-900 mb-3 flex items-center gap-2">
+            <span class="text-2xl">🎭</span>
+            상황
           </h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <div class="bg-white p-4 rounded-lg">
-              <div class="text-sm text-gray-600 mb-2">📝 도메인 이름</div>
-              <div id="resultDomain" class="font-mono text-lg font-bold text-cyan-600"></div>
-            </div>
-            <div class="bg-white p-4 rounded-lg">
-              <div class="text-sm text-gray-600 mb-2">🏠 IP 주소</div>
-              <div id="resultIP" class="font-mono text-lg font-bold text-blue-600"></div>
+          <p class="text-gray-700 leading-relaxed">
+            브라우저에 <span class="font-mono font-bold text-red-600">223.130.195.95</span>를 입력했어요. 
+            → 하지만 접속이 안 돼요! 왜 그럴까요?
+          </p>
+        </div>
+
+        <!-- 이유 1 -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6 border-l-4 border-blue-500">
+          <h3 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
+            <span class="text-2xl">🏢</span>
+            이유 1: 한 건물에 여러 회사가 있어요 (가상 호스팅)
+          </h3>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            하나의 서버에 여러 웹사이트가 함께 있을 수 있어요. 마치 한 건물에 여러 회사가 있는 것처럼요!
+          </p>
+          
+          <div class="bg-white p-5 rounded-lg mb-4">
+            <div class="font-bold text-blue-800 mb-3">🏢 서버 (IP: 192.168.1.100)</div>
+            <div class="space-y-2 text-gray-700">
+              <div>• 1층: <span class="font-mono font-bold">www.naver.com</span></div>
+              <div>• 2층: <span class="font-mono font-bold">www.daum.net</span></div>
+              <div>• 3층: <span class="font-mono font-bold">www.kakao.com</span></div>
             </div>
           </div>
-          <div class="mt-4 bg-yellow-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-700">
-              💡 이제 컴퓨터는 이 IP 주소를 이용해 해당 웹사이트에 접속할 수 있어요!
+
+          <div class="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300">
+            <div class="font-bold text-yellow-800 mb-2">💡 해결책</div>
+            <div class="text-sm text-gray-700">
+              도메인 이름을 사용하면 서버가 정확히 어느 웹사이트로 연결해야 할지 알 수 있어요!
+            </div>
+          </div>
+        </div>
+
+        <!-- 이유 2 -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl mb-6 border-l-4 border-green-500">
+          <h3 class="font-bold text-green-900 mb-3 flex items-center gap-2">
+            <span class="text-2xl">🔒</span>
+            이유 2: 보안 때문이에요 (HTTPS)
+          </h3>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            요즘 웹사이트는 HTTPS 보안을 사용해요.
+          </p>
+          
+          <div class="bg-white p-5 rounded-lg shadow-md mb-4">
+            <div class="font-bold text-green-800 mb-3">🔐 보안 인증서</div>
+            <p class="text-gray-700 mb-3">
+              HTTPS는 "이 사이트가 진짜인가요?"를 확인하는 인증서를 사용해요.
             </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- IP 주소로 접속이 안 되는 이유 섹션 -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <span class="text-3xl">🤔</span>
-        왜 IP 주소로는 접속이 안 될까?
-      </h2>
-      
-      <!-- 상황 설명 -->
-      <div class="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-xl mb-6 border-2 border-red-300">
-        <h3 class="font-bold text-red-900 mb-3 flex items-center gap-2">
-          <span class="text-2xl">🎭</span>
-          상황
-        </h3>
-        <p class="text-gray-700 leading-relaxed">
-          브라우저에 <span class="font-mono font-bold text-red-600">223.130.195.95</span>를 입력했어요. 
-          → 하지만 접속이 안 돼요! 왜 그럴까요?
-        </p>
-      </div>
-
-      <!-- 이유 1: 가상 호스팅 -->
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6 border-l-4 border-blue-500">
-        <h3 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
-          <span class="text-2xl">🏢</span>
-          이유 1: 한 건물에 여러 회사가 있어요
-        </h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
-          하나의 서버에 여러 웹사이트가 함께 있을 수 있어요. 마치 한 건물에 여러 회사가 있는 것처럼요!
-        </p>
-        
-        <div class="bg-white p-5 rounded-lg shadow-md mb-4">
-          <div class="font-bold text-blue-800 mb-3">🏢 빌딩 (IP: 192.168.1.100)</div>
-          <div class="space-y-2 text-gray-700">
-            <div class="flex items-center gap-2">
-              <span class="text-blue-600">•</span>
-              <span>1층: <span class="font-mono font-bold">www.naver.com</span></span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-blue-600">•</span>
-              <span>2층: <span class="font-mono font-bold">www.daum.net</span></span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-blue-600">•</span>
-              <span>3층: <span class="font-mono font-bold">www.kakao.com</span></span>
+            <div class="bg-green-100 p-3 rounded-lg">
+              <p class="text-sm text-gray-700">
+                <span class="font-bold">인증서:</span> "이것은 <span class="font-mono font-bold text-green-700">www.naver.com</span>용입니다"
+              </p>
             </div>
           </div>
-        </div>
 
-        <div class="space-y-2">
           <p class="text-gray-700">
-            <span class="text-red-600 font-bold">❌</span> 건물 주소만 알고 가면 어느 층으로 가야 할지 모르겠죠?
+            <span class="text-red-600 font-bold">❌</span> IP 주소로 접속하면 인증서가 거부해요!
           </p>
+        </div>
+
+        <!-- 이유 3 -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6 border-l-4 border-purple-500">
+          <h3 class="font-bold text-purple-900 mb-3 flex items-center gap-2">
+            <span class="text-2xl">🌍</span>
+            이유 3: 전 세계에 흩어져 있어요 (CDN)
+          </h3>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            큰 웹사이트는 전 세계 여러 곳에 서버를 두고 있어요.
+          </p>
+          
+          <div class="bg-white p-5 rounded-lg shadow-md mb-4">
+            <div class="font-bold text-purple-800 mb-3">🗺️ 유튜브의 서버들</div>
+            <div class="space-y-2 text-gray-700">
+              <div class="flex items-center gap-2">
+                <span class="text-purple-600">•</span>
+                <span>🇰🇷 한국: <span class="font-mono">142.250.207.46</span></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-purple-600">•</span>
+                <span>🇺🇸 미국: <span class="font-mono">142.250.217.46</span></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-purple-600">•</span>
+                <span>🇯🇵 일본: <span class="font-mono">142.250.196.46</span></span>
+              </div>
+            </div>
+          </div>
+
           <p class="text-gray-700">
-            <span class="text-green-600 font-bold">✅</span> <span class="font-bold">해결책:</span> 도메인 이름을 사용하면 정확한 층을 알려주는 거예요!
+            <span class="text-blue-600 font-bold">💡</span> 도메인으로 접속하면 자동으로 가장 가까운 서버로 연결돼요!
+          </p>
+        </div>
+
+        <!-- 정리 -->
+        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-6 rounded-xl border-2 border-yellow-400">
+          <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+            <span class="text-2xl">📌</span>
+            정리
+          </h3>
+          <p class="text-gray-700 leading-relaxed">
+            IP 주소는 <span class="font-bold text-red-600">건물 주소만</span> 알려주지만, 
+            도메인 이름은 <span class="font-bold text-blue-600">정확한 목적지와 신원까지</span> 알려줘요!
           </p>
         </div>
       </div>
+    </div>
 
-      <!-- 이유 2: HTTPS 보안 -->
-      <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl mb-6 border-l-4 border-green-500">
-        <h3 class="font-bold text-green-900 mb-3 flex items-center gap-2">
-          <span class="text-2xl">🔒</span>
-          이유 2: 보안 때문이에요 (HTTPS)
-        </h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
-          요즘 웹사이트는 HTTPS 보안을 사용해요.
-        </p>
-        
-        <div class="bg-white p-5 rounded-lg shadow-md mb-4">
-          <div class="font-bold text-green-800 mb-3">🔐 보안 인증서</div>
-          <p class="text-gray-700 mb-3">
-            HTTPS는 "이 사이트가 진짜인가요?"를 확인하는 인증서를 사용해요.
-          </p>
-          <div class="bg-green-100 p-3 rounded-lg">
-            <p class="text-sm text-gray-700">
-              <span class="font-bold">인증서:</span> "이것은 <span class="font-mono font-bold text-green-700">www.naver.com</span>용입니다"
-            </p>
-          </div>
-        </div>
+    <!-- ==================== 메인 탭 4: 퀴즈 ==================== -->
+    <div id="main-quiz" class="main-content hidden">
+      <div class="bg-white rounded-3xl shadow-2xl p-8">
+        <h2 class="text-3xl font-black text-gray-800 mb-6 flex items-center gap-3">
+          <span class="text-4xl">✅</span>
+          이해도 확인 퀴즈 🎯
+        </h2>
 
-        <p class="text-gray-700">
-          <span class="text-red-600 font-bold">❌</span> IP 주소로 접속하면 인증서가 거부해요!
-        </p>
-      </div>
-
-      <!-- 이유 3: CDN -->
-      <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6 border-l-4 border-purple-500">
-        <h3 class="font-bold text-purple-900 mb-3 flex items-center gap-2">
-          <span class="text-2xl">🌍</span>
-          이유 3: 전 세계에 흩어져 있어요 (CDN)
-        </h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
-          큰 웹사이트는 전 세계 여러 곳에 서버를 두고 있어요.
-        </p>
-        
-        <div class="bg-white p-5 rounded-lg shadow-md mb-4">
-          <div class="font-bold text-purple-800 mb-3">🗺️ 유튜브의 서버들</div>
-          <div class="space-y-2 text-gray-700">
-            <div class="flex items-center gap-2">
-              <span class="text-purple-600">•</span>
-              <span>🇰🇷 한국: <span class="font-mono">142.250.207.46</span></span>
+        <div class="space-y-6">
+          <!-- 퀴즈 1 -->
+          <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl border-l-4 border-blue-500">
+            <p class="font-bold text-gray-800 mb-4 text-lg">Q1. 올바른 IPv4 주소는?</p>
+            <div class="space-y-2">
+              <button onclick="checkQuiz(1, 'a', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-blue-100 transition-all border-2 border-transparent">
+                A) 192.168.1.256
+              </button>
+              <button onclick="checkQuiz(1, 'b', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-blue-100 transition-all border-2 border-transparent">
+                B) 192.168.1.100
+              </button>
+              <button onclick="checkQuiz(1, 'c', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-blue-100 transition-all border-2 border-transparent">
+                C) 192.168.300.1
+              </button>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-purple-600">•</span>
-              <span>🇺🇸 미국: <span class="font-mono">142.250.217.46</span></span>
+            <div id="quiz1-result" class="hidden mt-4"></div>
+          </div>
+
+          <!-- 퀴즈 2 -->
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border-l-4 border-purple-500">
+            <p class="font-bold text-gray-800 mb-4 text-lg">Q2. DNS의 역할은?</p>
+            <div class="space-y-2">
+              <button onclick="checkQuiz(2, 'a', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-purple-100 transition-all border-2 border-transparent">
+                A) 도메인 이름을 IP 주소로 변환
+              </button>
+              <button onclick="checkQuiz(2, 'b', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-purple-100 transition-all border-2 border-transparent">
+                B) 컴퓨터 바이러스 검사
+              </button>
+              <button onclick="checkQuiz(2, 'c', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-purple-100 transition-all border-2 border-transparent">
+                C) 이메일 전송
+              </button>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-purple-600">•</span>
-              <span>🇯🇵 일본: <span class="font-mono">142.250.196.46</span></span>
+            <div id="quiz2-result" class="hidden mt-4"></div>
+          </div>
+
+          <!-- 퀴즈 3 -->
+          <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border-l-4 border-green-500">
+            <p class="font-bold text-gray-800 mb-4 text-lg">Q3. IPv6가 필요한 이유는?</p>
+            <div class="space-y-2">
+              <button onclick="checkQuiz(3, 'a', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-green-100 transition-all border-2 border-transparent">
+                A) 더 빠른 속도
+              </button>
+              <button onclick="checkQuiz(3, 'b', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-green-100 transition-all border-2 border-transparent">
+                B) IPv4 주소 고갈
+              </button>
+              <button onclick="checkQuiz(3, 'c', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-green-100 transition-all border-2 border-transparent">
+                C) 더 쉬운 입력
+              </button>
             </div>
+            <div id="quiz3-result" class="hidden mt-4"></div>
+          </div>
+
+          <!-- 퀴즈 4 -->
+          <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl border-l-4 border-orange-500">
+            <p class="font-bold text-gray-800 mb-4 text-lg">Q4. www.moe.go.kr에서 'go'의 의미는?</p>
+            <div class="space-y-2">
+              <button onclick="checkQuiz(4, 'a', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-orange-100 transition-all border-2 border-transparent">
+                A) 기업
+              </button>
+              <button onclick="checkQuiz(4, 'b', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-orange-100 transition-all border-2 border-transparent">
+                B) 정부 기관
+              </button>
+              <button onclick="checkQuiz(4, 'c', this)" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-orange-100 transition-all border-2 border-transparent">
+                C) 대학교
+              </button>
+            </div>
+            <div id="quiz4-result" class="hidden mt-4"></div>
           </div>
         </div>
 
-        <p class="text-gray-700">
-          <span class="text-blue-600 font-bold">💡</span> 도메인으로 접속하면 자동으로 가까운 서버로 연결돼요!
-        </p>
-      </div>
-
-      <!-- 정리 -->
-      <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-6 rounded-xl border-2 border-yellow-400">
-        <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-          <span class="text-2xl">📌</span>
-          정리
-        </h3>
-        <p class="text-gray-700 leading-relaxed">
-          IP 주소는 <span class="font-bold text-red-600">건물 주소만</span> 알려주지만, 
-          도메인 이름은 <span class="font-bold text-blue-600">정확한 목적지와 신원까지</span> 알려줘요!
-        </p>
-      </div>
-    </div>
-
-    <!-- 퀴즈 섹션 -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <span 
-          class="text-3xl relative inline-block cursor-pointer"
-          onclick="showTooltip()"
-          id="gameEmoji"
-        >
-          🎮
-          <span 
-            id="tooltip" 
-            class="hidden absolute left-1/2 -translate-x-1/2 -top-16 
-                   bg-violet-400 text-gray-900 px-3 py-1 rounded-xl 
-                   text-sm font-bold whitespace-nowrap shadow-2xl z-50"
-            style="animation: bounceOnce 0.5s ease-in-out"
-          >
-            참새다!
-          </span>
-        </span>
-        이해도 체크 퀴즈
-      </h2>
-
-      <div class="space-y-4">
-        <!-- 퀴즈 1 -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border-l-4 border-blue-500">
-          <p class="font-bold text-gray-800 mb-3">Q1. 다음 중 올바른 IP 주소 형식은?</p>
-          <div class="space-y-2">
-            <button onclick="checkAnswer(1, 'a')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-blue-100 transition-all border-2 border-transparent">
-              A) 192.168.1.256
-            </button>
-            <button onclick="checkAnswer(1, 'b')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-blue-100 transition-all border-2 border-transparent">
-              B) 192.168.1.100 ✅
-            </button>
-            <button onclick="checkAnswer(1, 'c')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-blue-100 transition-all border-2 border-transparent">
-              C) 192.168.300.1
-            </button>
-          </div>
-          <div id="answer1" class="hidden mt-3 p-3 bg-green-100 rounded-lg text-green-800">
-            <span class="font-bold">정답!</span> IP 주소의 각 숫자는 0~255 사이의 값이어야 해요.
-          </div>
-        </div>
-
-        <!-- 퀴즈 2 -->
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border-l-4 border-purple-500">
-          <p class="font-bold text-gray-800 mb-3">Q2. DNS의 역할은 무엇일까요?</p>
-          <div class="space-y-2">
-            <button onclick="checkAnswer(2, 'a')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-purple-100 transition-all border-2 border-transparent">
-              A) 도메인 이름을 IP 주소로 변환 ✅
-            </button>
-            <button onclick="checkAnswer(2, 'b')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-purple-100 transition-all border-2 border-transparent">
-              B) 컴퓨터 바이러스 검사
-            </button>
-            <button onclick="checkAnswer(2, 'c')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-purple-100 transition-all border-2 border-transparent">
-              C) 이메일 전송
-            </button>
-          </div>
-          <div id="answer2" class="hidden mt-3 p-3 bg-green-100 rounded-lg text-green-800">
-            <span class="font-bold">정답!</span> DNS는 사람이 기억하기 쉬운 도메인 이름을 컴퓨터가 이해하는 IP 주소로 바꿔줘요.
-          </div>
-        </div>
-
-        <!-- 퀴즈 3 -->
-        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-5 rounded-xl border-l-4 border-orange-500">
-          <p class="font-bold text-gray-800 mb-3">Q3. 왜 도메인 이름을 사용할까요?</p>
-          <div class="space-y-2">
-            <button onclick="checkAnswer(3, 'a')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-orange-100 transition-all border-2 border-transparent">
-              A) 더 빠르게 접속하기 위해
-            </button>
-            <button onclick="checkAnswer(3, 'b')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-orange-100 transition-all border-2 border-transparent">
-              B) 숫자 IP 주소보다 기억하기 쉬워서 ✅
-            </button>
-            <button onclick="checkAnswer(3, 'c')" class="quiz-btn w-full text-left px-4 py-3 bg-white rounded-lg hover:bg-orange-100 transition-all border-2 border-transparent">
-              C) 보안을 강화하기 위해
-            </button>
-          </div>
-          <div id="answer3" class="hidden mt-3 p-3 bg-green-100 rounded-lg text-green-800">
-            <span class="font-bold">정답!</span> 192.168.1.1 같은 숫자보다 www.naver.com 같은 이름이 훨씬 기억하기 쉽죠!
-          </div>
+        <div id="quiz-complete" class="hidden mt-8 p-6 bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl border-2 border-green-400 text-center">
+          <div class="text-5xl mb-3">🎉</div>
+          <div class="text-2xl font-bold text-green-800 mb-2">모든 퀴즈 완료!</div>
+          <div class="text-green-700">IP 주소와 도메인 이름을 완벽하게 이해했어요!</div>
         </div>
       </div>
-    </div>
-
-    <!-- 정리 섹션 -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <span class="text-3xl">📚</span>
-        핵심 정리
-      </h2>
-      
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-xl">
-          <div class="text-4xl mb-3">🏠</div>
-          <h3 class="font-bold text-blue-900 mb-2">IP 주소</h3>
-          <p class="text-sm text-gray-700">컴퓨터의 고유한 숫자 주소 (예: 192.168.0.1)</p>
-        </div>
-        
-        <div class="bg-gradient-to-br from-cyan-100 to-cyan-200 p-6 rounded-xl">
-          <div class="text-4xl mb-3">📝</div>
-          <h3 class="font-bold text-cyan-900 mb-2">도메인 이름</h3>
-          <p class="text-sm text-gray-700">기억하기 쉬운 문자 주소 (예: www.naver.com)</p>
-        </div>
-        
-        <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-xl">
-          <div class="text-4xl mb-3">🔄</div>
-          <h3 class="font-bold text-purple-900 mb-2">DNS</h3>
-          <p class="text-sm text-gray-700">도메인을 IP로 변환하는 시스템</p>
-        </div>
-      </div>
-
-      <div class="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border-2 border-yellow-300">
-        <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-          <span class="text-xl">💭</span>
-          생각해볼 문제
-        </h3>
-        <ul class="space-y-2 text-gray-700">
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q1.</span>
-            <span>만약 DNS 서버가 고장나면 어떤 일이 일어날까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q2.</span>
-            <span>IP 주소 대신 도메인 이름만 사용할 수는 없을까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q3.</span>
-            <span>같은 도메인 이름이 여러 개 있을 수 있을까요?</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 홈으로 버튼 -->
-    <div class="text-center mt-8 mb-6">
-      <a 
-        href="index.html" 
-        class="inline-block bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg hover:shadow-xl"
-      >
-        🏠 홈으로 돌아가기
-      </a>
-    </div>
-
-    <!-- 푸터 -->
-    <div class="text-center mt-8 text-white text-sm">
-      <p>부산진여자상업고등학교 정보 학습자료</p>
-      <p class="mt-1 text-indigo-200">© 2024 All rights reserved</p>
     </div>
   </div>
 
   <script>
-  // 실제 자주 쓰는 사이트 + 교육부 등 학교에서 쓸 사이트 미리 등록 (2025년 12월 기준)
-  const realIPs = {
-  /*  'www.naver.com': '223.130.195.95',
-    'www.google.com': '142.250.196.68',
-    'www.youtube.com': '142.250.217.46',
-    'www.daum.net': '203.133.167.21',
-    'www.kakao.com': '211.231.99.76',
-    'moe.go.kr': '211.43.14.51',
-    'www.moe.go.kr': '211.43.14.51',
-    'ebs.co.kr': '211.242.25.31',
-    'www.ebs.co.kr': '211.242.25.31',
-    'edunet.net': '210.102.100.21',
-    'www.edunet.net': '210.102.100.21',
-    'www.facebook.com': '157.240.22.35',
-    'www.instagram.com': '157.240.22.174',
-    'www.auction.co.kr': '104.18.15.190'  // 옥션 추가! (Cloudflare IP)   */
+    // 진행 상황
+    let completedSections = new Set();
+    let currentMainTab = 'concept';
+    
+    // 메인 탭 전환
+    function showMainTab(tab, btn) {
+      document.querySelectorAll('.main-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.querySelectorAll('.main-tab').forEach(b => {
+        b.classList.remove('active');
+      });
+      
+      document.getElementById(`main-${tab}`).classList.remove('hidden');
+      document.getElementById(`main-${tab}`).classList.add('fade-in');
+      if (btn) btn.classList.add('active');
+      currentMainTab = tab;
+      
+      // 진행 바 업데이트
+      const progressMap = { 'concept': 1, 'playground': 2, 'advanced': 3, 'quiz': 4 };
+      for (let i = 1; i <= 4; i++) {
+        const elem = document.getElementById(`progress-${i}`);
+        elem.classList.remove('active');
+        if (i < progressMap[tab]) {
+          elem.classList.add('completed');
+        }
+      }
+      document.getElementById(`progress-${progressMap[tab]}`).classList.add('active');
+    }
+    
+    // 개념 학습 서브 탭
+    function showConceptTab(tab, btn) {
+      document.querySelectorAll('.concept-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.querySelectorAll('#main-concept .sub-tab').forEach(b => {
+        b.classList.remove('active');
+      });
+      
+      document.getElementById(`concept-${tab}`).classList.remove('hidden');
+      document.getElementById(`concept-${tab}`).classList.add('fade-in');
+      if (btn) btn.classList.add('active');
+    }
+    
+    // 놀이터 서브 탭
+    function showPlaygroundTab(tab, btn) {
+      document.querySelectorAll('.playground-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.querySelectorAll('#main-playground .sub-tab').forEach(b => {
+        b.classList.remove('active');
+      });
+      
+      document.getElementById(`playground-${tab}`).classList.remove('hidden');
+      document.getElementById(`playground-${tab}`).classList.add('fade-in');
+      if (btn) btn.classList.add('active');
+      
+      if (tab === 'binary') renderBinary();
+    }
+    
+    // IP 놀이터 업데이트
+    function updatePlayground() {
+      const ip1 = parseInt(document.getElementById('play-ip1').value) || 0;
+      const ip2 = parseInt(document.getElementById('play-ip2').value) || 0;
+      const ip3 = parseInt(document.getElementById('play-ip3').value) || 0;
+      const ip4 = parseInt(document.getElementById('play-ip4').value) || 0;
+      
+      const octets = [ip1, ip2, ip3, ip4].map(v => Math.max(0, Math.min(255, v)));
+      
+      document.getElementById('play-full-ip').textContent = octets.join('.');
+      document.getElementById('play-binary').textContent = octets.map(n => n.toString(2).padStart(8, '0')).join('.');
+      
+      let type = '공인 IP (Public IP)';
+      if (octets[0] === 192 && octets[1] === 168) type = '사설 IP (Private IP)';
+      else if (octets[0] === 10) type = '사설 IP (Private IP)';
+      else if (octets[0] === 127) type = '로컬호스트 (Localhost)';
+      
+      document.getElementById('play-type').textContent = type;
+    }
+    
+    // 2진수 인터랙티브
+    let binaryBits = [[1,1,0,0,0,0,0,0], [1,0,1,0,1,0,0,0], [0,0,0,0,0,0,0,1], [0,1,1,0,0,1,0,0]];
+    
+    function renderBinary() {
+      const container = document.getElementById('binary-interactive');
+      container.innerHTML = '';
+      
+      const labels = ['1번째 옥텟', '2번째 옥텟', '3번째 옥텟', '4번째 옥텟'];
+      const weights = [128, 64, 32, 16, 8, 4, 2, 1];
+      
+      binaryBits.forEach((octet, oi) => {
+        const val = octet.reduce((a,b,i) => a + (b << (7-i)), 0);
+        const div = document.createElement('div');
+        div.className = 'bg-gray-50 rounded-xl p-4 border-2 border-gray-200';
+        div.innerHTML = `<div class="text-sm font-bold text-gray-700 mb-3">${labels[oi]} = <span class="text-indigo-600 font-mono text-lg">${val}</span></div>`;
+        
+        const row = document.createElement('div');
+        row.className = 'flex gap-2 flex-wrap';
+        
+        octet.forEach((bit, bi) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'bit-cell';
+          
+          const tooltip = document.createElement('div');
+          tooltip.className = 'bit-tooltip';
+          tooltip.innerHTML = `이 자리의 값<br><strong>${weights[bi]}</strong>`;
+          
+          const btn = document.createElement('div');
+          btn.className = `w-10 h-10 flex items-center justify-center rounded-lg font-mono font-bold cursor-pointer transition-all ${bit ? 'bg-indigo-500 text-white border-2 border-indigo-600' : 'bg-white text-gray-400 border-2 border-gray-300'}`;
+          btn.textContent = bit;
+          btn.onclick = () => {
+            binaryBits[oi][bi] ^= 1;
+            renderBinary();
+            updateBinaryResult();
+          };
+          
+          wrapper.appendChild(tooltip);
+          wrapper.appendChild(btn);
+          row.appendChild(wrapper);
+        });
+        
+        div.appendChild(row);
+        container.appendChild(div);
+      });
+    }
+    
+    function updateBinaryResult() {
+      const octets = binaryBits.map(ob => ob.reduce((a,b,i) => a + (b << (7-i)), 0));
+      document.getElementById('binary-result').textContent = octets.join('.');
+    }
+    
+    // 서브넷 계산
+    function updateSubnet() {
+      const cidr = parseInt(document.getElementById('subnet-cidr').value);
+      document.getElementById('subnet-cidr-value').textContent = cidr;
+      
+      const ip = [192, 168, 1, 100];
+      const maskInt = cidr === 32 ? 0xFFFFFFFF : (~(0xFFFFFFFF >>> cidr)) >>> 0;
+      const mask = [(maskInt>>>24)&255, (maskInt>>>16)&255, (maskInt>>>8)&255, maskInt&255];
+      
+      const network = ip.map((v, i) => v & mask[i]);
+      const broadcast = network.map((v, i) => v | (255 - mask[i]));
+      const hosts = Math.pow(2, 32 - cidr) - 2;
+      
+      document.getElementById('subnet-network').textContent = network.join('.');
+      document.getElementById('subnet-broadcast').textContent = broadcast.join('.');
+      document.getElementById('subnet-mask').textContent = mask.join('.');
+      document.getElementById('subnet-hosts').textContent = hosts.toLocaleString() + '개';
+    }
+    
+    // DNS 시뮬레이터
+    const dnsDatabase = {
+      'www.naver.com': '223.130.195.95',
+      'www.google.com': '142.250.196.68',
+      'www.youtube.com': '142.250.217.46',
+      'www.daum.net': '203.133.167.21',
+      'www.moe.go.kr': '211.43.14.51'
+    };
+    
+    function simulateDNS() {
+      const domain = document.getElementById('dns-input').value.trim().toLowerCase();
+      const resultDiv = document.getElementById('dns-result');
+      
+      if (!domain) {
+        alert('도메인 이름을 입력해주세요!');
+        return;
+      }
+      
+      const ip = dnsDatabase[domain] || '알 수 없음';
+      
+      document.getElementById('dns-domain').textContent = domain;
+      document.getElementById('dns-ip').textContent = ip;
+      resultDiv.classList.remove('hidden');
+      resultDiv.classList.add('fade-in');
+    }
+    
+    // 퀴즈
+    const quizAnswers = {1: 'b', 2: 'a', 3: 'b', 4: 'b'};
+    let quizCorrect = 0;
+    
+    function checkQuiz(num, answer, btn) {
+      const resultDiv = document.getElementById(`quiz${num}-result`);
+      
+      if (answer === quizAnswers[num]) {
+        resultDiv.className = 'mt-4 p-4 bg-green-100 rounded-lg border-2 border-green-400';
+        resultDiv.innerHTML = '<div class="font-bold text-green-800">✅ 정답입니다!</div>';
+        btn.classList.add('border-green-500', 'bg-green-50');
+        quizCorrect++;
+        
+        if (quizCorrect === 4) {
+          document.getElementById('quiz-complete').classList.remove('hidden');
+        }
+      } else {
+        resultDiv.className = 'mt-4 p-4 bg-red-100 rounded-lg border-2 border-red-400';
+        resultDiv.innerHTML = '<div class="font-bold text-red-800">❌ 다시 생각해보세요!</div>';
+        btn.classList.add('border-red-500', 'bg-red-50');
+        setTimeout(() => {
+          btn.classList.remove('border-red-500', 'bg-red-50');
+        }, 1000);
+      }
+      
+      resultDiv.classList.remove('hidden');
+    }
+    
+    // 초기화
+    try { updatePlayground(); } catch(e) { console.warn('updatePlayground init error:', e); }
+    try { updateSubnet(); } catch(e) { console.warn('updateSubnet init error:', e); }
+    try { renderBinary(); } catch(e) { console.warn('renderBinary init error:', e); }
+
+  // ========== IP 빌더 스크립트 ==========
+  let ipBits = [
+    [1,1,0,0,0,0,0,0],
+    [1,0,1,0,1,0,0,0],
+    [0,0,0,0,0,0,0,1],
+    [0,1,1,0,0,1,0,0],
+  ];
+
+  const ipClassInfo = {
+    A: '🅰️ <strong>A클래스</strong> — 첫 번째 숫자가 <strong>0~127</strong>이에요. 인터넷 초기에 아주 큰 회사나 정부기관에 배분됐어요. 한 네트워크에 무려 <strong>1,600만 개</strong>의 기기를 연결할 수 있어요!',
+    B: '🅱️ <strong>B클래스</strong> — 첫 번째 숫자가 <strong>128~191</strong>이에요. 중간 규모 조직에 배분됐어요. 한 네트워크에 <strong>65,534개</strong>의 기기를 연결할 수 있어요.',
+    C: '🆑 <strong>C클래스</strong> — 첫 번째 숫자가 <strong>192~223</strong>이에요. 가장 흔한 형태예요! 가정집 와이파이나 소규모 회사에서 많이 써요. 한 네트워크에 <strong>254개</strong>의 기기를 연결할 수 있어요.',
+    D: '📡 <strong>D클래스</strong> — 첫 번째 숫자가 <strong>224~239</strong>예요. 일반 컴퓨터 주소가 아니라, 여러 기기에 동시에 데이터를 보내는 <strong>멀티캐스트</strong> 용도예요.',
+    E: '🔬 <strong>E클래스</strong> — 첫 번째 숫자가 <strong>240~255</strong>예요. 연구·실험 목적으로 예약된 주소예요. 일반적으로 쓰지 않아요.',
   };
 
-  function setExample(domain) {
-    document.getElementById('domainInput').value = domain;
+  function ipGetOctets() {
+    return ['ip-o1','ip-o2','ip-o3','ip-o4'].map(id => parseInt(document.getElementById(id).value));
   }
 
-  async function convertDomain() {
-    const input = document.getElementById('domainInput').value.trim().toLowerCase();
-    const resultDiv = document.getElementById('result');
-    
-    if (!input) {
-      alert('도메인 이름을 입력해주세요!');
-      return;
+  function ipToBin(n) { return (n>>>0).toString(2).padStart(8,'0'); }
+
+  function ipGetClass(o1) {
+    if (o1 < 128) return 'A';
+    if (o1 < 192) return 'B';
+    if (o1 < 224) return 'C';
+    if (o1 < 240) return 'D';
+    return 'E';
+  }
+
+  function ipValidate() {
+    const ids = ['ip-o1','ip-o2','ip-o3','ip-o4'];
+    const labels = ['1번째','2번째','3번째','4번째'];
+    const errIds = ['ip-err1','ip-err2','ip-err3','ip-err4'];
+    let errors = [];
+    let valid = true;
+
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      const errEl = document.getElementById(errIds[i]);
+      const raw = el.value;
+      const v = parseInt(raw);
+      el.style.borderColor = '';
+      el.style.background = '';
+      el.style.color = '';
+      errEl.textContent = '';
+
+      if (raw === '' || isNaN(v)) {
+        el.style.borderColor = '#ef4444';
+        el.style.background = '#fff5f5';
+        el.style.color = '#ef4444';
+        errEl.textContent = '숫자 입력 필요';
+        errors.push(`${labels[i]} 옥텟에 숫자를 입력해주세요`);
+        valid = false;
+      } else if (v < 0) {
+        el.style.borderColor = '#ef4444';
+        el.style.background = '#fff5f5';
+        el.style.color = '#ef4444';
+        errEl.textContent = '0 이상이어야 해요';
+        errors.push(`${labels[i]} 옥텟: 0 이상이어야 해요 (지금: ${v})`);
+        valid = false;
+      } else if (v > 255) {
+        el.style.borderColor = '#ef4444';
+        el.style.background = '#fff5f5';
+        el.style.color = '#ef4444';
+        errEl.textContent = '255 초과!';
+        errors.push(`${labels[i]} 옥텟: 최대 255까지만 가능해요 (지금: ${v})`);
+        valid = false;
+      } else {
+        el.style.borderColor = '#60a5fa';
+        el.style.color = '#1d4ed8';
+      }
+    });
+
+    const banner = document.getElementById('ip-error-banner');
+    const bannerText = document.getElementById('ip-error-text');
+    if (errors.length > 0) {
+      banner.classList.remove('hidden');
+      banner.classList.add('flex');
+      bannerText.innerHTML = '<strong>올바른 IP 주소가 아니에요!</strong><br>' + errors.join('<br>');
+    } else {
+      banner.classList.add('hidden');
+      banner.classList.remove('flex');
     }
+    return valid;
+  }
 
-    // 결과 영역 숨기고 로딩 표시
-    resultDiv.classList.add('hidden');
+  function ipUpdateAll() {
+    const valid = ipValidate();
+    const resultsArea = document.getElementById('ip-results-area');
+    if (resultsArea) {
+      resultsArea.style.opacity = valid ? '1' : '0.3';
+      resultsArea.style.pointerEvents = valid ? '' : 'none';
+      resultsArea.style.filter = valid ? '' : 'blur(2px)';
+    }
+    if (!valid) return;
 
-    let ip = realIPs[input];  // 우리가 미리 아는 사이트는 바로 보여주기
+    const raw = ipGetOctets();
+    const o = raw.map(v => Math.max(0, Math.min(255, isNaN(v) ? 0 : v)));
 
-    // 모르는 도메인은 구글 공용 DNS로 진짜 조회
-    if (!ip) {
-      try {
-        const response = await fetch(`https://dns.google/resolve?name=${input}&type=A`);
-        const data = await response.json();
-        if (data.Answer && data.Answer.length > 0) {
-          // Answer에서 직접 IP 추출 (CNAME는 무시하고 A 레코드만)
-          const aRecord = data.Answer.find(record => record.type === 1);  // type 1 = A (IPv4)
-          if (aRecord) {
-            ip = aRecord.data;
-          } else {
-            ip = 'CNAME으로 리다이렉트되지만 IP를 찾을 수 없어요 😢';
-          }
-        } else {
-          ip = '해당 도메인을 찾을 수 없어요 😢';
-        }
-      } catch (e) {
-        ip = '인터넷 연결을 확인해주세요!';
+    o.forEach((val, i) => { ipBits[i] = ipToBin(val).split('').map(Number); });
+
+    const ip = o.join('.');
+    document.getElementById('ip-decimal-full').textContent = ip;
+    if (document.getElementById('ip-subnet-ip')) document.getElementById('ip-subnet-ip').textContent = ip;
+
+    const intVal = ((o[0]<<24)|(o[1]<<16)|(o[2]<<8)|o[3]) >>> 0;
+    document.getElementById('ip-int-val').textContent = intVal.toLocaleString();
+    document.getElementById('ip-hex-val').textContent = o.map(x=>x.toString(16).toUpperCase().padStart(2,'0')).join('.');
+    document.getElementById('ip-binary-full').textContent = o.map(x=>ipToBin(x)).join('.');
+
+    const cls = ipGetClass(o[0]);
+    const classBadge = document.getElementById('ip-class-badge');
+    classBadge.textContent = cls + '클래스';
+    const clsColors = {A:'blue',B:'purple',C:'orange',D:'yellow',E:'red'};
+    const c = clsColors[cls];
+    classBadge.className = `inline-block px-5 py-2 rounded-full text-sm font-bold border-2 border-${c}-400 bg-${c}-50 text-${c}-700`;
+
+    const specials = [];
+    if (o[0]===127) specials.push({text:'🔁 루프백 (내 컴퓨터)', color:'yellow'});
+    if (o[0]===10) specials.push({text:'🔒 사설 IP', color:'green'});
+    if (o[0]===172&&o[1]>=16&&o[1]<=31) specials.push({text:'🔒 사설 IP', color:'green'});
+    if (o[0]===192&&o[1]===168) specials.push({text:'🔒 사설 IP (가정용)', color:'green'});
+    if (o[0]===169&&o[1]===254) specials.push({text:'⚠️ 링크로컬', color:'orange'});
+    if (o[0]>=224&&o[0]<=239) specials.push({text:'📡 멀티캐스트', color:'purple'});
+    if (o.every(x=>x===255)) specials.push({text:'📢 제한 브로드캐스트', color:'red'});
+    if (specials.length===0&&o[0]!==0) specials.push({text:'🌍 공인 IP (인터넷용)', color:'blue'});
+    if (o[0]===0) specials.push({text:'⭕ 비지정 주소', color:'gray'});
+
+    document.getElementById('ip-special-badges').innerHTML = specials.map(s =>
+      `<span class="inline-block m-1 px-3 py-1 text-xs font-bold rounded-full bg-${s.color}-100 text-${s.color}-700 border border-${s.color}-300">${s.text}</span>`
+    ).join('');
+
+    document.getElementById('ip-class-explain').innerHTML = '📖 ' + ipClassInfo[cls];
+
+    ipUpdateSubnet();
+  }
+
+  function ipUpdateSubnet() {
+    try {
+    const raw = ipGetOctets();
+    const o = raw.map(v => Math.max(0,Math.min(255,isNaN(v)?0:v)));
+    const cidrEl = document.getElementById('ip-cidr');
+    if (!cidrEl) return;
+    const cidr = Math.max(1,Math.min(32, parseInt(cidrEl.value)||24));
+    document.getElementById('ip-cidr-range').value = cidr;
+
+    const maskInt = cidr===32 ? 0xFFFFFFFF : (~(0xFFFFFFFF>>>cidr))>>>0;
+    const maskOcts = [(maskInt>>>24)&255,(maskInt>>>16)&255,(maskInt>>>8)&255,maskInt&255];
+    document.getElementById('ip-sub-mask').textContent = maskOcts.join('.');
+
+    const ipInt = ((o[0]<<24)|(o[1]<<16)|(o[2]<<8)|o[3])>>>0;
+    const netInt = (ipInt&maskInt)>>>0;
+    const broadInt = (netInt|(~maskInt>>>0))>>>0;
+    const toIP = n => [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+
+    document.getElementById('ip-sub-network').textContent = toIP(netInt);
+    document.getElementById('ip-sub-broadcast').textContent = toIP(broadInt);
+
+    const hostBits = 32-cidr;
+    const hostCount = hostBits>=2 ? (Math.pow(2,hostBits)-2) : (hostBits===1?0:1);
+    document.getElementById('ip-sub-hosts').textContent =
+      cidr===32 ? '없음 (단일 기기)' : cidr===31 ? '2개 (특수 연결용)' : hostCount.toLocaleString()+'개';
+
+    document.getElementById('ip-sub-first').textContent = cidr<31 ? toIP(netInt+1) : toIP(netInt);
+    document.getElementById('ip-sub-last').textContent = cidr<31 ? toIP(broadInt-1) : toIP(broadInt);
+
+    const bitsEl = document.getElementById('ip-subnet-bits');
+    if (!bitsEl) return;
+    bitsEl.innerHTML = '';
+    for (let oct=0; oct<4; oct++) {
+      for (let bit=7; bit>=0; bit--) {
+        const absPos = oct*8+(7-bit);
+        const el = document.createElement('div');
+        el.className = `w-6 h-6 rounded text-xs flex items-center justify-center font-bold font-mono ${absPos<cidr ? 'bg-purple-200 text-purple-800' : 'bg-orange-100 text-orange-700'}`;
+        el.textContent = absPos<cidr?'1':'0';
+        el.title = absPos<cidr?'네트워크 비트':'컴퓨터 번호 비트';
+        bitsEl.appendChild(el);
+      }
+      if (oct<3) {
+        const sep = document.createElement('div');
+        sep.className = 'w-2';
+        bitsEl.appendChild(sep);
       }
     }
-
-    // 결과를 바로 표시
-    document.getElementById('resultDomain').textContent = input;
-    document.getElementById('resultIP').textContent = ip;
-    
-    resultDiv.classList.remove('hidden');
-    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch(e) { console.warn('subnet update error:', e); }
   }
 
-  function checkAnswer(quizNum, selected) {
-    const correctAnswers = {1: 'b', 2: 'a', 3: 'b'};
-    const answerDiv = document.getElementById(`answer${quizNum}`);
-    
-    if (selected === correctAnswers[quizNum]) {
-      answerDiv.classList.remove('hidden');
-      answerDiv.classList.add('slide-in');
-      event.target.classList.add('border-green-500', 'bg-green-50');
+  function ipSyncCidr(from) {
+    if (from==='range') document.getElementById('ip-cidr').value = document.getElementById('ip-cidr-range').value;
+    else document.getElementById('ip-cidr-range').value = document.getElementById('ip-cidr').value;
+    ipUpdateSubnet();
+  }
+
+  // ========== 도메인 분해 코드 조회 (ipUpdateAll 호출 전에 선언) ==========
+  var domainTypeCodes = {
+    'co':  { name: '기업 (회사)', emoji: '🏢' },
+    'com': { name: '상업·기업', emoji: '🏢' },
+    'go':  { name: '정부 기관', emoji: '🏛️' },
+    'gov': { name: '정부 기관', emoji: '🏛️' },
+    'ac':  { name: '대학교', emoji: '🎓' },
+    'edu': { name: '교육기관', emoji: '🎓' },
+    'or':  { name: '비영리 기관', emoji: '🤝' },
+    'org': { name: '비영리 기관', emoji: '🤝' },
+    'ne':  { name: '네트워크', emoji: '🌐' },
+    'net': { name: '네트워크', emoji: '🌐' },
+    're':  { name: '연구소', emoji: '🔬' },
+    'sc':  { name: '교육기관', emoji: '📚' },
+    'hs':  { name: '고등학교', emoji: '🏫' },
+    'ms':  { name: '중학교', emoji: '🏫' },
+    'es':  { name: '초등학교', emoji: '🏫' },
+    'pe':  { name: '개인', emoji: '👤' },
+    'mil': { name: '군사 기관', emoji: '🎖️' },
+    'int': { name: '국제기구', emoji: '🌍' },
+    'tv':  { name: '방송·미디어', emoji: '📺' },
+    'ai':  { name: 'AI 서비스', emoji: '🤖' },
+    'io':  { name: 'IT·스타트업', emoji: '💻' },
+  };
+
+  var domainCountryCodes = {
+    'kr': { name: '대한민국', emoji: '🇰🇷' },
+    'jp': { name: '일본', emoji: '🇯🇵' },
+    'cn': { name: '중국', emoji: '🇨🇳' },
+    'us': { name: '미국', emoji: '🇺🇸' },
+    'uk': { name: '영국', emoji: '🇬🇧' },
+    'gb': { name: '영국', emoji: '🇬🇧' },
+    'de': { name: '독일', emoji: '🇩🇪' },
+    'fr': { name: '프랑스', emoji: '🇫🇷' },
+    'au': { name: '호주', emoji: '🇦🇺' },
+    'ca': { name: '캐나다', emoji: '🇨🇦' },
+    'br': { name: '브라질', emoji: '🇧🇷' },
+    'in': { name: '인도', emoji: '🇮🇳' },
+    'ru': { name: '러시아', emoji: '🇷🇺' },
+    'it': { name: '이탈리아', emoji: '🇮🇹' },
+    'es': { name: '스페인', emoji: '🇪🇸' },
+    'nl': { name: '네덜란드', emoji: '🇳🇱' },
+    'se': { name: '스웨덴', emoji: '🇸🇪' },
+    'no': { name: '노르웨이', emoji: '🇳🇴' },
+    'dk': { name: '덴마크', emoji: '🇩🇰' },
+    'fi': { name: '핀란드', emoji: '🇫🇮' },
+    'ch': { name: '스위스', emoji: '🇨🇭' },
+    'pl': { name: '폴란드', emoji: '🇵🇱' },
+    'pt': { name: '포르투갈', emoji: '🇵🇹' },
+    'mx': { name: '멕시코', emoji: '🇲🇽' },
+    'ar': { name: '아르헨티나', emoji: '🇦🇷' },
+    'sg': { name: '싱가포르', emoji: '🇸🇬' },
+    'hk': { name: '홍콩', emoji: '🇭🇰' },
+    'tw': { name: '대만', emoji: '🇹🇼' },
+    'th': { name: '태국', emoji: '🇹🇭' },
+    'vn': { name: '베트남', emoji: '🇻🇳' },
+    'id': { name: '인도네시아', emoji: '🇮🇩' },
+    'my': { name: '말레이시아', emoji: '🇲🇾' },
+    'ph': { name: '필리핀', emoji: '🇵🇭' },
+    'nz': { name: '뉴질랜드', emoji: '🇳🇿' },
+    'za': { name: '남아프리카공화국', emoji: '🇿🇦' },
+    'tr': { name: '튀르키예', emoji: '🇹🇷' },
+    'sa': { name: '사우디아라비아', emoji: '🇸🇦' },
+    'ae': { name: '아랍에미리트', emoji: '🇦🇪' },
+    'eg': { name: '이집트', emoji: '🇪🇬' },
+  };
+
+  function updateTypeCode(val) {
+    var code = val.toLowerCase().trim();
+    var emoji = document.getElementById('di-type-emoji');
+    var name  = document.getElementById('di-type-name');
+    var codeEl = document.getElementById('di-type-code');
+    if (!code) {
+      emoji.textContent = '🏛️'; name.textContent = '정부 기관';
+      if (codeEl) codeEl.textContent = 'go';
+    } else if (domainTypeCodes[code]) {
+      emoji.textContent = domainTypeCodes[code].emoji;
+      name.textContent  = domainTypeCodes[code].name;
+      name.className    = 'text-xs font-bold text-purple-800 mb-2';
+      if (codeEl) codeEl.textContent = code;
     } else {
-      event.target.classList.add('border-red-500', 'bg-red-50');
-      setTimeout(() => {
-        event.target.classList.remove('border-red-500', 'bg-red-50');
-      }, 1000);
+      emoji.textContent = '❓';
+      name.textContent  = '알 수 없는 코드';
+      name.className    = 'text-xs font-bold text-gray-400 mb-2';
+      if (codeEl) codeEl.textContent = code;
     }
   }
 
-  // 엔터키로도 변환되게 (기존 기능 유지)
-  document.getElementById('domainInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      convertDomain();
+  function updateCountryCode(val) {
+    var code = val.toLowerCase().trim();
+    var emoji = document.getElementById('di-country-emoji');
+    var name  = document.getElementById('di-country-name');
+    var codeEl = document.getElementById('di-country-code');
+    if (!code) {
+      emoji.textContent = '🇰🇷'; name.textContent = '대한민국';
+      if (codeEl) codeEl.textContent = 'kr';
+    } else if (domainCountryCodes[code]) {
+      emoji.textContent = domainCountryCodes[code].emoji;
+      name.textContent  = domainCountryCodes[code].name;
+      name.className    = 'text-xs font-bold text-pink-800 mb-2';
+      if (codeEl) codeEl.textContent = code;
+    } else {
+      emoji.textContent = '❓';
+      name.textContent  = '알 수 없는 국가';
+      name.className    = 'text-xs font-bold text-gray-400 mb-2';
+      if (codeEl) codeEl.textContent = code;
     }
-  });
-
-  // 툴팁 표시 함수
-  function showTooltip() {
-    const tooltip = document.getElementById('tooltip');
-    tooltip.classList.remove('hidden');
-    setTimeout(() => {
-      tooltip.classList.add('hidden');
-    }, 500);  // 0.5초 후 자동으로 사라짐
   }
-</script>
+
+  // IP 빌더 초기화
+  try { ipUpdateAll(); } catch(e) { console.warn('IP builder init error:', e); }
+
+  </script>
+
+  <!-- 홈으로 돌아가기 버튼 -->
+  <div class="text-center mt-8 mb-6">
+    <a
+      href="index.html"
+      class="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+    >
+      🏠 홈으로 돌아가기
+    </a>
+  </div>
+
 </body>
 </html>
