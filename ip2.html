@@ -140,7 +140,7 @@
           setTimeout(() => {
             setStep(1);
             setShowFeedback(false);
-          }, 2000);
+          }, 1000);
         }
       };
 
@@ -578,7 +578,13 @@
                   </p>
                 </div>
 
-                <div className="text-center">
+                <div className="text-center flex justify-center gap-4">
+                  <button
+                    onClick={() => setStep(0)}
+                    className="bg-gray-200 text-gray-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    ← 이전 단계로
+                  </button>
                   <button
                     onClick={() => setStep(2)}
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
@@ -823,7 +829,13 @@
                   </div>
                 </div>
 
-                <div className="text-center">
+                <div className="text-center flex justify-center gap-4">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="bg-gray-200 text-gray-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    ← 이전 단계로
+                  </button>
                   <button
                     onClick={() => setStep(3)}
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
@@ -1122,7 +1134,13 @@
                   </div>
                 </div>
 
-                <div className="mt-6 text-center">
+                <div className="mt-6 text-center flex justify-center gap-4">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="inline-block bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold text-lg hover:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    ← 이전 단계로
+                  </button>
                   <a 
                     href="index.html" 
                     className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"

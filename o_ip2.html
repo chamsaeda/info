@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>전화번호와 인터넷 주소 - 네트워크 통신의 기본</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { text-decoration: none; }
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ── Animations ── */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to   { transform: translateX(0);     opacity: 1; }
+    }
+    @keyframes signalFlow {
+      0%   { opacity: 0; transform: scale(0.5); }
+      50%  { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0; transform: scale(1);   }
+    }
+    @keyframes lineFlash {
+      0%, 100% { stroke: #10b981; stroke-opacity: 0.4; stroke-width: 3; }
+      50%       { stroke: #3b82f6; stroke-opacity: 1;   stroke-width: 6; }
+    }
+    @keyframes dashMove {
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: 10; }
+    }
+    @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0) translateX(-50%); }
+      50%       { transform: translateY(-10px) translateX(-50%); }
+    }
+    .animate-pulse-custom { animation: pulse 2s ease-in-out infinite; }
+    .animate-slide-in     { animation: slideIn 0.5s ease-out; }
+    .signal-dot           { animation: signalFlow 1.5s ease-in-out forwards; }
+    .line-flash           { animation: lineFlash 1s ease-in-out infinite; }
+    .dash-move            { animation: dashMove 1s linear infinite; }
+
+    /* ── Layout ── */
+    .container  { max-width: 1024px; margin: 0 auto; background: #fff; border-radius: 1rem; box-shadow: 0 25px 50px rgba(0,0,0,.25); overflow: hidden; }
+    .header     { background: linear-gradient(to right, #4f46e5, #9333ea); padding: 1.5rem 2rem; color: #fff; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+    .header-sub { font-size: .875rem; color: #c7d2fe; }
+    .btn-home   { background: #fff; color: #4f46e5; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700; font-size: .875rem; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15); transition: background .2s; display: flex; align-items: center; gap: .5rem; }
+    .btn-home:hover { background: #e0e7ff; }
+    .header h1  { font-size: 1.75rem; font-weight: 700; margin-bottom: .25rem; }
+    .header p   { color: #c7d2fe; }
+    .content    { padding: 2rem; }
+
+    /* ── Cards & Boxes ── */
+    .card           { background: #fff; border-radius: .75rem; box-shadow: 0 4px 16px rgba(0,0,0,.08); border: 2px solid #e5e7eb; padding: 2rem; margin-bottom: 1.5rem; }
+    .box            { border-radius: .5rem; padding: 1.5rem; margin-bottom: 1rem; }
+    .box-yellow     { background: #fefce8; border: 1px solid #fde047; }
+    .box-blue       { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .box-green      { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .box-red        { background: #fef2f2; border: 1px solid #fecaca; }
+    .box-indigo     { background: linear-gradient(to right, #eef2ff, #f5f3ff); border: 2px solid #a5b4fc; border-radius: .75rem; padding: 1.5rem; }
+    .box-orange     { background: linear-gradient(to right, #fff7ed, #fefce8); border: 1px solid #fed7aa; border-radius: .5rem; padding: 1.5rem; }
+    .box-gradient-blue  { background: linear-gradient(135deg, #eff6ff, #eef2ff); border: 2px solid #bfdbfe; border-radius: .75rem; padding: 1.5rem; }
+    .box-gradient-green { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #bbf7d0; border-radius: .75rem; padding: 1.5rem; }
+    .inner-white    { background: #fff; border-radius: .5rem; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1rem; }
+
+    /* ── Typography ── */
+    .title-lg   { font-size: 1.5rem; font-weight: 700; margin-bottom: .75rem; }
+    .title-md   { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
+    .title-sm   { font-size: 1rem;    font-weight: 700; margin-bottom: .5rem; }
+    .text-lg    { font-size: 1.125rem; line-height: 1.7; }
+    .text-sm    { font-size: .875rem; }
+    .text-xs    { font-size: .75rem; }
+    .text-mono  { font-family: monospace; }
+    .bold       { font-weight: 700; }
+    .text-center { text-align: center; }
+    .text-blue   { color: #2563eb; }
+    .text-green  { color: #059669; }
+    .text-red    { color: #dc2626; }
+    .text-purple { color: #7c3aed; }
+    .text-orange { color: #ea580c; }
+    .text-gray   { color: #6b7280; }
+    .text-indigo { color: #4f46e5; }
+
+    /* ── Buttons ── */
+    .btn        { border: none; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: .5rem; padding: 1rem 2rem; font-size: 1.125rem; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+    .btn:hover  { transform: scale(1.03); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+    .btn-primary { background: linear-gradient(to right, #4f46e5, #9333ea); color: #fff; }
+    .btn-primary:hover { background: linear-gradient(to right, #4338ca, #7e22ce); }
+    .btn-gray   { background: #e5e7eb; color: #374151; }
+    .btn-gray:hover { background: #d1d5db; }
+    .btn-blue   { background: #3b82f6; color: #fff; }
+    .btn-blue:hover  { background: #2563eb; }
+    .btn-green  { background: #22c55e; color: #fff; }
+    .btn-green:hover { background: #16a34a; }
+    .btn-purple { background: #a855f7; color: #fff; }
+    .btn-purple:hover { background: #9333ea; }
+    .btn-row    { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+    /* ── Choice Grid (step 0) ── */
+    .choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media(max-width: 600px) { .choice-grid { grid-template-columns: 1fr; } }
+    .choice-btn  { background: none; border: 2px solid; border-radius: .75rem; padding: 1.5rem; cursor: pointer; font-family: inherit; transition: transform .15s, box-shadow .15s; }
+    .choice-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+    .choice-btn .emoji { font-size: 2.5rem; display: block; margin-bottom: .5rem; }
+    .choice-blue   { background: linear-gradient(135deg,#dbeafe,#bfdbfe); border-color: #93c5fd; }
+    .choice-green  { background: linear-gradient(135deg,#dcfce7,#bbf7d0); border-color: #86efac; }
+    .choice-purple { background: linear-gradient(135deg,#f3e8ff,#e9d5ff); border-color: #c084fc; }
+
+    /* ── Feedback ── */
+    .feedback-ok  { background: #f0fdf4; border: 2px solid #4ade80; border-radius: .5rem; padding: 1rem; margin-top: 1.5rem; display: flex; align-items: center; gap: .75rem; }
+    .feedback-no  { background: #fff7ed; border: 2px solid #fb923c; border-radius: .5rem; padding: 1rem; margin-top: 1.5rem; display: flex; align-items: center; gap: .75rem; }
+
+    /* ── Two phones (step 1) ── */
+    .phones-row  { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .phone-item  { text-align: center; }
+    .phone-item .big { font-size: 4.5rem; display: block; }
+    .cable       { flex: 1; max-width: 220px; }
+    .cable-line  { height: 8px; background: linear-gradient(to right, #3b82f6, #22c55e); border-radius: 4px; }
+    .cable-label { text-align: center; font-size: .75rem; color: #6b7280; margin-top: .25rem; }
+
+    /* ── Network call buttons (step 2) ── */
+    .call-grid   { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+    @media(max-width:600px){ .call-grid { grid-template-columns: 1fr; } }
+    .call-btn    { border: none; cursor: pointer; font-family: inherit; font-weight: 700; border-radius: .5rem; padding: 1rem; font-size: .95rem; color: #fff; transition: transform .15s, box-shadow .15s; }
+    .call-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+
+    /* ── IP device buttons (step 3) ── */
+    .device-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 1rem; }
+    @media(max-width:600px){ .device-grid { grid-template-columns: 1fr; } }
+    .device-btn  { background: #fff; border: 2px solid #d1d5db; border-radius: .5rem; padding: .75rem; cursor: pointer; font-family: inherit; transition: transform .15s, border-color .15s; }
+    .device-btn:hover  { border-color: #4ade80; transform: scale(1.05); }
+    .device-btn.selected { background: #f0fdf4; border-color: #22c55e; transform: scale(1.05); }
+    .device-btn .d-emoji { font-size: 2rem; display: block; margin-bottom: .25rem; }
+    .device-btn .d-name  { font-size: .75rem; font-weight: 700; color: #1f2937; }
+    .device-btn .d-ip    { font-size: .7rem; font-family: monospace; color: #059669; }
+    .device-btn .d-tag   { font-size: .7rem; font-weight: 700; color: #15803d; margin-top: .25rem; }
+
+    /* ── Comparison table ── */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .75rem; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: .875rem; }
+    thead tr { background: linear-gradient(to right, #e0e7ff, #f3e8ff); }
+
+    /* ── Observation list ── */
+    .obs-list    { list-style: none; }
+    .obs-list li { font-size: .875rem; color: #374151; margin-bottom: .25rem; }
+
+    /* ── Connection status banner ── */
+    .status-banner { border: 2px solid; border-radius: .5rem; padding: 1rem; margin-top: 1rem; display: flex; align-items: center; gap: .75rem; }
+    .banner-blue   { background: #dbeafe; border-color: #60a5fa; }
+    .banner-green  { background: #dcfce7; border-color: #4ade80; }
+
+    /* ── Misc ── */
+    .badge       { display: inline-block; border-radius: .375rem; padding: .125rem .5rem; font-size: .75rem; font-weight: 700; color: #fff; }
+    .hidden      { display: none; }
+    .mt1 { margin-top: .25rem; }
+    .mt2 { margin-top: .5rem; }
+    .mt4 { margin-top: 1rem; }
+    .mt6 { margin-top: 1.5rem; }
+    .mb2 { margin-bottom: .5rem; }
+    .mb4 { margin-bottom: 1rem; }
+    .mb6 { margin-bottom: 1.5rem; }
+    .flex-center { display: flex; align-items: center; gap: .5rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media(max-width:640px){ .grid-2 { grid-template-columns: 1fr; } }
+    .tooltip-wrap { position: relative; display: inline-block; cursor: pointer; }
+    .tooltip-box  { position: absolute; left: 50%; top: -3.5rem; transform: translateX(-50%);
+                    background: #fbcfe8; color: #1f2937; padding: .25rem .75rem; border-radius: .75rem;
+                    font-size: .875rem; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+                    animation: bounceOnce .5s ease-in-out; }
+    .svg-wrap     { background: #fff; border-radius: .5rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); border: 2px solid; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-top">
+      <span class="header-sub">고등학교 정보 학습자료</span>
+      <button class="btn-home" onclick="location.href='index.html'">🏠 홈으로</button>
+    </div>
+    <h1>📞 인터넷 주소가 왜 필요하지?</h1>
+    <p>인터넷을 하려면 IP 주소가 필요해요! 어떻게 서로를 찾을까요?</p>
+  </div>
+
+  <!-- ── Content ── -->
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const state = {
+  step: 0,
+  answer: '',
+  showFeedback: false,
+  callingFrom: '', callingTo: '',
+  showPhoneConn: false,
+  signalPath: [],
+  activeNodes: [],
+  ipFrom: '', ipTo: '',
+  showIPConn: false,
+  showTooltip: false,
+};
+
+let signalTimer = null;
+
+/* ═══════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════ */
+const phones = [
+  { name:'민수',   number:'010-1234-5678', emoji:'👦', id:'minsu'   },
+  { name:'지은',   number:'010-9876-5432', emoji:'👧', id:'jieun'   },
+  { name:'선생님', number:'010-1004-1004', emoji:'👨‍🏫', id:'teacher' },
+];
+const devices = [
+  { name:'학교 컴퓨터', ip:'192.168.1.10', emoji:'💻' },
+  { name:'스마트폰',   ip:'192.168.1.25', emoji:'📱' },
+  { name:'태블릿',     ip:'192.168.1.30', emoji:'📲' },
+];
+
+const phonePos = { minsu:{x:150,y:100}, jieun:{x:450,y:100}, teacher:{x:300,y:330} };
+const devicePos = { '학교 컴퓨터':{x:150,y:100}, '스마트폰':{x:450,y:100}, '태블릿':{x:300,y:330} };
+
+/* ═══════════════════════════════════════════════
+   RENDER HELPERS
+═══════════════════════════════════════════════ */
+function svgConnections(nodes, posMap, fromKey, toKey, showConn) {
+  const center = {x:300, y:200};
+  return nodes.map(n => {
+    const id  = n.id || n.name;
+    const key = n.id || n.name;
+    const pos = posMap[key];
+    const active = (fromKey === key || toKey === key) && showConn;
+    return `<line
+      x1="${center.x}" y1="${center.y}" x2="${pos.x}" y2="${pos.y}"
+      stroke="${active ? '#3b82f6' : '#d1d5db'}"
+      stroke-width="${active ? 4 : 3}"
+      stroke-dasharray="5,5"
+      class="${active ? 'line-flash' : 'dash-move'}"
+      opacity="${active ? 1 : 0.5}" />`;
+  }).join('');
+}
+
+function svgSignals(fromPos, toPos) {
+  const center = {x:300,y:200};
+  let html = '';
+  for (let i=0;i<3;i++) {
+    const t = i/2;
+    html += `<circle cx="${fromPos.x+(center.x-fromPos.x)*t}" cy="${fromPos.y+(center.y-fromPos.y)*t}"
+      r="6" fill="#3b82f6" class="signal-dot" style="animation-delay:${i*0.15}s"/>`;
+  }
+  for (let i=0;i<3;i++) {
+    const t = i/2;
+    html += `<circle cx="${center.x+(toPos.x-center.x)*t}" cy="${center.y+(toPos.y-center.y)*t}"
+      r="6" fill="#10b981" class="signal-dot" style="animation-delay:${0.5+i*0.15}s"/>`;
+  }
+  return html;
+}
+
+function svgNetSignals(fromPos, toPos) {
+  const center = {x:300,y:200};
+  let html = '';
+  for (let i=0;i<3;i++) {
+    const t = i/2;
+    html += `<circle cx="${fromPos.x+(center.x-fromPos.x)*t}" cy="${fromPos.y+(center.y-fromPos.y)*t}"
+      r="6" fill="#10b981" class="signal-dot" style="animation-delay:${i*0.15}s"/>`;
+  }
+  for (let i=0;i<3;i++) {
+    const t = i/2;
+    html += `<circle cx="${center.x+(toPos.x-center.x)*t}" cy="${center.y+(toPos.y-center.y)*t}"
+      r="6" fill="#3b82f6" class="signal-dot" style="animation-delay:${0.5+i*0.15}s"/>`;
+  }
+  return html;
+}
+
+/* ═══════════════════════════════════════════════
+   STEP TEMPLATES
+═══════════════════════════════════════════════ */
+function renderStep0() {
+  const fb = state.showFeedback ? `
+    <div class="${state.answer==='선' ? 'feedback-ok animate-slide-in' : 'feedback-no animate-slide-in'}">
+      <span style="font-size:2rem">${state.answer==='선' ? '✅' : '💭'}</span>
+      <div>
+        <p class="bold" style="color:${state.answer==='선'?'#166534':'#9a3412'}">${state.answer==='선'?'정답입니다!':'다시 생각해보세요!'}</p>
+        <p class="text-sm" style="color:${state.answer==='선'?'#15803d':'#c2410c'}">
+          ${state.answer==='선'
+            ? '그렇습니다! 두 전화기를 연결하려면 먼저 <strong>선(케이블)</strong>이 필요해요!'
+            : '물리적으로 연결되지 않으면 신호를 주고받을 수 없어요. 다시 선택해보세요!'}
+        </p>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="box box-yellow mb6">
+      <p class="bold mb4" style="color:#713f12;font-size:1.125rem">🤔 먼저 생각해볼까요?</p>
+      <p class="text-lg" style="color:#374151">
+        지구상에 <span class="bold text-blue">전화기 2대</span>만 있다고 상상해보세요.
+        두 전화기가 서로 통신하려면 <span class="bold text-orange">가장 먼저</span> 무엇이 필요할까요?
+      </p>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:center;align-items:center;gap:2rem;margin-bottom:2rem;flex-wrap:wrap">
+        <div class="text-center"><span style="font-size:4rem">📞</span><p class="bold" style="color:#374151">전화기 1</p></div>
+        <span style="font-size:3rem;color:#9ca3af">❓</span>
+        <div class="text-center"><span style="font-size:4rem">📞</span><p class="bold" style="color:#374151">전화기 2</p></div>
+      </div>
+      <p class="text-center text-lg mb6" style="color:#374151">두 전화기를 연결하려면 무엇이 필요할까요?</p>
+      <div class="choice-grid">
+        <button class="choice-btn choice-blue"  onclick="handleAnswer('선')">
+          <span class="emoji">📡</span><strong style="color:#1e40af">선 (케이블)</strong>
+        </button>
+        <button class="choice-btn choice-green" onclick="handleAnswer('전화번호')">
+          <span class="emoji">🔢</span><strong style="color:#14532d">전화번호</strong>
+        </button>
+        <button class="choice-btn choice-purple" onclick="handleAnswer('인터넷')">
+          <span class="emoji">🌐</span><strong style="color:#581c87">인터넷</strong>
+        </button>
+      </div>
+      ${fb}
+    </div>`;
+}
+
+function renderStep1() {
+  return `
+    <div class="box box-green mb6 animate-slide-in">
+      <div class="flex-center mb4">
+        <span style="font-size:2.5rem">✅</span>
+        <h2 class="title-lg" style="color:#166534;margin:0">정답! 먼저 선이 필요합니다!</h2>
+      </div>
+      <p class="text-lg" style="color:#374151">
+        전화기 2대가 통신하려면 신호를 주고받을 수 있는 <span class="bold text-blue">물리적 연결</span>이 필요합니다.
+      </p>
+    </div>
+    <div class="card">
+      <h3 class="title-lg text-indigo text-center">📡 2대의 전화기 연결</h3>
+      <div class="phones-row">
+        <div class="phone-item">
+          <span class="big">📞</span>
+          <p class="bold">전화기 1</p><p class="text-sm text-gray">(민수)</p>
+        </div>
+        <div class="cable">
+          <div class="cable-line animate-pulse-custom"></div>
+          <p class="cable-label">선 (케이블)</p>
+        </div>
+        <div class="phone-item">
+          <span class="big">📞</span>
+          <p class="bold">전화기 2</p><p class="text-sm text-gray">(지은)</p>
+        </div>
+      </div>
+      <div class="box box-blue">
+        <h4 class="flex-center mb4" style="color:#1e40af"><span style="font-size:1.5rem">💡</span>지구상에 전화기가 단 2대만 있다면?</h4>
+        <p style="color:#374151;margin-bottom:.5rem">✓ 선으로 연결되어 있으니 <span class="bold text-green">상대방은 항상 정해져</span> 있어요.</p>
+        <p style="color:#374151">✓ 그냥 수화기를 들면 <span class="bold text-purple">자동으로 상대방과 연결</span>됩니다.</p>
+      </div>
+    </div>
+    <div class="box box-yellow mb6">
+      <h3 class="title-md" style="color:#581c87">
+        <span class="tooltip-wrap" onclick="showTooltip()">🤔<span id="tooltip" class="tooltip-box hidden">참새다!</span></span>
+        그렇다면 다음 질문!
+      </h3>
+      <p style="color:#374151">만약 전화기가 <span class="bold text-red">3대 이상</span>으로 늘어난다면 어떻게 될까요?</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gray"    onclick="goStep(0)">← 이전 단계로</button>
+      <button class="btn btn-primary" onclick="goStep(2)">다음 단계로 →</button>
+    </div>`;
+}
+
+function renderStep2() {
+  // SVG phone network
+  const lines   = svgConnections(phones, phonePos, state.callingFrom, state.callingTo, state.showPhoneConn);
+  const signals = state.signalPath.length===2
+    ? svgSignals(phonePos[state.signalPath[0]], phonePos[state.signalPath[1]])
+    : '';
+
+  const nodesHtml = phones.map(p => {
+    const pos = phonePos[p.id];
+    const isCalling   = state.callingFrom===p.id && state.showPhoneConn;
+    const isReceiving = state.callingTo===p.id   && state.showPhoneConn;
+    const fill   = isCalling ? '#dbeafe' : isReceiving ? '#dcfce7' : p.id==='minsu'?'#dbeafe':p.id==='jieun'?'#dcfce7':'#f3e8ff';
+    const stroke = isCalling ? '#3b82f6' : isReceiving ? '#10b981' : p.id==='minsu'?'#3b82f6':p.id==='jieun'?'#10b981':'#a855f7';
+    const textC  = p.id==='minsu'?'#1e40af':p.id==='jieun'?'#065f46':'#6b21a8';
+    const badgeC = p.id==='minsu'?'#3b82f6':p.id==='jieun'?'#10b981':'#a855f7';
+    const labelY = p.id==='teacher' ? pos.y+45 : pos.y+40;
+    return `
+      <circle cx="${pos.x}" cy="${pos.y}" r="50" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+      <text x="${pos.x}" y="${pos.y-5}" text-anchor="middle" dominant-baseline="middle" font-size="35">${p.emoji}</text>
+      <text x="${pos.x}" y="${pos.y+30}" text-anchor="middle" font-size="14" font-weight="bold" fill="${textC}">${p.name}</text>
+      <rect x="${pos.x-100}" y="${labelY}" width="200" height="30" rx="5" fill="${badgeC}"/>
+      <text x="${pos.x}" y="${labelY+20}" text-anchor="middle" font-size="13" font-weight="bold" fill="white">${p.number}</text>`;
+  }).join('');
+
+  const banner = state.showPhoneConn ? `
+    <div class="status-banner banner-blue animate-slide-in">
+      <span style="font-size:1.5rem">📞</span>
+      <div>
+        <p class="bold" style="color:#1e40af">전화 연결 중!</p>
+        <p class="text-sm" style="color:#1d4ed8">신호가 교환기를 통해 전송되고 있어요!
+        <strong>파란색과 초록색 점</strong>이 이동하는 모습을 확인하세요! 🔵🟢</p>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="box" style="background:linear-gradient(to right,#fff7ed,#fef2f2);border:2px solid #fb923c;border-radius:.5rem;margin-bottom:1.5rem">
+      <h2 class="title-lg" style="color:#9a3412">📞 전화기가 3대 이상이면?</h2>
+      <p class="text-lg" style="color:#374151">이제는 <span class="bold text-red">전화번호</span>가 필요합니다!</p>
+    </div>
+    <div class="card">
+      <h3 class="title-lg text-center" style="color:#7c3aed">🔢 3명 이상의 네트워크</h3>
+      <svg viewBox="0 0 600 400" style="width:100%;max-width:600px;display:block;margin:0 auto 1rem">
+        <circle cx="300" cy="200" r="60" fill="#8b5cf6" opacity=".2"/>
+        <text x="300" y="195" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3aed">전화망</text>
+        <text x="300" y="215" text-anchor="middle" font-size="14" fill="#7c3aed">(교환기)</text>
+        <line x1="300" y1="200" x2="150" y2="100" stroke="#3b82f6" stroke-width="3" stroke-dasharray="5,5" class="dash-move"/>
+        <circle cx="150" cy="100" r="50" fill="#dbeafe" stroke="#3b82f6" stroke-width="3"/>
+        <text x="150" y="95"  text-anchor="middle" font-size="35">👦</text>
+        <text x="150" y="125" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e40af">민수</text>
+        <rect x="50" y="130" width="200" height="30" rx="5" fill="#3b82f6"/>
+        <text x="150" y="150" text-anchor="middle" font-size="13" font-weight="bold" fill="white">010-1234-5678</text>
+        <line x1="300" y1="200" x2="450" y2="100" stroke="#10b981" stroke-width="3" stroke-dasharray="5,5" class="dash-move"/>
+        <circle cx="450" cy="100" r="50" fill="#dcfce7" stroke="#10b981" stroke-width="3"/>
+        <text x="450" y="95"  text-anchor="middle" font-size="35">👧</text>
+        <text x="450" y="125" text-anchor="middle" font-size="14" font-weight="bold" fill="#065f46">지은</text>
+        <rect x="350" y="130" width="200" height="30" rx="5" fill="#10b981"/>
+        <text x="450" y="150" text-anchor="middle" font-size="13" font-weight="bold" fill="white">010-9876-5432</text>
+        <line x1="300" y1="200" x2="300" y2="330" stroke="#a855f7" stroke-width="3" stroke-dasharray="5,5" class="dash-move"/>
+        <circle cx="300" cy="330" r="50" fill="#f3e8ff" stroke="#a855f7" stroke-width="3"/>
+        <text x="300" y="325" text-anchor="middle" font-size="35">👨‍🏫</text>
+        <text x="300" y="355" text-anchor="middle" font-size="14" font-weight="bold" fill="#6b21a8">선생님</text>
+        <rect x="200" y="365" width="200" height="30" rx="5" fill="#a855f7"/>
+        <text x="300" y="385" text-anchor="middle" font-size="13" font-weight="bold" fill="white">010-1004-1004</text>
+      </svg>
+      <div class="box box-red">
+        <h4 class="flex-center mb4" style="color:#991b1b"><span style="font-size:1.5rem">⚠️</span>문제 발생!</h4>
+        <p style="color:#374151;margin-bottom:.25rem">❌ 민수가 <span class="bold text-blue">지은</span>에게만 전화하고 싶은데...</p>
+        <p style="color:#374151;margin-bottom:.25rem">❌ 전화번호가 없으면 <span class="bold text-red">누구에게 연결될지 알 수 없어요!</span></p>
+        <p style="color:#374151">❌ 3명 모두에게 동시에 연결될 수도 있어요</p>
+      </div>
+      <div class="box box-green">
+        <h4 class="flex-center mb4" style="color:#166534"><span style="font-size:1.5rem">✅</span>해결책: 전화번호!</h4>
+        <p style="color:#374151;margin-bottom:.25rem">✓ 각 전화기마다 <span class="bold text-green">고유한 번호</span>를 부여합니다</p>
+        <p style="color:#374151;margin-bottom:.25rem">✓ 민수가 지은에게 전화하려면 <span class="text-mono bold text-blue">010-9876-5432</span>를 누릅니다</p>
+        <p style="color:#374151;margin-bottom:.5rem">✓ 전화망이 이 번호를 보고 <span class="bold text-purple">정확히 지은에게만 연결</span>해줍니다</p>
+        <p class="bold text-orange">→ 3명 이상이면 누구에게 전화할지 구별하기 위해 전화번호가 필수입니다!</p>
+      </div>
+    </div>
+
+    <!-- 전화 걸기 체험 -->
+    <div class="box-gradient-blue mb6">
+      <h2 class="title-lg flex-center" style="color:#1d4ed8">📞 네트워크에서 전화 걸기 체험</h2>
+      <div class="box box-yellow mb4 text-sm">
+        💡 <strong>아래 버튼을 클릭</strong>해서 신호가 전송되는 모습을 확인하세요! 🔵
+      </div>
+      <div class="svg-wrap" style="border-color:#bfdbfe">
+        <svg viewBox="0 0 600 400" style="width:100%;max-width:600px;display:block;margin:0 auto">
+          ${lines}${signals}
+          <circle cx="300" cy="200" r="60" fill="#8b5cf6" opacity=".2"/>
+          <text x="300" y="195" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3aed">전화망</text>
+          <text x="300" y="215" text-anchor="middle" font-size="14" fill="#7c3aed">(교환기)</text>
+          ${nodesHtml}
+        </svg>
+      </div>
+      <div class="call-grid mb4">
+        <button class="call-btn" style="background:#3b82f6" onclick="handlePhoneCall('teacher','minsu')">👨‍🏫 선생님 → 👦 민수</button>
+        <button class="call-btn" style="background:#22c55e" onclick="handlePhoneCall('minsu','jieun')">👦 민수 → 👧 지은</button>
+        <button class="call-btn" style="background:#a855f7" onclick="handlePhoneCall('jieun','teacher')">👧 지은 → 👨‍🏫 선생님</button>
+      </div>
+      ${banner}
+      <div class="box box-indigo mt4">
+        <p class="text-sm bold mb2" style="color:#4338ca">💡 관찰해보세요!</p>
+        <ul class="obs-list">
+          <li>• <span class="bold text-blue">파란색 점</span>: 발신자에서 교환기로 가는 신호</li>
+          <li>• <span class="bold text-green">초록색 점</span>: 교환기에서 수신자로 가는 신호</li>
+          <li>• <span class="bold text-purple">교환기</span>: 전화번호를 확인하고 올바른 사람에게 연결</li>
+          <li>• <span class="bold">전화번호</span> 덕분에 정확한 사람에게 연결돼요!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gray"    onclick="goStep(1)">← 이전 단계로</button>
+      <button class="btn btn-primary" onclick="goStep(3)">인터넷도 같은 원리! →</button>
+    </div>`;
+}
+
+function renderStep3() {
+  const lines   = svgConnections(devices, devicePos, state.ipFrom, state.ipTo, state.showIPConn);
+  const signals = state.signalPath.length===2
+    ? svgNetSignals(devicePos[state.signalPath[0]], devicePos[state.signalPath[1]])
+    : '';
+
+  const devicesHtml = devices.map(d => {
+    const pos = devicePos[d.name];
+    const isSender  = state.ipFrom===d.name && !state.showIPConn;
+    const isActive  = state.activeNodes.includes(d.name);
+    const fill   = isSender ? '#fbbf24' : isActive ? '#10b981' : '#e0e7ff';
+    const stroke = isSender ? '#f59e0b' : isActive ? '#059669' : '#6366f1';
+    return `
+      <circle cx="${pos.x}" cy="${pos.y}" r="35" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+      <text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="middle" font-size="28">${d.emoji}</text>
+      <text x="${pos.x}" y="${pos.y+50}" text-anchor="middle" font-size="13" font-weight="bold" fill="#1f2937">${d.name}</text>
+      <text x="${pos.x}" y="${pos.y+68}" text-anchor="middle" font-size="11" font-family="monospace" fill="#059669" font-weight="bold">${d.ip}</text>`;
+  }).join('');
+
+  const deviceBtns = devices.map(d => `
+    <button class="device-btn ${state.ipFrom===d.name?'selected':''}" onclick="handleDeviceClick('${d.name}')">
+      <span class="d-emoji">${d.emoji}</span>
+      <span class="d-name">${d.name}</span>
+      <span class="d-ip">${d.ip}</span>
+      ${state.ipFrom===d.name ? '<span class="d-tag">송신자 선택됨 ✓</span>' : ''}
+    </button>`).join('');
+
+  const ipBanner = state.showIPConn ? `
+    <div class="status-banner banner-green animate-slide-in mb4">
+      <span style="font-size:1.5rem">✅</span>
+      <div>
+        <p class="bold" style="color:#166534">네트워크 연결 중!</p>
+        <p class="text-sm" style="color:#15803d">
+          <strong>${state.ipFrom}</strong>에서 <strong>${state.ipTo}</strong>로 데이터가 전송되고 있어요!
+          <strong>초록색 점과 파란색 점</strong>이 라우터를 통해 이동하는 모습을 확인하세요! 🟢🔵
+        </p>
+      </div>
+    </div>` : '';
+
+  const hint = state.ipFrom
+    ? `<p class="text-sm text-center mt4">✅ <strong class="text-green">${state.ipFrom}</strong> 선택됨! 이제 <strong class="text-blue">수신자 기기</strong>를 선택하세요!</p>`
+    : `<p class="text-sm text-center mt4">💡 <strong>송신자 기기</strong>를 먼저 선택하세요!</p>`;
+
+  return `
+    <div class="box box-green mb6">
+      <h2 class="title-lg" style="color:#166534">🌐 인터넷도 똑같아요!</h2>
+      <p class="text-lg" style="color:#374151">
+        인터넷도 전화와 같은 원리입니다. 먼저 <span class="bold text-blue">선(케이블, Wi-Fi)</span>으로 연결하고,
+        여러 기기를 구별하기 위해 <span class="bold text-green">IP 주소</span>를 사용해요!
+      </p>
+    </div>
+
+    <div class="grid-2 mb6">
+      <div class="card" style="border-color:#bfdbfe">
+        <h3 class="title-md text-blue">📞 전화 통신</h3>
+        <p style="color:#374151;margin-bottom:.5rem">1️⃣ <span class="bold text-blue">전화선</span>으로 연결</p>
+        <p style="color:#374151;margin-bottom:.5rem">2️⃣ <span class="bold text-green">전화번호</span>로 상대 구별</p>
+        <p style="color:#374151">3️⃣ 예: <span class="text-mono">010-1234-5678</span></p>
+      </div>
+      <div class="card" style="border-color:#bbf7d0">
+        <h3 class="title-md text-green">🌐 인터넷 통신</h3>
+        <p style="color:#374151;margin-bottom:.5rem">1️⃣ <span class="bold text-blue">네트워크 선</span>으로 연결 (케이블/Wi-Fi)</p>
+        <p style="color:#374151;margin-bottom:.5rem">2️⃣ <span class="bold text-green">IP 주소</span>로 기기 구별</p>
+        <p style="color:#374151">3️⃣ 예: <span class="text-mono">192.168.1.10</span></p>
+      </div>
+    </div>
+
+    <!-- IP 주소 체험 -->
+    <div class="box-gradient-green mb6">
+      <h2 class="title-lg flex-center" style="color:#15803d">🌐 IP 주소로 연결하기</h2>
+      <div class="box box-yellow mb4 text-sm">
+        💡 어떻게 연결할까요? <span class="bold text-green">송신자 기기를 선택</span>한 후
+        <span class="bold text-blue">수신자 기기</span>를 클릭해서 연결해보세요!
+      </div>
+      <div class="device-grid">${deviceBtns}</div>
+      <div class="svg-wrap" style="border-color:#bbf7d0">
+        <svg viewBox="0 0 600 400" style="width:100%;max-width:600px;display:block;margin:0 auto">
+          ${lines}
+          <circle cx="300" cy="200" r="40" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3"/>
+          <text x="300" y="200" text-anchor="middle" dominant-baseline="middle" font-size="30">🔀</text>
+          <text x="300" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="#6d28d9">라우터</text>
+          <text x="300" y="268" text-anchor="middle" font-size="11" fill="#7c3aed">(IP 주소 확인)</text>
+          ${devicesHtml}${signals}
+        </svg>
+        ${hint}
+      </div>
+      ${ipBanner}
+      <div class="box box-green">
+        <p class="text-sm bold mb2 text-green">💡 관찰해보세요!</p>
+        <ul class="obs-list">
+          <li>• <span class="bold text-green">초록색 점</span>: 송신자 기기에서 라우터로 가는 신호</li>
+          <li>• <span class="bold text-blue">파란색 점</span>: 라우터에서 수신자 기기로 가는 신호</li>
+          <li>• <span class="bold text-purple">라우터</span>: IP 주소를 확인하고 올바른 기기에 연결</li>
+          <li>• <span class="bold">IP 주소</span> 덕분에 송신자와 수신자가 정확히 연결돼요!</li>
+          <li>• 전화의 <span class="bold text-blue">교환기</span>와 인터넷의 <span class="bold text-purple">라우터</span>는 같은 역할!</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 비교표 -->
+    <div class="card mb6">
+      <h2 class="title-lg text-purple mb4">📊 전화번호 vs IP 주소</h2>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>구분</th><th style="color:#1d4ed8">📞 전화번호</th><th style="color:#15803d">🌐 IP 주소</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">물리적 연결</td><td>전화선 (유선/무선)</td><td>네트워크 케이블 / Wi-Fi</td></tr>
+            <tr style="background:#f9fafb"><td class="bold">주소 역할</td><td>전화기를 구별</td><td>인터넷 기기를 구별</td></tr>
+            <tr><td class="bold">형식</td><td class="text-mono">010-1234-5678</td><td class="text-mono">192.168.1.10</td></tr>
+            <tr style="background:#f9fafb"><td class="bold">대상</td><td>사람 (전화기)</td><td>기기 (컴퓨터, 스마트폰 등)</td></tr>
+            <tr><td class="bold">필요한 시점</td><td>3명 이상의 전화기</td><td>3개 이상의 인터넷 기기</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 재미있는 사실 -->
+    <div class="box-orange mb6">
+      <h3 class="title-md" style="color:#9a3412">💡 재미있는 사실</h3>
+      <div class="inner-white">
+        <p class="text-lg" style="color:#374151;margin-bottom:1rem">
+          전 세계 인터넷에 연결된 기기는 <span class="bold text-red" style="font-size:1.25rem">약 500억 개</span>가 넘어요!
+          이 모든 기기가 각자 고유한 IP 주소를 가지고 있답니다. 🌍
+        </p>
+        <div class="box box-blue">
+          <p class="text-sm mb2"><strong class="text-blue">IPv4:</strong> 우리가 배운 192.168.1.10 같은 형식으로,
+          약 <span class="bold text-blue">43억 개</span>의 주소를 만들 수 있어요.</p>
+          <p class="text-sm"><strong class="text-green">IPv6:</strong> 기기가 너무 많아져서 새로운 형식이 나왔어요!
+          2001:0db8:85a3::8a2e:0370:7334 같은 형식으로,
+          <span class="bold text-green">340조×1조×1조 개</span>를 만들 수 있답니다! 지구의 모래알보다 많아요! 🏖️</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 핵심 정리 -->
+    <div class="box-indigo mb6">
+      <h3 class="title-lg flex-center" style="color:#3730a3"><span style="font-size:1.75rem">💡</span>핵심 정리</h3>
+      <div class="inner-white mb4">
+        <p class="bold mb2 text-blue">1️⃣ 2개만 있을 때</p>
+        <p style="color:#374151">선으로 연결하면 끝! 주소(번호)는 필요 없어요. <span class="bold text-orange">상대가 이미 정해져 있으니까요.</span></p>
+      </div>
+      <div class="inner-white mb4">
+        <p class="bold mb2 text-green">2️⃣ 3개 이상일 때</p>
+        <p style="color:#374151">선으로 연결한 후, 각각에게 <span class="bold text-green">고유한 주소(전화번호/IP 주소)</span>를 부여해요. 그래야 원하는 대상에게만 정확히 연결할 수 있어요!</p>
+      </div>
+      <div class="inner-white">
+        <p class="bold mb2 text-purple">3️⃣ 공통점</p>
+        <p style="color:#374151">전화든 인터넷이든 <span class="bold text-blue">①먼저 물리적으로 연결</span>하고, <span class="bold text-green">②여러 개면 주소로 구별</span>합니다!</p>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gray" onclick="goStep(2)">← 이전 단계로</button>
+      <button class="btn btn-primary" onclick="location.href='index.html'">🏠 홈으로 돌아가기</button>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN RENDER
+═══════════════════════════════════════════════ */
+function render() {
+  const el = document.getElementById('content');
+  if      (state.step===0) el.innerHTML = renderStep0();
+  else if (state.step===1) el.innerHTML = renderStep1();
+  else if (state.step===2) el.innerHTML = renderStep2();
+  else if (state.step===3) el.innerHTML = renderStep3();
+}
+
+/* ═══════════════════════════════════════════════
+   EVENT HANDLERS (global, called from onclick)
+═══════════════════════════════════════════════ */
+function goStep(n) {
+  state.step = n;
+  // reset connection state when navigating
+  state.showPhoneConn = false; state.callingFrom=''; state.callingTo='';
+  state.showIPConn    = false; state.ipFrom='';      state.ipTo='';
+  state.signalPath=[]; state.activeNodes=[];
+  if (signalTimer) { clearTimeout(signalTimer); signalTimer=null; }
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function handleAnswer(ans) {
+  state.answer = ans;
+  state.showFeedback = true;
+  render();
+  if (ans==='선') {
+    setTimeout(() => { state.step=1; state.showFeedback=false; render(); }, 2000);
+  }
+}
+
+function showTooltip() {
+  state.showTooltip = true;
+  render();
+  setTimeout(() => { state.showTooltip=false; render(); }, 1000);
+}
+
+function handlePhoneCall(fromId, toId) {
+  if (signalTimer) clearTimeout(signalTimer);
+  state.callingFrom=fromId; state.callingTo=toId;
+  state.showPhoneConn=true;
+  state.activeNodes=[fromId,toId];
+  setTimeout(() => { state.signalPath=[fromId,toId]; render(); }, 300);
+  signalTimer = setTimeout(() => {
+    state.showPhoneConn=false; state.callingFrom=''; state.callingTo='';
+    state.signalPath=[]; state.activeNodes=[];
+    render();
+  }, 3000);
+  render();
+}
+
+function handleDeviceClick(name) {
+  if (!state.ipFrom) {
+    state.ipFrom = name;
+    render();
+  } else if (name !== state.ipFrom) {
+    if (signalTimer) clearTimeout(signalTimer);
+    const from = state.ipFrom;
+    state.ipTo = name;
+    state.showIPConn = true;
+    state.activeNodes = [from, name];
+    setTimeout(() => { state.signalPath=[from, name]; render(); }, 300);
+    signalTimer = setTimeout(() => {
+      state.showIPConn=false; state.ipFrom=''; state.ipTo='';
+      state.activeNodes=[]; state.signalPath=[];
+      render();
+    }, 3000);
+    render();
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+render();
+</script>
+</body>
+</html>
