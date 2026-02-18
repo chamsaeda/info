@@ -4,32 +4,251 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>정보 학습 자료 - 메인</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { 
-      font-family: 'Malgun Gothic', sans-serif; 
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { text-decoration: none; color: inherit; }
+
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      margin: 0;
       padding: 20px;
       min-height: 100vh;
     }
+
+    .max-w-7xl { max-width: 80rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .overflow-hidden { overflow: hidden; }
+    .block { display: block; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+
+    @media (min-width: 768px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1280px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .items-start   { align-items: flex-start; }
+    .items-center  { align-items: center; }
+    .justify-center{ justify-content: center; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    .gap-2 { gap: 0.5rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .text-right  { text-align: right; }
+    .text-center { text-align: center; }
+    .leading-relaxed { line-height: 1.625; }
+
+    .p-3 { padding: 0.75rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .p-8 { padding: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mt-0_5 { margin-top: 0.125rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+
+    .w-6 { width: 1.5rem; }
+    .h-6 { height: 1.5rem; }
+
+    .text-sm  { font-size: 0.875rem;  line-height: 1.25rem; }
+    .text-xs  { font-size: 0.75rem;   line-height: 1rem; }
+    .text-lg  { font-size: 1.125rem;  line-height: 1.75rem; }
+    .text-xl  { font-size: 1.25rem;   line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem;    line-height: 2rem; }
+    .text-4xl { font-size: 2.25rem;   line-height: 2.5rem; }
+    .text-5xl { font-size: 3rem;      line-height: 1; }
+    .font-bold { font-weight: 700; }
+
+    /* Text colors */
+    .text-white       { color: #fff; }
+    .text-gray-700    { color: #374151; }
+    .text-blue-600    { color: #2563eb; }
+    .text-blue-900    { color: #1e3a8a; }
+    .text-indigo-100  { color: #e0e7ff; }
+    .text-indigo-200  { color: #c7d2fe; }
+    .text-indigo-50   { color: #eef2ff; }
+    .text-indigo-600  { color: #4f46e5; }
+    .text-indigo-800  { color: #3730a3; }
+    .text-indigo-900  { color: #312e81; }
+    .text-purple-600  { color: #9333ea; }
+    .text-green-50    { color: #f0fdf4; }
+    .text-green-600   { color: #16a34a; }
+    .text-green-800   { color: #166534; }
+    .text-emerald-50  { color: #ecfdf5; }
+    .text-emerald-600 { color: #059669; }
+    .text-emerald-800 { color: #065f46; }
+    .text-orange-50   { color: #fff7ed; }
+    .text-orange-600  { color: #ea580c; }
+    .text-orange-800  { color: #9a3412; }
+    .text-red-600     { color: #dc2626; }
+    .text-cyan-50     { color: #ecfeff; }
+    .text-cyan-600    { color: #0891b2; }
+    .text-cyan-800    { color: #155e75; }
+    .text-teal-50     { color: #f0fdfa; }
+    .text-teal-600    { color: #0d9488; }
+    .text-teal-800    { color: #115e59; }
+    .text-yellow-50   { color: #fefce8; }
+    .text-yellow-600  { color: #ca8a04; }
+    .text-yellow-800  { color: #854d0e; }
+    .text-amber-600   { color: #d97706; }
+    .text-pink-50     { color: #fdf2f8; }
+    .text-pink-600    { color: #db2777; }
+    .text-pink-800    { color: #9d174d; }
+    .text-rose-600    { color: #e11d48; }
+    .text-fuchsia-50  { color: #fdf4ff; }
+    .text-fuchsia-600 { color: #c026d3; }
+    .text-fuchsia-800 { color: #86198f; }
+    .text-violet-50   { color: #f5f3ff; }
+    .text-violet-600  { color: #7c3aed; }
+    .text-violet-800  { color: #5b21b6; }
+
+    /* BG colors */
+    .bg-white         { background-color: #fff; }
+    .bg-blue-100      { background-color: #dbeafe; }
+    .bg-indigo-50     { background-color: #eef2ff; }
+    .bg-indigo-100    { background-color: #e0e7ff; }
+    .bg-purple-100    { background-color: #f3e8ff; }
+    .bg-green-100     { background-color: #dcfce7; }
+    .bg-green-50      { background-color: #f0fdf4; }
+    .bg-emerald-100   { background-color: #d1fae5; }
+    .bg-emerald-50    { background-color: #ecfdf5; }
+    .bg-orange-100    { background-color: #ffedd5; }
+    .bg-orange-50     { background-color: #fff7ed; }
+    .bg-red-100       { background-color: #fee2e2; }
+    .bg-cyan-100      { background-color: #cffafe; }
+    .bg-cyan-50       { background-color: #ecfeff; }
+    .bg-teal-100      { background-color: #ccfbf1; }
+    .bg-teal-50       { background-color: #f0fdfa; }
+    .bg-yellow-100    { background-color: #fef9c3; }
+    .bg-yellow-50     { background-color: #fefce8; }
+    .bg-amber-100     { background-color: #fef3c7; }
+    .bg-pink-100      { background-color: #fce7f3; }
+    .bg-pink-50       { background-color: #fdf2f8; }
+    .bg-rose-100      { background-color: #ffe4e6; }
+    .bg-fuchsia-100   { background-color: #fae8ff; }
+    .bg-fuchsia-50    { background-color: #fdf4ff; }
+    .bg-violet-100    { background-color: #ede9fe; }
+    .bg-violet-50     { background-color: #f5f3ff; }
+
+    /* Gradients */
+    .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to)); }
+    .from-indigo-600  { --tw-gradient-from: #4f46e5; }
+    .to-purple-600    { --tw-gradient-to: #9333ea; }
+    .from-blue-50     { --tw-gradient-from: #eff6ff; }
+    .to-indigo-50     { --tw-gradient-to: #eef2ff; }
+    .from-green-400   { --tw-gradient-from: #4ade80; }
+    .to-emerald-500   { --tw-gradient-to: #10b981; }
+    .from-orange-400  { --tw-gradient-from: #fb923c; }
+    .to-red-500       { --tw-gradient-to: #ef4444; }
+    .from-indigo-400  { --tw-gradient-from: #818cf8; }
+    .to-blue-500      { --tw-gradient-to: #3b82f6; }
+    .from-emerald-400 { --tw-gradient-from: #34d399; }
+    .to-green-500     { --tw-gradient-to: #22c55e; }
+    .from-cyan-400    { --tw-gradient-from: #22d3ee; }
+    .to-teal-500      { --tw-gradient-to: #14b8a6; }
+    .from-teal-400    { --tw-gradient-from: #2dd4bf; }
+    .to-cyan-500      { --tw-gradient-to: #06b6d4; }
+    .from-yellow-400  { --tw-gradient-from: #facc15; }
+    .to-amber-500     { --tw-gradient-to: #f59e0b; }
+    .from-pink-400    { --tw-gradient-from: #f472b6; }
+    .to-rose-500      { --tw-gradient-to: #f43f5e; }
+    .from-fuchsia-400 { --tw-gradient-from: #e879f9; }
+    .to-pink-500      { --tw-gradient-to: #ec4899; }
+    .from-violet-400  { --tw-gradient-from: #a78bfa; }
+    .to-purple-500    { --tw-gradient-to: #a855f7; }
+
+    /* Borders */
+    .border   { border-width: 1px; border-style: solid; }
+    .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+    .border-indigo-100  { border-color: #e0e7ff; }
+    .border-blue-200    { border-color: #bfdbfe; }
+    .border-green-200   { border-color: #bbf7d0; }
+    .border-emerald-200 { border-color: #a7f3d0; }
+    .border-orange-200  { border-color: #fed7aa; }
+    .border-cyan-200    { border-color: #a5f3fc; }
+    .border-teal-200    { border-color: #99f6e4; }
+    .border-yellow-200  { border-color: #fef08a; }
+    .border-pink-200    { border-color: #fbcfe8; }
+    .border-fuchsia-200 { border-color: #f5d0fe; }
+    .border-indigo-200  { border-color: #c7d2fe; }
+    .border-violet-200  { border-color: #ddd6fe; }
+
+    .rounded-full { border-radius: 9999px; }
+    .rounded-lg   { border-radius: 0.5rem; }
+    .rounded-xl   { border-radius: 0.75rem; }
+    .rounded-2xl  { border-radius: 1rem; }
+
+    .shadow-xl  { box-shadow: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); }
+
+    /* ===== Card ===== */
     .card {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       transition: all 0.3s ease;
     }
     .card:hover {
       transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
-    .icon-animate {
-      transition: transform 0.3s ease;
+    /* 카드 상단 컬러 영역 — 클릭 시 기본 페이지로 이동 */
+    .card-header-link {
+      display: block;
+      text-decoration: none;
+      color: #fff;
     }
-    .card:hover .icon-animate {
-      transform: scale(1.2) rotate(5deg);
+    .card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .icon-animate { transition: transform 0.3s ease; display: inline-block; }
+    .card:hover .icon-animate { transform: scale(1.2) rotate(5deg); }
+
+    /* ===== 버튼 영역 ===== */
+    .card-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+      gap: 0.5rem;
     }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 700;
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.75; }
+    .btn-fast {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.7rem;
+      border-radius: 9999px;
+      background-color: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fde047;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background-color 0.2s;
+    }
+    .btn-fast:hover { background-color: #fde047; }
   </style>
 </head>
 <body>
   <div class="max-w-7xl mx-auto">
+
     <!-- 헤더 -->
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
       <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
@@ -37,7 +256,6 @@
         <h1 class="text-4xl font-bold mb-3">💻 컴퓨터와 데이터의 세계</h1>
         <p class="text-lg text-indigo-100">컴퓨터가 정보를 처리하는 원리를 알아볼까요?</p>
       </div>
-      
       <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
         <div class="text-gray-700">
           <h3 class="font-bold text-indigo-900 text-lg mb-2">🎯 학습 목표</h3>
@@ -52,509 +270,446 @@
     </div>
 
     <!-- 학습 카드 그리드 -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid">
+
       <!-- 카드 1: 키보드 입력 -->
-      <a href="keyboard.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-green-400 to-emerald-500 p-6 text-white">
+      <div class="card">
+        <a href="keyboard.html" class="card-header-link bg-gradient-to-r from-green-400 to-emerald-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">⌨️</div>
           <h2 class="text-2xl font-bold mb-2">키보드를 누르면 컴퓨터 안에서는 무슨 일이?</h2>
           <p class="text-green-50">실시간 시뮬레이션으로 체험하기</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-green-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">키보드 입력</span> → 전기 신호 발생</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-blue-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">전기 신호</span> → 0과 1의 조합으로 변환</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-purple-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">컴퓨터 처리</span> → 화면에 글자 출력</p>
             </div>
           </div>
           <div class="bg-green-50 p-3 rounded-lg border border-green-200">
-            <p class="text-sm text-green-800">
-              <span class="font-bold">💡 핵심 개념:</span> 이진법, 전기 신호, ASCII 코드
-            </p>
+            <p class="text-sm text-green-800"><span class="font-bold">💡 핵심 개념:</span> 이진법, 전기 신호, ASCII 코드</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-green-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="keyboard.html" class="btn-primary text-green-600">체험하러 가기 →</a>
+            <a href="o_keyboard.html" class="btn-fast">⚡ 빠른 버전</a>
           </div>
         </div>
-      </a>
+      </div>
 
       <!-- 카드 2: 비트와 바이트 -->
-      <a href="bit.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-orange-400 to-red-500 p-6 text-white">
+      <div class="card">
+        <a href="bit.html" class="card-header-link bg-gradient-to-r from-orange-400 to-red-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🔢</div>
           <h2 class="text-2xl font-bold mb-2">비트(bit)와 바이트(byte)</h2>
           <p class="text-orange-50">컴퓨터 데이터의 기본 단위 이해하기</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-orange-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">비트(bit)</span> → 0 또는 1, 가장 작은 단위</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-red-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">바이트(byte)</span> → 8개의 비트 = 1바이트</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-pink-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">데이터 용량</span> → KB, MB, GB, TB</p>
             </div>
           </div>
           <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
-            <p class="text-sm text-orange-800">
-              <span class="font-bold">💡 핵심 개념:</span> 비트, 바이트, 데이터 용량 단위
-            </p>
+            <p class="text-sm text-orange-800"><span class="font-bold">💡 핵심 개념:</span> 비트, 바이트, 데이터 용량 단위</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-orange-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="bit.html" class="btn-primary text-orange-600">체험하러 가기 →</a>
+            <a href="o_bit.html" class="btn-fast">⚡ 빠른 버전</a>
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 3: 자물쇠로 배우는 경우의 수 (새로 추가) -->
-      <a href="num.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-indigo-400 to-blue-500 p-6 text-white">
+      <!-- 카드 3: 자물쇠로 배우는 경우의 수 -->
+      <div class="card">
+        <a href="num.html" class="card-header-link bg-gradient-to-r from-indigo-400 to-blue-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🔒</div>
           <h2 class="text-2xl font-bold mb-2">자물쇠로 배우는 경우의 수</h2>
           <p class="text-indigo-50">곱셈 원리를 직접 체험하기</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-indigo-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">4자리 자물쇠</span> → 각 자리당 10가지 선택</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-blue-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">곱셈 원리</span> → 10 × 10 × 10 × 10</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-purple-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">전체 경우의 수</span> → 10,000가지</p>
             </div>
           </div>
           <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
-            <p class="text-sm text-indigo-800">
-              <span class="font-bold">💡 핵심 개념:</span> 경우의 수, 곱셈 원리, 독립 사건
-            </p>
+            <p class="text-sm text-indigo-800"><span class="font-bold">💡 핵심 개념:</span> 경우의 수, 곱셈 원리, 독립 사건</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-indigo-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="num.html" class="btn-primary text-indigo-600">체험하러 가기 →</a>
+            <!-- <a href="o_num.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 3-1: IP 주소와 네트워크 기초 (새로 추가) -->
-      <a href="ip2.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-emerald-400 to-green-500 p-6 text-white">
+      <!-- 카드 3-1: 인터넷 주소가 왜 필요하지? -->
+      <div class="card">
+        <a href="ip2.html" class="card-header-link bg-gradient-to-r from-emerald-400 to-green-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">📞</div>
           <h2 class="text-2xl font-bold mb-2">인터넷 주소가 왜 필요하지?</h2>
           <p class="text-emerald-50">전화번호처럼 기기를 구별하는 주소</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-emerald-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">2개만 연결</span> → 주소가 필요 없어요</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-green-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">3개 이상 연결</span> → IP 주소로 구별!</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-teal-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">전화번호 vs IP</span> → 같은 원리!</p>
             </div>
           </div>
           <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
-            <p class="text-sm text-emerald-800">
-              <span class="font-bold">💡 핵심 개념:</span> IP 주소, 네트워크 연결, 라우터
-            </p>
+            <p class="text-sm text-emerald-800"><span class="font-bold">💡 핵심 개념:</span> IP 주소, 네트워크 연결, 라우터</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-emerald-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="ip2.html" class="btn-primary text-emerald-600">체험하러 가기 →</a>
+            <!-- <a href="o_ip2.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 4: IP 주소 학습 (새로 추가) -->
-      <a href="ip.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-cyan-400 to-teal-500 p-6 text-white">
+      <!-- 카드 4: IP 주소와 도메인 이름 -->
+      <div class="card">
+        <a href="ip.html" class="card-header-link bg-gradient-to-r from-cyan-400 to-teal-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🌐</div>
           <h2 class="text-2xl font-bold mb-2">IP 주소와 도메인 이름</h2>
           <p class="text-cyan-50">컴퓨터의 인터넷 주소 이해하기</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-cyan-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">IP 주소</span> → 컴퓨터의 고유 번호</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-teal-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">IPv4 구조</span> → 4개의 숫자 조합</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-blue-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">도메인 이름</span> → 문자 주소</p>
             </div>
           </div>
           <div class="bg-cyan-50 p-3 rounded-lg border border-cyan-200">
-            <p class="text-sm text-cyan-800">
-              <span class="font-bold">💡 핵심 개념:</span> IP 주소, IPv4, 네트워크 통신
-            </p>
+            <p class="text-sm text-cyan-800"><span class="font-bold">💡 핵심 개념:</span> IP 주소, IPv4, 네트워크 통신</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-cyan-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="ip.html" class="btn-primary text-cyan-600">체험하러 가기 →</a>
+            <!-- <a href="o_ip.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 4-1: IP 주소의 종류 (새로 추가) -->
-      <a href="ip1.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-teal-400 to-cyan-500 p-6 text-white">
+      <!-- 카드 4-1: IP 주소의 종류 -->
+      <div class="card">
+        <a href="ip1.html" class="card-header-link bg-gradient-to-r from-teal-400 to-cyan-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🔀</div>
           <h2 class="text-2xl font-bold mb-2">IP 주소의 종류</h2>
           <p class="text-teal-50">고정/유동 IP와 공인/사설 IP, NAT</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-teal-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">고정/유동 IP</span> → 변하지 않는 주소 vs 바뀌는 주소</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-cyan-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">공인/사설 IP</span> → 인터넷 주소 vs 집 안 주소</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-blue-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">NAT</span> → 사설 IP를 공인 IP로 변환</p>
             </div>
           </div>
           <div class="bg-teal-50 p-3 rounded-lg border border-teal-200">
-            <p class="text-sm text-teal-800">
-              <span class="font-bold">💡 핵심 개념:</span> 고정/유동 IP, 공인/사설 IP, NAT
-            </p>
+            <p class="text-sm text-teal-800"><span class="font-bold">💡 핵심 개념:</span> 고정/유동 IP, 공인/사설 IP, NAT</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-teal-600 font-bold text-sm">
-              학습하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="ip1.html" class="btn-primary text-teal-600">학습하러 가기 →</a>
+            <!-- <a href="o_ip1.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 5: 유선 네트워크 장비 (수정) -->
-      <a href="cable.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-yellow-400 to-amber-500 p-6 text-white">
+      <!-- 카드 5: 유선 네트워크 장비 -->
+      <div class="card">
+        <a href="cable.html" class="card-header-link bg-gradient-to-r from-yellow-400 to-amber-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🔌</div>
           <h2 class="text-2xl font-bold mb-2">유선 네트워크 장비</h2>
           <p class="text-yellow-50">케이블과 네트워크 장비 알아보기</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-yellow-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">케이블</span> → UTP, 동축, 광케이블</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-amber-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">스위칭 허브</span> → 여러 기기 연결</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-orange-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">라우터</span> → 네트워크 간 연결</p>
             </div>
           </div>
           <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-            <p class="text-sm text-yellow-800">
-              <span class="font-bold">💡 핵심 개념:</span> UTP/동축/광케이블, 허브, 라우터
-            </p>
+            <p class="text-sm text-yellow-800"><span class="font-bold">💡 핵심 개념:</span> UTP/동축/광케이블, 허브, 라우터</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-yellow-600 font-bold text-sm">
-              학습하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="cable.html" class="btn-primary text-yellow-600">학습하러 가기 →</a>
+            <!-- <a href="o_cable.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 6: 무선 네트워크 기술 (수정) -->
-      <a href="wireless.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-pink-400 to-rose-500 p-6 text-white">
+      <!-- 카드 6: 무선 네트워크 기술 -->
+      <div class="card">
+        <a href="wireless.html" class="card-header-link bg-gradient-to-r from-pink-400 to-rose-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">📡</div>
           <h2 class="text-2xl font-bold mb-2">무선 네트워크 기술</h2>
           <p class="text-pink-50">다양한 무선 통신 방식 알아보기</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-pink-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">AP & WiFi</span> → 무선 인터넷 연결</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-rose-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">블루투스</span> → 근거리 무선 통신</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-red-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">RFID & NFC</span> → 태그 인식 기술</p>
             </div>
           </div>
           <div class="bg-pink-50 p-3 rounded-lg border border-pink-200">
-            <p class="text-sm text-pink-800">
-              <span class="font-bold">💡 핵심 개념:</span> AP, WiFi, 블루투스, RFID, NFC
-            </p>
+            <p class="text-sm text-pink-800"><span class="font-bold">💡 핵심 개념:</span> AP, WiFi, 블루투스, RFID, NFC</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-pink-600 font-bold text-sm">
-              학습하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="wireless.html" class="btn-primary text-pink-600">학습하러 가기 →</a>
+            <!-- <a href="o_wireless.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
       <!-- 카드 7: 무손실 압축 -->
-      <a href="com1.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-cyan-400 to-blue-500 p-6 text-white">
+      <div class="card">
+        <a href="com1.html" class="card-header-link bg-gradient-to-r from-cyan-400 to-blue-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🗜️</div>
           <h2 class="text-2xl font-bold mb-2">무손실 압축</h2>
           <p class="text-cyan-50">원본 그대로 복원하는 압축 방식</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-cyan-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">RLE 압축</span> → 반복되는 데이터 줄이기</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-blue-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">허프만 압축</span> → 자주 나오는 것을 짧게</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-indigo-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">사전/LZ 압축</span> → 패턴을 찾아 압축</p>
             </div>
           </div>
           <div class="bg-cyan-50 p-3 rounded-lg border border-cyan-200">
-            <p class="text-sm text-cyan-800">
-              <span class="font-bold">💡 핵심 개념:</span> RLE, 허프만, 사전 기반, LZ 압축
-            </p>
+            <p class="text-sm text-cyan-800"><span class="font-bold">💡 핵심 개념:</span> RLE, 허프만, 사전 기반, LZ 압축</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-cyan-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="com1.html" class="btn-primary text-cyan-600">체험하러 가기 →</a>
+            <!-- <a href="o_com1.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
       <!-- 카드 8: 손실 압축 -->
-      <a href="com2.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-fuchsia-400 to-pink-500 p-6 text-white">
+      <div class="card">
+        <a href="com2.html" class="card-header-link bg-gradient-to-r from-fuchsia-400 to-pink-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">🎨</div>
           <h2 class="text-2xl font-bold mb-2">손실 압축</h2>
           <p class="text-fuchsia-50">일부 정보를 버려 압축하는 방식</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-fuchsia-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-fuchsia-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-fuchsia-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">이미지 압축</span> → 색 단순화로 용량 줄이기</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-pink-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">음성 압축</span> → 들리지 않는 소리 제거</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-rose-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">압축률 조절</span> → 품질과 용량의 균형</p>
             </div>
           </div>
           <div class="bg-fuchsia-50 p-3 rounded-lg border border-fuchsia-200">
-            <p class="text-sm text-fuchsia-800">
-              <span class="font-bold">💡 핵심 개념:</span> 색 양자화, 샘플링, JPEG/MP3
-            </p>
+            <p class="text-sm text-fuchsia-800"><span class="font-bold">💡 핵심 개념:</span> 색 양자화, 샘플링, JPEG/MP3</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-fuchsia-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="com2.html" class="btn-primary text-fuchsia-600">체험하러 가기 →</a>
+            <!-- <a href="o_com2.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
+      </div>
 
-      <!-- 카드 9: JPEG 압축과 DCT (새로 추가) -->
-      <a href="dct.html" class="card bg-white rounded-2xl shadow-xl overflow-hidden block">
-        <div class="bg-gradient-to-r from-violet-400 to-purple-500 p-6 text-white">
+      <!-- 카드 9: JPEG 압축과 DCT -->
+      <div class="card">
+        <a href="dct.html" class="card-header-link bg-gradient-to-r from-violet-400 to-purple-500 p-6 text-white">
           <div class="text-5xl mb-3 icon-animate">📸</div>
           <h2 class="text-2xl font-bold mb-2">이미지는 어떻게 작아질까?</h2>
           <p class="text-violet-50">JPEG 압축의 비밀 - DCT</p>
-        </div>
-        <div class="p-6">
+        </a>
+        <div class="card-body">
           <div class="space-y-3 text-gray-700 mb-4">
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-violet-600 font-bold text-sm">1</span>
               </div>
               <p class="text-sm"><span class="font-bold">DCT 변환</span> → 주파수로 이미지 표현</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-purple-600 font-bold text-sm">2</span>
               </div>
               <p class="text-sm"><span class="font-bold">고주파 제거</span> → 세밀한 부분 생략</p>
             </div>
             <div class="flex items-start gap-2">
-              <div class="w-6 h-6 bg-fuchsia-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div class="w-6 h-6 bg-fuchsia-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
                 <span class="text-fuchsia-600 font-bold text-sm">3</span>
               </div>
               <p class="text-sm"><span class="font-bold">품질 조절</span> → 압축률과 화질의 균형</p>
             </div>
           </div>
           <div class="bg-violet-50 p-3 rounded-lg border border-violet-200">
-            <p class="text-sm text-violet-800">
-              <span class="font-bold">💡 핵심 개념:</span> DCT, 주파수, JPEG 압축, 8×8 블록
-            </p>
+            <p class="text-sm text-violet-800"><span class="font-bold">💡 핵심 개념:</span> DCT, 주파수, JPEG 압축, 8×8 블록</p>
           </div>
-          <div class="mt-4 text-right">
-            <span class="inline-flex items-center gap-2 text-violet-600 font-bold text-sm">
-              체험하러 가기 →
-            </span>
+          <div class="card-buttons">
+            <a href="dct.html" class="btn-primary text-violet-600">체험하러 가기 →</a>
+            <!-- <a href="o_dct.html" class="btn-fast">⚡ 빠른 버전</a> -->
           </div>
         </div>
-      </a>
-    </div>
+      </div>
+
+    </div><!-- /grid -->
 
     <!-- 학습 가이드 -->
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mt-8 p-8">
-      
-
       <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl mt-6 border border-blue-200">
         <h4 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
           <span class="text-xl">💭</span>
           생각해볼 문제
         </h4>
         <ul class="space-y-2 text-gray-700">
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q1.</span>
-            <span>컴퓨터는 왜 0과 1만 사용할까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q2.</span>
-            <span>1바이트로 표현할 수 있는 문자의 개수는 몇 개일까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q3.</span>
-            <span>한글은 영어와 다르게 왜 더 많은 비트가 필요할까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q4.</span>
-            <span>6자리 비밀번호는 4자리보다 얼마나 더 안전할까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q5.</span>
-            <span>IP 주소는 왜 필요하고, 집 주소와 어떻게 비슷할까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q6.</span>
-            <span>UTP 케이블, 동축 케이블, 광케이블은 어떤 차이가 있을까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q7.</span>
-            <span>블루투스와 NFC는 어떤 차이가 있고, 각각 어디에 사용될까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q8.</span>
-            <span>같은 내용의 파일인데 압축하면 왜 용량이 줄어들까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q9.</span>
-            <span>사진이나 음악 파일에는 무손실 압축과 손실 압축 중 어느 방식이 더 많이 쓰일까요? 그 이유는 무엇일까요?</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-blue-600 font-bold">Q10.</span>
-            <span>JPEG 파일을 반복해서 저장하면 왜 화질이 점점 떨어질까요?</span>
-          </li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q1.</span><span>컴퓨터는 왜 0과 1만 사용할까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q2.</span><span>1바이트로 표현할 수 있는 문자의 개수는 몇 개일까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q3.</span><span>한글은 영어와 다르게 왜 더 많은 비트가 필요할까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q4.</span><span>6자리 비밀번호는 4자리보다 얼마나 더 안전할까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q5.</span><span>IP 주소는 왜 필요하고, 집 주소와 어떻게 비슷할까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q6.</span><span>UTP 케이블, 동축 케이블, 광케이블은 어떤 차이가 있을까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q7.</span><span>블루투스와 NFC는 어떤 차이가 있고, 각각 어디에 사용될까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q8.</span><span>같은 내용의 파일인데 압축하면 왜 용량이 줄어들까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q9.</span><span>사진이나 음악 파일에는 무손실 압축과 손실 압축 중 어느 방식이 더 많이 쓰일까요? 그 이유는 무엇일까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q10.</span><span>JPEG 파일을 반복해서 저장하면 왜 화질이 점점 떨어질까요?</span></li>
         </ul>
       </div>
     </div>
@@ -564,6 +719,7 @@
       <p>참새선생님 학습자료</p>
       <p class="mt-1 text-indigo-200">Copyright © 2025-2026 참새. All Rights Reserved.</p>
     </div>
+
   </div>
 </body>
 </html>

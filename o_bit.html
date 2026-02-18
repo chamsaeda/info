@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>비트와 바이트 - 컴퓨터 데이터의 기본 단위</title>
+  <!-- 오프라인 버전 v2: React/Babel 없음. 순수 HTML + JS + 인라인 CSS만 사용 -->
+  <style>
+    body { 
+      font-family: 'Malgun Gothic', sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+    }
+    @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0) translateX(-50%); }
+      50% { transform: translateY(-10px) translateX(-50%); }
+    }
+    /* ===== Tailwind 필요 클래스만 내장 ===== */
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a { text-decoration: none; }
+
+/* ===== LAYOUT ===== */
+.max-w-7xl { max-width: 80rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.overflow-hidden { overflow: hidden; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1 1 0%; }
+.flex-shrink-0 { flex-shrink: 0; }
+.inline-block { display: inline-block; }
+.grid { display: grid; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.z-50 { z-index: 50; }
+
+/* ===== ALIGNMENT ===== */
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+
+/* ===== GAP & SPACING ===== */
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-12 { gap: 3rem; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+
+/* ===== PADDING ===== */
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-8 { padding-left: 2rem; padding-right: 2rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.pt-2 { padding-top: 0.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+
+/* ===== MARGIN ===== */
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.ml-2 { margin-left: 0.5rem; }
+
+/* ===== SIZE ===== */
+.w-8 { width: 2rem; }
+.w-16 { width: 4rem; }
+.w-28 { width: 7rem; }
+.h-8 { height: 2rem; }
+.h-20 { height: 5rem; }
+.h-32 { height: 8rem; }
+
+/* ===== TYPOGRAPHY ===== */
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.text-6xl { font-size: 3.75rem; line-height: 1; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.leading-relaxed { line-height: 1.625; }
+
+/* ===== COLORS - TEXT ===== */
+.text-white { color: #fff; }
+.text-gray-600 { color: #4b5563; }
+.text-gray-700 { color: #374151; }
+.text-gray-800 { color: #1f2937; }
+.text-gray-900 { color: #111827; }
+.text-blue-600 { color: #2563eb; }
+.text-blue-700 { color: #1d4ed8; }
+.text-blue-900 { color: #1e3a5f; }
+.text-indigo-100 { color: #e0e7ff; }
+.text-indigo-600 { color: #4f46e5; }
+.text-indigo-700 { color: #4338ca; }
+.text-indigo-900 { color: #312e81; }
+.text-green-600 { color: #16a34a; }
+.text-green-700 { color: #15803d; }
+.text-green-900 { color: #14532d; }
+.text-orange-600 { color: #ea580c; }
+.text-orange-700 { color: #c2410c; }
+.text-orange-900 { color: #7c2d12; }
+.text-purple-500 { color: #a855f7; }
+.text-purple-600 { color: #9333ea; }
+.text-purple-700 { color: #7e22ce; }
+.text-purple-900 { color: #581c87; }
+.text-red-600 { color: #dc2626; }
+.text-cyan-900 { color: #164e63; }
+.text-yellow-600 { color: #ca8a04; }
+.text-yellow-900 { color: #713f12; }
+
+/* ===== COLORS - BACKGROUND ===== */
+.bg-white { background-color: #fff; }
+.bg-blue-500 { background-color: #3b82f6; }
+.bg-green-500 { background-color: #22c55e; }
+.bg-purple-500 { background-color: #a855f7; }
+.bg-indigo-50 { background-color: #eef2ff; }
+.bg-indigo-100 { background-color: #e0e7ff; }
+.bg-green-50 { background-color: #f0fdf4; }
+.bg-yellow-50 { background-color: #fefce8; }
+.bg-yellow-400 { background-color: #facc15; }
+
+/* ===== BORDERS ===== */
+.border { border-width: 1px; border-style: solid; }
+.border-2 { border-width: 2px; border-style: solid; }
+.border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+.border-t { border-top-width: 1px; border-top-style: solid; }
+.border-gray-200 { border-color: #e5e7eb; }
+.border-blue-200 { border-color: #bfdbfe; }
+.border-indigo-100 { border-color: #e0e7ff; }
+.border-indigo-200 { border-color: #c7d2fe; }
+.border-indigo-400 { border-color: #818cf8; }
+.border-green-200 { border-color: #bbf7d0; }
+.border-orange-200 { border-color: #fed7aa; }
+.border-purple-200 { border-color: #e9d5ff; }
+.border-cyan-200 { border-color: #a5f3fc; }
+.border-yellow-300 { border-color: #fde047; }
+
+/* ===== BORDER RADIUS ===== */
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-2xl { border-radius: 1rem; }
+.rounded-full { border-radius: 9999px; }
+.rounded-xl { border-radius: 0.75rem; }
+
+/* ===== SHADOW ===== */
+.shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+.shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+
+/* ===== HOVER ===== */
+.hover\:bg-indigo-50:hover { background-color: #eef2ff; }
+.hover\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+.hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+
+/* ===== TRANSITION ===== */
+.transition-all { transition: all 0.15s ease; }
+.transition-transform { transition: transform 0.15s ease; }
+
+/* ===== CURSOR ===== */
+.cursor-pointer { cursor: pointer; }
+
+/* ===== WHITESPACE ===== */
+.whitespace-nowrap { white-space: nowrap; }
+
+/* ===== GRADIENT BACKGROUNDS ===== */
+.bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to)); }
+.from-indigo-600 { --tw-gradient-from: #4f46e5; }
+.to-purple-600 { --tw-gradient-to: #9333ea; }
+.from-blue-50 { --tw-gradient-from: #eff6ff; }
+.to-cyan-50 { --tw-gradient-to: #ecfeff; }
+.from-green-50 { --tw-gradient-from: #f0fdf4; }
+.to-emerald-50 { --tw-gradient-to: #ecfdf5; }
+.from-cyan-50 { --tw-gradient-from: #ecfeff; }
+.from-orange-50 { --tw-gradient-from: #fff7ed; }
+.to-yellow-50 { --tw-gradient-to: #fefce8; }
+.from-purple-50 { --tw-gradient-from: #faf5ff; }
+.to-pink-50 { --tw-gradient-to: #fdf2f8; }
+.to-indigo-50 { --tw-gradient-to: #eef2ff; }
+.to-blue-50 { --tw-gradient-to: #eff6ff; }
+
+/* hover gradient */
+.hover\:from-indigo-700:hover { --tw-gradient-from: #4338ca; }
+.hover\:to-purple-700:hover { --tw-gradient-to: #7e22ce; }
+
+/* ===== RESPONSIVE GRID ===== */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ===== TRANSLATE ===== */
+.-translate-x-1\/2 { transform: translateX(-50%); }
+.-top-12 { top: -3rem; }
+.left-1\/2 { left: 50%; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    // ========== 상태 관리 ==========
+    let bitState = false;
+    let byteStates = [false, false, false, false, false, false, true, true];
+    let showSecret = false;
+    let secretTimer = null;
+
+    // ========== 유틸 함수 ==========
+    function countOnes(states) {
+      return states.filter(s => s).length;
+    }
+
+    function binaryToDecimal(states) {
+      const powers = [128, 64, 32, 16, 8, 4, 2, 1];
+      let parts = [], total = 0;
+      states.forEach((state, i) => {
+        if (state) { parts.push(powers[i]); total += powers[i]; }
+      });
+      return parts.length === 0 ? '0' : parts.join('+') + ' = ' + total;
+    }
+
+    // ========== 렌더 함수 ==========
+    function render() {
+      const byteImgs = byteStates.map((state, i) => `
+        <div class="flex flex-col items-center cursor-pointer transition-transform" onclick="toggleByte(${i})">
+          <img src="${state ? 'src/on.png' : 'src/off.png'}" alt="전구" class="w-16 h-20" />
+          <div class="text-2xl font-bold text-gray-800 mt-1">${state ? '1' : '0'}</div>
+        </div>
+      `).join('');
+
+      const secretTooltip = showSecret
+        ? `<span class="absolute left-1/2 -translate-x-1/2 -top-12 bg-yellow-400 text-gray-900 px-3 py-1 rounded-xl text-sm font-bold whitespace-nowrap shadow-2xl z-50" style="animation:bounceOnce 0.5s ease-in-out">참새다!</span>`
+        : '';
+
+      document.getElementById('root').innerHTML = `
+        <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+          <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <div class="flex justify-between items-center mb-2">
+              <div class="text-sm text-indigo-100">고등학교 정보 학습자료</div>
+              <a href="index.html" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2">🏠 홈으로</a>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">💾 비트(bit)와 바이트(byte)</h1>
+            <p class="text-indigo-100">컴퓨터가 데이터를 저장하는 가장 기본적인 단위를 알아봅시다!</p>
+          </div>
+
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+            <div class="space-y-3 text-gray-700">
+              <div>
+                <h3 class="font-bold text-indigo-900 text-lg mb-2">컴퓨터는 어떻게 데이터를 저장할까요?</h3>
+                <p class="leading-relaxed">
+                  컴퓨터는 모든 정보를 <span class="font-bold text-blue-600">0과 1</span>로만 표현합니다.
+                  마치 전구가 <span class="font-bold text-yellow-600">켜지거나(1)</span> <span class="font-bold text-gray-600">꺼지는(0)</span> 것처럼요!
+                  이 0과 1 하나하나를 <span class="font-bold text-purple-600">'비트(bit)'</span>라고 부르고,
+                  8개의 비트를 모으면 <span class="font-bold text-green-600">'바이트(byte)'</span>가 됩니다.
+                </p>
+              </div>
+              <div class="grid md:grid-cols-3 gap-4 mt-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-indigo-700 mb-2">💡 비트 (bit)</h4><p class="text-sm">0 또는 1의 값을 가지는 컴퓨터 데이터의 <span class="font-bold">가장 작은 단위</span></p></div>
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-green-700 mb-2">📦 바이트 (byte)</h4><p class="text-sm">8개의 비트가 모인 것. 하나의 <span class="font-bold">문자</span>를 표현할 수 있어요</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-orange-700 mb-2">🔢 표현 범위</h4><p class="text-sm">1비트: 2가지 / 1바이트: <span class="font-bold">256가지</span> 표현 가능</p></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-8">
+            <div class="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+              <p class="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+              <p class="text-sm text-gray-700"><span class="font-bold text-blue-600">전구를 클릭해보세요! </span>전구가 켜지면 1, 꺼지면 0이 됩니다. 비트와 바이트의 차이를 직접 눈으로 확인할 수 있어요.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-lg">
+              <div class="flex items-center justify-center gap-12 flex-wrap">
+                <div class="text-center">
+                  <h2 class="text-3xl font-bold text-indigo-600 mb-6">1 bit</h2>
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="cursor-pointer transition-transform" onclick="toggleBit()">
+                      <img src="${bitState ? 'src/on.png' : 'src/off.png'}" alt="전구" class="w-28 h-32" />
+                    </div>
+                    <div class="text-4xl font-bold text-gray-800">${bitState ? '1' : '0'}</div>
+                    <div class="text-lg text-gray-600 bg-white px-4 py-2 rounded-lg">2<sup>1</sup> = <span class="font-bold text-indigo-600">2가지</span></div>
+                  </div>
+                </div>
+
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-purple-600 mb-2">8개 모으면</div>
+                  <div class="text-6xl text-purple-500">▶</div>
+                </div>
+
+                <div class="text-center">
+                  <h2 class="text-3xl font-bold text-green-600 mb-6">1 byte = 8 bit</h2>
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="flex gap-2">${byteImgs}</div>
+                    <div class="text-lg text-gray-600 bg-white px-4 py-2 rounded-lg">2<sup>8</sup> = <span class="font-bold text-green-600">256가지</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 grid md:grid-cols-2 gap-4">
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                  <h3 class="font-bold text-indigo-900 mb-2">왼쪽 비트 상태</h3>
+                  <p class="text-sm text-gray-700">현재 값: <span class="font-bold text-indigo-600 text-lg">${bitState ? '1' : '0'}</span></p>
+                  <p class="text-xs text-gray-600 mt-1">비트는 2가지 상태만 표현할 수 있어요</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h3 class="font-bold text-green-900 mb-2">오른쪽 바이트 상태</h3>
+                  <p class="text-sm text-gray-700">
+                    이진수: <span class="font-bold text-green-600 text-lg font-mono">${byteStates.map(s => s ? '1' : '0').join('')}</span>
+                    <span class="ml-2">십진수: <span class="font-bold text-blue-600">${binaryToDecimal(byteStates)}</span></span>
+                  </p>
+                  <p class="text-xs text-gray-600 mt-1">켜진 전구: ${countOnes(byteStates)}개 / 꺼진 전구: ${8 - countOnes(byteStates)}개</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mt-6">
+              <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg border border-blue-200">
+                <h3 class="text-lg font-bold text-blue-900 mb-3">🔍 비트(bit)란?</h3>
+                <div class="space-y-3 text-sm text-gray-700">
+                  <div class="bg-white p-3 rounded-lg"><p class="font-bold mb-1">Binary Digit의 줄임말</p><p>컴퓨터가 이해할 수 있는 <span class="font-bold text-blue-600">가장 작은 정보 단위</span></p></div>
+                  <div class="bg-white p-3 rounded-lg"><p class="font-bold mb-1">두 가지 상태만 가능</p><p><span class="font-bold text-yellow-600">1 (참, True, On)</span> 또는 <span class="font-bold text-gray-600">0 (거짓, False, Off)</span></p></div>
+                  <p class="pt-2 border-t border-blue-200">💡 1비트로는 2가지(2<sup>1</sup>) 정보만 표현 가능해요</p>
+                </div>
+              </div>
+              <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
+                <h3 class="text-lg font-bold text-green-900 mb-3">📦 바이트(byte)란?</h3>
+                <div class="space-y-3 text-sm text-gray-700">
+                  <div class="bg-white p-3 rounded-lg"><p class="font-bold mb-1">8개의 비트 = 1바이트</p><p>하나의 <span class="font-bold text-green-600">문자</span>를 저장하는 기본 단위</p></div>
+                  <div class="bg-white p-3 rounded-lg"><p class="font-bold mb-1">256가지 표현 가능</p><p>2<sup>8</sup> = 2×2×2×2×2×2×2×2 = <span class="font-bold text-green-600">256</span></p></div>
+                  <p class="pt-2 border-t border-green-200">💡 영어 대소문자, 숫자, 특수문자를 모두 표현할 수 있어요!</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
+              <h3 class="text-lg font-bold text-purple-900 mb-3">📊 데이터 크기 단위</h3>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <div class="bg-white p-3 rounded-lg shadow-sm"><p class="font-bold text-indigo-600">1 bit (비트)</p><p class="text-sm text-gray-700">0 또는 1</p></div>
+                  <div class="bg-white p-3 rounded-lg shadow-sm"><p class="font-bold text-blue-600">8 bits = 1 byte (바이트)</p><p class="text-sm text-gray-700">문자 하나 (예: 'A', '1', '!')</p></div>
+                  <div class="bg-white p-3 rounded-lg shadow-sm"><p class="font-bold text-green-600">1,024 bytes = 1 KB (킬로바이트)</p><p class="text-sm text-gray-700">짧은 문장 정도</p></div>
+                  <div class="bg-white p-3 rounded-lg shadow-sm"><p class="font-bold text-orange-600">1,024 KB = 1 MB (메가바이트)</p><p class="text-sm text-gray-700">사진 한 장 정도</p></div>
+                </div>
+                <div class="space-y-2">
+                  <div class="bg-white p-3 rounded-lg shadow-sm"><p class="font-bold text-red-600">1,024 MB = 1 GB (기가바이트)</p><p class="text-sm text-gray-700">영화 한 편 정도</p></div>
+                  <div class="bg-white p-3 rounded-lg shadow-sm"><p class="font-bold text-purple-600">1,024 GB = 1 TB (테라바이트)</p><p class="text-sm text-gray-700">수천 개의 영화</p></div>
+                  <div class="bg-indigo-100 p-3 rounded-lg border-2 border-indigo-400"><p class="text-xs text-gray-600 font-bold">💡 재미있는 사실</p><p class="text-xs text-gray-700 mt-1">1KB가 정확히 1,000바이트가 아니라 1,024바이트인 이유는 컴퓨터가 2진법(2<sup>10</sup>=1,024)을 사용하기 때문이에요!</p></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-lg border border-orange-200 mt-6">
+              <h3 class="text-lg font-bold text-orange-900 mb-3">🎯 실생활 예시</h3>
+              <div class="space-y-3 text-sm text-gray-700">
+                <div class="flex items-start gap-3"><div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div><div class="flex-1 bg-white p-3 rounded-lg"><p class="font-bold text-blue-700">문자 'A' 저장하기</p><p>'A'는 <span class="font-mono font-bold">01000001</span> (8비트 = 1바이트)로 저장됩니다</p></div></div>
+                <div class="flex items-start gap-3"><div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div><div class="flex-1 bg-white p-3 rounded-lg"><p class="font-bold text-green-700">"안녕" 저장하기</p><p>한글은 한 글자당 약 2~3바이트가 필요합니다 (유니코드 방식)</p></div></div>
+                <div class="flex items-start gap-3"><div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div><div class="flex-1 bg-white p-3 rounded-lg"><p class="font-bold text-purple-700">USB 메모리 16GB</p><p>약 16,000,000,000바이트 = 128,000,000,000비트의 데이터를 저장할 수 있어요!</p></div></div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-5 rounded-lg border border-cyan-200 mt-6">
+              <h3 class="text-lg font-bold text-cyan-900 mb-3">
+                <span class="relative inline-block cursor-pointer" onclick="handleEmojiClick()">
+                  🤔${secretTooltip}
+                </span>
+                생각해보기
+              </h3>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-indigo-600 mb-2">Q. 왜 컴퓨터는 0과 1만 사용할까요?</h4><p class="text-sm text-gray-700">컴퓨터는 전기 신호로 작동합니다. 전기가 <span class="font-bold text-yellow-600">흐르면(On) 1</span>, <span class="font-bold text-gray-600">흐르지 않으면(Off) 0</span>으로 표현해요. 이렇게 두 가지 상태만 구분하면 되니까 간단하고 정확하답니다!</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-green-600 mb-2">Q. 왜 8개씩 묶어서 바이트를 만들까요?</h4><p class="text-sm text-gray-700">8비트면 256가지(2<sup>8</sup>)를 표현할 수 있어요. 이 정도면 영어 알파벳 대소문자(52개), 숫자(10개), 특수문자들을 모두 표현하기에 충분해서 8개를 기본 단위로 정했어요!</p></div>
+              </div>
+            </div>
+
+            <div class="mt-6 text-center">
+              <a href="index.html" class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">🏠 홈으로 돌아가기</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ========== 이벤트 핸들러 ==========
+    function toggleBit() {
+      bitState = !bitState;
+      render();
+    }
+
+    function toggleByte(index) {
+      byteStates[index] = !byteStates[index];
+      render();
+    }
+
+    function handleEmojiClick() {
+      if (secretTimer) clearTimeout(secretTimer);
+      showSecret = true;
+      render();
+      secretTimer = setTimeout(() => {
+        showSecret = false;
+        render();
+      }, 500);
+    }
+
+    // 최초 렌더링
+    render();
+  </script>
+</body>
+</html>
