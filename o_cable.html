@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>유선 네트워크 - 케이블과 네트워크 장비</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { text-decoration: none; }
+    body {
+      font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+      background: linear-gradient(135deg, #0f766e 0%, #0e7490 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    img { display: block; max-width: 100%; }
+
+    /* ===== Animations ===== */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .slide-in { animation: slideIn 0.5s ease-out; }
+
+    /* ===== Layout ===== */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background: linear-gradient(to right, #0f766e, #0e7490);
+      padding: 1.5rem;
+      color: #fff;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .header-school { font-size: 0.875rem; color: #99f6e4; }
+    .btn-home {
+      background: #fff;
+      color: #0f766e;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 0.875rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+    .btn-home:hover { background: #f0fdfa; }
+    .header h1 { font-size: 1.875rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .header p  { color: #99f6e4; font-size: 0.95rem; }
+
+    /* ===== Intro ===== */
+    .intro {
+      background: linear-gradient(to right, #f0fdfa, #ecfeff);
+      padding: 1.5rem;
+      border-bottom: 1px solid #ccfbf1;
+    }
+    .intro h3 { font-weight: 800; color: #134e4a; font-size: 1.125rem; margin-bottom: 0.5rem; }
+    .intro p  { color: #374151; line-height: 1.7; }
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media(max-width: 640px){ .intro-grid { grid-template-columns: 1fr; } }
+    .intro-card {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .intro-card h4 { font-weight: 700; margin-bottom: 0.25rem; }
+    .intro-card p  { font-size: 0.875rem; color: #374151; }
+
+    /* ===== Tabs ===== */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1.25rem 1.5rem;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+      transition: all 0.2s;
+      background: #fff;
+      color: #4b5563;
+    }
+    .tab-btn:hover { background: #f3f4f6; }
+    .tab-btn.active {
+      background: linear-gradient(to right, #0d9488, #0891b2);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(13,148,136,0.4);
+    }
+
+    /* ===== Main Content ===== */
+    .content { padding: 2rem; }
+
+    /* ===== Panel ===== */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ===== Tip Box ===== */
+    .tip-box {
+      background: #fefce8;
+      border: 1px solid #fde047;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .tip-box p:first-child { font-weight: 600; color: #713f12; font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .tip-box p:last-child  { font-size: 0.875rem; color: #374151; }
+
+    /* ===== Cards Grid ===== */
+    .cards-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    @media(max-width: 768px){
+      .cards-grid-3 { grid-template-columns: 1fr; }
+      .cards-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ===== Item Card ===== */
+    .item-card {
+      cursor: pointer;
+      border-radius: 0.5rem;
+      transition: transform 0.2s;
+      border: 2px solid transparent;
+    }
+    .item-card:hover { transform: scale(1.03); }
+    .item-card.selected { outline: 4px solid #2dd4bf; outline-offset: 2px; }
+    .item-card-inner {
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      height: 100%;
+    }
+    .item-card-img-wrap {
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background: #fff;
+    }
+    .item-card-img-wrap img { width: 100%; height: 12rem; object-fit: cover; }
+    .item-card-emoji {
+      width: 100%; height: 12rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+    }
+    .item-card h3 { font-size: 1.25rem; font-weight: 800; text-align: center; margin-bottom: 0.25rem; }
+    .item-card .subtitle { font-size: 0.875rem; color: #4b5563; text-align: center; margin-bottom: 1rem; }
+    .item-card .meta { background: #fff; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; margin-bottom: 0.375rem; }
+    .item-card .meta span { font-weight: 700; color: #374151; }
+
+    /* ===== Color themes ===== */
+    .theme-blue  .item-card-inner { background: linear-gradient(135deg,#eff6ff,#ecfeff); border-color:#bfdbfe; }
+    .theme-blue  h3 { color: #1e3a8a; }
+    .theme-blue  .accent { color: #2563eb; }
+
+    .theme-orange .item-card-inner { background: linear-gradient(135deg,#fff7ed,#fefce8); border-color:#fed7aa; }
+    .theme-orange h3 { color: #7c2d12; }
+    .theme-orange .accent { color: #ea580c; }
+
+    .theme-purple .item-card-inner { background: linear-gradient(135deg,#faf5ff,#fdf2f8); border-color:#e9d5ff; }
+    .theme-purple h3 { color: #4a1d96; }
+    .theme-purple .accent { color: #9333ea; }
+
+    .theme-green  .item-card-inner { background: linear-gradient(135deg,#f0fdf4,#ecfdf5); border-color:#bbf7d0; }
+    .theme-green  h3 { color: #14532d; }
+    .theme-green  .accent { color: #16a34a; }
+
+    /* ===== Detail Panel ===== */
+    .detail-panel {
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      border: 1px solid;
+      margin-top: 0.5rem;
+    }
+    .detail-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .detail-header .emoji { font-size: 2.5rem; }
+    .detail-header h3 { font-size: 1.5rem; font-weight: 800; }
+    .detail-img-box { background: #fff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+    .detail-img-box img { width: 100%; height: 16rem; object-fit: cover; border-radius: 0.375rem; margin-bottom: 0.75rem; }
+    .detail-img-box p { color: #374151; line-height: 1.7; }
+    .detail-section { background: #fff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+    .detail-section h4 { font-weight: 700; margin-bottom: 0.75rem; }
+    .detail-section ul { list-style: none; }
+    .detail-section li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #374151; margin-bottom: 0.5rem; }
+    .detail-section li .check { color: #0d9488; font-weight: 700; }
+    .analogy-box { display: flex; align-items: center; gap: 0.75rem; background: #f9fafb; padding: 0.75rem; border-radius: 0.5rem; }
+    .analogy-box .emoji { font-size: 2rem; }
+    .reallife-box {
+      background: #ccfbf1;
+      border: 2px solid #2dd4bf;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+    .reallife-box p:first-child { font-size: 0.875rem; font-weight: 700; color: #134e4a; margin-bottom: 0.25rem; }
+    .reallife-box p:last-child  { font-size: 0.875rem; color: #374151; }
+    .flow-box {
+      background: #ccfbf1;
+      border: 2px solid #2dd4bf;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+    .flow-box p:first-child { font-size: 0.875rem; font-weight: 700; color: #134e4a; margin-bottom: 0.25rem; }
+    .flow-box p:last-child { font-size: 0.875rem; color: #374151; font-family: monospace; }
+
+    /* ===== Comparison ===== */
+    .compare-section {
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      border: 1px solid;
+      margin-bottom: 1.5rem;
+    }
+    .compare-section h3 { font-size: 1.125rem; font-weight: 800; margin-bottom: 1rem; }
+    .compare-section.blue-bg  { background: linear-gradient(to right,#eff6ff,#ecfeff); border-color:#bfdbfe; }
+    .compare-section.blue-bg h3 { color: #1e3a8a; }
+    .compare-section.green-bg { background: linear-gradient(to right,#f0fdf4,#ecfdf5); border-color:#bbf7d0; }
+    .compare-section.green-bg h3 { color: #14532d; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; background: #fff; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-collapse: collapse; }
+    thead tr { background: linear-gradient(to right, #0d9488, #0891b2); color: #fff; }
+    th { padding: 0.75rem; font-weight: 700; }
+    th:first-child { text-align: left; }
+    th:not(:first-child) { text-align: center; }
+    td { padding: 0.75rem; border-bottom: 1px solid #f3f4f6; font-size: 0.875rem; }
+    td:first-child { font-weight: 700; color: #374151; }
+    td:not(:first-child) { text-align: center; }
+    tr:hover td { background: #f9fafb; }
+    .td-purple { font-weight: 700; color: #9333ea; }
+    .td-green  { font-weight: 700; color: #16a34a; }
+    .td-blue   { font-weight: 700; color: #2563eb; }
+    .td-xs { font-size: 0.75rem; }
+
+    .tip-box2 {
+      background: #ecfeff;
+      border: 2px solid #67e8f9;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+    }
+    .tip-box2 h4 { font-weight: 700; color: #164e63; margin-bottom: 0.75rem; }
+    .tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media(max-width:640px){ .tip-grid { grid-template-columns: 1fr; } }
+    .tip-card { background: #fff; padding: 0.75rem; border-radius: 0.5rem; }
+    .tip-card p:first-child { font-weight: 700; margin-bottom: 0.25rem; }
+    .tip-card p:last-child  { font-size: 0.75rem; color: #6b7280; }
+
+    /* ===== Quiz ===== */
+    .quiz-intro {
+      background: linear-gradient(to right, #faf5ff, #fdf2f8);
+      border: 1px solid #e9d5ff;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .quiz-intro h3 { font-size: 1.125rem; font-weight: 800; color: #4a1d96; margin-bottom: 0.25rem; }
+    .quiz-intro p  { font-size: 0.875rem; color: #374151; }
+    .quiz-item {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+    .quiz-item h4 { font-weight: 700; color: #1f2937; margin-bottom: 1rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quiz-opt {
+      width: 100%;
+      text-align: left;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .quiz-opt:hover:not(:disabled) { background: #f3f4f6; }
+    .quiz-opt:disabled { cursor: not-allowed; }
+    .quiz-opt.correct { background: #dcfce7; border-color: #4ade80; }
+    .quiz-opt.wrong   { background: #fee2e2; border-color: #f87171; }
+    .quiz-explanation {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: #374151;
+    }
+    .quiz-explanation span { font-weight: 700; color: #2563eb; }
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(to right, #0d9488, #0891b2);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover { opacity: 0.9; }
+
+    /* ===== Quiz Result ===== */
+    .quiz-result { text-align: center; }
+    .result-box {
+      background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+      border: 1px solid #bbf7d0;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .result-box h3 { font-size: 1.875rem; font-weight: 800; color: #14532d; margin-bottom: 1rem; }
+    .score { font-size: 3.75rem; font-weight: 900; color: #0d9488; margin-bottom: 1rem; }
+    .result-box p { font-size: 1.125rem; color: #374151; }
+    .btn-retry {
+      padding: 1rem 2rem;
+      background: linear-gradient(to right, #0d9488, #0891b2);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s;
+    }
+    .btn-retry:hover { opacity: 0.9; }
+
+    /* ===== Footer ===== */
+    .footer { padding: 1.5rem; text-align: center; }
+
+    /* ===== Tooltip ===== */
+    .tooltip {
+      position: fixed;
+      background: #000011;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 10pt;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 1000;
+      pointer-events: none;
+      transform: translate(-50%, -110%);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="header-school">고등학교 정보 학습자료</div>
+        <a href="index.html" class="btn-home">🏠 홈으로</a>
+      </div>
+      <h1>🌐 유선 네트워크</h1>
+      <p>케이블과 네트워크 장비의 세계를 탐험해봅시다!</p>
+    </div>
+
+    <!-- Intro -->
+    <div class="intro">
+      <h3>네트워크는 어떻게 연결될까요?</h3>
+      <p>
+        컴퓨터들은 <strong style="color:#2563eb">케이블</strong>과 <strong style="color:#16a34a">네트워크 장비</strong>를 통해 연결됩니다.
+        케이블은 데이터가 지나가는 <strong style="color:#ea580c">길</strong>이고,
+        네트워크 장비는 데이터를 <strong style="color:#9333ea">올바른 목적지</strong>로 보내는 역할을 해요!
+      </p>
+      <div class="intro-grid">
+        <div class="intro-card">
+          <h4 style="color:#0f766e">
+            <span id="plug-emoji" style="cursor:pointer;display:inline-block;transition:transform 0.2s">🔌</span>
+            케이블
+          </h4>
+          <p>데이터가 이동하는 <strong>물리적 통로</strong></p>
+        </div>
+        <div class="intro-card">
+          <h4 style="color:#0e7490">🎯 네트워크 장비</h4>
+          <p>데이터를 <strong>올바르게 전달</strong>하는 장치</p>
+        </div>
+        <div class="intro-card">
+          <h4 style="color:#1d4ed8">🌐 네트워크</h4>
+          <p>컴퓨터들이 <strong>연결된 망</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="cables">📡 케이블</button>
+      <button class="tab-btn" data-tab="devices">🔌 네트워크 장비</button>
+      <button class="tab-btn" data-tab="comparison">⚖️ 비교하기</button>
+      <button class="tab-btn" data-tab="quiz">🎯 퀴즈</button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ===== CABLES PANEL ===== -->
+      <div class="panel active slide-in" id="panel-cables">
+        <div class="tip-box">
+          <p>💡 학습 방법</p>
+          <p><strong style="color:#0d9488">케이블 카드를 클릭해보세요! </strong>각 케이블의 특징과 용도를 자세히 알 수 있어요.</p>
+        </div>
+
+        <div class="cards-grid-3" id="cable-cards"></div>
+        <div id="cable-detail"></div>
+      </div>
+
+      <!-- ===== DEVICES PANEL ===== -->
+      <div class="panel" id="panel-devices">
+        <div class="tip-box">
+          <p>💡 학습 방법</p>
+          <p><strong style="color:#0d9488">장비 카드를 클릭해보세요! </strong>각 장비의 역할과 비유를 통해 쉽게 이해할 수 있어요.</p>
+        </div>
+
+        <div class="cards-grid-2" id="device-cards"></div>
+        <div id="device-detail"></div>
+      </div>
+
+      <!-- ===== COMPARISON PANEL ===== -->
+      <div class="panel" id="panel-comparison">
+        <div class="compare-section blue-bg">
+          <h3>📡 케이블 비교표</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>항목</th>
+                  <th>UTP 케이블</th>
+                  <th>동축 케이블</th>
+                  <th>광케이블</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>전송 방식</td><td>전기 신호</td><td>전기 신호</td><td class="td-purple">빛(레이저)</td></tr>
+                <tr><td>최대 속도</td><td>10Gbps</td><td>1Gbps</td><td class="td-purple">100Gbps+</td></tr>
+                <tr><td>최대 거리</td><td>100m</td><td>500m</td><td class="td-purple">수십 km</td></tr>
+                <tr><td>가격</td><td>💰 저렴</td><td>💰💰 중간</td><td>💰💰💰 비쌈</td></tr>
+                <tr><td>전파 간섭</td><td>⚠️ 약함</td><td>👍 강함</td><td>💪 매우 강함</td></tr>
+                <tr><td>주요 용도</td><td class="td-xs">집, 학교, 사무실</td><td class="td-xs">케이블 TV</td><td class="td-xs">통신사 기간망</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="compare-section green-bg">
+          <h3>🔌 네트워크 장비 비교표</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>항목</th>
+                  <th>스위칭 허브</th>
+                  <th>라우터</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>OSI 계층</td><td>2계층 (데이터링크)</td><td>3계층 (네트워크)</td></tr>
+                <tr><td>주소 사용</td><td class="td-green">MAC 주소</td><td class="td-blue">IP 주소</td></tr>
+                <tr><td>데이터 전송</td><td>목적지 포트만</td><td>최적 경로 계산</td></tr>
+                <tr><td>비유</td><td>📮 우체부</td><td>🧭 내비게이션</td></tr>
+                <tr><td>네트워크 연결</td><td>같은 네트워크만</td><td class="td-blue">다른 네트워크 연결</td></tr>
+                <tr><td>속도</td><td>🚗 빠름</td><td>🚗 빠름</td></tr>
+                <tr><td>보안</td><td>🔒 보통</td><td>🛡️ 강함</td></tr>
+                <tr><td>주요 역할</td><td class="td-xs">여러 컴퓨터를 연결</td><td class="td-xs">인터넷 연결 및 공유</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tip-box2">
+          <h4>💡 쉽게 기억하기</h4>
+          <div class="tip-grid">
+            <div class="tip-card">
+              <p style="color:#16a34a">스위칭 허브 = 우체부 📮</p>
+              <p>MAC 주소 보고 정확히 배달</p>
+            </div>
+            <div class="tip-card">
+              <p style="color:#2563eb">라우터 = 내비게이션 🧭</p>
+              <p>IP 주소로 최적 경로 탐색</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== QUIZ PANEL ===== -->
+      <div class="panel" id="panel-quiz">
+        <div class="quiz-intro">
+          <h3>🎯 배운 내용 확인하기</h3>
+          <p>총 5문제를 풀어보세요!</p>
+        </div>
+        <div id="quiz-questions"></div>
+        <div id="quiz-result" style="display:none" class="quiz-result">
+          <div class="result-box">
+            <h3>🎉 퀴즈 완료!</h3>
+            <div class="score" id="score-display"></div>
+            <p id="score-message"></p>
+          </div>
+          <button class="btn-retry" onclick="resetQuiz()">다시 풀기</button>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+    <!-- Footer -->
+    <div class="footer">
+      <a href="index.html" class="btn-home" style="display:inline-flex">🏠 홈으로 돌아가기</a>
+    </div>
+
+  </div><!-- /container -->
+
+  <!-- Tooltip -->
+  <div class="tooltip" id="tooltip">참새다!</div>
+
+  <script>
+    /* ===================== DATA ===================== */
+    const cables = [
+      {
+        id: 'utp', emoji: '🔌', name: 'UTP 케이블', subtitle: '가장 흔한 랜선',
+        color: 'blue', speed: 'cat6기준 10Gbps', distance: '100m',
+        image: 'src/utp.png',
+        description: 'Unshielded Twisted Pair의 약자로, 8개의 구리선이 2개씩 꼬여있는 케이블입니다.',
+        features: [
+          '8개의 가는 구리선이 4쌍으로 꼬여있어요',
+          '전파 간섭을 줄이기 위해 꼬아놓았어요',
+          '집과 학교에서 가장 많이 사용해요',
+          '저렴하고 설치가 쉬워요'
+        ],
+        realLife: '여러분이 컴퓨터에 꽂는 인터넷 선이 바로 UTP 케이블입니다!'
+      },
+      {
+        id: 'coaxial', emoji: '📺', name: '동축 케이블', subtitle: 'TV 안테나선',
+        color: 'orange', speed: '1Gbps', distance: '500m',
+        image: 'src/cox.png',
+        description: '중심 구리선 + 절연체 + 금속 망 + 겉껍질로 이루어진 4겹 구조의 케이블입니다.',
+        features: [
+          '중심선과 금속망이 같은 축에 있어서 동축이라고 불러요',
+          'UTP보다 전파 간섭에 강해요',
+          '두껍고 무거운 편이에요',
+          'TV나 케이블 인터넷에 사용돼요'
+        ],
+        realLife: 'TV 뒤에 연결된 둥근 케이블이 바로 동축 케이블이에요!'
+      },
+      {
+        id: 'fiber', emoji: '💡', name: '광케이블', subtitle: '빛으로 통신',
+        color: 'purple', speed: '100Gbps+', distance: '수십 km',
+        image: 'src/opt.png',
+        description: '머리카락보다 얇은 유리섬유로 빛(레이저)을 이용해 데이터를 전송합니다.',
+        features: [
+          '전기 신호가 아닌 빛으로 데이터 전송!',
+          '초고속으로 먼 거리까지 전송 가능',
+          '전파 간섭이 전혀 없어요',
+          '대륙 간 해저 케이블로도 사용돼요'
+        ],
+        realLife: '기가 인터넷을 가능하게 하는 것이 바로 광케이블입니다!'
+      }
+    ];
+
+    const devices = [
+      {
+        id: 'switch', emoji: '🎯', name: '스위칭 허브', subtitle: '똑똑한 네트워크 장비',
+        color: 'green', image: 'src/sw.png',
+        description: '여러 대의 컴퓨터를 연결하고, MAC 주소를 인식하여 받을 컴퓨터에게만 정확히 데이터를 전송하는 장비입니다.',
+        analogy: '우체부', analogyEmoji: '📮',
+        analogyDesc: '주소를 확인하고 받을 사람에게만 정확히 배달합니다',
+        features: [
+          'MAC 주소를 보고 목적지에만 데이터 전송',
+          '여러 포트(8개, 16개, 24개 등)로 컴퓨터 연결',
+          '어떤 컴퓨터가 어디 있는지 스스로 학습해요',
+          '네트워크가 빠르고 안전해요',
+          '학교, 회사, 집에서 가장 많이 사용하는 장비'
+        ],
+        flow: 'A 컴퓨터 → 스위칭 허브(MAC 주소 확인) → B 컴퓨터만',
+        ports: '보통 5, 8, 16, 24, 48포트 등'
+      },
+      {
+        id: 'router', emoji: '🗺️', name: '라우터', subtitle: '길 찾기 전문가',
+        color: 'blue', image: 'src/router.png',
+        description: '서로 다른 네트워크를 연결하고 IP 주소를 사용하여 최적의 경로를 찾아주는 장비입니다.',
+        analogy: '내비게이션', analogyEmoji: '🧭',
+        analogyDesc: '데이터가 목적지까지 가는 최고의 길을 찾아줍니다',
+        features: [
+          '서로 다른 네트워크를 연결 (우리집 ↔ 인터넷)',
+          'IP 주소를 사용하여 가장 빠른 길을 찾아요',
+          '방화벽 기능으로 나쁜 데이터 차단',
+          'NAT 기능으로 하나의 공인 IP를 여러 기기가 공유',
+          '집의 인터넷 공유기가 바로 라우터예요'
+        ],
+        flow: '우리 집 네트워크 ↔ 라우터(공유기) ↔ 인터넷',
+        ports: '보통 WAN 1개 + LAN 4개 포트'
+      }
+    ];
+
+    const quizData = [
+      {
+        id: 1, question: '빛으로 데이터를 전송하는 케이블은?',
+        options: ['UTP 케이블', '동축 케이블', '광케이블', 'HDMI 케이블'], correct: 2,
+        explanation: '광케이블은 빛(레이저)을 이용해 데이터를 전송합니다. 전기 신호가 아닌 빛을 사용하기 때문에 매우 빠르고 전파 간섭도 받지 않아요!'
+      },
+      {
+        id: 2, question: '집에 있는 랜선의 정식 이름은?',
+        options: ['UTP 케이블', 'USB 케이블', '광케이블', '동축 케이블'], correct: 0,
+        explanation: 'UTP 케이블은 "Unshielded Twisted Pair"의 약자로, 우리가 흔히 "랜선"이라고 부르는 케이블입니다.'
+      },
+      {
+        id: 3, question: 'MAC 주소를 사용하여 받을 컴퓨터에게만 데이터를 보내는 장비는?',
+        options: ['스위칭 허브', '모뎀', '리피터', 'NIC'], correct: 0,
+        explanation: '스위칭 허브는 MAC 주소를 확인하여 받을 컴퓨터에게만 데이터를 전송합니다. 마치 우체부가 주소를 보고 정확히 배달하는 것처럼요!'
+      },
+      {
+        id: 4, question: '서로 다른 네트워크를 연결하고 IP 주소를 사용하는 장비는?',
+        options: ['스위칭 허브', '라우터', '모뎀', '브리지'], correct: 1,
+        explanation: '라우터는 서로 다른 네트워크를 연결하고 IP 주소를 사용하여 데이터가 목적지까지 가는 최적의 경로를 찾아줍니다.'
+      },
+      {
+        id: 5, question: '집에 있는 인터넷 공유기는 무엇일까요?',
+        options: ['스위칭 허브', '라우터', '모뎀', '허브'], correct: 1,
+        explanation: '집에 있는 인터넷 공유기는 라우터입니다. 우리 집 네트워크와 인터넷을 연결해주고, 여러 기기가 인터넷을 함께 사용할 수 있게 해줍니다!'
+      }
+    ];
+
+    /* ===================== STATE ===================== */
+    let selectedCable = null;
+    let selectedDevice = null;
+    let quizAnswers = {};
+    let quizSubmitted = false;
+
+    /* ===================== HELPERS ===================== */
+    function accentColor(color) {
+      return { blue: '#2563eb', orange: '#ea580c', purple: '#9333ea', green: '#16a34a' }[color] || '#2563eb';
+    }
+    function headingColor(color) {
+      return { blue: '#1e3a8a', orange: '#7c2d12', purple: '#4a1d96', green: '#14532d' }[color] || '#1e3a8a';
+    }
+
+    /* ===================== RENDER CABLE CARDS ===================== */
+    function renderCableCards() {
+      const container = document.getElementById('cable-cards');
+      container.innerHTML = cables.map(c => `
+        <div class="item-card theme-${c.color} ${selectedCable === c.id ? 'selected' : ''}"
+             onclick="selectCable('${c.id}')">
+          <div class="item-card-inner">
+            <div class="item-card-img-wrap">
+              <img src="${c.image}" alt="${c.name}"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div class="item-card-emoji">${c.emoji}</div>
+            </div>
+            <h3>${c.name}</h3>
+            <p class="subtitle">${c.subtitle}</p>
+            <div class="meta"><span>속도:</span> ${c.speed}</div>
+            <div class="meta"><span>거리:</span> ${c.distance}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCableDetail() {
+      const container = document.getElementById('cable-detail');
+      if (!selectedCable) { container.innerHTML = ''; return; }
+      const c = cables.find(x => x.id === selectedCable);
+      if (!c) { container.innerHTML = ''; return; }
+      const accent = accentColor(c.color);
+      const heading = headingColor(c.color);
+      container.innerHTML = `
+        <div class="detail-panel slide-in theme-${c.color}" style="border-color:currentColor">
+          <div class="detail-header">
+            <span class="emoji">${c.emoji}</span>
+            <h3 style="color:${heading}">${c.name}</h3>
+          </div>
+          <div class="detail-img-box">
+            <img src="${c.image}" alt="${c.name}">
+            <p>${c.description}</p>
+          </div>
+          <div class="detail-section">
+            <h4 style="color:${accent}">🎯 주요 특징</h4>
+            <ul>
+              ${c.features.map(f => `<li><span class="check">✓</span><span>${f}</span></li>`).join('')}
+            </ul>
+          </div>
+          <div class="reallife-box">
+            <p>🏠 실생활 예시</p>
+            <p>${c.realLife}</p>
+          </div>
+        </div>`;
+    }
+
+    function selectCable(id) {
+      selectedCable = selectedCable === id ? null : id;
+      renderCableCards();
+      renderCableDetail();
+    }
+
+    /* ===================== RENDER DEVICE CARDS ===================== */
+    function renderDeviceCards() {
+      const container = document.getElementById('device-cards');
+      container.innerHTML = devices.map(d => `
+        <div class="item-card theme-${d.color} ${selectedDevice === d.id ? 'selected' : ''}"
+             onclick="selectDevice('${d.id}')">
+          <div class="item-card-inner">
+            <div class="item-card-img-wrap">
+              <img src="${d.image}" alt="${d.name}"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div class="item-card-emoji">${d.emoji}</div>
+            </div>
+            <h3>${d.name}</h3>
+            <p class="subtitle">${d.subtitle}</p>
+            <div class="meta" style="text-align:center;padding:0.75rem">
+              <p style="font-weight:700;color:#374151;font-size:0.875rem;margin-bottom:0.25rem">비유</p>
+              <p style="font-size:1.125rem;font-weight:800;color:${accentColor(d.color)}">${d.analogy}</p>
+            </div>
+            <div class="meta"><span>포트:</span> ${d.ports}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDeviceDetail() {
+      const container = document.getElementById('device-detail');
+      if (!selectedDevice) { container.innerHTML = ''; return; }
+      const d = devices.find(x => x.id === selectedDevice);
+      if (!d) { container.innerHTML = ''; return; }
+      const accent = accentColor(d.color);
+      const heading = headingColor(d.color);
+      container.innerHTML = `
+        <div class="detail-panel slide-in theme-${d.color}">
+          <div class="detail-header">
+            <span class="emoji">${d.emoji}</span>
+            <h3 style="color:${heading}">${d.name}</h3>
+          </div>
+          <div class="detail-img-box">
+            <img src="${d.image}" alt="${d.name}">
+            <p>${d.description}</p>
+          </div>
+          <div class="detail-section">
+            <h4 style="color:${accent}">🎭 비유로 이해하기</h4>
+            <div class="analogy-box">
+              <span class="emoji">${d.analogyEmoji}</span>
+              <div>
+                <p style="font-weight:800;color:${accent}">${d.analogy}</p>
+                <p style="font-size:0.875rem;color:#6b7280">${d.analogyDesc}</p>
+              </div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <h4 style="color:${accent}">🎯 주요 특징</h4>
+            <ul>
+              ${d.features.map(f => `<li><span class="check">✓</span><span>${f}</span></li>`).join('')}
+            </ul>
+          </div>
+          <div class="flow-box">
+            <p>🔄 데이터 흐름</p>
+            <p>${d.flow}</p>
+          </div>
+        </div>`;
+    }
+
+    function selectDevice(id) {
+      selectedDevice = selectedDevice === id ? null : id;
+      renderDeviceCards();
+      renderDeviceDetail();
+    }
+
+    /* ===================== QUIZ ===================== */
+    function renderQuiz() {
+      const container = document.getElementById('quiz-questions');
+      container.innerHTML = quizData.map((q, qi) => {
+        const answered = quizAnswers[q.id] !== undefined;
+        return `
+          <div class="quiz-item">
+            <h4>Q${qi+1}. ${q.question}</h4>
+            <div class="quiz-options">
+              ${q.options.map((opt, oi) => {
+                let cls = '';
+                if (answered) {
+                  if (oi === q.correct) cls = 'correct';
+                  else if (quizAnswers[q.id] === oi) cls = 'wrong';
+                }
+                const badge = answered
+                  ? (oi === q.correct ? ' <strong style="color:#16a34a">✓ 정답</strong>' : (quizAnswers[q.id] === oi ? ' <strong style="color:#dc2626">✗</strong>' : ''))
+                  : '';
+                return `<button class="quiz-opt ${cls}" ${answered ? 'disabled' : ''}
+                                onclick="answerQuiz(${q.id}, ${oi})">
+                          ${oi+1}. ${opt}${badge}
+                        </button>`;
+              }).join('')}
+            </div>
+            ${answered ? `
+              <div class="quiz-explanation">
+                <span>설명:</span> ${q.explanation}
+              </div>` : ''}
+          </div>`;
+      }).join('');
+
+      const allAnswered = Object.keys(quizAnswers).length === quizData.length;
+      if (allAnswered && !quizSubmitted) {
+        container.innerHTML += `<button class="btn-submit" onclick="submitQuiz()">결과 확인하기</button>`;
+      }
+    }
+
+    function answerQuiz(qId, optIdx) {
+      if (quizAnswers[qId] !== undefined) return;
+      quizAnswers[qId] = optIdx;
+      renderQuiz();
+    }
+
+    function submitQuiz() {
+      quizSubmitted = true;
+      let correct = 0;
+      quizData.forEach(q => { if (quizAnswers[q.id] === q.correct) correct++; });
+      const total = quizData.length;
+      document.getElementById('quiz-questions').style.display = 'none';
+      const result = document.getElementById('quiz-result');
+      result.style.display = 'block';
+      document.getElementById('score-display').textContent = `${correct} / ${total}`;
+      document.getElementById('score-message').textContent =
+        correct === total ? '완벽해요! 모든 문제를 맞히셨네요! 🎊' :
+        correct >= total * 0.7 ? '잘하셨어요! 조금만 더 공부하면 완벽할 거예요! 👍' :
+        '다시 한 번 복습해보세요! 💪';
+    }
+
+    function resetQuiz() {
+      quizAnswers = {};
+      quizSubmitted = false;
+      document.getElementById('quiz-questions').style.display = 'block';
+      document.getElementById('quiz-result').style.display = 'none';
+      renderQuiz();
+    }
+
+    /* ===================== TABS ===================== */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => { p.classList.remove('active'); p.classList.remove('slide-in'); });
+        btn.classList.add('active');
+        const panel = document.getElementById('panel-' + btn.dataset.tab);
+        panel.classList.add('active');
+        // trigger reflow for animation
+        void panel.offsetWidth;
+        panel.classList.add('slide-in');
+      });
+    });
+
+    /* ===================== TOOLTIP ===================== */
+    const plugEmoji = document.getElementById('plug-emoji');
+    const tooltip = document.getElementById('tooltip');
+    plugEmoji.addEventListener('click', (e) => {
+      tooltip.style.left = e.clientX + 'px';
+      tooltip.style.top  = e.clientY + 'px';
+      tooltip.style.display = 'block';
+      setTimeout(() => { tooltip.style.display = 'none'; }, 500);
+    });
+
+    /* ===================== INIT ===================== */
+    renderCableCards();
+    renderDeviceCards();
+    renderQuiz();
+  </script>
+</body>
+</html>
