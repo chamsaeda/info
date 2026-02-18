@@ -335,7 +335,20 @@
 
             <!-- IPv4 vs IPv6 비교 -->
             <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-300">
-              <h3 class="font-bold text-gray-800 mb-4 text-xl">⚖️ IPv4 vs IPv6 비교</h3>
+              <h3 class="font-bold text-gray-800 mb-4 text-xl">
+                <span class="relative inline-block cursor-pointer" onclick="showBalanceTooltip()">
+                  ⚖️
+                  <span
+                    id="balance-tooltip"
+                    class="hidden absolute left-1/2 -translate-x-1/2 -top-10
+                           bg-violet-400 text-gray-900 px-3 py-1 rounded-xl
+                           text-sm font-bold whitespace-nowrap shadow-2xl z-50"
+                  >
+                    참새다!
+                  </span>
+                </span>
+                IPv4 vs IPv6 비교
+              </h3>
               
               <div class="overflow-x-auto">
                 <table class="compare-table w-full text-sm">
@@ -1340,6 +1353,13 @@
   </div>
 
   <script>
+    function showBalanceTooltip() {
+      const tooltip = document.getElementById('balance-tooltip');
+      tooltip.classList.remove('hidden');
+      setTimeout(() => {
+        tooltip.classList.add('hidden');
+      }, 500);
+    }
     // 진행 상황
     let completedSections = new Set();
     let currentMainTab = 'concept';
