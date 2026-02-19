@@ -304,6 +304,16 @@
               🔌 네트워크 장비
             </button>
             <button
+              onClick={() => setActiveTab('experience')}
+              className={`px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${
+                activeTab === 'experience'
+                  ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🛠️ 직접 체험하기
+            </button>
+            <button
               onClick={() => setActiveTab('comparison')}
               className={`px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${
                 activeTab === 'comparison'
@@ -755,6 +765,58 @@
                 )}
               </div>
             )}
+
+            {/* ── 직접 체험하기 탭 ── */}
+            {activeTab === 'experience' && (
+              <div className="slide-in space-y-8">
+
+                {/* 안내 */}
+                <div className="bg-gradient-to-r from-orange-50 to-rose-50 p-5 rounded-xl border-2 border-orange-200">
+                  <h3 className="text-lg font-bold text-orange-900 mb-2">🛠️ 직접 체험해봐요!</h3>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    앞에서 배운 케이블과 네트워크 장비를 이제 직접 사용해볼 차례예요!<br/>
+                    아래 세 가지 체험을 하나씩 해보면서 네트워크가 어떻게 동작하는지 눈으로 확인해봐요. 😊
+                  </p>
+                </div>
+
+                {/* 체험 1 */}
+                <div className="rounded-xl border-2 border-teal-300 overflow-hidden shadow-lg">
+                  <div className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-6 py-4 flex items-center gap-3">
+                    <span className="text-3xl">🏗️</span>
+                    <div>
+                      <div className="font-bold text-lg">체험 1. 네트워크 직접 구성하기</div>
+                      <div className="text-teal-100 text-sm mt-1">장비를 드래그해서 연결하고, 미션을 완성해봐요!</div>
+                    </div>
+                  </div>
+                  <div id="exp1-root" style={{minHeight:'660px', background:'#f8fafc'}}></div>
+                </div>
+
+                {/* 체험 2 */}
+                <div className="rounded-xl border-2 border-purple-300 overflow-hidden shadow-lg">
+                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 flex items-center gap-3">
+                    <span className="text-3xl">🎯</span>
+                    <div>
+                      <div className="font-bold text-lg">체험 2. 케이블 선택 미션</div>
+                      <div className="text-purple-100 text-sm mt-1">상황에 맞는 케이블을 직접 골라봐요!</div>
+                    </div>
+                  </div>
+                  <div id="exp2-root" style={{background:'#f8fafc', padding:'20px'}}></div>
+                </div>
+
+                {/* 체험 3 */}
+                <div className="rounded-xl border-2 border-blue-300 overflow-hidden shadow-lg">
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 flex items-center gap-3">
+                    <span className="text-3xl">📡</span>
+                    <div>
+                      <div className="font-bold text-lg">체험 3. 패킷 전송 체험</div>
+                      <div className="text-blue-100 text-sm mt-1">데이터가 어떤 경로로 이동하는지 눈으로 확인해봐요!</div>
+                    </div>
+                  </div>
+                  <div id="exp3-root" style={{background:'#f8fafc', padding:'20px'}}></div>
+                </div>
+
+              </div>
+            )}
           </div>
 
           <div className="mt-6 text-center p-6">
@@ -785,5 +847,717 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<WiredNetworkEducation />);
   </script>
+
+<!-- ════════════════════════════════════════════
+     직접 체험하기 — CSS + JS
+════════════════════════════════════════════ -->
+<style>
+:root {
+  --xbg:#f8fafc; --xsf:#ffffff; --xsf2:#f1f5f9; --xbd:#cbd5e1;
+  --xac:#0ea5e9; --xac2:#16a34a; --xac3:#ea580c; --xac4:#9333ea;
+  --xtx:#1e293b; --xdm:#64748b;
+  --xutp:#ca8a04; --xcox:#c2410c; --xfib:#7c3aed;
+  --xok:#16a34a; --xer:#dc2626; --xwn:#d97706;
+}
+.xw{font-family:'Malgun Gothic',sans-serif;color:var(--xtx);}
+.xw *{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── 체험1: 빌더 ── */
+.xbuilder{display:grid;grid-template-columns:190px 1fr 255px;gap:12px;padding:16px;min-height:640px;background:var(--xbg);}
+.xpanel{background:var(--xsf);border:1px solid var(--xbd);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.xptitle{font-size:13px;font-weight:700;letter-spacing:0.5px;color:#0f172a;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--xbd);}
+.xdevitem{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--xbd);border-radius:8px;margin-bottom:6px;cursor:grab;background:var(--xsf2);transition:all 0.2s;user-select:none;}
+.xdevitem:hover{border-color:var(--xac);transform:translateX(3px);background:#e0f2fe;}
+.xcopt{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--xbd);border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;color:var(--xtx);transition:all 0.2s;margin-bottom:6px;}
+.xcopt:hover,.xcopt.sel{border-color:var(--xac);background:#e0f2fe;color:#0369a1;}
+.xcdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+#xcanvas{position:relative;background:#f0f9ff;border:2px dashed var(--xbd);border-radius:12px;overflow:hidden;min-height:570px;}
+#xcanvas.xdover{border-color:var(--xac);background:#e0f2fe;}
+.xchint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:var(--xdm);pointer-events:none;}
+.xchint .hi{font-size:36px;margin-bottom:8px;}
+.xchint p{font-size:14px;line-height:1.8;color:#64748b;}
+#xcsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:15;}
+.xdev{position:absolute;width:74px;text-align:center;z-index:10;user-select:none;cursor:move;}
+.xdev .ico{width:58px;height:58px;border:2px solid var(--xbd);border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto;transition:all 0.2s;cursor:move;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.xdev .ico:hover{border-color:var(--xac);}
+.xdev .ico.conn{border-color:var(--xac2);animation:xpulse 0.8s infinite;}
+.xdev .lbl{font-size:12px;font-weight:600;margin-top:4px;color:#374151;}
+.xdel{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:var(--xer);border-radius:50%;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.2s;z-index:20;}
+.xdev:hover .xdel{opacity:1;}
+.xcln{stroke-width:3;fill:none;stroke-linecap:round;}
+.xcutp{stroke:var(--xutp)}.xccox{stroke:var(--xcox)}.xcfib{stroke:var(--xfib)}
+.xmodelbl{position:absolute;top:10px;right:10px;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(14,165,233,0.1);border:1px solid var(--xac);color:#0369a1;}
+.xmodelbl.on{background:rgba(22,163,74,0.1);border-color:var(--xac2);color:#15803d;animation:xpulse 1s infinite;}
+.xdev.xblocked .ico{border-color:var(--xer)!important;opacity:0.4;filter:grayscale(60%);}
+.xblocklbl{font-size:12px;font-weight:700;color:var(--xer);margin-top:3px;animation:xfadein 0.3s ease;}
+
+/* 버튼 */
+.xbtn{padding:8px 13px;border-radius:7px;font-family:'Malgun Gothic',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;border:none;}
+.xbtn-pri{background:linear-gradient(135deg,var(--xac),#0369a1);color:#fff;}
+.xbtn-pri:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(14,165,233,0.3);}
+.xbtn-ok{background:linear-gradient(135deg,var(--xok),#15803d);color:#fff;}
+.xbtn-ol{background:#fff;border:1px solid var(--xbd)!important;color:var(--xtx);}
+.xbtn-ol:hover{border-color:var(--xac)!important;color:#0369a1;background:#e0f2fe;}
+
+/* 미션 패널 */
+.xmsbtn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:1px solid var(--xbd);border-radius:8px;background:var(--xsf2);color:var(--xtx);cursor:pointer;font-family:'Malgun Gothic',sans-serif;text-align:left;transition:all 0.2s;font-size:13px;}
+.xmsbtn:hover{border-color:var(--xac);background:#e0f2fe;}
+.xchkrow{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:13px;color:#374151;}
+.xvres{margin-top:10px;display:none;border-radius:8px;padding:12px;font-size:13px;line-height:1.7;}
+.xlog{overflow-y:auto;max-height:120px;}
+.xlogitem{font-size:12px;font-family:monospace;padding:3px 0;border-bottom:1px solid #e2e8f0;color:#475569;}
+.xlogitem.s{color:var(--xok)}.xlogitem.e{color:var(--xer)}.xlogitem.i{color:#0369a1}
+
+/* ── 체험2: 케이블 미션 ── */
+.xmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+.xmcard{background:var(--xsf);border:1px solid var(--xbd);border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.xmcard.solved{border-color:var(--xok);background:#f0fdf4;}
+.xmcard.shk{animation:xshake 0.4s ease;}
+.xchoice{padding:9px 12px;border:1px solid var(--xbd);border-radius:7px;background:var(--xsf2);color:var(--xtx);cursor:pointer;font-family:'Malgun Gothic',sans-serif;font-size:14px;font-weight:600;text-align:left;transition:all 0.2s;display:flex;align-items:center;gap:7px;width:100%;margin-bottom:6px;}
+.xchoice:hover{border-color:var(--xac);background:#e0f2fe;}
+.xchoice.right{border-color:var(--xok);background:#f0fdf4;color:#15803d;}
+.xchoice.wrong{border-color:var(--xer);background:#fef2f2;color:#dc2626;}
+.xmres{margin-top:10px;padding:10px;border-radius:7px;font-size:13px;line-height:1.6;display:none;}
+.xmres.show{display:block;}
+.xmres.ok{background:#f0fdf4;border:1px solid var(--xok);color:#15803d;}
+.xmres.ng{background:#fef2f2;border:1px solid var(--xer);color:#dc2626;}
+.xdbadge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:700;}
+.xdb-e{background:#dcfce7;color:#15803d;}
+.xdb-m{background:#fef9c3;color:#a16207;}
+.xdb-h{background:#fee2e2;color:#dc2626;}
+.xmbanner{background:linear-gradient(135deg,#e0f2fe,#f0fdf4);border:1px solid var(--xac2);border-radius:8px;padding:14px;text-align:center;margin-bottom:14px;display:none;}
+.xmbanner.show{display:block;animation:xfadein 0.4s ease;}
+
+/* ── 체험3: 패킷 ── */
+.xpwrap{display:grid;grid-template-columns:1fr 270px;gap:12px;padding:16px;background:var(--xbg);}
+.xndiag{position:relative;width:100%;height:330px;}
+.xnnode{position:absolute;width:74px;text-align:center;}
+.xnnode .nb{width:58px;height:58px;border:2px solid var(--xbd);border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto;transition:all 0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.xnnode.act .nb{border-color:var(--xac);box-shadow:0 0 16px rgba(14,165,233,0.4);}
+.xnnode.snd .nb{border-color:var(--xac3);box-shadow:0 0 16px rgba(234,88,12,0.4);}
+.xnnode.blk .nb{border-color:var(--xer);opacity:0.4;filter:grayscale(60%);}
+.xnnode .nl{font-size:12px;font-weight:700;margin-top:4px;color:#374151;}
+.xnnode .na{font-size:11px;font-family:monospace;color:#64748b;margin-top:2px;line-height:1.3;}
+.xblkmark{font-size:12px;font-weight:700;color:var(--xer);margin-top:2px;animation:xfadein 0.3s ease;}
+#xpsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.xncable{stroke-width:2.5;fill:none;stroke:var(--xutp);opacity:0.6;}
+.xpkt{fill:var(--xac2);filter:drop-shadow(0 0 6px #16a34a);}
+.xscbtn{padding:7px 11px;border:1px solid var(--xbd);border-radius:7px;background:var(--xsf);color:#374151;cursor:pointer;font-family:'Malgun Gothic',sans-serif;font-size:13px;font-weight:700;transition:all 0.2s;margin:3px;}
+.xscbtn.act,.xscbtn:hover{border-color:var(--xac);color:#0369a1;background:#e0f2fe;}
+.xpbox{background:var(--xsf2);border:1px solid var(--xbd);border-radius:8px;padding:10px;margin-bottom:10px;}
+.xpbox .xlbl{font-size:12px;letter-spacing:0.5px;color:#64748b;font-weight:700;margin-bottom:6px;}
+.xpaf{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #e2e8f0;font-size:13px;}
+.xpaf:last-child{border-bottom:none;}
+.xpak{color:#475569;font-weight:600;}.xpav{font-family:monospace;color:#0369a1;font-size:12px;}
+.xsteplog{background:var(--xsf2);border:1px solid var(--xbd);border-radius:8px;padding:10px;height:170px;overflow-y:auto;}
+.xstepitem{font-size:13px;font-family:monospace;padding:4px 0;border-bottom:1px solid #e2e8f0;color:#475569;line-height:1.4;white-space:pre-line;}
+.xstepitem.act{color:#15803d;font-weight:600;}
+
+@keyframes xpulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes xfadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes xshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+</style>
+
+<script>
+// ════════════════════════════════════════════
+//  직접 체험하기 JS
+// ════════════════════════════════════════════
+
+/* ──────────────────────────────────────────
+   체험1: 네트워크 구성
+────────────────────────────────────────── */
+const XM = [
+  { id:0, emoji:'🏫', title:'미션 1 · 교실 LAN 만들기', diff:'기초',
+    desc:'컴퓨터실 PC 3대를 스위칭 허브 1대에\nUTP 케이블로 연결해봐요!\n→ 같은 네트워크 안에서 파일을 주고받을 수 있어요.',
+    hint:'① PC 💻 3개와 스위칭 허브 🔀 1개를 드래그해서 올려놓아요.\n② "연결 모드" 버튼을 누르세요.\n③ PC를 클릭 → 허브를 클릭하면 케이블이 연결돼요!\n④ 케이블 종류는 "UTP (노란색)"을 선택하세요.',
+    checks:[
+      {id:'c1',lbl:'PC가 3대 이상 있어요',fn:s=>s.d.filter(d=>d.t==='pc').length>=3},
+      {id:'c2',lbl:'스위칭 허브가 1대 이상 있어요',fn:s=>s.d.filter(d=>d.t==='switch').length>=1},
+      {id:'c3',lbl:'모든 PC가 허브에 연결되어 있어요',fn:s=>{
+        const pcs=s.d.filter(d=>d.t==='pc'),sws=s.d.filter(d=>d.t==='switch');
+        if(!sws.length)return false;
+        return pcs.every(p=>s.c.some(c=>(c.f===p.id&&sws.some(w=>w.id===c.t))||(c.t===p.id&&sws.some(w=>w.id===c.f))));
+      }},
+      {id:'c4',lbl:'UTP 케이블로 연결했어요',fn:s=>s.c.length>0&&s.c.every(c=>c.tp==='utp')},
+    ],
+    ok:'🎉 완벽해요! 스위칭 허브는 각 PC의 MAC 주소를 기억해서 데이터를 딱 목적지에만 보내줘요. 여러분이 진짜 LAN을 만든 거예요!'
+  },
+  { id:1, emoji:'🏢', title:'미션 2 · 학교 인터넷 연결하기', diff:'중급',
+    desc:'컴퓨터실에서 인터넷을 사용하려면\nPC → 스위칭 허브 → 라우터 순서로 연결해요!\n→ 라우터(공유기)가 인터넷으로 나가는 문 역할을 해요.',
+    hint:'① PC 💻 2대+, 스위칭 허브 🔀 1대, 라우터 🗺️ 1대를 올려요.\n② PC들을 허브에 연결하고,\n③ 허브를 라우터에 연결하면 완성이에요!',
+    checks:[
+      {id:'c1',lbl:'PC가 2대 이상 있어요',fn:s=>s.d.filter(d=>d.t==='pc').length>=2},
+      {id:'c2',lbl:'스위칭 허브가 1대 있어요',fn:s=>s.d.filter(d=>d.t==='switch').length>=1},
+      {id:'c3',lbl:'라우터(공유기)가 1대 있어요',fn:s=>s.d.filter(d=>d.t==='router').length>=1},
+      {id:'c4',lbl:'PC가 허브에 연결되어 있어요',fn:s=>{
+        const pcs=s.d.filter(d=>d.t==='pc'),sws=s.d.filter(d=>d.t==='switch');
+        if(!sws.length)return false;
+        return pcs.some(p=>s.c.some(c=>(c.f===p.id&&sws.some(w=>w.id===c.t))||(c.t===p.id&&sws.some(w=>w.id===c.f))));
+      }},
+      {id:'c5',lbl:'허브와 라우터가 연결되어 있어요',fn:s=>{
+        const sws=s.d.filter(d=>d.t==='switch'),rs=s.d.filter(d=>d.t==='router');
+        if(!sws.length||!rs.length)return false;
+        return s.c.some(c=>(sws.some(w=>w.id===c.f)&&rs.some(r=>r.id===c.t))||(rs.some(r=>r.id===c.f)&&sws.some(w=>w.id===c.t)));
+      }},
+    ],
+    ok:'🎉 인터넷 연결 완성! PC → 스위치(MAC 주소 처리) → 라우터(인터넷으로!) 이 흐름이 우리가 매일 쓰는 인터넷의 원리랍니다!'
+  },
+  { id:2, emoji:'🏥', title:'미션 3 · 병원 특수 네트워크', diff:'심화',
+    desc:'병원에는 MRI처럼 강한 전자파를 내뿜는 기계가 있어요.\n건물 사이 연결은 전자파에 영향 받지 않는\n광케이블을 사용해야 해요!\n[조건] PC 2대+, 서버 1대+, 스위치 2대+, 라우터 1대\n허브↔허브 또는 허브↔라우터 사이에 광케이블 사용',
+    hint:'① 스위치 2개를 각각 다른 건물로 생각해요.\n② PC와 서버는 UTP로 스위치에 연결해요.\n③ 스위치 사이 또는 스위치-라우터 사이는\n   광케이블(보라색)로 연결하세요!',
+    checks:[
+      {id:'c1',lbl:'PC가 2대 이상 있어요',fn:s=>s.d.filter(d=>d.t==='pc').length>=2},
+      {id:'c2',lbl:'서버가 1대 이상 있어요',fn:s=>s.d.filter(d=>d.t==='server').length>=1},
+      {id:'c3',lbl:'스위칭 허브가 2대 이상 있어요',fn:s=>s.d.filter(d=>d.t==='switch').length>=2},
+      {id:'c4',lbl:'라우터가 1대 있어요',fn:s=>s.d.filter(d=>d.t==='router').length>=1},
+      {id:'c5',lbl:'광케이블로 연결된 구간이 있어요',fn:s=>s.c.some(c=>c.tp==='fiber')},
+      {id:'c6',lbl:'광케이블은 허브↔허브 또는 허브↔라우터 사이에만 사용',fn:s=>{
+        const sw=s.d.filter(d=>d.t==='switch'),rt=s.d.filter(d=>d.t==='router');
+        return s.c.filter(c=>c.tp==='fiber').every(c=>{
+          const aOk=sw.some(d=>d.id===c.f)||rt.some(d=>d.id===c.f);
+          const bOk=sw.some(d=>d.id===c.t)||rt.some(d=>d.id===c.t);
+          return aOk&&bOk;
+        });
+      }},
+    ],
+    ok:'🎉 병원 네트워크 완성! 광케이블은 빛으로 신호를 전달해서 MRI의 강한 전자기장에도 전혀 영향 받지 않아요. 실제 병원과 데이터센터에서도 이렇게 사용한답니다!'
+  },
+];
+
+// 빌더 상태
+let xDevs=[],xCables=[],xCType='utp',xConnMode=false,xConnFirst=null,xDragEl=null,xDragOX=0,xDragOY=0,xDIdx=0,xMIdx=null,xMDone=[false,false,false];
+
+function xB1Init(){
+  const root=document.getElementById('exp1-root');
+  if(!root||root.dataset.init==='1')return;
+  root.dataset.init='1';
+
+  root.innerHTML=`<div class="xw xbuilder">
+  <!-- 왼쪽 팔레트 -->
+  <div class="xpanel" style="overflow-y:auto;">
+    <div class="xptitle">📦 장비 목록</div>
+    <p style="font-size:13px;color:var(--xdm);margin-bottom:8px;">아래 장비를 캔버스로 드래그해서 올려보세요!</p>
+    ${[['pc','💻','PC(컴퓨터)','데이터 주고받기'],['switch','🔀','스위칭 허브','MAC 주소로 배달'],['router','🗺️','라우터(공유기)','IP로 경로 찾기'],['server','🖥️','서버','데이터 제공']].map(([t,e,n,d])=>`
+    <div class="xdevitem" draggable="true" data-t="${t}" data-e="${e}" data-n="${n}">
+      <span style="font-size:20px;">${e}</span>
+      <div><div style="font-size:13px;font-weight:700;color:#1e293b;">${n}</div><div style="font-size:12px;color:var(--xdm);">${d}</div></div>
+    </div>`).join('')}
+    <div style="border-top:1px solid var(--xbd);margin:10px 0;"></div>
+    <div class="xptitle">🔌 케이블 선택</div>
+    <div class="xcopt sel" onclick="xSelC('utp',this)"><div class="xcdot" style="background:var(--xutp)"></div><div><div style="font-size:13px;font-weight:700;">UTP 케이블</div><div style="font-size:11px;color:var(--xdm);">랜선·100m 이내</div></div></div>
+    <div class="xcopt" onclick="xSelC('coax',this)"><div class="xcdot" style="background:var(--xcox)"></div><div><div style="font-size:13px;font-weight:700;">동축 케이블</div><div style="font-size:11px;color:var(--xdm);">TV선·500m 이내</div></div></div>
+    <div class="xcopt" onclick="xSelC('fiber',this)"><div class="xcdot" style="background:var(--xfib)"></div><div><div style="font-size:13px;font-weight:700;">광케이블</div><div style="font-size:11px;color:var(--xdm);">빛으로 전송·km+</div></div></div>
+  </div>
+  <!-- 캔버스 -->
+  <div id="xcanvas">
+    <div class="xmodelbl" id="xmlbl">📌 장비 배치 모드</div>
+    <svg id="xcsvg"></svg>
+    <div class="xchint" id="xchint"><div class="hi">🖱️</div><p>왼쪽 장비를 드래그해서<br>여기에 올려봐요!</p></div>
+  </div>
+  <!-- 오른쪽 미션 -->
+  <div class="xpanel" style="overflow-y:auto;">
+    <div class="xptitle">🗂️ 미션 선택</div>
+    <div id="xmslist" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;"></div>
+    <div id="xmcard" style="display:none;">
+      <div class="xptitle" style="margin-top:4px;">📋 현재 미션</div>
+      <div style="background:linear-gradient(135deg,#e0f2fe,#f3e8ff);border:1px solid var(--xbd);border-radius:8px;padding:12px;margin-bottom:8px;">
+        <div id="xmemoji" style="font-size:26px;text-align:center;margin-bottom:5px;"></div>
+        <div id="xmtitle" style="font-size:14px;font-weight:700;margin-bottom:5px;color:#1e293b;"></div>
+        <div id="xmdesc" style="font-size:13px;color:#475569;line-height:1.7;white-space:pre-line;"></div>
+      </div>
+      <div style="background:var(--xsf2);border-radius:8px;padding:10px;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;">✅ 달성 조건</div>
+        <div id="xchklist"></div>
+      </div>
+      <div id="xhintbox" style="background:#fefce8;border:1px solid #fde047;border-radius:7px;padding:9px;margin-bottom:8px;display:none;">
+        <div style="font-size:12px;font-weight:700;color:#a16207;margin-bottom:3px;">💡 힌트</div>
+        <div id="xhinttxt" style="font-size:13px;color:#475569;line-height:1.6;white-space:pre-line;"></div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;">
+        <button class="xbtn xbtn-pri" id="xconnbtn" onclick="xTogConn()" style="font-size:13px;padding:7px 11px;">🔗 연결 모드</button>
+        <button class="xbtn xbtn-ol" onclick="xHint()" style="font-size:13px;padding:7px 9px;">💡 힌트</button>
+        <button class="xbtn xbtn-ol" onclick="xClear()" style="font-size:13px;padding:7px 9px;">🗑️ 초기화</button>
+      </div>
+      <button class="xbtn xbtn-ok" style="width:100%;font-size:14px;" onclick="xVerify()">🔍 구성 검사하기</button>
+      <div class="xvres" id="xvres"></div>
+    </div>
+    <div id="xnomission" style="text-align:center;color:var(--xdm);padding:16px 0;font-size:13px;">☝️ 미션을 먼저 골라보세요!</div>
+    <div class="xptitle" style="margin-top:10px;">📜 연결 기록</div>
+    <div class="xlog" id="xblog"><div class="xlogitem i">[시스템] 장비를 배치해주세요!</div></div>
+  </div>
+</div>`;
+
+  // 미션 버튼
+  const list=document.getElementById('xmslist');
+  XM.forEach((m,i)=>{
+    const dc={'기초':'xdb-e','중급':'xdb-m','심화':'xdb-h'}[m.diff];
+    const btn=document.createElement('button');
+    btn.id=`xmsb${i}`; btn.className='xmsbtn';
+    btn.innerHTML=`<span style="font-size:18px;">${m.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${m.title}</div><span class="xdbadge ${dc}">${m.diff}</span></div><span id="xmsc${i}" style="display:${xMDone[i]?'inline':'none'}">✅</span>`;
+    btn.onclick=()=>xSelM(i);
+    list.appendChild(btn);
+  });
+
+  // 드래그
+  root.querySelectorAll('.xdevitem').forEach(item=>{
+    item.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('xt',item.dataset.t);
+      e.dataTransfer.setData('xe',item.dataset.e);
+      e.dataTransfer.setData('xn',item.dataset.n);
+    });
+  });
+  const cv=document.getElementById('xcanvas');
+  cv.addEventListener('dragover',e=>{e.preventDefault();cv.classList.add('xdover');});
+  cv.addEventListener('dragleave',()=>cv.classList.remove('xdover'));
+  cv.addEventListener('drop',e=>{
+    e.preventDefault();cv.classList.remove('xdover');
+    const r=cv.getBoundingClientRect();
+    xSpawn(e.dataTransfer.getData('xt'),e.dataTransfer.getData('xe'),e.dataTransfer.getData('xn'),
+      Math.max(0,e.clientX-r.left-37),Math.max(0,e.clientY-r.top-37));
+  });
+  document.addEventListener('mousemove',xMM);
+  document.addEventListener('mouseup',()=>{xDragEl=null;});
+}
+
+function xSelC(t,el){xCType=t;document.querySelectorAll('.xcopt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');}
+
+function xSelM(i){
+  xMIdx=i; const m=XM[i];
+  document.querySelectorAll('.xmsbtn').forEach((b,j)=>b.style.borderColor=j===i?'var(--xac)':'var(--xbd)');
+  document.getElementById('xnomission').style.display='none';
+  document.getElementById('xmcard').style.display='block';
+  document.getElementById('xmemoji').textContent=m.emoji;
+  document.getElementById('xmtitle').textContent=m.title;
+  document.getElementById('xmdesc').textContent=m.desc;
+  document.getElementById('xhintbox').style.display='none';
+  document.getElementById('xhinttxt').textContent=m.hint;
+  document.getElementById('xvres').style.display='none';
+  xRenderCL(m); xClear(); xLog(`📋 ${m.title} 시작!`,'i');
+}
+
+function xRenderCL(m){
+  const cl=document.getElementById('xchklist'); cl.innerHTML='';
+  m.checks.forEach(c=>{
+    const d=document.createElement('div'); d.className='xchkrow'; d.id='xchr'+c.id;
+    d.innerHTML=`<span id="xchi${c.id}" style="font-size:13px;min-width:16px;">⬜</span><span style="font-size:13px;">${c.lbl}</span>`;
+    cl.appendChild(d);
+  });
+}
+
+function xHint(){const b=document.getElementById('xhintbox');b.style.display=b.style.display==='none'?'block':'none';}
+
+function xSpawn(t,e,n,x,y){
+  document.getElementById('xchint').style.display='none';
+  const id='xd'+(xDIdx++);
+  xDevs.push({id,t,e,n,x,y});
+  const cv=document.getElementById('xcanvas');
+  const el=document.createElement('div');
+  el.className='xdev'; el.id=id; el.style.left=x+'px'; el.style.top=y+'px';
+  el.innerHTML=`<div class="xdel" onclick="xDelD('${id}')">✕</div><div class="ico" id="xico${id}" onclick="xClickD('${id}')">${e}</div><div class="lbl">${n}</div>`;
+  el.addEventListener('mousedown',ev=>{
+    if(xConnMode)return;
+    xDragEl=el;
+    const r=cv.getBoundingClientRect();
+    xDragOX=ev.clientX-r.left-parseInt(el.style.left);
+    xDragOY=ev.clientY-r.top-parseInt(el.style.top);
+  });
+  cv.appendChild(el);
+  xLog(`[추가] ${e} ${n}`,'i');
+  xLiveChk();
+}
+
+function xMM(e){
+  if(!xDragEl)return;
+  const cv=document.getElementById('xcanvas'); if(!cv)return;
+  const r=cv.getBoundingClientRect();
+  let nx=e.clientX-r.left-xDragOX, ny=e.clientY-r.top-xDragOY;
+  nx=Math.max(0,Math.min(nx,r.width-74)); ny=Math.max(0,Math.min(ny,r.height-84));
+  xDragEl.style.left=nx+'px'; xDragEl.style.top=ny+'px';
+  const d=xDevs.find(d=>d.id===xDragEl.id);
+  if(d){d.x=nx;d.y=ny;} xRedraw();
+}
+
+function xClickD(id){
+  if(!xConnMode)return;
+  const ico=document.getElementById('xico'+id);
+  if(!xConnFirst){
+    xConnFirst=id;
+    document.querySelectorAll('#xcanvas .ico').forEach(e=>e.classList.remove('conn'));
+    ico.classList.add('conn');
+    xLog(`연결 시작: ${xDevs.find(d=>d.id===id).n}`,'i');
+  } else {
+    if(xConnFirst===id){xConnFirst=null;ico.classList.remove('conn');return;}
+    xConnectD(xConnFirst,id);
+    xConnFirst=null;
+    document.querySelectorAll('#xcanvas .ico').forEach(e=>e.classList.remove('conn'));
+  }
+}
+
+function xConnectD(a,b){
+  const da=xDevs.find(d=>d.id===a), db=xDevs.find(d=>d.id===b);
+  if(!da||!db)return;
+  if(xCables.find(c=>(c.f===a&&c.t===b)||(c.f===b&&c.t===a))){xLog('이미 연결된 장비예요!','e');return;}
+  xCables.push({f:a,t:b,tp:xCType});
+  xRedraw();
+  xLog(`✅ ${da.n} ↔ ${db.n} [${{utp:'UTP',coax:'동축',fiber:'광케이블'}[xCType]}]`,'s');
+  xLiveChk();
+}
+
+function xRedraw(){
+  const svg=document.getElementById('xcsvg'); if(!svg)return;
+  svg.innerHTML='';
+  xCables.forEach((c,idx)=>{
+    const da=xDevs.find(d=>d.id===c.f), db=xDevs.find(d=>d.id===c.t);
+    if(!da||!db)return;
+    const x1=da.x+37,y1=da.y+29,x2=db.x+37,y2=db.y+29,mx=(x1+x2)/2,my=(y1+y2)/2;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cssText='cursor:pointer;pointer-events:all;';
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x1);ln.setAttribute('y1',y1);ln.setAttribute('x2',x2);ln.setAttribute('y2',y2);
+    ln.classList.add('xcln',`xc${c.tp}`);
+    const hit=document.createElementNS('http://www.w3.org/2000/svg','line');
+    hit.setAttribute('x1',x1);hit.setAttribute('y1',y1);hit.setAttribute('x2',x2);hit.setAttribute('y2',y2);
+    hit.setAttribute('stroke','transparent');hit.setAttribute('stroke-width','14');
+    const xBg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    xBg.setAttribute('cx',mx);xBg.setAttribute('cy',my);xBg.setAttribute('r','9');
+    xBg.setAttribute('fill','#ef4444');xBg.setAttribute('stroke','#fff');xBg.setAttribute('stroke-width','2');
+    xBg.style.opacity='0';xBg.style.transition='opacity 0.15s';
+    const xT=document.createElementNS('http://www.w3.org/2000/svg','text');
+    xT.setAttribute('x',mx);xT.setAttribute('y',my+4);xT.setAttribute('text-anchor','middle');
+    xT.setAttribute('fill','white');xT.setAttribute('font-size','10');xT.setAttribute('pointer-events','none');
+    xT.textContent='✕';xT.style.opacity='0';xT.style.transition='opacity 0.15s';
+    g.append(ln,hit,xBg,xT); svg.appendChild(g);
+    g.addEventListener('mouseenter',()=>{xBg.style.opacity='1';xT.style.opacity='1';ln.setAttribute('stroke-width','5');});
+    g.addEventListener('mouseleave',()=>{xBg.style.opacity='0';xT.style.opacity='0';ln.setAttribute('stroke-width','3');});
+    g.addEventListener('click',()=>{
+      const ca=xDevs.find(d=>d.id===c.f),cb=xDevs.find(d=>d.id===c.t);
+      xCables.splice(idx,1);xRedraw();
+      xLog(`🗑️ ${ca?.n||'?'} ↔ ${cb?.n||'?'} 삭제`,'e'); xLiveChk();
+    });
+  });
+}
+
+function xDelD(id){
+  xCables=xCables.filter(c=>c.f!==id&&c.t!==id);
+  const d=xDevs.find(d=>d.id===id); xDevs=xDevs.filter(d=>d.id!==id);
+  document.getElementById(id)?.remove(); xRedraw();
+  xLog(`[삭제] ${d?.n||'장비'}`,'i');
+  if(xDevs.length===0)document.getElementById('xchint').style.display='block';
+  xLiveChk();
+}
+
+function xClear(){
+  xDevs=[];xCables=[];xDIdx=0;
+  document.querySelectorAll('#xcanvas .xdev').forEach(e=>e.remove());
+  xRedraw();
+  document.getElementById('xchint').style.display='block';
+  document.getElementById('xvres').style.display='none';
+  if(xMIdx!==null)xRenderCL(XM[xMIdx]);
+  xLog('[초기화] 캔버스를 지웠어요','i');
+  if(xConnMode)xTogConn();
+}
+
+function xTogConn(){
+  xConnMode=!xConnMode; xConnFirst=null;
+  const btn=document.getElementById('xconnbtn'),lbl=document.getElementById('xmlbl');
+  if(xConnMode){
+    btn.textContent='✋ 이동 모드로';btn.style.background='linear-gradient(135deg,var(--xac2),#15803d)';
+    lbl.textContent='🔗 연결 모드 — 장비 두 개를 차례로 클릭!'; lbl.classList.add('on');
+  } else {
+    btn.textContent='🔗 연결 모드'; btn.style.background='';
+    lbl.textContent='📌 장비 배치 모드'; lbl.classList.remove('on');
+  }
+}
+
+function xLiveChk(){
+  if(xMIdx===null)return;
+  XM[xMIdx].checks.forEach(c=>{
+    const pass=c.fn({d:xDevs,c:xCables}),ico=document.getElementById('xchi'+c.id);
+    if(!ico)return;
+    ico.textContent=pass?'✅':'⬜';
+    ico.parentElement.style.color=pass?'var(--xok)':'var(--xdm)';
+  });
+}
+
+function xVerify(){
+  if(xMIdx===null)return;
+  const m=XM[xMIdx],st={d:xDevs,c:xCables};
+  let allOk=true;const fails=[];
+  m.checks.forEach(c=>{
+    const pass=c.fn(st),ico=document.getElementById('xchi'+c.id);
+    if(pass){ico.textContent='✅';ico.parentElement.style.color='var(--xok)';}
+    else{ico.textContent='❌';ico.parentElement.style.color='var(--xer)';allOk=false;fails.push(c.lbl);}
+  });
+  const res=document.getElementById('xvres'); res.style.display='block';
+  if(allOk){
+    res.style.cssText='display:block;background:#f0fdf4;border:1px solid var(--xok);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;color:#15803d;margin-top:10px;';
+    res.textContent=m.ok;
+    if(!xMDone[xMIdx]){xMDone[xMIdx]=true;const sc=document.getElementById(`xmsc${xMIdx}`);if(sc)sc.style.display='inline';}
+  } else {
+    res.style.cssText='display:block;background:#fef2f2;border:1px solid var(--xer);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;color:#dc2626;margin-top:10px;';
+    res.innerHTML='❌ 아직 조건이 다 채워지지 않았어요!<br><br>'+fails.map(f=>`• ${f}`).join('<br>')+'<br><br>💡 힌트 버튼을 눌러봐요!';
+  }
+}
+
+function xLog(msg,t=''){
+  const log=document.getElementById('xblog'); if(!log)return;
+  const ts=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const d=document.createElement('div'); d.className='xlogitem '+t; d.textContent=`[${ts}] ${msg}`;
+  log.insertBefore(d,log.firstChild);
+}
+
+/* ──────────────────────────────────────────
+   체험2: 케이블 선택 미션
+────────────────────────────────────────── */
+const XMS=[
+  {n:1,diff:'기초',emoji:'🏫',sc:'교실 안 컴퓨터 30대를 연결하고 싶어요',
+   desc:'한 교실 안(50m 이내)에서 컴퓨터 30대를 스위칭 허브에 연결하려고 해요. 어떤 케이블이 알맞을까요?',
+   ch:['UTP 케이블 (랜선)','동축 케이블','광케이블','HDMI 케이블'],cor:0,
+   expl:'✅ 정답! 교실처럼 짧은 거리(100m 이내)에는 UTP 케이블(랜선)이 딱이에요. 저렴하고 설치도 쉬워서 학교나 집에서 가장 많이 쓴답니다!'},
+  {n:2,diff:'기초',emoji:'📺',sc:'집에서 케이블 TV를 연결하려 해요',
+   desc:'TV 뒤에 꽂는 둥근 나사 모양의 케이블은 무엇일까요?',
+   ch:['UTP 케이블','동축 케이블','광케이블','USB 케이블'],cor:1,
+   expl:'✅ 정답! TV 뒤쪽에 꽂는 둥근 케이블이 바로 동축 케이블이에요. 중심선 주위를 금속망이 감싸고 있어서 전파 간섭에 강하답니다!'},
+  {n:3,diff:'중급',emoji:'🏢',sc:'운동장 너머 다른 건물과 연결해야 해요 (200m)',
+   desc:'운동장을 사이에 두고 200m 떨어진 두 건물을 연결해요. UTP 최대 거리는 100m인데, 뭘 써야 할까요?',
+   ch:['UTP 케이블','동축 케이블','광케이블','두꺼운 UTP 케이블'],cor:2,
+   expl:'✅ 정답! 광케이블은 수십 km까지 전송할 수 있어요. 200m는 거뜬히 커버! 전파 간섭도 없어서 건물 간 연결에 딱이에요!'},
+  {n:4,diff:'중급',emoji:'🌊',sc:'한국과 일본 사이 바닷속을 연결해요',
+   desc:'한국~일본 수백 km의 바닷속으로 인터넷 케이블을 설치하려고 해요. 어떤 케이블이 필요할까요?',
+   ch:['아주 두꺼운 UTP 케이블','동축 케이블','광케이블','무선(와이파이)'],cor:2,
+   expl:'✅ 정답! 나라와 나라를 잇는 해저 케이블은 광케이블이에요. 실제로 한국~일본, 한국~미국을 잇는 해저 광케이블이 있답니다!'},
+  {n:5,diff:'심화',emoji:'🏗️',sc:'데이터센터 서버 수천 대를 초고속으로 연결해요',
+   desc:'네이버·카카오 같은 회사의 데이터센터에서 서버 수천 대를 10Gbps 이상 속도로 연결해야 해요.',
+   ch:['Cat5e UTP 케이블','Cat6 UTP 케이블','동축 케이블','광케이블 (단거리용)'],cor:3,
+   expl:'✅ 정답! 데이터센터에서는 단거리 광케이블을 써요. 100Gbps+ 속도를 지원하고 전파 간섭도 없어서 대규모 서버 연결에 꼭 필요해요!'},
+  {n:6,diff:'심화',emoji:'🚑',sc:'병원 — MRI·CT 전자파가 심한 환경',
+   desc:'MRI, CT처럼 강한 전자기장을 내뿜는 병원 환경에서도 안전하게 작동하는 케이블은 무엇일까요?',
+   ch:['UTP 케이블','STP 케이블 (차폐 UTP)','동축 케이블','광케이블'],cor:3,
+   expl:'✅ 정답! 광케이블은 빛을 사용해서 어떤 전자파 간섭도 받지 않아요. 병원처럼 전자파가 심한 곳에서 가장 안전한 선택이랍니다!'},
+];
+let xMSolved=new Array(XMS.length).fill(false);
+
+function xB2Init(){
+  const root=document.getElementById('exp2-root');
+  if(!root||root.dataset.init==='1')return;
+  root.dataset.init='1';
+  root.innerHTML=`<div class="xw">
+    <div class="xmbanner" id="xmbanner">
+      <div style="font-size:16px;font-weight:700;color:#15803d;">🎉 6개 미션 모두 완료! 케이블 선택 전문가예요!</div>
+    </div>
+    <div class="xmgrid" id="xmgrid"></div>
+  </div>`;
+  const grid=document.getElementById('xmgrid');
+  XMS.forEach((m,i)=>{
+    const dc={'기초':'xdb-e','중급':'xdb-m','심화':'xdb-h'}[m.diff];
+    const card=document.createElement('div');
+    card.className='xmcard'; card.id=`xmc${i}`;
+    card.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.5px;color:var(--xdm);">MISSION ${m.n}</div>
+        <span class="xdbadge ${dc}">${m.diff}</span>
+      </div>
+      <div style="font-size:30px;text-align:center;margin-bottom:8px;">${m.emoji}</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px;color:#1e293b;">${m.sc}</div>
+      <div style="font-size:13px;color:#475569;margin-bottom:12px;line-height:1.6;">${m.desc}</div>
+      <div id="xmch${i}">${m.ch.map((c,j)=>`<button class="xchoice" onclick="xMChoose(${i},${j},this)"><span>${['🟡','🟠','🟣','🔵'][j]}</span>${c}</button>`).join('')}</div>
+      <div class="xmres" id="xmr${i}"></div>`;
+    grid.appendChild(card);
+  });
+}
+
+function xMChoose(mi,ci,el){
+  if(xMSolved[mi])return;
+  const m=XMS[mi],card=document.getElementById(`xmc${mi}`),res=document.getElementById(`xmr${mi}`);
+  card.querySelectorAll('.xchoice').forEach(b=>b.disabled=true);
+  if(ci===m.cor){
+    el.classList.add('right');
+    res.className='xmres show ok'; res.textContent=m.expl;
+    card.classList.add('solved'); xMSolved[mi]=true;
+    if(xMSolved.every(v=>v))document.getElementById('xmbanner').classList.add('show');
+  } else {
+    el.classList.add('wrong');
+    card.querySelectorAll('.xchoice')[m.cor].classList.add('right');
+    res.className='xmres show ng'; res.textContent='❌ 틀렸어요! 초록색이 정답이에요. '+m.expl;
+    card.classList.add('shk'); setTimeout(()=>card.classList.remove('shk'),400);
+  }
+}
+
+/* ──────────────────────────────────────────
+   체험3: 패킷 전송
+────────────────────────────────────────── */
+const XSC=[
+  { name:'같은 네트워크 전송',
+    nodes:[
+      {id:'pc1',e:'💻',l:'PC A (송신)',a:'192.168.1.10\nMAC: AA:BB:11:22:33:44',x:20,y:110},
+      {id:'sw1',e:'🔀',l:'스위칭 허브',a:'MAC 테이블 보유',x:210,y:110},
+      {id:'pc2',e:'💻',l:'PC B (수신)',a:'192.168.1.20\nMAC: CC:DD:55:66:77:88',x:405,y:30},
+      {id:'pc3',e:'💻',l:'PC C (무관)',a:'192.168.1.30\nMAC: EE:FF:99:88:77:66',x:405,y:195},
+    ],
+    links:[['pc1','sw1'],['sw1','pc2'],['sw1','pc3']],
+    steps:[
+      {node:'pc1',msg:'[1] PC A가 PC B에게 보낼 패킷을 만들어요\n목적지 IP: 192.168.1.20 / MAC: CC:DD:55:66:77:88'},
+      {node:'pc1',msg:'[2] PC A → 스위칭 허브로 패킷 전달 (UTP 케이블)'},
+      {node:'sw1',msg:'[3] 스위칭 허브가 MAC 주소 테이블을 확인해요\nCC:DD:55:66:77:88 → 포트 2 (PC B 방향)'},
+      {node:'sw1',msg:'[4] ⚡ 포트 2(PC B)에만 전달! PC C는 차단!\n→ 이것이 스위칭 허브의 핵심!',blk:'pc3'},
+      {node:'pc2',msg:'[5] ✅ PC B 수신 성공! PC C는 받지 못했어요.'},
+    ],
+    si:'192.168.1.10',sm:'AA:BB:11:22:33:44',di:'192.168.1.20',dm:'CC:DD:55:66:77:88',
+    path:['pc1','sw1','pc2'],bat:3,bn:'pc3'
+  },
+  { name:'인터넷 접속',
+    nodes:[
+      {id:'pc1',e:'💻',l:'내 PC',a:'192.168.1.5\nAA:BB:CC:01:02:03',x:20,y:120},
+      {id:'sw1',e:'🔀',l:'스위치',a:'',x:180,y:120},
+      {id:'rtr',e:'🗺️',l:'라우터(공유기)',a:'192.168.1.1\n공인IP: 203.0.113.5',x:345,y:120},
+      {id:'net',e:'🌐',l:'인터넷',a:'203.0.113.0/24',x:500,y:120},
+    ],
+    links:[['pc1','sw1'],['sw1','rtr'],['rtr','net']],
+    steps:[
+      {node:'pc1',msg:'[1] 구글(8.8.8.8) 접속 요청 패킷을 만들어요'},
+      {node:'sw1',msg:'[2] 스위치: MAC 주소 확인 → 라우터 포트로 전달'},
+      {node:'rtr',msg:'[3] 라우터: 목적지가 인터넷 (외부 네트워크)!'},
+      {node:'rtr',msg:'[4] NAT 변환: 192.168.1.5 → 공인IP 203.0.113.5\n(인터넷 출입증 발급!)'},
+      {node:'net',msg:'[5] ✅ 인터넷으로 전송 완료! 구글 서버로 향해요~'},
+    ],
+    si:'192.168.1.5',sm:'AA:BB:CC:01:02:03',di:'8.8.8.8',dm:'(라우터 MAC)',
+    path:['pc1','sw1','rtr','net']
+  },
+  { name:'서버 요청 (왕복)',
+    nodes:[
+      {id:'pc1',e:'💻',l:'클라이언트',a:'192.168.0.10\nMAC: 11:22:33:AA:BB:CC',x:20,y:120},
+      {id:'sw1',e:'🔀',l:'스위칭 허브',a:'MAC 테이블 보유',x:210,y:120},
+      {id:'sv1',e:'🖥️',l:'웹 서버',a:'192.168.0.100\nMAC: 44:55:66:DD:EE:FF',x:405,y:35},
+      {id:'sv2',e:'🗄️',l:'DB 서버',a:'192.168.0.200\nMAC: 77:88:99:AA:BB:CC',x:405,y:205},
+    ],
+    links:[['pc1','sw1'],['sw1','sv1'],['sw1','sv2']],
+    steps:[
+      {node:'pc1',msg:'[요청1] 클라이언트 → 스위치: 웹 서버 접속 요청'},
+      {node:'sw1',msg:'[요청2] 스위치: MAC 테이블 조회 → 웹 서버 포트로 전달'},
+      {node:'sv1',msg:'[요청3] 웹 서버 수신! HTML 페이지 준비 중...'},
+      {node:'sv1',msg:'[응답1] 웹 서버 → 스위치: 응답 패킷 전송\n(목적지: 클라이언트 11:22:33:AA:BB:CC)'},
+      {node:'sw1',msg:'[응답2] 스위치: MAC 테이블 조회 → 클라이언트 포트로 전달'},
+      {node:'pc1',msg:'[응답3] ✅ 클라이언트 수신 완료! 웹 페이지 표시!'},
+    ],
+    si:'192.168.0.10',sm:'11:22:33:AA:BB:CC',di:'192.168.0.100',dm:'44:55:66:DD:EE:FF',
+    path:['pc1','sw1','sv1','sw1','pc1']
+  },
+];
+let xPIdx=0,xPAnim=false;
+
+function xB3Init(){
+  const root=document.getElementById('exp3-root');
+  if(!root||root.dataset.init==='1')return;
+  root.dataset.init='1';
+  root.innerHTML=`<div class="xw xpwrap">
+    <div class="xpanel">
+      <div style="margin-bottom:10px;">
+    <p style="font-size:13px;color:var(--xdm);margin-bottom:6px;">시나리오를 골라보세요:</p>
+        <div>
+          <button class="xscbtn act" onclick="xPSel(0,this)">🏠 같은 네트워크</button>
+          <button class="xscbtn" onclick="xPSel(1,this)">🌐 인터넷 접속</button>
+          <button class="xscbtn" onclick="xPSel(2,this)">🖥️ 서버 요청(왕복)</button>
+        </div>
+      </div>
+      <div class="xndiag" id="xndiag"><svg id="xpsvg"></svg></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="xpanel">
+        <div class="xptitle">📦 패킷 정보</div>
+        <div class="xpbox"><div class="xlbl">송신 정보</div>
+          <div class="xpaf"><span class="xpak">출발 IP</span><span class="xpav" id="xsrci">-</span></div>
+          <div class="xpaf"><span class="xpak">출발 MAC</span><span class="xpav" id="xsrcm">-</span></div>
+        </div>
+        <div class="xpbox"><div class="xlbl">수신 정보</div>
+          <div class="xpaf"><span class="xpak">목적지 IP</span><span class="xpav" id="xdsti">-</span></div>
+          <div class="xpaf"><span class="xpak">목적지 MAC</span><span class="xpav" id="xdstm">-</span></div>
+        </div>
+        <button class="xbtn xbtn-ok" style="width:100%;margin-top:6px;font-size:14px;" onclick="xPSend()" id="xsendbtn">▶ 패킷 전송 시작</button>
+      </div>
+      <div class="xpanel">
+        <div class="xptitle">📋 전송 단계</div>
+        <div class="xsteplog" id="xsteplog"><div class="xstepitem">▶ 버튼을 누르면 시작돼요!</div></div>
+      </div>
+    </div>
+  </div>`;
+  xPRender(); xPInfo();
+}
+
+function xPSel(i,el){xPIdx=i;document.querySelectorAll('.xscbtn').forEach(b=>b.classList.remove('act'));el.classList.add('act');xPRender();xPClearLog();xPInfo();}
+function xPInfo(){const s=XSC[xPIdx];document.getElementById('xsrci').textContent=s.si;document.getElementById('xsrcm').textContent=s.sm;document.getElementById('xdsti').textContent=s.di;document.getElementById('xdstm').textContent=s.dm;}
+
+function xPRender(){
+  const s=XSC[xPIdx],diag=document.getElementById('xndiag');
+  if(!diag)return;
+  diag.querySelectorAll('.xnnode').forEach(e=>e.remove());
+  const svg=document.getElementById('xpsvg'); svg.innerHTML='';
+  s.links.forEach(([a,b])=>{
+    const na=s.nodes.find(n=>n.id===a),nb=s.nodes.find(n=>n.id===b);
+    if(!na||!nb)return;
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',na.x+29);ln.setAttribute('y1',na.y+29);ln.setAttribute('x2',nb.x+29);ln.setAttribute('y2',nb.y+29);
+    ln.classList.add('xncable'); svg.appendChild(ln);
+  });
+  s.nodes.forEach(nd=>{
+    const el=document.createElement('div');
+    el.className='xnnode'; el.id='xpn'+nd.id;
+    el.style.left=nd.x+'px'; el.style.top=nd.y+'px';
+    el.innerHTML=`<div class="nb">${nd.e}</div><div class="nl">${nd.l}</div>${nd.a?`<div class="na">${nd.a.replace('\n','<br>')}</div>`:''}`;
+    diag.appendChild(el);
+  });
+}
+
+function xPClearLog(){const l=document.getElementById('xsteplog');if(l)l.innerHTML='<div class="xstepitem">▶ 버튼을 누르면 시작돼요!</div>';}
+
+async function xPSend(){
+  if(xPAnim)return; xPAnim=true;
+  const btn=document.getElementById('xsendbtn'); btn.disabled=true; btn.textContent='📡 전송 중...';
+  const s=XSC[xPIdx],log=document.getElementById('xsteplog'); log.innerHTML='';
+  document.querySelectorAll('.xnnode').forEach(n=>{n.classList.remove('act','snd','blk');n.querySelector('.xblkmark')?.remove();});
+  for(let i=0;i<s.steps.length;i++){
+    const step=s.steps[i],nEl=document.getElementById('xpn'+step.node);
+    document.querySelectorAll('.xnnode').forEach(n=>n.classList.remove('act','snd'));
+    if(nEl)nEl.classList.add(i===0?'snd':'act');
+    if(s.bat===i&&s.bn){
+      const bEl=document.getElementById('xpn'+s.bn);
+      if(bEl){bEl.classList.add('blk');const mk=document.createElement('div');mk.className='xblkmark';mk.textContent='🚫 차단';bEl.appendChild(mk);}
+    }
+    const item=document.createElement('div');
+    item.className='xstepitem act xfadein'; item.textContent=step.msg;
+    log.insertBefore(item,log.firstChild);
+    if(i<s.path.length-1)await xPAn(s.nodes,s.path[i],s.path[i+1]);
+    await new Promise(r=>setTimeout(r,700));
+  }
+  xPAnim=false; btn.disabled=false; btn.textContent='▶ 패킷 전송 시작';
+}
+
+function xPAn(nodes,fid,tid){
+  return new Promise(resolve=>{
+    const svg=document.getElementById('xpsvg');
+    const na=nodes.find(n=>n.id===fid),nb=nodes.find(n=>n.id===tid);
+    if(!na||!nb){resolve();return;}
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',na.x+29);c.setAttribute('cy',na.y+29);c.setAttribute('r','7');
+    c.classList.add('xpkt'); svg.appendChild(c);
+    const dx=(nb.x+29)-(na.x+29),dy=(nb.y+29)-(na.y+29),dur=650;let st=null;
+    function step(ts){
+      if(!st)st=ts; const p=Math.min((ts-st)/dur,1);
+      c.setAttribute('cx',(na.x+29)+dx*p); c.setAttribute('cy',(na.y+29)+dy*p);
+      if(p<1)requestAnimationFrame(step); else{c.remove();resolve();}
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ──────────────────────────────────────────
+   탭 전환 감지 → 체험 초기화
+────────────────────────────────────────── */
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('button');
+  if (btn && btn.textContent.includes('직접 체험하기')) {
+    setTimeout(() => { xB1Init(); xB2Init(); xB3Init(); }, 150);
+  }
+});
+</script>
 </body>
 </html>
