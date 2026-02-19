@@ -429,7 +429,7 @@
     <div class="intro-grid">
       <div class="intro-card">
         <h4 style="color:#0f766e">
-          <span id="plugEmoji" style="cursor:pointer;display:inline-block;transition:transform 0.2s" onmouseenter="this.style.transform='scale(1.25)'" onmouseleave="this.style.transform='scale(1)'">🔌</span> 케이블
+          <span id="plugEmoji" style="cursor:pointer;display:inline-block;transition:transform 0.2s" onmouseenter="this.style.transform='scale(1.25)'" onmouseleave="this.style.transform='scale(1)'" onclick="(function(e){var t=document.getElementById('tooltip');t.style.left=(e.clientX+10)+'px';t.style.top=(e.clientY+10)+'px';t.style.display='block';setTimeout(function(){t.style.display='none';},500);})( event)">🔌</span> 케이블
         </h4>
         <p>데이터가 이동하는 <strong>물리적 통로</strong></p>
       </div>
@@ -576,7 +576,7 @@
 </div><!-- /container -->
 
 <!-- 툴팁 -->
-<div class="tooltip-box" id="tooltip" style="display:none">참새다! 🐦</div>
+<div class="tooltip-box" id="tooltip" style="display:none">참새다!</div>
 
 <script>
 /* ══════════════════════════════════════════════
