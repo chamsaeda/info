@@ -64,6 +64,66 @@
         return parts.join('+') + ' = ' + total;
       };
 
+      // ── 퀴즈 state ──
+      const [quizAnswers, setQuizAnswers] = useState({});
+      const [showQuizResult, setShowQuizResult] = useState(false);
+
+      const quizData = [
+        {
+          id: 1,
+          question: '비트(bit)는 무엇의 줄임말인가요?',
+          options: ['Binary Integer', 'Binary Digit', 'Byte In Total', 'Basic Input Terminal'],
+          correct: 1,
+          explanation: 'bit는 Binary Digit(이진 숫자)의 줄임말이에요. 0 또는 1, 딱 두 가지 값만 가질 수 있는 컴퓨터 데이터의 가장 작은 단위랍니다!'
+        },
+        {
+          id: 2,
+          question: '1바이트(byte)로 표현할 수 있는 경우의 수는 총 몇 가지인가요?',
+          options: ['8가지', '16가지', '128가지', '256가지'],
+          correct: 3,
+          explanation: '1바이트 = 8비트이므로 2⁸ = 2×2×2×2×2×2×2×2 = 256가지를 표현할 수 있어요. 이 256가지로 영어 대소문자, 숫자, 특수문자를 모두 담을 수 있답니다!'
+        },
+        {
+          id: 3,
+          question: '1KB(킬로바이트)는 정확히 몇 바이트인가요?',
+          options: ['100바이트', '1,000바이트', '1,024바이트', '10,000바이트'],
+          correct: 2,
+          explanation: '1KB = 1,024바이트예요. 1,000이 아니라 1,024인 이유는 컴퓨터가 2진법을 사용하기 때문이에요. 2¹⁰ = 1,024이 가장 가까운 단위가 되는 거죠!'
+        },
+        {
+          id: 4,
+          question: '1비트(bit)가 가질 수 있는 값으로 올바른 것은?',
+          options: ['0, 1, 2 세 가지 값', '0 또는 1, 두 가지 값만', '0부터 255까지', '1부터 8까지'],
+          correct: 1,
+          explanation: '비트는 전기가 흐르면 1(On), 흐르지 않으면 0(Off), 딱 두 가지 상태만 가질 수 있어요. 이 단순함 덕분에 컴퓨터 회로가 안정적으로 동작할 수 있답니다!'
+        },
+        {
+          id: 5,
+          question: '데이터 크기를 작은 것부터 큰 순서로 올바르게 나열한 것은?',
+          options: [
+            'MB → KB → GB → TB',
+            'bit → byte → KB → MB → GB → TB',
+            'byte → bit → KB → MB',
+            'KB → MB → bit → byte'
+          ],
+          correct: 1,
+          explanation: '올바른 순서는 bit(비트) → byte(바이트) → KB(킬로바이트) → MB(메가바이트) → GB(기가바이트) → TB(테라바이트)예요. 각 단계마다 1,024배씩 커진답니다!'
+        }
+      ];
+
+      const handleQuizAnswer = (questionId, selectedOption) => {
+        setQuizAnswers(prev => ({...prev, [questionId]: selectedOption}));
+      };
+
+      const calculateScore = () => {
+        return quizData.filter(q => quizAnswers[q.id] === q.correct).length;
+      };
+
+      const resetQuiz = () => {
+        setQuizAnswers({});
+        setShowQuizResult(false);
+      };
+
       const handleEmojiClick = () => {
         setShowSecret(true);
         setTimeout(() => {
@@ -334,7 +394,7 @@
                         animation: 'bounceOnce 0.5s ease-in-out'
                       }}
                     >
-                      참새다!
+                      {"\uCC38\uC0C8"}
                     </span>
                   )}
                 </span>
@@ -358,6 +418,101 @@
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* ── 퀴즈 섹션 ── */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
+              <h3 className="text-lg font-bold text-purple-900 mb-1">🎯 배운 내용 확인하기</h3>              
+
+              {!showQuizResult ? (
+                <div className="space-y-6">
+                  {quizData.map((quiz, qIdx) => (
+                    <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                      <h4 className="font-bold text-gray-800 mb-4">
+                        Q{qIdx + 1}. {quiz.question}
+                      </h4>
+                      <div className="space-y-2">
+                        {quiz.options.map((option, oIdx) => {
+                          const answered = quizAnswers[quiz.id] !== undefined;
+                          const isSelected = quizAnswers[quiz.id] === oIdx;
+                          const isCorrect = quiz.correct === oIdx;
+                          let cls = 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                          if (answered) {
+                            if (isCorrect) cls = 'bg-green-100 border-green-400';
+                            else if (isSelected) cls = 'bg-red-100 border-red-400';
+                            else cls = 'bg-gray-50 border-gray-200';
+                          }
+                          return (
+                            <button
+                              key={oIdx}
+                              onClick={() => handleQuizAnswer(quiz.id, oIdx)}
+                              disabled={answered}
+                              className={`w-full text-left p-3 rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            >
+                              {oIdx + 1}. {option}
+                              {answered && isCorrect && (
+                                <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
+                              )}
+                              {answered && isSelected && !isCorrect && (
+                                <span className="ml-2 text-red-600 font-bold">✗</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {quizAnswers[quiz.id] !== undefined && (
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-bold text-blue-600">설명: </span>{quiz.explanation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {Object.keys(quizAnswers).length === quizData.length && (
+                    <button
+                      onClick={() => setShowQuizResult(true)}
+                      className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                    >
+                      🏁 결과 확인하기
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                    <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
+                    <div className="text-6xl font-bold text-indigo-600 mb-4">
+                      {calculateScore()} / {quizData.length}
+                    </div>
+                    <p className="text-lg text-gray-700">
+                      {calculateScore() === quizData.length
+                        ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+                        : calculateScore() >= Math.ceil(quizData.length * 0.7)
+                        ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍'
+                        : '다시 한 번 복습해보세요! 💪'}
+                    </p>
+                  </div>
+                  <div className="text-left space-y-3 mb-6">
+                    {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
+                      <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
+                        <p className="text-sm text-gray-700">
+                          <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={resetQuiz}
+                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                  >
+                    🔄 다시 풀기
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 text-center">
