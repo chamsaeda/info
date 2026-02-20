@@ -40,6 +40,76 @@
       const [keyButtonChar, setKeyButtonChar] = useState('?');
       const [showTooltip, setShowTooltip] = useState(false);
 
+      // ── 퀴즈 state ──
+      const [quizAnswers, setQuizAnswers] = useState({});
+      const [showQuizResult, setShowQuizResult] = useState(false);
+
+      const quizData = [
+        {
+          id: 1,
+          question: '컴퓨터가 이진수(0과 1)를 사용하는 가장 큰 이유는 무엇인가요?',
+          options: [
+            '숫자가 두 개라서 계산이 쉽기 때문에',
+            '전기의 ON(켜짐)과 OFF(꺼짐) 두 가지 상태만 구분할 수 있기 때문에',
+            '이진수가 십진수보다 빠르게 전송되기 때문에',
+            '사람이 읽기 더 편리하기 때문에'
+          ],
+          correct: 1,
+          explanation: '컴퓨터 내부 회로는 전기가 흐르는 상태(1, ON)와 흐르지 않는 상태(0, OFF)만 구분할 수 있어요. 그래서 모든 데이터를 0과 1로 표현하는 이진수를 사용합니다!'
+        },
+        {
+          id: 2,
+          question: '8개의 비트(bit)로 만들 수 있는 조합은 총 몇 가지인가요?',
+          options: ['8가지', '16가지', '128가지', '256가지'],
+          correct: 3,
+          explanation: '2×2×2×2×2×2×2×2 = 2⁸ = 256가지입니다. 이 256가지 조합으로 영어 대소문자, 숫자, 특수문자를 모두 표현할 수 있어요!'
+        },
+        {
+          id: 3,
+          question: '8비트(bit)를 묶어서 부르는 단위는 무엇인가요?',
+          options: ['킬로바이트(KB)', '바이트(Byte)', '워드(Word)', '니블(Nibble)'],
+          correct: 1,
+          explanation: '8비트(bit)를 묶으면 1바이트(Byte)가 됩니다. 컴퓨터에서 데이터 용량을 표현할 때 가장 기본이 되는 단위예요!'
+        },
+        {
+          id: 4,
+          question: "키보드에서 'A'를 누를 때 발생하는 신호 처리 순서로 올바른 것은?",
+          options: [
+            '모니터 출력 → 전기 신호 → 컴퓨터 처리 → 키보드 입력',
+            '전기 신호 → 키보드 입력 → 모니터 출력 → 컴퓨터 처리',
+            '키보드 입력 → 전기 신호 → 컴퓨터 처리 → 모니터 출력',
+            '컴퓨터 처리 → 키보드 입력 → 전기 신호 → 모니터 출력'
+          ],
+          correct: 2,
+          explanation: '키보드 키를 누르면 → 전기 신호가 발생하고 → 컴퓨터 CPU가 이진수로 해석한 뒤 → 모니터에 문자가 출력됩니다. 이 순서가 매우 빠르게 일어나서 우리 눈에는 즉각적으로 보여요!'
+        },
+        {
+          id: 5,
+          question: '한글을 컴퓨터에서 표현할 때 영어보다 더 많은 비트가 필요한 이유는?',
+          options: [
+            '한글이 더 복잡하게 생겼기 때문에',
+            '한글 글자 수가 영어보다 훨씬 많아서 8비트(256가지)로는 부족하기 때문에',
+            '한국 컴퓨터가 구형이기 때문에',
+            '한글은 가로로 쓰기 때문에'
+          ],
+          correct: 1,
+          explanation: '영어는 대소문자 합쳐 52자 정도라 8비트(256가지)로 충분하지만, 한글은 자음·모음 조합으로 수천 개의 글자가 만들어져요. 그래서 16비트(2바이트) 이상을 사용하는 유니코드(Unicode) 방식이 필요합니다!'
+        }
+      ];
+
+      const handleQuizAnswer = (questionId, selectedOption) => {
+        setQuizAnswers(prev => ({...prev, [questionId]: selectedOption}));
+      };
+
+      const calculateScore = () => {
+        return quizData.filter(q => quizAnswers[q.id] === q.correct).length;
+      };
+
+      const resetQuiz = () => {
+        setQuizAnswers({});
+        setShowQuizResult(false);
+      };
+
       const bitWidth = 40;
       const highY = 40;
       const lowY = 80;
@@ -340,7 +410,7 @@
                     🔢
                     {showTooltip && (
                       <span className="absolute left-1/2 -translate-x-1/2 -top-10 bg-blue-400 text-gray-900 px-3 py-1 rounded-lg text-sm font-bold whitespace-nowrap shadow-lg animate-bounce">
-                        참새다!
+                        {"\uCC38\uC0C8"}
                       </span>
                     )}
                   </span>
@@ -423,6 +493,106 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* ── 퀴즈 섹션 ── */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
+              <h3 className="text-lg font-bold text-purple-900 mb-1">🎯 배운 내용 확인하기</h3>
+              <p className="text-sm text-gray-500 mb-5">총 {quizData.length}문제를 풀어보세요!</p>
+
+              {!showQuizResult ? (
+                <div className="space-y-6">
+                  {quizData.map((quiz, qIdx) => (
+                    <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                      <h4 className="font-bold text-gray-800 mb-4">
+                        Q{qIdx + 1}. {quiz.question}
+                      </h4>
+                      <div className="space-y-2">
+                        {quiz.options.map((option, oIdx) => {
+                          const answered = quizAnswers[quiz.id] !== undefined;
+                          const isSelected = quizAnswers[quiz.id] === oIdx;
+                          const isCorrect = quiz.correct === oIdx;
+                          let cls = 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                          if (answered) {
+                            if (isCorrect) cls = 'bg-green-100 border-green-400';
+                            else if (isSelected) cls = 'bg-red-100 border-red-400';
+                            else cls = 'bg-gray-50 border-gray-200';
+                          }
+                          return (
+                            <button
+                              key={oIdx}
+                              onClick={() => handleQuizAnswer(quiz.id, oIdx)}
+                              disabled={answered}
+                              className={`w-full text-left p-3 rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            >
+                              {oIdx + 1}. {option}
+                              {answered && isCorrect && (
+                                <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
+                              )}
+                              {answered && isSelected && !isCorrect && (
+                                <span className="ml-2 text-red-600 font-bold">✗</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {quizAnswers[quiz.id] !== undefined && (
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-bold text-blue-600">설명: </span>{quiz.explanation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {Object.keys(quizAnswers).length === quizData.length && (
+                    <button
+                      onClick={() => setShowQuizResult(true)}
+                      className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                    >
+                      🏁 결과 확인하기
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                    <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
+                    <div className="text-6xl font-bold text-indigo-600 mb-4">
+                      {calculateScore()} / {quizData.length}
+                    </div>
+                    <p className="text-lg text-gray-700">
+                      {calculateScore() === quizData.length
+                        ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+                        : calculateScore() >= quizData.length * 0.7
+                        ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍'
+                        : '다시 한 번 복습해보세요! 💪'}
+                    </p>
+                  </div>
+
+                  {/* 오답 해설 */}
+                  <div className="text-left space-y-3 mb-6">
+                    {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
+                      <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
+                        <p className="text-sm text-gray-700">
+                          <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={resetQuiz}
+                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                  >
+                    🔄 다시 풀기
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 text-center">
