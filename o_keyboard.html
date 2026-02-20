@@ -241,6 +241,52 @@
     }
     .light.on  { background: #fbbf24; border-color: #d97706; box-shadow: 0 0 8px rgba(251,191,36,0.7); color: #78350f; }
     .light.off { background: #7dd3fc; border-color: #0284c7; color: #0c4a6e; }
+
+    /* ── 퀴즈 스타일 ── */
+    .quiz-section { background: linear-gradient(to right, #faf5ff, #fdf2f8); padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #e9d5ff; margin-top: 1.5rem; }
+    .quiz-title   { font-size: 1.125rem; font-weight: 700; color: #581c87; margin-bottom: 0.25rem; }
+    .quiz-subtitle{ font-size: 0.875rem; color: #6b7280; margin-bottom: 1.25rem; }
+    .quiz-card    { background: #fff; padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+    .quiz-q       { font-weight: 700; color: #1f2937; margin-bottom: 1rem; line-height: 1.5; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quiz-btn {
+      width: 100%; text-align: left; padding: 0.75rem; border-radius: 0.5rem;
+      border: 2px solid #e5e7eb; background: #f9fafb;
+      font-family: inherit; font-size: 0.875rem; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .quiz-btn:hover:not(:disabled) { background: #f3f4f6; }
+    .quiz-btn:disabled { cursor: not-allowed; }
+    .quiz-btn.correct { background: #dcfce7; border-color: #4ade80; }
+    .quiz-btn.wrong   { background: #fee2e2; border-color: #f87171; }
+    .quiz-explanation { margin-top: 1rem; padding: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; font-size: 0.875rem; color: #374151; display: none; }
+    .quiz-explanation.show { display: block; }
+    .quiz-submit {
+      width: 100%; padding: 1rem; margin-top: 0.5rem;
+      background: linear-gradient(to right, #4f46e5, #9333ea);
+      color: #fff; font-weight: 700; font-size: 1rem;
+      border: none; border-radius: 0.5rem; cursor: pointer;
+      transition: opacity 0.15s; display: none;
+    }
+    .quiz-submit:hover { opacity: 0.9; }
+    .quiz-result { text-align: center; display: none; }
+    .quiz-result.show { display: block; }
+    .quiz-score-box { background: linear-gradient(to right, #f0fdf4, #ecfdf5); padding: 2rem; border-radius: 0.5rem; border: 1px solid #bbf7d0; margin-bottom: 1.5rem; }
+    .quiz-score-num { font-size: 3.75rem; font-weight: 700; color: #4f46e5; line-height: 1; margin: 0.75rem 0; }
+    .quiz-score-msg { font-size: 1.125rem; color: #374151; }
+    .quiz-wrong-list { text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .quiz-wrong-card { background: #fef2f2; padding: 1rem; border-radius: 0.5rem; border: 1px solid #fecaca; }
+    .quiz-wrong-card p { font-size: 0.875rem; line-height: 1.6; }
+    .quiz-reset {
+      padding: 1rem 2rem; background: linear-gradient(to right, #4f46e5, #9333ea);
+      color: #fff; font-weight: 700; font-size: 1rem;
+      border: none; border-radius: 0.5rem; cursor: pointer; transition: opacity 0.15s;
+    }
+    .quiz-reset:hover { opacity: 0.9; }
+    /* 추가 색상 클래스 */
+    .text-red-700  { color: #b91c1c; }
+    .text-green-600{ color: #16a34a; }
+    .font-bold-inline { font-weight: 700; }
   </style>
 </head>
 <body>
@@ -538,7 +584,7 @@
                 <span id="tooltip"
                   class="absolute left-1\/2 -translate-x-1\/2 -top-10 bg-blue-400 text-gray-900 px-3 py-1 rounded-lg text-sm font-bold whitespace-nowrap shadow-lg animate-bounce"
                   style="display:none;">
-                  참새다!
+                  {"\uCC38\uC0C8"}
                 </span>
               </span>
               변환 예시
@@ -623,6 +669,25 @@
           </div>
         </div>
 
+        <!-- 퀴즈 섹션 -->
+        <div class="quiz-section" id="quizSection">
+          <p class="quiz-title">🎯 배운 내용 확인하기</p>
+          <p class="quiz-subtitle" id="quizSubtitle">총 5문제를 풀어보세요!</p>
+
+          <div id="quizQuestions"></div>
+          <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">🏁 결과 확인하기</button>
+
+          <div class="quiz-result" id="quizResult">
+            <div class="quiz-score-box">
+              <h3 style="font-size:1.875rem;font-weight:700;color:#14532d;">🎉 퀴즈 완료!</h3>
+              <div class="quiz-score-num" id="quizScoreNum"></div>
+              <p class="quiz-score-msg" id="quizScoreMsg"></p>
+            </div>
+            <div class="quiz-wrong-list" id="quizWrongList"></div>
+            <button class="quiz-reset" onclick="resetQuiz()">🔄 다시 풀기</button>
+          </div>
+        </div>
+
         <!-- 홈 버튼 -->
         <div class="mt-6 text-center">
           <a href="index.html"
@@ -648,6 +713,148 @@
     drawSignal('00000000', 8);
 
   })();
+
+  /* ════════════════════════════════
+     퀴즈 로직
+  ════════════════════════════════ */
+  const QUIZ_DATA = [
+    {
+      id: 1,
+      q: '컴퓨터가 이진수(0과 1)를 사용하는 가장 큰 이유는 무엇인가요?',
+      options: [
+        '숫자가 두 개라서 계산이 쉽기 때문에',
+        '전기의 ON(켜짐)과 OFF(꺼짐) 두 가지 상태만 구분할 수 있기 때문에',
+        '이진수가 십진수보다 빠르게 전송되기 때문에',
+        '사람이 읽기 더 편리하기 때문에'
+      ],
+      correct: 1,
+      explanation: '컴퓨터 내부 회로는 전기가 흐르는 상태(1, ON)와 흐르지 않는 상태(0, OFF)만 구분할 수 있어요. 그래서 모든 데이터를 0과 1로 표현하는 이진수를 사용합니다!'
+    },
+    {
+      id: 2,
+      q: '8개의 비트(bit)로 만들 수 있는 조합은 총 몇 가지인가요?',
+      options: ['8가지', '16가지', '128가지', '256가지'],
+      correct: 3,
+      explanation: '2×2×2×2×2×2×2×2 = 2⁸ = 256가지입니다. 이 256가지 조합으로 영어 대소문자, 숫자, 특수문자를 모두 표현할 수 있어요!'
+    },
+    {
+      id: 3,
+      q: '8비트(bit)를 묶어서 부르는 단위는 무엇인가요?',
+      options: ['킬로바이트(KB)', '바이트(Byte)', '워드(Word)', '니블(Nibble)'],
+      correct: 1,
+      explanation: '8비트(bit)를 묶으면 1바이트(Byte)가 됩니다. 컴퓨터에서 데이터 용량을 표현할 때 가장 기본이 되는 단위예요!'
+    },
+    {
+      id: 4,
+      q: "키보드에서 'A'를 누를 때 발생하는 신호 처리 순서로 올바른 것은?",
+      options: [
+        '모니터 출력 → 전기 신호 → 컴퓨터 처리 → 키보드 입력',
+        '전기 신호 → 키보드 입력 → 모니터 출력 → 컴퓨터 처리',
+        '키보드 입력 → 전기 신호 → 컴퓨터 처리 → 모니터 출력',
+        '컴퓨터 처리 → 키보드 입력 → 전기 신호 → 모니터 출력'
+      ],
+      correct: 2,
+      explanation: '키보드 키를 누르면 → 전기 신호가 발생하고 → 컴퓨터 CPU가 이진수로 해석한 뒤 → 모니터에 문자가 출력됩니다. 이 순서가 매우 빠르게 일어나서 우리 눈에는 즉각적으로 보여요!'
+    },
+    {
+      id: 5,
+      q: '한글을 컴퓨터에서 표현할 때 영어보다 더 많은 비트가 필요한 이유는?',
+      options: [
+        '한글이 더 복잡하게 생겼기 때문에',
+        '한글 글자 수가 영어보다 훨씬 많아서 8비트(256가지)로는 부족하기 때문에',
+        '한국 컴퓨터가 구형이기 때문에',
+        '한글은 가로로 쓰기 때문에'
+      ],
+      correct: 1,
+      explanation: '영어는 대소문자 합쳐 52자 정도라 8비트(256가지)로 충분하지만, 한글은 자음·모음 조합으로 수천 개의 글자가 만들어져요. 그래서 16비트(2바이트) 이상을 사용하는 유니코드(Unicode) 방식이 필요합니다!'
+    }
+  ];
+
+  const quizAnswers = {};
+
+  function buildQuiz() {
+    const container = document.getElementById('quizQuestions');
+    container.innerHTML = QUIZ_DATA.map((q, i) => `
+      <div class="quiz-card" id="qcard-${q.id}">
+        <p class="quiz-q">Q${i + 1}. ${q.q}</p>
+        <div class="quiz-options">
+          ${q.options.map((opt, j) => `
+            <button class="quiz-btn" id="qbtn-${q.id}-${j}" onclick="chooseAnswer(${q.id}, ${j})">
+              ${j + 1}. ${opt}
+            </button>
+          `).join('')}
+        </div>
+        <div class="quiz-explanation" id="qexp-${q.id}">
+          <strong style="color:#2563eb;">설명: </strong>${q.explanation}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function chooseAnswer(qid, optIdx) {
+    if (quizAnswers[qid] !== undefined) return;
+    quizAnswers[qid] = optIdx;
+
+    const q = QUIZ_DATA.find(d => d.id === qid);
+    QUIZ_DATA[0]; // reference
+
+    // 버튼 스타일 적용
+    q.options.forEach((_, j) => {
+      const btn = document.getElementById(`qbtn-${qid}-${j}`);
+      btn.disabled = true;
+      if (j === q.correct) {
+        btn.classList.add('correct');
+        btn.innerHTML += ' <strong style="color:#16a34a;">✓ 정답</strong>';
+      } else if (j === optIdx) {
+        btn.classList.add('wrong');
+        btn.innerHTML += ' <strong style="color:#dc2626;">✗</strong>';
+      }
+    });
+
+    // 해설 표시
+    const exp = document.getElementById(`qexp-${qid}`);
+    exp.classList.add('show');
+
+    // 모두 답했으면 제출 버튼 표시
+    if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+      document.getElementById('quizSubmit').style.display = 'block';
+    }
+  }
+
+  function submitQuiz() {
+    const score = QUIZ_DATA.filter(q => quizAnswers[q.id] === q.correct).length;
+    const total = QUIZ_DATA.length;
+
+    document.getElementById('quizQuestions').style.display = 'none';
+    document.getElementById('quizSubmit').style.display = 'none';
+
+    document.getElementById('quizScoreNum').textContent = score + ' / ' + total;
+    document.getElementById('quizScoreMsg').textContent =
+      score === total ? '완벽해요! 모든 문제를 맞히셨네요! 🎊' :
+      score >= Math.ceil(total * 0.7) ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍' :
+      '다시 한 번 복습해보세요! 💪';
+
+    const wrongList = document.getElementById('quizWrongList');
+    const wrongs = QUIZ_DATA.filter(q => quizAnswers[q.id] !== q.correct);
+    wrongList.innerHTML = wrongs.map(q => `
+      <div class="quiz-wrong-card">
+        <p style="font-weight:700;color:#b91c1c;margin-bottom:0.25rem;">❌ 틀린 문제: ${q.q}</p>
+        <p><strong style="color:#16a34a;">정답: </strong>${q.options[q.correct]}</p>
+        <p style="margin-top:0.25rem;color:#4b5563;">${q.explanation}</p>
+      </div>
+    `).join('');
+
+    document.getElementById('quizResult').classList.add('show');
+  }
+
+  function resetQuiz() {
+    Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
+    document.getElementById('quizResult').classList.remove('show');
+    document.getElementById('quizQuestions').style.display = 'block';
+    buildQuiz();
+  }
+
+  buildQuiz();
   </script>
 </body>
 </html>
