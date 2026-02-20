@@ -26,10 +26,61 @@
   <script type="text/babel">
     const { useState } = React;
 
+    const quizData = [
+      {
+        id: 1,
+        question: '4자리 숫자 자물쇠에서 각 자리마다 0~9까지 선택 가능할 때, 만들 수 있는 비밀번호의 총 개수는?',
+        options: ['4,000가지', '10,000가지', '40,000가지', '1,000가지'],
+        correct: 1,
+        explanation: '각 자리마다 10가지(0~9)를 선택할 수 있고, 자리가 4개이므로 10 × 10 × 10 × 10 = 10⁴ = 10,000가지입니다. 이것을 "곱셈의 원리"라고 해요!'
+      },
+      {
+        id: 2,
+        question: '경우의 수를 계산할 때 곱셈을 사용하는 이유로 가장 올바른 것은?',
+        options: [
+          '숫자가 크면 항상 곱셈이 빠르기 때문에',
+          '각 자리의 선택이 서로 독립적으로 이루어지기 때문에',
+          '덧셈보다 곱셈이 더 정확하기 때문에',
+          '자물쇠 제조사가 정한 규칙이기 때문에'
+        ],
+        correct: 1,
+        explanation: '첫째 자리에서 어떤 숫자를 선택해도 둘째 자리는 항상 10가지를 선택할 수 있어요. 이처럼 각 자리의 선택이 서로 영향을 주지 않고 "독립적"이기 때문에 곱셈을 사용합니다!'
+      },
+      {
+        id: 3,
+        question: '3자리 자물쇠(각 자리 0~9)의 비밀번호 경우의 수는?',
+        options: ['30가지', '300가지', '1,000가지', '3,000가지'],
+        correct: 2,
+        explanation: '10 × 10 × 10 = 10³ = 1,000가지입니다. 000부터 999까지 총 1,000개의 비밀번호를 만들 수 있어요!'
+      },
+      {
+        id: 4,
+        question: '각 자리마다 선택지가 5개인 4자리 자물쇠가 있다면, 비밀번호의 경우의 수는?',
+        options: ['20가지', '500가지', '625가지', '2,500가지'],
+        correct: 2,
+        explanation: '각 자리마다 5가지 선택, 자리가 4개이므로 5 × 5 × 5 × 5 = 5⁴ = 625가지입니다. 선택지 개수가 줄어들면 경우의 수도 확 줄어드는 것을 볼 수 있죠!'
+      },
+      {
+        id: 5,
+        question: '1초에 1번씩 비밀번호를 시도할 때, 4자리 자물쇠(0~9) 10,000가지를 모두 시도하려면 얼마나 걸릴까요?',
+        options: ['약 1분 40초', '약 16분 40초', '약 2시간 47분', '약 27시간 47분'],
+        correct: 2,
+        explanation: '10,000초 ÷ 60 ≈ 167분 ≈ 2시간 47분이 걸립니다! 그래서 자릿수가 길수록 훨씬 안전한 비밀번호가 됩니다. 5자리면 약 27시간, 6자리면 약 11.5일이 걸려요!'
+      }
+    ];
+
     const LockSimulator = () => {
       const [dials, setDials] = useState([0, 0, 0, 0]);
       const [attempts, setAttempts] = useState(0);
       const [showTooltip, setShowTooltip] = useState(false);
+      const [quizAnswers, setQuizAnswers] = useState({});
+      const [showQuizResult, setShowQuizResult] = useState(false);
+
+      const handleQuizAnswer = (questionId, selectedOption) => {
+        setQuizAnswers(prev => ({...prev, [questionId]: selectedOption}));
+      };
+      const calculateScore = () => quizData.filter(q => quizAnswers[q.id] === q.correct).length;
+      const resetQuiz = () => { setQuizAnswers({}); setShowQuizResult(false); };
 
       const rotateDial = (index, direction) => {
         const newDials = [...dials];
@@ -175,10 +226,10 @@
                                  bg-pink-200 text-gray-900 px-3 py-1 rounded-xl 
                                  text-sm font-bold whitespace-nowrap shadow-2xl z-50"
                       style={{
-                        animation: 'bounceOnce 0.5s ease-in-out'
+                        animation: 'bounceOnce 0.4s ease-in-out'
                       }}
                     >
-                      참새다!
+                      {"\uCC38\uC0C8"}
                     </span>
                   )}
                 </span>
@@ -252,6 +303,103 @@
                 </div>
               </div>
             </div>
+            {/* ── 퀴즈 섹션 ── */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border border-purple-200 mt-6">
+              <h3 className="text-lg font-bold text-purple-900 mb-4">🎯 배운 내용 확인하기</h3>
+
+              {!showQuizResult ? (
+                <div className="space-y-6">
+                  {quizData.map((quiz, qIdx) => (
+                    <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                      <h4 className="font-bold text-gray-800 mb-4">
+                        Q{qIdx + 1}. {quiz.question}
+                      </h4>
+                      <div className="space-y-2">
+                        {quiz.options.map((option, oIdx) => {
+                          const answered = quizAnswers[quiz.id] !== undefined;
+                          const isSelected = quizAnswers[quiz.id] === oIdx;
+                          const isCorrect = quiz.correct === oIdx;
+                          let cls = 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                          if (answered) {
+                            if (isCorrect) cls = 'bg-green-100 border-green-400';
+                            else if (isSelected) cls = 'bg-red-100 border-red-400';
+                            else cls = 'bg-gray-50 border-gray-200';
+                          }
+                          return (
+                            <button
+                              key={oIdx}
+                              onClick={() => handleQuizAnswer(quiz.id, oIdx)}
+                              disabled={answered}
+                              className={`w-full text-left p-3 rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            >
+                              {oIdx + 1}. {option}
+                              {answered && isCorrect && (
+                                <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
+                              )}
+                              {answered && isSelected && !isCorrect && (
+                                <span className="ml-2 text-red-600 font-bold">✗</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {quizAnswers[quiz.id] !== undefined && (
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-bold text-blue-600">💡 설명: </span>{quiz.explanation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {Object.keys(quizAnswers).length === quizData.length && (
+                    <button
+                      onClick={() => setShowQuizResult(true)}
+                      className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg text-lg"
+                    >
+                      🏁 결과 확인하기
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                    <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
+                    <div className="text-6xl font-bold text-indigo-600 mb-4">
+                      {calculateScore()} / {quizData.length}
+                    </div>
+                    <p className="text-lg text-gray-700">
+                      {calculateScore() === quizData.length
+                        ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+                        : calculateScore() >= quizData.length * 0.7
+                        ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍'
+                        : '다시 한 번 복습해보세요! 💪'}
+                    </p>
+                  </div>
+
+                  <div className="text-left space-y-3 mb-6">
+                    {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
+                      <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
+                        <p className="text-sm text-gray-700">
+                          <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={resetQuiz}
+                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                  >
+                    🔄 다시 풀기
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="mt-6 text-center">
               <a 
                 href="index.html" 

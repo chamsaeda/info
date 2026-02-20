@@ -313,6 +313,120 @@
       box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
       z-index: 50;
     }
+
+    /* ===== 퀴즈 스타일 ===== */
+    .quiz-section {
+      background: linear-gradient(to right, #faf5ff, #fdf2f8);
+      padding: 1.5rem;
+      border-radius: .5rem;
+      border: 1px solid #e9d5ff;
+      margin-top: 1.5rem;
+    }
+    .quiz-card {
+      background: #fff;
+      padding: 1.25rem;
+      border-radius: .5rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0,0,0,.05);
+      margin-bottom: 1.25rem;
+    }
+    .quiz-question {
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: .5rem; }
+    .quiz-option {
+      width: 100%;
+      text-align: left;
+      padding: .75rem 1rem;
+      border-radius: .5rem;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: .95rem;
+      transition: all .15s;
+      font-family: 'Malgun Gothic', sans-serif;
+    }
+    .quiz-option:hover:not(:disabled) { background: #f3f4f6; }
+    .quiz-option:disabled { cursor: not-allowed; }
+    .quiz-option.correct  { background: #dcfce7; border-color: #4ade80; }
+    .quiz-option.wrong    { background: #fee2e2; border-color: #f87171; }
+    .quiz-option.dimmed   { background: #f9fafb; border-color: #e5e7eb; opacity: .7; }
+    .quiz-badge-correct { margin-left: .5rem; color: #16a34a; font-weight: 700; }
+    .quiz-badge-wrong   { margin-left: .5rem; color: #dc2626; font-weight: 700; }
+    .quiz-explanation {
+      margin-top: 1rem;
+      padding: .75rem 1rem;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: .5rem;
+      font-size: .875rem;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .quiz-explanation strong { color: #2563eb; }
+    .quiz-submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(to right, #4f46e5, #9333ea);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: .5rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+      transition: all .15s;
+      font-family: 'Malgun Gothic', sans-serif;
+      margin-top: .5rem;
+    }
+    .quiz-submit-btn:hover { opacity: .9; }
+
+    /* 결과 화면 */
+    .quiz-result {
+      text-align: center;
+    }
+    .result-box {
+      background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+      border: 1px solid #bbf7d0;
+      border-radius: .5rem;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .result-score {
+      font-size: 3.75rem;
+      font-weight: 700;
+      color: #4f46e5;
+      margin: 1rem 0;
+    }
+    .wrong-review {
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+    .wrong-card {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: .5rem;
+      padding: 1rem;
+      margin-bottom: .75rem;
+    }
+    .wrong-card-title { font-weight: 700; color: #b91c1c; font-size: .875rem; margin-bottom: .25rem; }
+    .wrong-card-answer { font-size: .875rem; color: #374151; }
+    .wrong-card-answer span { font-weight: 700; color: #16a34a; }
+    .wrong-card-exp { font-size: .875rem; color: #4b5563; margin-top: .25rem; }
+    .quiz-retry-btn {
+      padding: .75rem 2rem;
+      background: linear-gradient(to right, #4f46e5, #9333ea);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: .5rem;
+      transition: all .15s;
+      font-family: 'Malgun Gothic', sans-serif;
+    }
+    .quiz-retry-btn:hover { opacity: .9; }
+    .space-y-5 > * + * { margin-top: 1.25rem; }
   </style>
 </head>
 <body>
@@ -407,7 +521,7 @@
               id="sparrow-tooltip"
               class="tooltip-bubble"
               style="display:none;"
-            >참새다!</span>
+            >&#xCC38;&#xC0C8;</span>
           </span>
           자릿수별 경우의 수
         </h3>
@@ -477,6 +591,35 @@
               6자리면 10⁶ = 1,000,000가지 (약 11.5일) 걸립니다!
             </p>
           </div>
+        </div>
+      </div>
+
+      <!-- ===== 퀴즈 섹션 ===== -->
+      <div class="quiz-section">
+        <h3 class="text-lg font-bold mb-4" style="color:#581c87;">🎯 배운 내용 확인하기</h3>
+
+        <!-- 문제 풀기 화면 -->
+        <div id="quiz-questions">
+          <div class="space-y-5" id="quiz-list">
+            <!-- JS로 생성 -->
+          </div>
+          <button
+            id="quiz-submit-btn"
+            class="quiz-submit-btn"
+            style="display:none;"
+            onclick="showQuizResult()"
+          >🏁 결과 확인하기</button>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="quiz-result" style="display:none;" class="quiz-result">
+          <div class="result-box">
+            <h3 class="text-3xl font-bold" style="color:#14532d;">🎉 퀴즈 완료!</h3>
+            <div class="result-score" id="result-score">0 / 5</div>
+            <p class="text-lg text-gray-700" id="result-msg"></p>
+          </div>
+          <div class="wrong-review" id="wrong-review"></div>
+          <button class="quiz-retry-btn" onclick="resetQuiz()">🔄 다시 풀기</button>
         </div>
       </div>
 
@@ -556,11 +699,157 @@
       sparrowTooltip.classList.add('tooltip-bounce');
       setTimeout(() => {
         sparrowTooltip.style.display = 'none';
-      }, 500);
+      }, 400);
     });
 
     // ===== Init =====
     buildDials();
+
+    // ===== 퀴즈 데이터 & 로직 =====
+    const quizData = [
+      {
+        id: 1,
+        question: '4자리 숫자 자물쇠에서 각 자리마다 0~9까지 선택 가능할 때, 만들 수 있는 비밀번호의 총 개수는?',
+        options: ['4,000가지', '10,000가지', '40,000가지', '1,000가지'],
+        correct: 1,
+        explanation: '각 자리마다 10가지(0~9)를 선택할 수 있고, 자리가 4개이므로 10 × 10 × 10 × 10 = 10⁴ = 10,000가지입니다. 이것을 "곱셈의 원리"라고 해요!'
+      },
+      {
+        id: 2,
+        question: '경우의 수를 계산할 때 곱셈을 사용하는 이유로 가장 올바른 것은?',
+        options: [
+          '숫자가 크면 항상 곱셈이 빠르기 때문에',
+          '각 자리의 선택이 서로 독립적으로 이루어지기 때문에',
+          '덧셈보다 곱셈이 더 정확하기 때문에',
+          '자물쇠 제조사가 정한 규칙이기 때문에'
+        ],
+        correct: 1,
+        explanation: '첫째 자리에서 어떤 숫자를 선택해도 둘째 자리는 항상 10가지를 선택할 수 있어요. 이처럼 각 자리의 선택이 서로 영향을 주지 않고 "독립적"이기 때문에 곱셈을 사용합니다!'
+      },
+      {
+        id: 3,
+        question: '3자리 자물쇠(각 자리 0~9)의 비밀번호 경우의 수는?',
+        options: ['30가지', '300가지', '1,000가지', '3,000가지'],
+        correct: 2,
+        explanation: '10 × 10 × 10 = 10³ = 1,000가지입니다. 000부터 999까지 총 1,000개의 비밀번호를 만들 수 있어요!'
+      },
+      {
+        id: 4,
+        question: '각 자리마다 선택지가 5개인 4자리 자물쇠가 있다면, 비밀번호의 경우의 수는?',
+        options: ['20가지', '500가지', '625가지', '2,500가지'],
+        correct: 2,
+        explanation: '각 자리마다 5가지 선택, 자리가 4개이므로 5 × 5 × 5 × 5 = 5⁴ = 625가지입니다. 선택지 개수가 줄어들면 경우의 수도 확 줄어드는 것을 볼 수 있죠!'
+      },
+      {
+        id: 5,
+        question: '1초에 1번씩 비밀번호를 시도할 때, 4자리 자물쇠(0~9) 10,000가지를 모두 시도하려면 얼마나 걸릴까요?',
+        options: ['약 1분 40초', '약 16분 40초', '약 2시간 47분', '약 27시간 47분'],
+        correct: 2,
+        explanation: '10,000초 ÷ 60 ≈ 167분 ≈ 2시간 47분이 걸립니다! 그래서 자릿수가 길수록 훨씬 안전한 비밀번호가 됩니다. 5자리면 약 27시간, 6자리면 약 11.5일이 걸려요!'
+      }
+    ];
+
+    const quizAnswers = {};
+
+    function buildQuiz() {
+      const list = document.getElementById('quiz-list');
+      list.innerHTML = '';
+      quizData.forEach((quiz, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        card.id = `quiz-card-${quiz.id}`;
+
+        const qTitle = document.createElement('p');
+        qTitle.className = 'quiz-question';
+        qTitle.textContent = `Q${qIdx + 1}. ${quiz.question}`;
+        card.appendChild(qTitle);
+
+        const opts = document.createElement('div');
+        opts.className = 'quiz-options';
+        quiz.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.className = 'quiz-option';
+          btn.id = `opt-${quiz.id}-${oIdx}`;
+          btn.textContent = `${oIdx + 1}. ${opt}`;
+          btn.onclick = () => handleAnswer(quiz.id, oIdx);
+          opts.appendChild(btn);
+        });
+        card.appendChild(opts);
+
+        const exp = document.createElement('div');
+        exp.className = 'quiz-explanation';
+        exp.id = `exp-${quiz.id}`;
+        exp.style.display = 'none';
+        exp.innerHTML = `<strong>💡 설명: </strong>${quiz.explanation}`;
+        card.appendChild(exp);
+
+        list.appendChild(card);
+      });
+    }
+
+    function handleAnswer(questionId, selectedIdx) {
+      if (quizAnswers[questionId] !== undefined) return;
+      quizAnswers[questionId] = selectedIdx;
+
+      const quiz = quizData.find(q => q.id === questionId);
+      quiz.options.forEach((_, oIdx) => {
+        const btn = document.getElementById(`opt-${questionId}-${oIdx}`);
+        btn.disabled = true;
+        if (oIdx === quiz.correct) {
+          btn.classList.add('correct');
+          btn.innerHTML += '<span class="quiz-badge-correct">✓ 정답</span>';
+        } else if (oIdx === selectedIdx) {
+          btn.classList.add('wrong');
+          btn.innerHTML += '<span class="quiz-badge-wrong">✗</span>';
+        } else {
+          btn.classList.add('dimmed');
+        }
+      });
+
+      document.getElementById(`exp-${questionId}`).style.display = 'block';
+
+      if (Object.keys(quizAnswers).length === quizData.length) {
+        document.getElementById('quiz-submit-btn').style.display = 'block';
+      }
+    }
+
+    function showQuizResult() {
+      const score = quizData.filter(q => quizAnswers[q.id] === q.correct).length;
+      document.getElementById('quiz-questions').style.display = 'none';
+      document.getElementById('quiz-result').style.display = 'block';
+      document.getElementById('result-score').textContent = `${score} / ${quizData.length}`;
+
+      const msgs = [
+        '다시 한 번 복습해보세요! 💪',
+        '다시 한 번 복습해보세요! 💪',
+        '다시 한 번 복습해보세요! 💪',
+        '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍',
+        '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍',
+        '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+      ];
+      document.getElementById('result-msg').textContent = msgs[score];
+
+      const wrongReview = document.getElementById('wrong-review');
+      wrongReview.innerHTML = '';
+      quizData.filter(q => quizAnswers[q.id] !== q.correct).forEach(q => {
+        wrongReview.innerHTML += `
+          <div class="wrong-card">
+            <p class="wrong-card-title">❌ 틀린 문제: ${q.question}</p>
+            <p class="wrong-card-answer"><span>정답: </span>${q.options[q.correct]}</p>
+            <p class="wrong-card-exp">${q.explanation}</p>
+          </div>`;
+      });
+    }
+
+    function resetQuiz() {
+      Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
+      document.getElementById('quiz-result').style.display = 'none';
+      document.getElementById('quiz-questions').style.display = 'block';
+      document.getElementById('quiz-submit-btn').style.display = 'none';
+      buildQuiz();
+    }
+
+    buildQuiz();
   </script>
 </body>
 </html>
