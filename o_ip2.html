@@ -523,7 +523,7 @@ function renderStep1() {
     </div>
     <div class="box box-yellow mb6">
       <h3 class="title-md" style="color:#581c87">
-        <span class="tooltip-wrap" onclick="showTooltip()">🤔<span id="tooltip" class="tooltip-box hidden">참새다!</span></span>
+        <span class="tooltip-wrap" onclick="showTooltip()">🤔<span id="tooltip" class="tooltip-box hidden">&#xCC38;&#xC0C8;</span></span>
         그렇다면 다음 질문!
       </h3>
       <p style="color:#374151">만약 전화기가 <span class="bold text-red">3대 이상</span>으로 늘어난다면 어떻게 될까요?</p>
@@ -855,7 +855,7 @@ function showTooltip() {
   const el = document.getElementById('tooltip');
   if (!el) return;
   el.classList.remove('hidden');
-  setTimeout(() => { el.classList.add('hidden'); }, 1000);
+  setTimeout(() => { el.classList.add('hidden'); }, 400);
 }
 
 function handlePhoneCall(fromId, toId) {
