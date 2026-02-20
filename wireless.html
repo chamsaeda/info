@@ -1,487 +1,1510 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>무선 네트워크 기술 - AP, Wi-Fi, Bluetooth, RFID, NFC, 미러링</title>
+  <title>무선 네트워크 기술 — 체험형 학습</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { 
-      font-family: 'Malgun Gothic', sans-serif; 
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: linear-gradient(135deg, #0f766e 0%, #0e7490 100%);
       margin: 0;
       padding: 20px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
+    @keyframes bounceOnce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
     }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .slide-in { animation: slideIn 0.5s ease-out; }
+    .anim-float { animation: float 2s ease-in-out infinite; }
+    .anim-pulse { animation: pulse 1.2s ease-in-out infinite; }
+    .anim-spin  { animation: spin 1s linear infinite; }
+    .anim-slide { animation: slideIn 0.35s ease; }
+    .anim-fade  { animation: slideIn 0.4s ease; }
+
+    /* 섹션 숨김/표시 */
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    /* 퀴즈 옵션 버튼 */
+    .quiz-opt {
+      width: 100%; padding: 12px 16px; border-radius: 10px;
+      border: 2px solid #e5e7eb; background: #f9fafb;
+      color: #374151; cursor: pointer; transition: all 0.15s;
+      text-align: left; font-family: inherit; font-weight: 700; font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .quiz-opt:hover:not(.locked) { border-color: #0d9488; background: #f0fdfa; }
+    .quiz-opt.correct { background: #d1fae5; border-color: #10b981; color: #065f46; }
+    .quiz-opt.wrong   { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+    .quiz-opt.locked  { cursor: default; }
+
+    /* 드래그&드롭 */
+    .drag-card {
+      padding: 10px 16px; border-radius: 10px; cursor: grab;
+      border: 2px solid #e5e7eb; background: white;
+      font-weight: 700; font-size: 0.88rem; text-align: center;
+      transition: all 0.15s; user-select: none; color: #374151;
+    }
+    .drag-card:hover { border-color: #0d9488; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(13,148,136,0.2); }
+    .drag-card.dragging { opacity: 0.4; cursor: grabbing; }
+    .drop-zone {
+      min-height: 50px; border-radius: 10px;
+      border: 2px dashed #d1d5db;
+      background: #f9fafb;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; padding: 8px;
+    }
+    .drop-zone.drag-over { border-color: #0d9488; background: #f0fdfa; }
+    .drop-zone.correct   { border-color: #10b981; background: #d1fae5; }
+    .drop-zone.wrong     { border-color: #ef4444; background: #fee2e2; }
+
+    /* 스마트홈 방 */
+    .home-room {
+      border: 2px solid #e5e7eb; border-radius: 12px;
+      padding: 14px; cursor: pointer; transition: all 0.2s; min-height: 90px;
+      background: white; position: relative;
+    }
+    .home-room:hover { border-color: #0d9488; }
+    .home-room.selected { border-color: #0d9488; background: #f0fdfa; }
+    .home-room.placed { border-color: #10b981; background: #d1fae5; }
+
+    /* 진행 바 */
+    .progress-bar-bg { background: #e5e7eb; border-radius: 999px; height: 8px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
   </style>
 </head>
 <body>
   <div id="root"></div>
+
   <script type="text/babel">
-    const { useState } = React;
+  const { useState, useRef, useEffect, useCallback } = React;
 
-    const WirelessNetworkEducation = () => {
-      const [selectedTech, setSelectedTech] = useState('ap');
-      const [quizAnswers, setQuizAnswers] = useState({});
-      const [showTooltip, setShowTooltip] = useState(false);
-
-      const technologies = {
-        ap: {
-          icon: 'src/ap.png', //'🗼',
-          iconType: 'image',
-          name: 'AP',
-          fullName: 'Access Point (액세스 포인트)',
-          color: 'blue',
-          description: 'AP는 인터넷 선(유선)을 무선 신호로 바꿔서 여러 기기들이 동시에 인터넷을 사용할 수 있게 해주는 장치입니다. 집에 있는 공유기에도 AP기능이 포함되어 있어요. 학교 교실이나 카페의 천장에 달려있는 원반 모양의 장치입니다.',
-          specs: [
-            { label: '동시 연결', value: '50대+' },
-            { label: '역할', value: '중계기' },
-            { label: '작동 방식', value: '항상 켜짐' }
-          ],
-          examples: [
-            '학교 교실마디 설치된 무선 접속 장',
-            '공항, 전시장에 설치된 무선 접속 장치',
-            '대형 건물의 무료 Wi-Fi 제공 장치',
-            '공공장소(지하철, 버스)의 무료 Wi-Fi 장비'
-          ]
-        },
-        wifi: {
-          icon: '📶',
-          name: 'Wi-Fi',
-          fullName: '와이파이',
-          color: 'indigo',
-          description: 'Wi-Fi는 선 없이 인터넷에 연결할 수 있게 해주는 기술이에요. 집이나 카페에서 스마트폰, 노트북으로 인터넷을 사용할 때 바로 이 Wi-Fi를 사용하는 거예요! 케이블 없이 데이터를 무선으로 주고받을 수 있어 매우 편리합니다.',
-          specs: [
-            { label: '최대 거리', value: '~100m' },
-            { label: '속도', value: '빠름' },
-            { label: '전력 소모', value: '중간' }
-          ],
-          examples: [
-            '집에서 스마트폰으로 유튜브 보기',
-            '카페에서 노트북으로 인터넷 검색하기',
-            '학교에서 태블릿으로 온라인 수업 듣기',
-            '스마트 TV로 넷플릭스 시청하기'
-          ]
-        },
-        bluetooth: {
-          icon: '🎧',
-          name: 'Bluetooth',
-          fullName: '블루투스',
-          color: 'purple',
-          description: '블루투스는 가까운 거리에서 기기들을 무선으로 연결하는 기술이에요. 선 없이 이어폰으로 음악을 듣거나, 스마트폰에서 스피커로 소리를 보낼 때 사용합니다. Wi-Fi보다 거리는 짧지만, 전력을 적게 사용해서 배터리가 오래 가요!',
-          specs: [
-            { label: '최대 거리', value: '~10m' },
-            { label: '속도', value: '보통' },
-            { label: '전력 소모', value: '적음' }
-          ],
-          examples: [
-            '무선 이어폰으로 음악 듣기 (에어팟, 갤럭시 버즈)',
-            '블루투스 스피커로 음악 재생하기',
-            '무선 마우스, 키보드 사용하기',
-            '스마트워치와 스마트폰 연결하기'
-          ]
-        },
-        rfid: {
-          icon: '💳',
-          name: 'RFID',
-          fullName: 'Radio Frequency Identification',
-          color: 'green',
-          description: 'RFID는 "전파로 정보를 읽는 기술"이에요. 작은 태그(칩)에 정보를 저장하고, 리더기를 가까이 대면 그 정보를 읽을 수 있습니다. 교통카드처럼 찍기만 하면 바로 인식되는 것이 RFID 기술이에요.',
-          specs: [
-            { label: '인식 거리', value: '0.1~100m' },
-            { label: '인식 속도', value: '빠름' },
-            { label: '태그 전원', value: '불필요' }
-          ],
-          examples: [
-            '동물인식칩(반려동물 등록)',
-            '도서관 책 대출/반납 시스템',
-            '마트 도난 방지 태그',
-            '고속도로 하이패스'
-          ]
-        },
-        nfc: {
-          icon: '📱',
-          name: 'NFC',
-          fullName: 'Near Field Communication',
-          color: 'orange',
-          description: 'NFC는 "아주 가까운 거리에서 통신하는 기술"이에요. RFID의 한 종류인데, 거리가 더 짧고(4cm 이내) 보안이 더 좋아요. 스마트폰을 단말기에 가까이 대면 결제되는 것처럼, 기기끼리 거의 붙여야 작동하기 때문에 안전합니다.',
-          specs: [
-            { label: '최대 거리', value: '~10cm' },
-            { label: '연결 속도', value: '빠름' },
-            { label: '보안성', value: '높음' }
-          ],
-          examples: [
-            '스마트폰 간편결제 (삼성페이, 애플페이)',
-            '스마트폰끼리 사진 전송 (태그해서 공유)',
-            '체크인 태그 (호텔, 공연장)',
-            '스마트 포스터 (태그하면 정보 확인)'
-          ]
-        },
-        mirroring: {
-          icon: '🖥️',
-          name: '미러링',
-          fullName: 'Screen Mirroring (화면 공유)',
-          color: 'cyan',
-          description: '미러링은 스마트폰이나 태블릿의 화면을 TV나 모니터 같은 큰 화면에 그대로 보여주는 기술이에요. 마치 거울(Mirror)처럼 내 화면이 큰 화면에 똑같이 비춰진다고 해서 미러링이라고 불러요. Wi-Fi나 케이블을 통해 화면을 실시간으로 전송합니다.',
-          specs: [
-            { label: '화질', value: 'HD~4K' },
-            { label: '지연시간', value: '매우 적음' },
-            { label: '연결방식', value: 'Wi-Fi/유선' }
-          ],
-          examples: [
-            '스마트폰 사진/동영상을 TV에서 보기',
-            '수업시간에 태블릿 화면을 프로젝터로 보여주기',
-            '게임 화면을 큰 TV로 즐기기',
-            '유튜브를 스마트폰에서 재생하고 TV로 보기'
-          ]
-        }
-      };
-
-      const quizData = [
-        {
-          id: 1,
-          question: '스마트폰으로 음악을 들을 때 무선 이어폰과 연결하는 기술은?',
-          options: ['Wi-Fi', 'Bluetooth', 'NFC', 'RFID'],
-          correct: 'Bluetooth'
-        },
-        {
-          id: 2,
-          question: '도서관에서 책을 대출할 때 책에 붙어있는 태그를 인식하는 기술은?',
-          options: ['Bluetooth', 'Wi-Fi', 'RFID', 'AP'],
-          correct: 'RFID'
-        },
-        {
-          id: 3,
-          question: '스마트폰을 단말기에 가까이 대서 결제할 때 사용하는 기술은?',
-          options: ['RFID', 'NFC', 'Bluetooth', 'Wi-Fi'],
-          correct: 'NFC'
-        },
-        {
-          id: 4,
-          question: '집에서 여러 기기가 동시에 무선 인터넷을 사용할 수 있게 해주는 장치는?',
-          options: ['AP (공유기)', 'NFC 태그', '블루투스 스피커', 'RFID 카드'],
-          correct: 'AP (공유기)'
-        },
-        {
-          id: 5,
-          question: '다음 중 통신 거리가 가장 짧은 기술은?',
-          options: ['Wi-Fi (100m)', 'Bluetooth (10m)', 'NFC (4cm)', 'RFID (10m)'],
-          correct: 'NFC (10cm)'
-        },
-        {
-          id: 6,
-          question: '스마트폰 화면을 TV에 그대로 보여주는 기술은?',
-          options: ['미러링', 'NFC', 'RFID', 'Bluetooth'],
-          correct: '미러링'
-        }
-      ];
-
-      const handleQuizAnswer = (questionId, selectedAnswer, correctAnswer) => {
-        setQuizAnswers({
-          ...quizAnswers,
-          [questionId]: {
-            selected: selectedAnswer,
-            correct: selectedAnswer === correctAnswer
-          }
-        });
-      };
-
-      const currentTech = technologies[selectedTech];
-      const colorMap = {
-        blue: { bg: 'from-blue-500 to-cyan-500', text: 'text-blue-600', border: 'border-blue-200', light: 'from-blue-50 to-cyan-50' },
-        indigo: { bg: 'from-indigo-500 to-purple-500', text: 'text-indigo-600', border: 'border-indigo-200', light: 'from-indigo-50 to-purple-50' },
-        purple: { bg: 'from-purple-500 to-pink-500', text: 'text-purple-600', border: 'border-purple-200', light: 'from-purple-50 to-pink-50' },
-        green: { bg: 'from-green-500 to-emerald-500', text: 'text-green-600', border: 'border-green-200', light: 'from-green-50 to-emerald-50' },
-        orange: { bg: 'from-orange-500 to-red-500', text: 'text-orange-600', border: 'border-orange-200', light: 'from-orange-50 to-red-50' },
-        cyan: { bg: 'from-cyan-500 to-blue-500', text: 'text-cyan-600', border: 'border-cyan-200', light: 'from-cyan-50 to-blue-50' }
-      };
-
-      return (
-        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
-          {/* 헤더 */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-            <div className="flex justify-between items-center mb-2">
-              <div className="text-sm text-indigo-100">부산진여자상업고등학교 정보 학습자료</div>
-              <a 
-                href="index.html" 
-                className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-              >
-                🏠 홈으로
-              </a>
+  /* ─── 공통 팝업 ─── */
+  function Popup({ popup, onClose }) {
+    if (!popup) return null;
+    const ok = popup.type === 'success';
+    return (
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center" onClick={onClose}>
+        <div className="bg-white rounded-2xl p-8 text-center max-w-xs w-full mx-4 shadow-2xl" onClick={e => e.stopPropagation()}
+          style={{animation:'slideIn 0.3s ease'}}>
+          <div className="text-5xl mb-3">{ok ? '🎉' : '💡'}</div>
+          <h2 className={`text-xl font-bold mb-2 ${ok ? 'text-emerald-600' : 'text-yellow-600'}`}>
+            {ok ? '성공!' : '아쉬워요!'}
+          </h2>
+          <p className="text-gray-600 mb-4 text-sm leading-relaxed">{popup.message}</p>
+          {ok && (
+            <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-xl px-4 py-2 font-bold mb-4">
+              +{popup.points} 포인트! 🌟
             </div>
-            <h1 className="text-3xl font-bold mb-2">🌐 무선 네트워크 기술</h1>
-            <p className="text-indigo-100">우리 주변의 다양한 무선 통신 기술을 알아봅시다!</p>
-          </div>
+          )}
+          {!ok && popup.hint && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-sm text-yellow-800 mb-4 text-left">
+              💡 힌트: {popup.hint}
+            </div>
+          )}
+          <button className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-6 py-2 rounded-lg"
+            onClick={onClose}>확인</button>
+        </div>
+      </div>
+    );
+  }
 
-          {/* 소개 섹션 */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
-            <div className="space-y-3 text-gray-700">
-              <div>
-                <h3 className="font-bold text-indigo-900 text-lg mb-2">무선 네트워크가 뭔가요?</h3>
-                <p className="leading-relaxed">
-                  무선 네트워크는 <span className="font-bold text-blue-600">선 없이 데이터를 주고받는 기술</span>입니다.
-                  전파를 이용해서 스마트폰, 노트북, 이어폰 등 여러 기기들이 서로 연결되고 정보를 교환할 수 있어요.
-                  오늘날 우리가 편리하게 사용하는 대부분의 기술이 무선 네트워크 덕분이랍니다!
-                </p>
+  /* ─── AP 네트워크 빌더 ─── */
+  function APLab({ onEarn }) {
+    const canvasRef = useRef(null);
+    const [aps, setAps] = useState([]);
+    const [devices, setDevices] = useState([]);
+    const [mode, setMode] = useState('ap');
+    const [rangeVal, setRangeVal] = useState(80);
+    const [stats, setStats] = useState({connected:0,total:0,coverage:0});
+    const [scored, setScored] = useState(false);
+    const idRef = useRef(0);
+    const W=560, H=320;
+
+    const draw = useCallback(() => {
+      const cv = canvasRef.current; if(!cv) return;
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='#f0fdfa'; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(13,148,136,0.1)'; ctx.lineWidth=1;
+      for(let x=40;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=40;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      const rooms=[{x:20,y:20,w:160,h:120,label:'교실 1'},{x:200,y:20,w:160,h:120,label:'교실 2'},
+        {x:380,y:20,w:160,h:120,label:'교실 3'},{x:20,y:160,w:520,h:130,label:'복도 & 도서관'}];
+      rooms.forEach(r=>{
+        ctx.fillStyle='rgba(204,251,241,0.8)'; ctx.strokeStyle='rgba(13,148,136,0.5)'; ctx.lineWidth=1.5;
+        ctx.beginPath(); if(ctx.roundRect){ctx.roundRect(r.x,r.y,r.w,r.h,6);}else{ctx.rect(r.x,r.y,r.w,r.h);}
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='rgba(15,118,110,0.9)'; ctx.font='bold 11px Malgun Gothic';
+        ctx.fillText(r.label,r.x+8,r.y+16);
+      });
+      aps.forEach(ap=>{
+        const grad=ctx.createRadialGradient(ap.x,ap.y,0,ap.x,ap.y,ap.range);
+        grad.addColorStop(0,'rgba(13,148,136,0.25)');
+        grad.addColorStop(1,'rgba(13,148,136,0)');
+        ctx.beginPath(); ctx.arc(ap.x,ap.y,ap.range,0,Math.PI*2);
+        ctx.fillStyle=grad; ctx.fill();
+        ctx.beginPath(); ctx.arc(ap.x,ap.y,ap.range,0,Math.PI*2);
+        ctx.strokeStyle='rgba(13,148,136,0.5)'; ctx.lineWidth=1.5;
+        ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(ap.x,ap.y,13,0,Math.PI*2);
+        ctx.fillStyle='#0d9488'; ctx.fill();
+        ctx.fillStyle='#fff'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('AP',ap.x,ap.y+4); ctx.textAlign='left';
+        ctx.fillStyle='rgba(13,148,136,0.9)'; ctx.font='10px sans-serif';
+        ctx.fillText(ap.range+'m',ap.x+ap.range-28,ap.y-4);
+      });
+      devices.forEach(d=>{
+        const ok=aps.some(ap=>Math.hypot(d.x-ap.x,d.y-ap.y)<=ap.range);
+        ctx.beginPath(); ctx.arc(d.x,d.y,9,0,Math.PI*2);
+        ctx.fillStyle=ok?'#10b981':'#ef4444'; ctx.fill();
+        ctx.fillStyle='#fff'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+        ctx.fillText(ok?'📱':'📵',d.x,d.y+3); ctx.textAlign='left';
+      });
+      let conn=0;
+      devices.forEach(d=>{if(aps.some(ap=>Math.hypot(d.x-ap.x,d.y-ap.y)<=ap.range))conn++;});
+      setStats({connected:conn,total:devices.length,coverage:aps.length});
+    },[aps,devices]);
+
+    useEffect(()=>{draw();},[draw]);
+
+    const handleClick=(e)=>{
+      const cv=canvasRef.current;
+      const rect=cv.getBoundingClientRect();
+      const x=(e.clientX-rect.left)*(W/rect.width);
+      const y=(e.clientY-rect.top)*(H/rect.height);
+      idRef.current++;
+      if(mode==='ap'){
+        if(aps.length>=6){alert('AP는 최대 6개까지!');return;}
+        setAps(p=>[...p,{x,y,range:rangeVal,id:idRef.current}]);
+      }else{
+        if(devices.length>=10){alert('기기는 최대 10개까지!');return;}
+        setDevices(p=>[...p,{x,y,id:idRef.current}]);
+      }
+    };
+
+    const checkScore=()=>{
+      if(!aps.length||!devices.length){alert('AP와 기기를 먼저 배치해주세요!');return;}
+      let conn=0;
+      devices.forEach(d=>{if(aps.some(ap=>Math.hypot(d.x-ap.x,d.y-ap.y)<=ap.range))conn++;});
+      const rate=conn/devices.length;
+      if(rate>=0.8&&!scored){
+        onEarn(30,`AP ${aps.length}개로 기기 ${conn}/${devices.length}대 커버! 80% 이상 성공!`,'');
+        setScored(true);
+      }else if(rate<0.8){
+        onEarn(0,'',`현재 ${conn}/${devices.length}대만 연결됐어요. AP 위치를 조정해서 80% 이상 커버해보세요!`);
+      }else{
+        alert('이미 포인트를 획득했어요! 초기화 후 다시 도전해보세요.');
+      }
+    };
+
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-teal-700 text-base mb-1">🗼 가상 네트워크 빌더 — 학교에 AP를 설치해보세요!</h4>
+        <p className="text-sm text-gray-500 mb-3 leading-relaxed">
+          📌 AP를 클릭해서 지도에 배치하고, 기기(스마트폰)도 추가해보세요.<br/>
+          <span className="text-emerald-600 font-bold">초록 = 연결됨</span> / <span className="text-red-500 font-bold">빨강 = 연결 안됨</span> — 기기의 80% 이상 커버 시 포인트 획득!
+        </p>
+        <div className="flex flex-wrap gap-2 mb-3 items-center">
+          {[['ap','🗼 AP 배치','teal'],['device','📱 기기 배치','emerald']].map(([m,l,c])=>(
+            <button key={m} onClick={()=>setMode(m)}
+              className={`px-3 py-1.5 rounded-lg font-bold text-sm border-2 transition-all ${mode===m?`border-${c}-500 bg-${c}-50 text-${c}-700`:'border-gray-200 bg-white text-gray-500 hover:border-teal-300'}`}>
+              {l}
+            </button>
+          ))}
+          <button onClick={()=>setAps(p=>p.slice(0,-1))}
+            className="px-3 py-1.5 rounded-lg font-bold text-sm border-2 border-gray-200 bg-white text-gray-500 hover:border-red-300">↩ AP 취소</button>
+          <button onClick={()=>{setAps([]);setDevices([]);setScored(false);}}
+            className="px-3 py-1.5 rounded-lg font-bold text-sm border-2 border-gray-200 bg-white text-gray-500 hover:border-gray-400">🔄 초기화</button>
+          <div className="ml-auto flex items-center gap-2 bg-teal-50 rounded-lg px-3 py-1.5">
+            <span className="text-sm font-bold text-teal-700">범위: {rangeVal}m</span>
+            <input type="range" min={40} max={160} value={rangeVal} onChange={e=>setRangeVal(+e.target.value)}
+              className="w-20" style={{accentColor:'#0d9488'}}/>
+          </div>
+        </div>
+        <div onClick={handleClick} className="border-2 border-teal-200 rounded-xl overflow-hidden cursor-crosshair">
+          <canvas ref={canvasRef} width={W} height={H} style={{display:'block',width:'100%',maxWidth:W}}/>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2 items-center">
+          <span className="bg-teal-50 border border-teal-200 rounded-lg px-3 py-1.5 text-sm font-bold text-teal-700">📡 AP: {stats.coverage}개</span>
+          <span className="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 text-sm font-bold text-emerald-700">📱 기기: {stats.total}대 중 {stats.connected}대 연결</span>
+          <button onClick={checkScore} className="ml-auto bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm">✅ 커버리지 확인</button>
+        </div>
+        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-sm text-gray-600">학교 복도·교실 천장에 설치된 AP(원반 모양 장치)를 찾아보세요! 스마트폰 Wi-Fi 설정에서 연결된 AP 이름(SSID)을 확인하고, 교실마다 다른지 비교해보세요.</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── Wi-Fi 속도 시뮬레이터 ─── */
+  function WiFiLab({ onEarn }) {
+    const [dist,setDist]=useState(10);
+    const [obs,setObs]=useState('없음');
+    const [act,setAct]=useState(null);
+    const [loading,setLoading]=useState(false);
+    const [result,setResult]=useState(null);
+    const [scored,setScored]=useState(false);
+    const obsMap={'없음':1,'벽 1개':0.6,'벽 2개':0.3,'콘크리트':0.1};
+    const calcSpeed=()=>Math.round(Math.max(0.1,100*(1-dist/120))*obsMap[obs]*10)/10;
+    const simulate=(a)=>{
+      setAct(a);setLoading(true);setResult(null);
+      const spd=calcSpeed();
+      const sizes={'유튜브 보기':50,'파일 다운로드':500,'사진 업로드':30};
+      const t=(sizes[a]/spd).toFixed(1);
+      setTimeout(()=>{setLoading(false);setResult({spd,t,a});
+        if(!scored){onEarn(20,`Wi-Fi 속도 실험 완료! ${spd}Mbps — 거리와 장애물에 따라 얼마나 달라지는지 느꼈나요?`,'');setScored(true);}
+      },1500);
+    };
+    const spd=calcSpeed();
+    const bars=Math.max(1,Math.round((spd/100)*4));
+    const barColor=spd>50?'#10b981':spd>15?'#f59e0b':'#ef4444';
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-cyan-600 text-base mb-1">📶 Wi-Fi 속도 테스트 시뮬레이터</h4>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">거리와 장애물을 바꿔가며 Wi-Fi 속도가 어떻게 변하는지 실험해보세요!</p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-cyan-50 rounded-xl p-3 border border-cyan-100">
+            <p className="font-bold text-cyan-700 mb-2 text-sm">📏 AP와의 거리: <strong>{dist}m</strong></p>
+            <input type="range" min={1} max={100} value={dist} onChange={e=>{setDist(+e.target.value);setResult(null);}} className="w-full" style={{accentColor:'#0891b2'}}/>
+            <div className="flex justify-between text-xs text-gray-400 mt-1"><span>1m</span><span>100m</span></div>
+          </div>
+          <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
+            <p className="font-bold text-amber-700 mb-2 text-sm">🧱 장애물</p>
+            <div className="flex flex-col gap-1.5">
+              {Object.keys(obsMap).map(o=>(
+                <button key={o} onClick={()=>{setObs(o);setResult(null);}}
+                  className={`px-2 py-1 rounded-lg text-left text-xs font-bold transition-all border ${obs===o?'border-amber-400 bg-amber-100 text-amber-800':'border-gray-200 bg-white text-gray-500'}`}>
+                  {obs===o?'✅ ':''}{o}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
+          <p className="font-bold text-gray-700 mb-3 text-sm">📡 현재 예상 속도</p>
+          <div className="flex items-end gap-1 h-8 mb-2">
+            {[1,2,3,4].map(i=>(
+              <div key={i} className="flex-1 rounded" style={{background:i<=bars?barColor:'#e5e7eb',height:`${25+i*10}%`,transition:'all 0.4s'}}/>
+            ))}
+            <span className="ml-2 font-bold text-lg" style={{color:barColor}}>{spd} Mbps</span>
+          </div>
+          <p className="text-sm text-gray-500">
+            {spd>50?'🟢 빠름 — 4K 영상도 문제없어요!':spd>15?'🟡 보통 — 유튜브는 가능해요':'🔴 느림 — 버퍼링이 생길 수 있어요'}
+          </p>
+        </div>
+        <div className="flex gap-2 flex-wrap mb-3">
+          {['유튜브 보기','파일 다운로드','사진 업로드'].map(a=>(
+            <button key={a} onClick={()=>simulate(a)} disabled={loading}
+              className={`px-3 py-1.5 rounded-lg font-bold text-sm border-2 transition-all ${act===a?'border-cyan-500 bg-cyan-50 text-cyan-700':'border-gray-200 bg-white text-gray-500 hover:border-teal-300'}`}>
+              {a==='유튜브 보기'?'▶ ':a==='파일 다운로드'?'⬇ ':'⬆ '}{a}
+            </button>
+          ))}
+        </div>
+        {loading&&<div className="text-center py-4"><span className="text-2xl" style={{display:'inline-block',animation:'spin 1s linear infinite'}}>⏳</span><p className="text-gray-400 mt-1 text-sm">로딩 중...</p></div>}
+        {result&&!loading&&(
+          <div className={`rounded-xl p-4 border ${result.spd>15?'bg-emerald-50 border-emerald-300':'bg-red-50 border-red-300'}`}>
+            <p className={`font-bold mb-1 ${result.spd>15?'text-emerald-700':'text-red-600'}`}>📊 {result.a} 결과</p>
+            <p className="text-sm text-gray-600">속도 <strong>{result.spd} Mbps</strong> → 소요시간 <strong>{result.t}초</strong></p>
+          </div>
+        )}
+        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-sm text-gray-600">스마트폰에서 <strong>Speedtest</strong> 앱을 실행하고, 교실 안·복도·교문 밖에서 각각 속도를 측정해 비교해보세요!</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── 블루투스 페어링 게임 ─── */
+  function BluetoothLab({ onEarn }) {
+    const [phase,setPhase]=useState('idle');
+    const [dist,setDist]=useState(3);
+    const [song,setSong]=useState(null);
+    const [scored,setScored]=useState(false);
+    const MAX=10;
+    const songs=['🎵 아이유 — 좋은 날','🎵 BTS — Dynamite','🎵 NewJeans — Hype Boy'];
+    const bars=Math.max(0,Math.round((1-dist/MAX)*4));
+    const changeDist=(d)=>{setDist(d);if(phase==='playing'&&d>MAX)setPhase('disconnected');};
+    useEffect(()=>{if(phase==='scanning'){const t=setTimeout(()=>setPhase('found'),1500);return()=>clearTimeout(t);}},[phase]);
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-purple-600 text-base mb-1">🎧 블루투스 페어링 게임</h4>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">가상 블루투스 이어폰을 연결하고, 거리를 늘려 10m 한계를 체험해보세요!</p>
+        <div className="flex items-center justify-center gap-6 bg-purple-50 rounded-xl p-5 mb-4">
+          <div className="text-center"><div className="text-4xl">📱</div><p className="text-xs text-gray-400 mt-1">스마트폰</p></div>
+          <div className="flex-1 text-center">
+            <div className="flex justify-center gap-1 mb-1">
+              {[0,1,2,3].map(i=><div key={i} className="w-2 h-2 rounded-full transition-all duration-300" style={{background:i<bars?'#9333ea':'#e5e7eb'}}/>)}
+            </div>
+            <div className="h-0.5 rounded-full transition-all duration-300" style={{background:`linear-gradient(90deg,#9333ea ${dist<=MAX?(1-dist/MAX)*100:0}%,#e5e7eb 0%)`}}/>
+            <p className="text-xs text-gray-400 mt-1">{dist}m {dist>MAX?'⚠️ 범위 초과!':''}</p>
+            {phase==='playing'&&dist<=MAX&&<div className="text-base mt-1" style={{animation:'float 2s ease-in-out infinite'}}>🎵</div>}
+          </div>
+          <div className="text-center"><div className="text-4xl" style={{filter:phase==='playing'&&dist<=MAX?'none':'grayscale(1)'}}>🎧</div><p className="text-xs text-gray-400 mt-1">이어폰</p></div>
+        </div>
+        <div className="bg-purple-50 rounded-xl p-3 mb-4 border border-purple-100">
+          <p className="font-bold text-purple-700 mb-2 text-sm">📏 거리 조절: <strong>{dist}m</strong></p>
+          <input type="range" min={1} max={20} value={dist} onChange={e=>changeDist(+e.target.value)} className="w-full" style={{accentColor:'#9333ea'}}/>
+          <div className="flex justify-between text-xs text-gray-400 mt-1"><span>1m</span><span className="text-red-500 font-bold">한계: 10m</span><span>20m</span></div>
+        </div>
+        {phase==='idle'&&<button onClick={()=>setPhase('scanning')} className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold py-2.5 rounded-xl">🔍 블루투스 기기 검색</button>}
+        {phase==='scanning'&&(<div className="text-center py-4"><span className="text-3xl" style={{display:'inline-block',animation:'pulse 1.2s ease-in-out infinite'}}>📡</span><p className="text-gray-400 mt-2">기기 검색 중...</p></div>)}
+        {phase==='found'&&(
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <p className="font-bold text-gray-700 mb-3 text-sm">📋 검색된 기기</p>
+            <div className="flex items-center justify-between bg-white rounded-xl p-3 border border-gray-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🎧</span>
+                <div><p className="font-bold text-sm m-0">Galaxy Buds Pro</p><p className="text-xs text-gray-400">블루투스 5.2 · 배터리 85%</p></div>
               </div>
+              <button onClick={()=>dist<=MAX?setPhase('paired'):setPhase('fail')}
+                className="bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm">연결</button>
             </div>
           </div>
+        )}
+        {phase==='fail'&&(<div className="bg-red-50 border border-red-300 rounded-xl p-4"><p className="font-bold text-red-600">❌ 연결 실패! 거리가 너무 멀어요 ({dist}m)</p><button onClick={()=>setPhase('found')} className="mt-2 bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-sm">다시 시도</button></div>)}
+        {phase==='paired'&&(
+          <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4">
+            <p className="font-bold text-emerald-700 mb-3">✅ 연결됨! 재생할 음악을 선택하세요:</p>
+            {songs.map(s=>(<button key={s} onClick={()=>{setSong(s);setPhase('playing');if(!scored){onEarn(20,`블루투스 연결 성공! 🎧 "${s.replace('🎵 ',"") }" 재생 중!`,'');setScored(true);}}} className="w-full mb-2 bg-white border border-emerald-200 text-left font-bold text-gray-700 px-4 py-2 rounded-lg text-sm hover:border-emerald-400 transition-all">{s}</button>))}
+          </div>
+        )}
+        {phase==='playing'&&dist<=MAX&&(
+          <div className="bg-purple-50 border border-purple-300 rounded-xl p-4">
+            <p className="font-bold text-purple-700 mb-2">🎶 재생 중: {song}</p>
+            <div className="flex gap-1 items-end h-6 mb-2">
+              {[1,2,3,4,5].map(i=><div key={i} className="flex-1 bg-purple-400 rounded" style={{height:`${40+i*12}%`,animation:'float 2s ease-in-out infinite',animationDelay:`${i*0.1}s`}}/>)}
+            </div>
+            <p className="text-xs text-gray-500">거리를 10m 이상으로 늘려보세요!</p>
+            <button onClick={()=>{setPhase('idle');setSong(null);}} className="mt-2 bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-sm">🔄 처음부터</button>
+          </div>
+        )}
+        {phase==='disconnected'&&(<div className="bg-red-50 border border-red-300 rounded-xl p-4"><p className="font-bold text-red-600">📵 연결 끊김! ({dist}m)</p><p className="text-sm text-gray-500 mb-2">블루투스 최대 범위(10m)를 벗어났어요!</p><button onClick={()=>{if(dist<=MAX)setPhase('playing');}} className="bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-sm">슬라이더로 거리 줄이기</button></div>)}
+        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-sm text-gray-600">블루투스 이어폰을 스마트폰에 연결하고, 멀리 가져가면서 소리가 끊기는 거리를 직접 측정해보세요!</p>
+        </div>
+      </div>
+    );
+  }
 
-          <div className="p-8">
-            {/* 기술 선택 카드 */}
-            <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-              <p className="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
-              <p className="text-sm text-gray-700">
-                <span className="font-bold text-blue-600">아래 카드를 클릭해보세요! </span> 
-                각 무선 네트워크 기술의 특징과 실생활 예시를 확인할 수 있어요.
+  /* ─── RFID 태그 스캐너 ─── */
+  function RFIDLab({ onEarn }) {
+    const [tags,setTags]=useState([
+      {id:1,name:'📚 소설 — 어린왕자',type:'도서',scanned:false},
+      {id:2,name:'📖 만화 — 원피스 1권',type:'도서',scanned:false},
+      {id:3,name:'🐕 반려동물 칩',type:'동물',scanned:false},
+      {id:4,name:'🚗 하이패스 태그',type:'교통',scanned:false},
+      {id:5,name:'👕 의류 방범 태그',type:'쇼핑',scanned:false},
+    ]);
+    const [log,setLog]=useState([]);
+    const [active,setActive]=useState(false);
+    const [scored,setScored]=useState(false);
+    const typeColors={도서:'#0891b2',동물:'#10b981',교통:'#f59e0b',쇼핑:'#ec4899'};
+    const scan=(tag)=>{
+      if(tag.scanned)return;
+      setTags(p=>p.map(t=>t.id===tag.id?{...t,scanned:true}:t));
+      setLog(p=>[{name:tag.name,time:new Date().toLocaleTimeString('ko-KR')},...p]);
+      setActive(true); setTimeout(()=>setActive(false),600);
+      const n=tags.filter(t=>t.scanned).length+1;
+      if(!scored&&n>=3){onEarn(20,`RFID 태그 ${n}개 스캔 완료! 전파로 태그를 자동 인식하는 원리를 이해했어요! 💳`,'');setScored(true);}
+    };
+    const batchScan=()=>{
+      const un=tags.filter(t=>!t.scanned);
+      un.forEach((t,i)=>setTimeout(()=>{
+        setTags(p=>p.map(x=>x.id===t.id?{...x,scanned:true}:x));
+        setLog(p=>[{name:t.name,time:new Date().toLocaleTimeString('ko-KR')},...p]);
+        setActive(true); setTimeout(()=>setActive(false),400);
+      },i*400));
+      if(!scored)setTimeout(()=>{onEarn(25,'일괄 스캔 완료! RFID는 여러 태그를 동시에 인식할 수 있어요! ⚡','');setScored(true);},un.length*400+100);
+    };
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-emerald-600 text-base mb-1">💳 RFID 태그 스캐너 시뮬레이션</h4>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">태그를 클릭해서 리더기에 스캔하거나, 일괄 스캔으로 여러 개를 한 번에 인식해보세요!</p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <p className="font-bold text-emerald-700 mb-2 text-sm">📦 태그 목록</p>
+            {tags.map(t=>(
+              <button key={t.id} onClick={()=>scan(t)} disabled={t.scanned}
+                className={`w-full mb-1.5 px-3 py-2 rounded-lg border-2 text-left text-sm font-bold flex items-center gap-2 transition-all ${t.scanned?'border-emerald-200 bg-emerald-50 text-gray-400 cursor-default':'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 cursor-pointer'}`}>
+                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:t.scanned?'#10b981':typeColors[t.type]}}/>
+                <span className="flex-1 text-xs">{t.name}</span>
+                {t.scanned&&<span className="text-emerald-500">✅</span>}
+              </button>
+            ))}
+          </div>
+          <div>
+            <p className="font-bold text-emerald-700 mb-2 text-sm">📡 리더기</p>
+            <div className={`rounded-xl p-4 text-center mb-3 transition-all border-2 ${active?'bg-emerald-50 border-emerald-400':'bg-gray-50 border-gray-200'}`} style={{minHeight:70}}>
+              <span className="text-2xl">{active?'📡':'🔲'}</span>
+              <p className={`text-xs font-bold mt-1 ${active?'text-emerald-600':'text-gray-400'}`}>
+                {active?'인식! ✅':`대기 중 (${tags.filter(t=>t.scanned).length}/${tags.length})`}
               </p>
             </div>
-
-            {/* 기술 카드 그리드 */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-              {Object.entries(technologies).map(([key, tech]) => (
-                <div
-                  key={key}
-                  onClick={() => setSelectedTech(key)}
-                  className={`cursor-pointer p-6 rounded-xl border-2 transition-all duration-300 text-center
-                    ${selectedTech === key 
-                      ? `bg-gradient-to-br ${colorMap[tech.color].bg} text-white shadow-xl scale-105 border-transparent` 
-                      : 'bg-white hover:shadow-lg hover:scale-105 border-gray-200'}`}
-                >
-                  {tech.iconType === 'image' ? (
-                    <img src={tech.icon} alt={tech.name} className="w-12 h-10 mx-auto mb-2  object-cover" />
-                  ) : (
-                    <div className="text-4xl mb-2">{tech.icon}</div>
-                  )}
-                  <div className="font-bold text-lg">{tech.name}</div>
+            <div className="bg-gray-50 rounded-xl p-3 max-h-32 overflow-y-auto border border-gray-200">
+              <p className="text-xs font-bold text-emerald-700 mb-2">📋 스캔 로그</p>
+              {log.length===0&&<p className="text-xs text-gray-400">태그를 스캔하면 기록돼요.</p>}
+              {log.map((l,i)=>(
+                <div key={i} className="flex justify-between text-xs py-1 border-b border-gray-100">
+                  <span className="text-gray-600">{l.name}</span><span className="text-gray-400">{l.time}</span>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={batchScan} className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-2.5 rounded-xl text-sm">⚡ 일괄 스캔 (여러 태그 동시 인식)</button>
+          <button onClick={()=>{setTags(p=>p.map(t=>({...t,scanned:false})));setLog([]);setScored(false);}} className="bg-gray-100 border border-gray-200 font-bold text-gray-600 px-3 py-2 rounded-xl">🔄</button>
+        </div>
+        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-sm text-gray-600">학교 도서관에서 책 대출·반납 시 RFID 리더기를 관찰해보세요! 책 표지 안쪽의 RFID 태그 스티커도 찾아보세요.</p>
+        </div>
+      </div>
+    );
+  }
 
-            {/* 선택된 기술 상세 정보 */}
-            <div className="fade-in">
-              <div className={`bg-gradient-to-r ${colorMap[currentTech.color].light} p-6 rounded-xl border ${colorMap[currentTech.color].border} mb-6`}>
-                <div className="flex items-center gap-4 mb-4">
-                  {currentTech.iconType === 'image' ? (
-                    <img src={currentTech.icon} alt={currentTech.name} className="w-20 h-18 object-cover" />
-                  ) : (
-                    <div className="text-6xl">{currentTech.icon}</div>
-                  )}
-                  <div>
-                    <h2 className={`text-3xl font-bold ${colorMap[currentTech.color].text}`}>{currentTech.name}</h2>
-                    <p className="text-gray-600 text-lg">{currentTech.fullName}</p>
-                  </div>
+  /* ─── NFC 결제 시뮬레이터 ─── */
+  function NFCLab({ onEarn }) {
+    const [step,setStep]=useState('idle');
+    const [dist,setDist]=useState(2);
+    const [balance,setBalance]=useState(50000);
+    const [cart,setCart]=useState([]);
+    const [history,setHistory]=useState([]);
+    const [scored,setScored]=useState(false);
+    const products=[{id:1,name:'☕ 아메리카노',price:4500},{id:2,name:'🥤 오렌지 주스',price:3800},{id:3,name:'🍰 케이크',price:6500}];
+    const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+    const addCart=(p)=>setCart(prev=>{const e=prev.find(c=>c.id===p.id);return e?prev.map(c=>c.id===p.id?{...c,qty:c.qty+1}:c):[...prev,{...p,qty:1}];});
+    const pay=()=>{
+      if(!cart.length)return;
+      if(dist>10){setStep('tooFar');return;}
+      setStep('tapping');
+      setTimeout(()=>{
+        if(balance>=total){
+          setBalance(b=>b-total);
+          setHistory(h=>[{items:cart.map(c=>c.name).join(', '),total,time:new Date().toLocaleTimeString('ko-KR')},...h]);
+          setCart([]); setStep('success');
+          if(!scored){onEarn(20,'NFC 결제 성공! 📱 단말기에 가까이 대기만 했는데 결제가 됐어요!','');setScored(true);}
+        }else setStep('fail');
+        setTimeout(()=>setStep('idle'),2000);
+      },1200);
+    };
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-amber-600 text-base mb-1">📱 NFC 결제 시뮬레이터</h4>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">상품을 담고 단말기에 폰을 가까이 대어 결제해보세요! (10cm 이내)</p>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <p className="font-bold text-amber-700 mb-2 text-sm">🛍 상품 선택</p>
+            {products.map(p=>(
+              <button key={p.id} onClick={()=>addCart(p)}
+                className="w-full mb-1.5 px-3 py-2 rounded-lg border-2 border-gray-200 bg-white flex justify-between text-sm font-bold text-gray-700 hover:border-amber-300 transition-all">
+                <span>{p.name}</span><span className="text-amber-600">{p.price.toLocaleString()}원</span>
+              </button>
+            ))}
+          </div>
+          <div>
+            <p className="font-bold text-amber-700 mb-2 text-sm">🧾 장바구니</p>
+            <div className="bg-amber-50 rounded-xl p-3 min-h-20 mb-2 border border-amber-100">
+              <p className="text-xs text-gray-500 mb-1">잔액: <strong className="text-emerald-600">{balance.toLocaleString()}원</strong></p>
+              {cart.length===0&&<p className="text-xs text-gray-400">아직 비어있어요</p>}
+              {cart.map(c=>(
+                <div key={c.id} className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-700">{c.name} ×{c.qty}</span><span className="font-bold">{(c.price*c.qty).toLocaleString()}원</span>
                 </div>
-                
-                <div className="bg-white p-5 rounded-lg mb-4">
-                  <h3 className="font-bold text-gray-900 mb-2 text-lg relative">
-                    <span 
-                      onClick={() => {
-                        setShowTooltip(true);
-                        setTimeout(() => setShowTooltip(false), 500);
-                      }}
-                      style={{cursor: 'pointer'}}
-                    >
-                      📖
-                    </span> 쉬운 설명
-                    {showTooltip && (
-                      <span className="absolute left-0 -top-5 bg-gray-200 text-black px-2 py-1 rounded text-sm font-normal animate-pulse">
-                        참새다!
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">{currentTech.description}</p>
-                </div>
+              ))}
+              {cart.length>0&&<div className="border-t border-amber-200 mt-1 pt-1 flex justify-between font-bold text-sm">
+                <span>합계</span><span className="text-amber-600">{total.toLocaleString()}원</span>
+              </div>}
+            </div>
+            <div className="bg-amber-50 rounded-xl p-2 mb-2 border border-amber-100">
+              <p className="text-xs font-bold mb-1">📏 단말기 거리: <span className={dist>10?'text-red-500':'text-emerald-600'}>{dist}cm {dist>10?'⚠️':''}</span></p>
+              <input type="range" min={1} max={30} value={dist} onChange={e=>setDist(+e.target.value)} className="w-full" style={{accentColor:'#f59e0b'}}/>
+            </div>
+            {step==='idle'&&<button onClick={pay} disabled={!cart.length} className={`w-full font-bold py-2 rounded-xl text-sm ${cart.length?'bg-gradient-to-r from-amber-400 to-yellow-500 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>📱 NFC 결제 (탭!)</button>}
+            {step==='tapping'&&<div className="text-center py-2"><span className="text-xl" style={{animation:'pulse 1.2s ease-in-out infinite'}}>📡</span><p className="text-amber-600 font-bold text-xs mt-1">NFC 통신 중...</p></div>}
+            {step==='success'&&<div className="bg-emerald-50 border border-emerald-300 rounded-xl p-2 text-center"><p className="font-bold text-emerald-600 text-sm">✅ 결제 완료!</p></div>}
+            {step==='fail'&&<div className="bg-red-50 border border-red-300 rounded-xl p-2 text-center"><p className="font-bold text-red-600 text-sm">❌ 잔액 부족!</p></div>}
+            {step==='tooFar'&&<div className="bg-amber-50 border border-amber-300 rounded-xl p-2 text-center"><p className="font-bold text-amber-600 text-sm">⚠️ 너무 멀어요! 10cm 이내로!</p></div>}
+          </div>
+        </div>
+        {history.length>0&&<div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
+          <p className="font-bold text-amber-700 mb-2 text-sm">📋 결제 내역</p>
+          {history.map((h,i)=><div key={i} className="flex justify-between text-xs py-1 border-b border-amber-100">
+            <span className="text-gray-600">{h.items}</span><span className="text-amber-600 font-bold">{h.total.toLocaleString()}원</span>
+          </div>)}
+        </div>}
+        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-sm text-gray-600">NFC가 있는 안드로이드 폰끼리 태그해서 사진이나 연락처를 공유해보세요! (설정 → NFC → 켜기)</p>
+        </div>
+      </div>
+    );
+  }
 
-                {/* 스펙 정보 */}
-                <div className="grid grid-cols-3 gap-4">
-                  {currentTech.specs.map((spec, idx) => (
-                    <div key={idx} className="bg-white p-4 rounded-lg text-center shadow-sm">
-                      <div className={`text-2xl font-bold ${colorMap[currentTech.color].text} mb-1`}>
-                        {spec.value}
-                      </div>
-                      <div className="text-sm text-gray-600">{spec.label}</div>
-                    </div>
-                  ))}
-                </div>
+  /* ─── 미러링 시뮬레이터 ─── */
+  function MirroringLab({ onEarn }) {
+    const [mode,setMode]=useState('idle');
+    const [quality,setQuality]=useState('HD');
+    const [phoneApp,setPhoneApp]=useState('home');
+    const [tvApp,setTvApp]=useState(null);
+    const [scored,setScored]=useState(false);
+    const [sec,setSec]=useState(0);
+    const apps={home:{label:'🏠 홈화면',bg:'#f1f5f9',text:'12:34'},youtube:{label:'▶ 유튜브',bg:'#fee2e2',text:'YouTube'},photo:{label:'🖼 사진첩',bg:'#e0f2fe',text:'갤러리'},game:{label:'🎮 게임',bg:'#d1fae5',text:'Game!'}};
+    useEffect(()=>{
+      let iv; if(mode==='mirroring'||mode==='casting'){iv=setInterval(()=>setSec(s=>s+1),1000);}else setSec(0);
+      return()=>clearInterval(iv);
+    },[mode]);
+    const startMirror=()=>{setMode('connecting');setTimeout(()=>{setMode('mirroring');setTvApp(phoneApp);if(!scored){onEarn(20,'미러링 성공! 🖥️ 스마트폰 화면이 TV에 그대로 비춰지고 있어요!','');setScored(true);}},1500);};
+    const startCast=()=>{setMode('connecting');setTimeout(()=>{setMode('casting');setTvApp('youtube');setPhoneApp('home');},1500);};
+    const changeApp=(a)=>{setPhoneApp(a);if(mode==='mirroring')setTvApp(a);};
+    const cur=apps[phoneApp]; const tv=tvApp?apps[tvApp]:null;
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-pink-600 text-base mb-1">🖥️ 화면 공유(미러링) 시뮬레이터</h4>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">스마트폰 화면을 TV로 미러링하거나, 유튜브만 캐스팅해보세요!</p>
+        <div className="grid grid-cols-3 gap-2 items-center mb-4">
+          <div>
+            <p className="font-bold text-gray-500 text-xs mb-2 text-center">📱 스마트폰</p>
+            <div className="bg-gray-200 rounded-2xl p-1 border-4 border-gray-300">
+              <div className="rounded-xl p-4 text-center" style={{background:cur.bg,minHeight:80}}>
+                <p className="font-bold text-gray-800 text-sm m-0">{cur.text}</p>
               </div>
-
-              {/* 실생활 예시 */}
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-orange-200">
-                <h3 className="text-xl font-bold text-orange-900 mb-4">💡 실생활 예시</h3>
-                <div className="space-y-3">
-                  {currentTech.examples.map((example, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className={`w-8 h-8 bg-gradient-to-br ${colorMap[currentTech.color].bg} text-white rounded-full flex items-center justify-center font-bold flex-shrink-0`}>
-                        {idx + 1}
-                      </div>
-                      <div className="flex-1 bg-white p-3 rounded-lg shadow-sm">
-                        <p className="text-gray-700">{example}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-2 gap-1 mt-1">
+                {Object.entries(apps).map(([k,v])=>(
+                  <button key={k} onClick={()=>changeApp(k)}
+                    className="p-1 rounded text-xs font-bold transition-all" style={{background:phoneApp===k?'#0d9488':'#6b7280',color:'white'}}>
+                    {v.label}
+                  </button>
+                ))}
               </div>
             </div>
-
-            {/* 비교표 */}
-            <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
-              <h3 className="text-xl font-bold text-purple-900 mb-4">📊 기술 비교하기</h3>
-              <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-                <table className="w-full">
-                  <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-                    <tr>
-                      <th className="p-4 text-left">기술</th>
-                      <th className="p-4 text-left">거리</th>
-                      <th className="p-4 text-left">속도</th>
-                      <th className="p-4 text-left">주요 용도</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b hover:bg-blue-50">
-                      <td className="p-4 font-bold text-blue-600">AP</td>
-                      <td className="p-4">~100m</td>
-                      <td className="p-4">매우 빠름</td>
-                      <td className="p-4">Wi-Fi 신호 제공</td>
-                    </tr>
-                    <tr className="border-b hover:bg-indigo-50">
-                      <td className="p-4 font-bold text-indigo-600">Wi-Fi</td>
-                      <td className="p-4">~100m</td>
-                      <td className="p-4">매우 빠름</td>
-                      <td className="p-4">인터넷 연결</td>
-                    </tr>
-                    <tr className="border-b hover:bg-purple-50">
-                      <td className="p-4 font-bold text-purple-600">Bluetooth</td>
-                      <td className="p-4">~10m</td>
-                      <td className="p-4">보통</td>
-                      <td className="p-4">기기 간 연결</td>
-                    </tr>
-                    <tr className="border-b hover:bg-green-50">
-                      <td className="p-4 font-bold text-green-600">RFID</td>
-                      <td className="p-4">0.1~100m</td>
-                      <td className="p-4">빠름</td>
-                      <td className="p-4">자동 인식</td>
-                    </tr>
-                    <tr className="hover:bg-orange-50">
-                      <td className="p-4 font-bold text-orange-600">NFC</td>
-                      <td className="p-4">~10cm</td>
-                      <td className="p-4">매우 빠름</td>
-                      <td className="p-4">결제, 정보 교환</td>
-                    </tr>
-                    <tr className="hover:bg-cyan-50">
-                      <td className="p-4 font-bold text-cyan-600">미러링</td>
-                      <td className="p-4">Wi-Fi 범위</td>
-                      <td className="p-4">빠름</td>
-                      <td className="p-4">화면 공유</td>
-                    </tr>
-                  </tbody>
-                </table>
+          </div>
+          <div className="text-center text-2xl" style={{color:(mode==='mirroring'||mode==='casting')?'#ec4899':'#d1d5db'}}>→</div>
+          <div>
+            <p className="font-bold text-gray-500 text-xs mb-2 text-center">📺 TV</p>
+            <div className="bg-gray-900 rounded-lg p-1 border-4 border-gray-700">
+              <div className="rounded min-h-24 flex flex-col items-center justify-center p-3" style={{background:tv?tv.bg:'#111'}}>
+                {tv?(<><p className="font-bold text-gray-800 text-sm m-0">{tv.text}</p>
+                  {(mode==='mirroring'||mode==='casting')&&<p className="text-xs text-gray-400 mt-1">{quality} · {sec}초</p>}
+                </>):<p className="text-gray-600 font-bold text-xs">대기 중...</p>}
               </div>
             </div>
+            {mode==='casting'&&<p className="text-xs text-emerald-600 font-bold text-center mt-1">✅ 폰으로 다른 작업 가능!</p>}
+          </div>
+        </div>
+        <div className="bg-pink-50 rounded-xl p-3 border border-pink-100 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm text-gray-700">화질:</span>
+            {['720p','HD','FHD','4K'].map(q=><button key={q} onClick={()=>setQuality(q)}
+              className={`px-2 py-1 rounded text-xs font-bold border-2 transition-all ${quality===q?'border-pink-400 bg-pink-100 text-pink-700':'border-gray-200 bg-white text-gray-400'}`}>{q}</button>)}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {mode==='idle'&&<><button onClick={startMirror} className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 rounded-xl text-sm">📱→📺 미러링 시작</button>
+            <button onClick={startCast} className="flex-1 border-2 border-gray-200 bg-white text-gray-600 font-bold py-2 rounded-xl text-sm hover:border-teal-300">▶ 유튜브 캐스팅</button></>}
+          {mode==='connecting'&&<div className="flex-1 text-center py-2"><span className="text-xl" style={{display:'inline-block',animation:'spin 1s linear infinite'}}>🔄</span><span className="ml-2 text-gray-500 text-sm">연결 중...</span></div>}
+          {(mode==='mirroring'||mode==='casting')&&<>
+            <div className="flex-1 flex items-center gap-2 bg-pink-50 rounded-xl px-4 py-2 border border-pink-200">
+              <span className="text-pink-500" style={{animation:'pulse 1.2s ease-in-out infinite'}}>●</span>
+              <span className="font-bold text-pink-700 text-sm">{mode==='mirroring'?`미러링 중 (${quality})`:'유튜브 캐스팅 중'}</span>
+            </div>
+            <button onClick={()=>{setMode('idle');setTvApp(null);}} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-3 py-2 rounded-xl text-sm">⏹ 중단</button>
+          </>}
+        </div>
+        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-sm text-gray-600">집 TV와 스마트폰을 같은 Wi-Fi에 연결하고 <strong>스마트뷰(삼성)</strong> 또는 <strong>Chromecast</strong>로 미러링해보세요!</p>
+        </div>
+      </div>
+    );
+  }
 
-            {/* 퀴즈 섹션 */}
-            <div className="mt-8 bg-gradient-to-r from-green-500 to-emerald-500 p-6 rounded-xl shadow-lg">
-              <h2 className="text-2xl font-bold text-white text-center mb-6">🎯 퀴즈로 복습하기!</h2>
-              
-              <div className="space-y-4">
-                {quizData.map((quiz) => (
-                  <div key={quiz.id} className="bg-white p-5 rounded-lg shadow-md">
-                    <p className="font-bold text-gray-900 mb-3">Q{quiz.id}. {quiz.question}</p>
-                    <div className="space-y-2">
-                      {quiz.options.map((option, idx) => {
-                        const isAnswered = quizAnswers[quiz.id];
-                        const isSelected = isAnswered?.selected === option;
-                        const isCorrect = option === quiz.correct;
-                        
-                        let bgColor = 'bg-gray-50 hover:bg-gray-100';
-                        if (isAnswered) {
-                          if (isSelected && isCorrect) bgColor = 'bg-green-100 border-2 border-green-500';
-                          else if (isSelected && !isCorrect) bgColor = 'bg-red-100 border-2 border-red-500';
-                          else if (isCorrect) bgColor = 'bg-green-100 border-2 border-green-500';
-                        }
-                        
-                        return (
-                          <div
-                            key={idx}
-                            onClick={() => !isAnswered && handleQuizAnswer(quiz.id, option, quiz.correct)}
-                            className={`p-3 rounded-lg ${bgColor} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'} transition-all`}
-                          >
-                            <span className="font-semibold">{'①②③④'[idx]}</span> {option}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {quizAnswers[quiz.id] && (
-                      <div className={`mt-3 p-3 rounded-lg ${quizAnswers[quiz.id].correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-                        {quizAnswers[quiz.id].correct 
-                          ? '✅ 정답입니다! 잘 이해하고 있어요! 👏' 
-                          : '❌ 아쉬워요! 위의 설명을 다시 읽어보세요. 💪'}
-                      </div>
-                    )}
+  /* ─── 거리 비교 시각화 ─── */
+  function DistanceViz() {
+    const [active,setActive]=useState('wifi');
+    const techs={
+      ap:    {label:'🗼 AP',    dist:100, color:'#8b5cf6', unit:'m',  desc:'학교 건물 하나를 통째로 커버할 수 있어요!'},
+      wifi:  {label:'📶 Wi-Fi',  dist:100, color:'#0891b2', unit:'m',  desc:'집 전체 + 정원까지 연결 가능해요!'},
+      bt:    {label:'🎧 블루투스',dist:10,  color:'#7c3aed', unit:'m',  desc:'방 하나 정도의 거리예요.'},
+      rfid:  {label:'💳 RFID',   dist:50,  color:'#10b981', unit:'m',  desc:'종류에 따라 cm~100m까지 다양해요!'},
+      nfc:   {label:'📱 NFC',    dist:10,  color:'#f59e0b', unit:'cm', desc:'거의 붙여야 해요. 그래서 결제가 안전해요!'},
+      mirror:{label:'🖥️ 미러링',  dist:100, color:'#ec4899', unit:'m',  desc:'Wi-Fi 범위 안이면 어디든 가능해요!'},
+    };
+    const t=techs[active];
+    const maxDist=Math.max(...Object.values(techs).map(x=>x.unit==='m'?x.dist:x.dist/100));
+    const relSize=t.unit==='m'?t.dist/maxDist:(t.dist/100)/maxDist;
+    return (
+      <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
+        <h4 className="font-bold text-gray-700 text-base mb-1">📏 거리 비교 시각화</h4>
+        <p className="text-sm text-gray-500 mb-4">기술을 선택하면 통신 거리를 시각적으로 비교할 수 있어요!</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {Object.entries(techs).map(([k,v])=>(
+            <button key={k} onClick={()=>setActive(k)}
+              className="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
+              style={{borderColor:active===k?v.color:'#e5e7eb',background:active===k?v.color+'22':'white',color:active===k?v.color:'#9ca3af'}}>
+              {v.label}
+            </button>
+          ))}
+        </div>
+        <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-5 text-center relative overflow-hidden border border-teal-100" style={{minHeight:180}}>
+          {[0.25,0.5,0.75,1].map(r=>(
+            <div key={r} className="absolute rounded-full border border-teal-100"
+              style={{width:`${r*90}%`,height:`${r*90}%`,top:'50%',left:'50%',transform:'translate(-50%,-50%)',transition:'all 0.6s'}}/>
+          ))}
+          <div className="absolute rounded-full border-2 transition-all duration-700"
+            style={{width:`${relSize*90}%`,height:`${relSize*90}%`,top:'50%',left:'50%',transform:'translate(-50%,-50%)',borderColor:t.color,background:t.color+'18',boxShadow:`0 0 20px ${t.color}30`}}/>
+          <div className="relative z-10 text-center" style={{marginTop:40}}>
+            <div className="text-4xl mb-1">{t.label.split(' ')[0]}</div>
+            <div className="font-bold text-2xl mb-1" style={{color:t.color}}>{t.dist}{t.unit}</div>
+            <div className="text-sm text-gray-700 max-w-xs mx-auto">{t.desc}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── 개념 앱 ─── */
+  function ConceptApp() {
+    const [tech,setTech]=useState('ap');
+    const [popup,setPopup]=useState(null);
+    const [pts,setPts]=useState(0);
+    useEffect(()=>{ window._setConceptTech = setTech; },[]);
+    const earnPoints=(p,msg,hint)=>{
+      if(p>0){setPts(s=>{const n=s+p;addPoints(p);return n;});setPopup({type:'success',message:msg,points:p});}
+      else{setPopup({type:'fail',message:'다시 시도해봐요!',hint});}
+    };
+    const technologies={
+      ap:{icon:'🗼',name:'AP',fullName:'Access Point (액세스 포인트)',color:'#8b5cf6',
+        desc:'AP는 인터넷 선(유선)을 무선 신호로 바꿔서 여러 기기들이 동시에 인터넷을 쓸 수 있게 해주는 장치예요. 집에 있는 공유기에도 AP 기능이 포함되어 있어요. 학교 교실이나 카페 천장에 달려있는 원반 모양의 장치가 바로 AP예요!',
+        specs:[{v:'50대+',l:'동시 연결'},{v:'중계기',l:'역할'},{v:'항상 켜짐',l:'작동 방식'}],
+        examples:['학교 교실마다 설치된 무선 접속 장치','공항·전시장에 설치된 무선 접속 장치','대형 건물의 무료 Wi-Fi 제공 장치','지하철·버스의 무료 Wi-Fi 장비'],
+        lab:'ap'},
+      wifi:{icon:'📶',name:'Wi-Fi',fullName:'와이파이 (Wireless Fidelity)',color:'#0891b2',
+        desc:'Wi-Fi는 선 없이 인터넷에 연결할 수 있게 해주는 기술이에요. AP(공유기)가 쏴주는 무선 신호를 스마트폰, 노트북, 태블릿이 받아서 인터넷을 쓰는 거예요. 집이나 카페, 학교에서 매일 쓰고 있죠!',
+        specs:[{v:'~100m',l:'최대 거리'},{v:'매우 빠름',l:'속도'},{v:'중간',l:'전력 소모'}],
+        examples:['집에서 스마트폰으로 유튜브 보기','카페에서 노트북으로 인터넷 검색하기','학교에서 태블릿으로 온라인 수업 듣기','스마트 TV로 넷플릭스 보기'],
+        lab:'wifi'},
+      bluetooth:{icon:'🎧',name:'Bluetooth',fullName:'블루투스',color:'#7c3aed',
+        desc:'블루투스는 가까운 거리에서 기기들을 무선으로 연결하는 기술이에요. 에어팟이나 갤럭시 버즈 같은 무선 이어폰이 바로 블루투스로 연결돼요. Wi-Fi보다 전력을 훨씬 적게 써서 배터리가 오래 가요!',
+        specs:[{v:'~10m',l:'최대 거리'},{v:'보통',l:'속도'},{v:'매우 적음',l:'전력 소모'}],
+        examples:['무선 이어폰으로 음악 듣기 (에어팟, 갤럭시 버즈)','블루투스 스피커로 음악 재생하기','무선 마우스·키보드 연결하기','스마트워치와 스마트폰 페어링'],
+        lab:'bluetooth'},
+      rfid:{icon:'💳',name:'RFID',fullName:'Radio Frequency Identification (전파 자동 인식)',color:'#10b981',
+        desc:'RFID는 "전파로 정보를 읽는 기술"이에요. 작은 태그(칩)에 정보를 저장해놓고, 리더기를 가까이 대면 전파로 정보를 자동으로 읽어요. 태그에는 전원이 필요 없어서 오래 써도 돼요!',
+        specs:[{v:'0.1~100m',l:'인식 거리'},{v:'매우 빠름',l:'인식 속도'},{v:'불필요',l:'태그 전원'}],
+        examples:['도서관 책 대출·반납 시스템','마트 도난 방지 태그','고속도로 하이패스','반려동물 등록 칩'],
+        lab:'rfid'},
+      nfc:{icon:'📱',name:'NFC',fullName:'Near Field Communication (근거리 무선 통신)',color:'#f59e0b',
+        desc:'NFC는 "아주 가까운 거리에서만 통신하는 기술"이에요. RFID의 한 종류인데, 거리가 10cm 이내로 더 짧고 보안이 더 좋아요. 두 기기가 서로 정보를 주고받을 수 있어서 결제나 데이터 교환에 딱이에요!',
+        specs:[{v:'~10cm',l:'최대 거리'},{v:'매우 빠름',l:'연결 속도'},{v:'매우 높음',l:'보안성'}],
+        examples:['스마트폰 간편결제 (삼성페이, 애플페이)','스마트폰끼리 사진·연락처 전송','호텔 체크인 태그','스마트 포스터 (태그하면 정보 확인)'],
+        lab:'nfc'},
+      mirroring:{icon:'🖥️',name:'미러링',fullName:'Screen Mirroring (화면 공유)',color:'#ec4899',
+        desc:'미러링은 스마트폰이나 태블릿의 화면을 TV나 모니터 같은 큰 화면에 그대로 보여주는 기술이에요. 거울(Mirror)처럼 내 화면이 큰 화면에 똑같이 나타나요. 주로 같은 Wi-Fi 네트워크를 통해 연결돼요.',
+        specs:[{v:'HD~4K',l:'지원 화질'},{v:'매우 적음',l:'지연 시간'},{v:'Wi-Fi/유선',l:'연결 방식'}],
+        examples:['스마트폰 사진·동영상을 TV에서 보기','수업 시간에 태블릿 화면을 프로젝터로 보여주기','게임 화면을 큰 TV로 즐기기','유튜브 캐스팅으로 TV에 스트리밍'],
+        lab:'mirroring'},
+    };
+    const cur=technologies[tech];
+    const renderLab=()=>{
+      if(cur.lab==='ap')       return <APLab onEarn={earnPoints}/>;
+      if(cur.lab==='wifi')     return <WiFiLab onEarn={earnPoints}/>;
+      if(cur.lab==='bluetooth')return <BluetoothLab onEarn={earnPoints}/>;
+      if(cur.lab==='rfid')     return <RFIDLab onEarn={earnPoints}/>;
+      if(cur.lab==='nfc')      return <NFCLab onEarn={earnPoints}/>;
+      if(cur.lab==='mirroring')return <MirroringLab onEarn={earnPoints}/>;
+    };
+    return (
+      <div>
+        <Popup popup={popup} onClose={()=>setPopup(null)}/>
+        <div className="pt-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">📖 개념 배우기</h2>
+          <p className="text-gray-500 text-sm mb-4">기술 카드를 클릭하고 체험 시뮬레이터로 직접 실험해보세요! 각 활동마다 포인트를 획득할 수 있어요.</p>
+          <div className="flex items-center gap-2 mb-5 bg-teal-50 border border-teal-200 rounded-xl px-4 py-3">
+            <span className="text-xl">⭐</span>
+            <span className="font-bold text-sm text-gray-700">개념 학습 포인트: <span className="text-amber-500">{pts}pt</span></span>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-5">
+            {Object.entries(technologies).map(([k,t])=>(
+              <button key={k} onClick={()=>setTech(k)}
+                className={`px-4 py-2 rounded-full font-bold text-sm border-2 transition-all whitespace-nowrap ${tech===k?'text-white shadow-md':'bg-white text-gray-500 border-gray-200 hover:border-teal-300'}`}
+                style={{background:tech===k?t.color:'',borderColor:tech===k?t.color:''}}>
+                {t.icon} {t.name}
+              </button>
+            ))}
+          </div>
+          <div key={tech}>
+            <div className="flex items-center gap-4 rounded-xl p-5 mb-4 border-l-4" style={{background:`${cur.color}11`,borderLeftColor:cur.color}}>
+              <span className="text-5xl">{cur.icon}</span>
+              <div>
+                <div className="text-xl font-bold" style={{color:cur.color}}>{cur.name}</div>
+                <div className="text-xs text-gray-700 mt-1">{cur.fullName}</div>
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+              <div className="font-bold text-amber-700 mb-2 text-sm">📖 쉬운 설명</div>
+              <p className="text-gray-700 text-base leading-relaxed">{cur.desc}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {cur.specs.map((s,i)=>(
+                <div key={i} className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-center">
+                  <div className="font-bold text-base" style={{color:cur.color}}>{s.v}</div>
+                  <div className="text-xs text-gray-700 mt-1">{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mb-4">
+              <p className="font-bold text-gray-700 mb-3 text-sm">💡 실생활 예시</p>
+              <div className="flex flex-col gap-2">
+                {cur.examples.map((ex,i)=>(
+                  <div key={i} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{background:cur.color}}>{i+1}</div>
+                    <span className="text-sm text-gray-600">{ex}</span>
                   </div>
                 ))}
               </div>
             </div>
+            <div className="mt-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">🔬</span>
+                <h3 className="font-bold text-gray-800 text-base">직접 체험해보기</h3>
+                <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-bold">포인트 획득 가능!</span>
+              </div>
+              {renderLab()}
+            </div>
+          </div>
+          <DistanceViz/>
+        </div>
+      </div>
+    );
+  }
 
-            {/* 생각해보기 섹션 */}
-            <div className="mt-8 bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-200">
-              <h3 className="text-xl font-bold text-cyan-900 mb-4">🤔 생각해보기</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-white p-5 rounded-lg shadow-sm">
-                  <h4 className="font-bold text-blue-600 mb-3">Q. 왜 무선 기술마다 거리가 다를까요?</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    각 기술은 목적에 따라 설계되었어요. <span className="font-bold text-blue-600">Wi-Fi</span>는 집 전체에서 인터넷을 사용해야 하니 거리가 길고,
-                    <span className="font-bold text-orange-600"> NFC</span>는 결제처럼 보안이 중요해서 아주 가까이 붙여야 작동하도록 만들었답니다.
-                  </p>
+  /* ─── 상황 시뮬레이터 게임 ─── */
+  function SituationGame({ onEarn }) {
+    const situations=[
+      {id:1,emoji:'☕',situation:'카페에서 노트북으로 인터넷을 쓰고 싶어!',correct:'wifi',why:'카페에는 AP(공유기)가 설치돼 있어서 Wi-Fi로 인터넷에 연결할 수 있어요. 블루투스는 인터넷 연결이 안 되고, NFC는 거리가 너무 짧아요!'},
+      {id:2,emoji:'🎵',situation:'선 없이 이어폰으로 음악을 들을 거야!',correct:'bluetooth',why:'블루투스는 짧은 거리에서 기기끼리 연결해주는 기술이에요. 이어폰처럼 배터리가 중요한 기기에 딱이에요. Wi-Fi는 인터넷용이라 이어폰엔 어울리지 않아요!'},
+      {id:3,emoji:'💳',situation:'도서관에서 책을 빌릴 때 태그를 자동으로 읽어야 해!',correct:'rfid',why:'RFID는 태그에 정보를 저장하고 리더기를 가까이 대면 자동으로 읽는 기술이에요. 도서관 도서 관리 시스템에서 실제로 사용하고 있어요!'},
+      {id:4,emoji:'💰',situation:'스마트폰을 단말기에 대서 결제하고 싶어!',correct:'nfc',why:'NFC는 10cm 이내에서 작동하는 근거리 무선 통신이에요. 삼성페이, 애플페이가 모두 NFC를 사용해요. 거리가 짧아서 오작동이 없고 안전해요!'},
+      {id:5,emoji:'📺',situation:'스마트폰 화면을 큰 TV로 보고 싶어!',correct:'mirroring',why:'미러링은 같은 Wi-Fi에 연결된 스마트폰과 TV를 연결해서 화면을 그대로 보여주는 기술이에요. 거울처럼 화면을 복사한다고 생각하면 돼요!'},
+      {id:6,emoji:'🏫',situation:'학교 여러 교실에 무선 인터넷을 제공하려면?',correct:'ap',why:'AP(액세스 포인트)는 유선 인터넷을 무선 신호로 바꿔줘요. 학교처럼 넓은 공간에 여러 기기가 동시에 연결해야 할 때 AP를 곳곳에 설치해요!'},
+      {id:7,emoji:'🎮',situation:'무선 게임 컨트롤러를 콘솔에 연결하고 싶어!',correct:'bluetooth',why:'PS5 컨트롤러, Xbox 컨트롤러 모두 블루투스를 사용해요! 짧은 거리에서 안정적으로 연결되고 배터리 소모도 적어요.'},
+      {id:8,emoji:'🚗',situation:'고속도로에서 통행료를 자동으로 결제하고 싶어!',correct:'rfid',why:'하이패스는 RFID 기술을 사용해요! 차량에 단말기를 달면 통행료 게이트를 지날 때 자동으로 인식해서 결제돼요.'},
+    ];
+    const choices=[
+      {key:'ap',label:'🗼 AP'},{key:'wifi',label:'📶 Wi-Fi'},
+      {key:'bluetooth',label:'🎧 블루투스'},{key:'rfid',label:'💳 RFID'},
+      {key:'nfc',label:'📱 NFC'},{key:'mirroring',label:'🖥️ 미러링'},
+    ];
+    const [idx,setIdx]=useState(0);
+    const [selected,setSelected]=useState(null);
+    const [result,setResult]=useState(null);
+    const [correctCount,setCorrectCount]=useState(0);
+    const [done,setDone]=useState(false);
+    const [scored,setScored]=useState(false);
+    const cur=situations[idx];
+    const choose=(key)=>{
+      if(selected)return;
+      setSelected(key);
+      const ok=key===cur.correct;
+      setResult(ok);
+      if(ok)setCorrectCount(c=>c+1);
+    };
+    const next=()=>{
+      if(idx<situations.length-1){setIdx(i=>i+1);setSelected(null);setResult(null);}
+      else{setDone(true);if(!scored){onEarn(correctCount>=6?40:correctCount>=4?25:10,`${situations.length}문제 중 ${correctCount}개 정답! 👏`,'');setScored(true);}}
+    };
+    const reset=()=>{setIdx(0);setSelected(null);setResult(null);setCorrectCount(0);setDone(false);setScored(false);};
+    if(done)return(
+      <div className="bg-white rounded-xl p-8 text-center border border-teal-100 shadow-sm">
+        <div className="text-5xl mb-3">{correctCount>=6?'🏆':correctCount>=4?'🥈':'🥉'}</div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{situations.length}문제 완료!</h3>
+        <p className="text-gray-500 mb-4">총 <strong className="text-gray-800">{situations.length}</strong>문제 중 <strong className="text-emerald-600">{correctCount}</strong>개 정답</p>
+        <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-200">
+          <div className="progress-bar-bg mb-2"><div className="progress-bar-fill" style={{width:`${(correctCount/situations.length)*100}%`,background:correctCount>=6?'#10b981':correctCount>=4?'#f59e0b':'#ef4444'}}/></div>
+          <p className={`font-bold ${correctCount>=6?'text-emerald-600':correctCount>=4?'text-amber-500':'text-red-500'}`}>
+            {correctCount>=6?'완벽해요! 🌟':correctCount>=4?'잘 했어요! 👍':'조금 더 공부해봐요! 💪'}
+          </p>
+        </div>
+        <button onClick={reset} className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-6 py-2.5 rounded-xl">🔄 다시 도전</button>
+      </div>
+    );
+    return(
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 progress-bar-bg"><div className="progress-bar-fill" style={{width:`${((idx)/situations.length)*100}%`,background:'#0d9488'}}/></div>
+          <span className="font-bold text-sm text-gray-500 whitespace-nowrap">{idx+1} / {situations.length}</span>
+        </div>
+        <div className="bg-white rounded-xl p-6 mb-4 text-center border border-gray-200 shadow-sm">
+          <div className="text-5xl mb-3">{cur.emoji}</div>
+          <p className="font-bold text-gray-800 text-base leading-relaxed">{cur.situation}</p>
+          <p className="text-gray-400 text-sm mt-2">어떤 무선 기술이 필요할까요?</p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {choices.map(c=>{
+            let cls='bg-white border-2 border-gray-200 text-gray-700 hover:border-teal-400';
+            if(selected){
+              if(c.key===cur.correct) cls='bg-emerald-50 border-2 border-emerald-500 text-emerald-700';
+              else if(c.key===selected&&c.key!==cur.correct) cls='bg-red-50 border-2 border-red-400 text-red-600';
+            }
+            return(
+              <button key={c.key} onClick={()=>choose(c.key)}
+                className={`py-3 px-2 rounded-xl font-bold text-sm transition-all text-center ${cls} ${selected?'cursor-default':''}`}>
+                {c.label}
+                {selected&&c.key===cur.correct&&<span className="block text-xs mt-1">✅ 정답!</span>}
+                {selected&&c.key===selected&&c.key!==cur.correct&&<span className="block text-xs mt-1">❌ 틀렸어요</span>}
+              </button>
+            );
+          })}
+        </div>
+        {selected&&(
+          <div className={`rounded-xl p-4 mb-4 border-2 ${result?'bg-emerald-50 border-emerald-300':'bg-red-50 border-red-300'}`}>
+            <p className={`font-bold mb-2 ${result?'text-emerald-700':'text-red-600'}`}>
+              {result?'🎉 정답이에요!':'💡 아쉬워요! 정답은 '+choices.find(c=>c.key===cur.correct).label+'이에요.'}
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed">{cur.why}</p>
+          </div>
+        )}
+        {selected&&<button onClick={next} className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold py-3 rounded-xl">
+          {idx<situations.length-1?'다음 문제 →':'결과 보기 🏆'}
+        </button>}
+      </div>
+    );
+  }
+
+  /* ─── 드래그&드롭 게임 ─── */
+  function DragDropGame({ onEarn }) {
+    const problems=[
+      {id:1,situation:'에어팟을 스마트폰에 연결한다',answer:'bluetooth'},
+      {id:2,situation:'카페에서 노트북으로 유튜브를 본다',answer:'wifi'},
+      {id:3,situation:'삼성페이로 편의점에서 결제한다',answer:'nfc'},
+      {id:4,situation:'마트에서 도난 방지 태그로 물건을 보호한다',answer:'rfid'},
+      {id:5,situation:'스마트폰 화면을 수업 프로젝터에 보여준다',answer:'mirroring'},
+      {id:6,situation:'학교 교실에 무선 인터넷을 제공하는 장치',answer:'ap'},
+    ];
+    const cards=[
+      {key:'ap',label:'🗼 AP'},{key:'wifi',label:'📶 Wi-Fi'},
+      {key:'bluetooth',label:'🎧 블루투스'},{key:'rfid',label:'💳 RFID'},
+      {key:'nfc',label:'📱 NFC'},{key:'mirroring',label:'🖥️ 미러링'},
+    ];
+    const [placements,setPlacements]=useState({});
+    const [dragging,setDragging]=useState(null);
+    const [checked,setChecked]=useState(false);
+    const [scored,setScored]=useState(false);
+    const usedKeys=Object.values(placements);
+    const availCards=cards.filter(c=>!usedKeys.includes(c.key));
+    const onDragStart=(key)=>setDragging(key);
+    const onDrop=(probId)=>{
+      if(!dragging)return;
+      setPlacements(p=>({...p,[probId]:dragging}));
+      setDragging(null);setChecked(false);
+    };
+    const removeFromSlot=(probId)=>{
+      setPlacements(p=>{const n={...p};delete n[probId];return n;});
+      setChecked(false);
+    };
+    const checkAll=()=>{
+      setChecked(true);
+      const correct=problems.filter(p=>placements[p.id]===p.answer).length;
+      if(!scored){onEarn(correct*5,`드래그&드롭 완료! ${problems.length}문제 중 ${correct}개 정답! 🎯`,'');setScored(true);}
+    };
+    const reset=()=>{setPlacements({});setChecked(false);setScored(false);};
+    const correctCount=problems.filter(p=>placements[p.id]===p.answer).length;
+    return(
+      <div>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">
+          아래 기술 카드를 <strong>드래그</strong>해서 알맞은 상황에 놓아보세요! 모바일에서는 카드를 탭하면 선택되고, 빈칸을 탭하면 넣을 수 있어요.
+        </p>
+        <div className="flex flex-wrap gap-2 mb-5 p-4 bg-teal-50 rounded-xl border border-teal-100">
+          <p className="w-full text-xs font-bold text-gray-500 mb-1">📦 기술 카드 (드래그하거나 탭하세요)</p>
+          {availCards.map(c=>(
+            <div key={c.key} draggable onDragStart={()=>onDragStart(c.key)}
+              onClick={()=>setDragging(dragging===c.key?null:c.key)}
+              className={`drag-card ${dragging===c.key?'border-teal-500 bg-teal-50 text-teal-700':''}`}>
+              {c.label}
+            </div>
+          ))}
+          {availCards.length===0&&<p className="text-xs text-emerald-600 font-bold">모든 카드를 배치했어요! ✅</p>}
+        </div>
+        <div className="flex flex-col gap-2 mb-4">
+          {problems.map(p=>{
+            const placed=placements[p.id];
+            const card=cards.find(c=>c.key===placed);
+            const isCorrect=checked&&placed===p.answer;
+            const isWrong=checked&&placed&&placed!==p.answer;
+            return(
+              <div key={p.id} className="grid gap-2 items-center" style={{gridTemplateColumns:'1fr auto'}}>
+                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2.5">
+                  <p className="text-sm font-bold text-gray-700">{p.id}. {p.situation}</p>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-sm">
-                  <h4 className="font-bold text-purple-600 mb-3">Q. 블루투스와 Wi-Fi의 차이는?</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-bold text-indigo-600">Wi-Fi</span>는 주로 인터넷 연결용이고 속도가 빠르지만 전력을 많이 써요.
-                    <span className="font-bold text-purple-600"> 블루투스</span>는 기기끼리 직접 연결하는 용도이고, 속도는 느리지만 전력을 적게 사용해 배터리가 오래 간답니다!
-                  </p>
+                <div className={`drop-zone${isCorrect?' correct':isWrong?' wrong':''}`} style={{width:110,flexShrink:0}}
+                  onDragOver={e=>e.preventDefault()}
+                  onDrop={()=>onDrop(p.id)}
+                  onClick={()=>{if(dragging&&!placed)onDrop(p.id);}}>
+                  {card?(
+                    <div className="flex items-center gap-1 w-full justify-center">
+                      <span className={`text-xs font-bold ${isCorrect?'text-emerald-700':isWrong?'text-red-600':'text-gray-700'}`}>{card.label}</span>
+                      {!checked&&<button onClick={e=>{e.stopPropagation();removeFromSlot(p.id);}} className="text-gray-400 text-xs bg-transparent border-none cursor-pointer p-0">✕</button>}
+                      {isCorrect&&<span>✅</span>}
+                      {isWrong&&<span>❌</span>}
+                    </div>
+                  ):(
+                    <span className="text-xs text-gray-400">여기에 놓기</span>
+                  )}
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-sm">
-                  <h4 className="font-bold text-cyan-600 mb-3">Q. 미러링은 어떻게 작동할까요?</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-bold text-cyan-600">미러링</span>은 주로 Wi-Fi를 사용해요. 스마트폰과 TV가 같은 Wi-Fi에 연결되면,
-                    스마트폰 화면 정보가 실시간으로 TV로 전송되어 큰 화면에 똑같이 보여진답니다!
-                  </p>
+              </div>
+            );
+          })}
+        </div>
+        {checked&&(
+          <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
+            <p className="font-bold text-gray-800 mb-2">{correctCount}/{problems.length}개 정답!</p>
+            {problems.filter(p=>placements[p.id]!==p.answer).map(p=>(
+              <p key={p.id} className="text-sm text-gray-500 mb-1">
+                ❌ {p.id}번 정답: <strong className="text-amber-600">{cards.find(c=>c.key===p.answer)?.label}</strong>
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <button onClick={checkAll} disabled={Object.keys(placements).length<problems.length}
+            className={`flex-1 font-bold py-2.5 rounded-xl text-sm ${Object.keys(placements).length>=problems.length?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>✅ 정답 확인</button>
+          <button onClick={reset} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-4 py-2.5 rounded-xl text-sm hover:border-teal-300">🔄 초기화</button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── 스마트홈 설계 게임 ─── */
+  function SmartHomeGame({ onEarn }) {
+    const rooms=[
+      {id:'entrance',label:'🚪 현관',icon:'🚪',hint:'어떤 보안 기술이 어울릴까요?'},
+      {id:'living',  label:'🛋 거실', icon:'🛋',hint:'TV와 스마트폰을 연결하려면?'},
+      {id:'bedroom', label:'🛏 침실', icon:'🛏',hint:'이어폰으로 음악을 듣는 공간'},
+      {id:'study',   label:'📚 서재', icon:'📚',hint:'인터넷이 빠르게 필요한 공간'},
+      {id:'kitchen', label:'🍳 주방', icon:'🍳',hint:'스마트 가전과 자동 연결'},
+    ];
+    const techs=[
+      {key:'nfc',    label:'📱 NFC',       desc:'현관 도어락에 딱! 폰을 대면 자동으로 잠금 해제!'},
+      {key:'mirroring',label:'🖥️ 미러링',  desc:'스마트폰 화면을 TV로! 유튜브, 사진 크게 보기!'},
+      {key:'bluetooth',label:'🎧 블루투스', desc:'무선 이어폰, 스피커 연결! 배터리도 오래가요!'},
+      {key:'ap',     label:'🗼 AP/Wi-Fi',  desc:'빠른 인터넷이 필요한 곳엔 AP를 설치해요!'},
+      {key:'rfid',   label:'💳 RFID',      desc:'가전제품 자동 인식! 스마트홈의 숨은 주역!'},
+    ];
+    const bestMatch={entrance:'nfc',living:'mirroring',bedroom:'bluetooth',study:'ap',kitchen:'rfid'};
+    const [placements,setPlacements]=useState({});
+    const [selected,setSelected]=useState(null);
+    const [feedback,setFeedback]=useState({});
+    const [scored,setScored]=useState(false);
+    const placeInRoom=(roomId)=>{
+      if(!selected)return;
+      const prev={...placements,[roomId]:selected};
+      setPlacements(prev);
+      const isBest=selected===bestMatch[roomId];
+      const tech=techs.find(t=>t.key===selected);
+      setFeedback(f=>({...f,[roomId]:{key:selected,label:tech.label,desc:tech.desc,best:isBest}}));
+      setSelected(null);
+      const correct=Object.entries(prev).filter(([r,k])=>bestMatch[r]===k).length;
+      if(!scored&&correct>=3){onEarn(30,`스마트홈 설계 완료! ${Object.keys(prev).length}개 방에 기술을 배치했어요! 🏠`,'');setScored(true);}
+    };
+    const reset=()=>{setPlacements({});setFeedback({});setSelected(null);setScored(false);};
+    return(
+      <div>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">기술 카드를 선택하고 방을 클릭해서 배치하세요! 방마다 가장 잘 어울리는 기술이 있어요.</p>
+        <div className="flex flex-wrap gap-2 mb-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
+          <p className="w-full text-xs font-bold text-gray-500 mb-1">🔧 기술 선택 (클릭해서 선택 후 방에 배치)</p>
+          {techs.map(t=>(
+            <button key={t.key} onClick={()=>setSelected(selected===t.key?null:t.key)}
+              className={`px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all ${selected===t.key?'border-teal-500 bg-teal-100 text-teal-700':'border-gray-200 bg-white text-gray-600 hover:border-teal-300'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {selected&&<div className="bg-teal-50 border border-teal-300 rounded-xl px-4 py-2 mb-4 text-sm font-bold text-teal-700">
+          {techs.find(t=>t.key===selected).label} 선택됨 → 배치할 방을 클릭하세요!
+        </div>}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {rooms.map(r=>{
+            const fb=feedback[r.id];
+            return(
+              <div key={r.id} className={`home-room${selected?' selected':''}${fb?' placed':''}`}
+                onClick={()=>placeInRoom(r.id)}
+                style={{cursor:selected?'pointer':'default'}}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">{r.icon}</span>
+                  <span className="font-bold text-sm text-gray-800">{r.label}</span>
+                  {fb&&<span className="ml-auto text-xs">{fb.best?'⭐ 최적!':'👍 OK'}</span>}
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-sm">
-                  <h4 className="font-bold text-green-600 mb-3">Q. 미러링과 유튜브 캐스팅의 차이는?</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-bold text-cyan-600">미러링</span>은 스마트폰 화면 전체를 보여주지만,
-                    <span className="font-bold text-green-600"> 캐스팅</span>은 특정 앱(유튜브 등)의 영상만 TV로 보내요. 캐스팅은 스마트폰으로 다른 작업도 가능하답니다!
-                  </p>
-                </div>
+                {!fb&&<p className="text-xs text-gray-400">{r.hint}</p>}
+                {fb&&(<div>
+                  <p className={`font-bold text-xs mb-1 ${fb.best?'text-emerald-600':'text-amber-500'}`}>{fb.label}</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">{fb.desc}</p>
+                </div>)}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex gap-2">
+          <button onClick={reset} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-4 py-2 rounded-xl text-sm hover:border-red-300">🔄 초기화</button>
+          {Object.keys(placements).length>0&&(
+            <div className="flex-1 bg-teal-50 rounded-xl px-4 py-2 text-sm text-teal-700 flex items-center border border-teal-100">
+              ⭐ 최적 배치: {Object.entries(feedback).filter(([,v])=>v.best).length}/{rooms.length}개
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── 게임 앱 ─── */
+  function GameApp() {
+    const [tab,setTab]=useState('situation');
+    const [popup,setPopup]=useState(null);
+    const [pts,setPts]=useState(0);
+    const earnPoints=(p,msg,hint)=>{
+      if(p>0){setPts(s=>{addPoints(p);return s+p;});setPopup({type:'success',message:msg,points:p});}
+      else setPopup({type:'fail',message:'다시 시도해봐요!',hint});
+    };
+    const tabs=[
+      {key:'situation',label:'🎯 상황 시뮬레이터'},
+      {key:'dragdrop', label:'🃏 카드 매칭'},
+      {key:'smarthome',label:'🏠 스마트홈 설계'},
+    ];
+    return(
+      <div>
+        <Popup popup={popup} onClose={()=>setPopup(null)}/>
+        <div className="pt-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">🎮 체험 게임</h2>
+          <p className="text-gray-500 text-sm mb-4">3가지 게임으로 배운 내용을 직접 적용해보세요! 정답을 맞히면 포인트를 획득할 수 있어요.</p>
+          <div className="flex items-center gap-2 mb-5 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <span className="text-xl">🎮</span>
+            <span className="font-bold text-sm text-gray-700">게임 포인트: <span className="text-amber-500">{pts}pt</span></span>
+          </div>
+          <div className="flex gap-2 flex-wrap mb-5">
+            {tabs.map(t=>(
+              <button key={t.key} onClick={()=>setTab(t.key)}
+                className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${tab===t.key?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md':'bg-white text-gray-600 border-2 border-gray-200 hover:border-teal-300'}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {tab==='situation'&&(
+            <div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                <div className="font-bold text-amber-700 mb-1 text-sm">🎯 게임 방법</div>
+                <p className="text-sm text-gray-600">상황을 읽고 어떤 무선 기술이 필요한지 고르세요! 정답을 맞히면 이유도 함께 알 수 있어요.</p>
+              </div>
+              <SituationGame onEarn={earnPoints}/>
+            </div>
+          )}
+          {tab==='dragdrop'&&(
+            <div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                <div className="font-bold text-amber-700 mb-1 text-sm">🃏 게임 방법</div>
+                <p className="text-sm text-gray-600">기술 카드를 드래그해서 알맞은 상황에 놓아보세요! 6개 상황에 6개 기술을 모두 연결하면 정답을 확인할 수 있어요.</p>
+              </div>
+              <DragDropGame onEarn={earnPoints}/>
+            </div>
+          )}
+          {tab==='smarthome'&&(
+            <div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                <div className="font-bold text-amber-700 mb-1 text-sm">🏠 게임 방법</div>
+                <p className="text-sm text-gray-600">스마트홈 각 공간에 어울리는 무선 기술을 배치해보세요! 최적의 기술을 찾으면 별점을 받을 수 있어요.</p>
+              </div>
+              <SmartHomeGame onEarn={earnPoints}/>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── 퀴즈 앱 ─── */
+  function QuizApp() {
+    const allQuestions=[
+      {id:1, q:'스마트폰으로 음악을 들을 때 무선 이어폰과 연결하는 기술은?',opts:['Wi-Fi','Bluetooth','NFC','RFID'],ans:'Bluetooth',hint:'짧은 거리, 적은 전력 소모가 특징이에요!'},
+      {id:2, q:'도서관에서 책에 붙은 태그를 자동으로 읽는 기술은?',opts:['Bluetooth','Wi-Fi','RFID','AP'],ans:'RFID',hint:'전파(Radio Frequency)로 태그를 자동 인식해요!'},
+      {id:3, q:'스마트폰을 단말기에 가까이 대서 결제할 때 사용하는 기술은?',opts:['RFID','NFC','Bluetooth','Wi-Fi'],ans:'NFC',hint:'Near Field Communication! 아주 가까이 붙여야 작동해요.'},
+      {id:4, q:'집에서 여러 기기가 동시에 무선 인터넷을 사용할 수 있게 해주는 장치는?',opts:['AP (공유기)','NFC 태그','블루투스 스피커','RFID 카드'],ans:'AP (공유기)',hint:'유선 인터넷을 무선 신호로 바꿔주는 장치예요!'},
+      {id:5, q:'통신 거리가 가장 짧은 기술은?',opts:['Wi-Fi (~100m)','Bluetooth (~10m)','NFC (~10cm)','RFID (최대 100m)'],ans:'NFC (~10cm)',hint:'결제할 때 거의 붙여야 하는 이유가 있어요!'},
+      {id:6, q:'스마트폰 화면을 TV에 그대로 보여주는 기술은?',opts:['미러링','NFC','RFID','Bluetooth'],ans:'미러링',hint:'거울(Mirror)처럼 화면을 그대로 복사해서 전송해요!'},
+      {id:7, q:'하이패스(고속도로 자동 요금 결제)에 사용되는 기술은?',opts:['NFC','Wi-Fi','RFID','Bluetooth'],ans:'RFID',hint:'차량에 단말기를 달면 게이트를 지날 때 자동으로 인식해요!'},
+      {id:8, q:'에어팟(AirPods)이 스마트폰과 연결되는 방식은?',opts:['Wi-Fi','NFC','RFID','Bluetooth'],ans:'Bluetooth',hint:'무선 이어폰은 모두 이 기술을 사용해요!'},
+      {id:9, q:'AP(Access Point)의 주요 역할은?',opts:['결제 처리','유선→무선 신호 변환','RFID 태그 읽기','화면 공유'],ans:'유선→무선 신호 변환',hint:'선이 있는 인터넷을 선 없이 쓸 수 있게 바꿔줘요!'},
+      {id:10,q:'미러링과 유튜브 캐스팅의 가장 큰 차이점은?',opts:['속도 차이','미러링은 화면 전체, 캐스팅은 특정 앱만','비용 차이','거리 차이'],ans:'미러링은 화면 전체, 캐스팅은 특정 앱만',hint:'캐스팅은 유튜브를 TV로 보내면서 폰으로 다른 일도 할 수 있어요!'},
+      {id:11,q:'NFC는 RFID의 한 종류다. 이 말은?',opts:['거짓이다','참이다','관계없다','모르겠다'],ans:'참이다',hint:'NFC는 RFID 기술을 기반으로 하되, 거리가 더 짧고 보안이 강해요!'},
+      {id:12,q:'Wi-Fi가 느려지는 원인이 아닌 것은?',opts:['AP와의 거리가 멀다','벽이나 장애물이 많다','스마트폰 색상이 다르다','동시 접속 기기가 많다'],ans:'스마트폰 색상이 다르다',hint:'Wi-Fi 속도는 거리, 장애물, 기기 수에 영향받지만 색상과는 전혀 관계없어요!'},
+    ];
+    const TIME_PER_Q=20;
+    const [phase,setPhase]=useState('ready');
+    const [qIdx,setQIdx]=useState(0);
+    const [selected,setSelected]=useState(null);
+    const [timeLeft,setTimeLeft]=useState(TIME_PER_Q);
+    const [results,setResults]=useState([]);
+    const [popup,setPopup]=useState(null);
+    const timerRef=useRef(null);
+    const [totalPts,setTotalPts]=useState(0);
+    const questions=allQuestions;
+    const startQuiz=()=>{setPhase('quiz');setQIdx(0);setSelected(null);setTimeLeft(TIME_PER_Q);setResults([]);setTotalPts(0);};
+    useEffect(()=>{
+      if(phase!=='quiz')return;
+      clearInterval(timerRef.current);
+      timerRef.current=setInterval(()=>{
+        setTimeLeft(t=>{
+          if(t<=1){clearInterval(timerRef.current);handleAnswer(null);return 0;}
+          return t-1;
+        });
+      },1000);
+      return()=>clearInterval(timerRef.current);
+    },[phase,qIdx]);
+    const handleAnswer=(opt)=>{
+      clearInterval(timerRef.current);
+      if(selected!==null)return;
+      setSelected(opt);
+      const cur=questions[qIdx];
+      const correct=opt===cur.ans;
+      const pts=correct?Math.max(5,timeLeft)*1+(timeLeft>15?5:0):0;
+      setResults(r=>[...r,{qId:cur.id,correct,pts,selected:opt,correctAns:cur.ans}]);
+      if(correct){setTotalPts(p=>{addPoints(pts);return p+pts;});}
+      setTimeout(()=>{
+        if(qIdx<questions.length-1){setQIdx(i=>i+1);setSelected(null);setTimeLeft(TIME_PER_Q);}
+        else setPhase('result');
+      },1800);
+    };
+    const correctCount=results.filter(r=>r.correct).length;
+    const getGrade=()=>{
+      const rate=correctCount/questions.length;
+      if(rate>=0.9)return{label:'🏆 무선 마스터',color:'#f59e0b',msg:'완벽해요! 무선 네트워크 전문가가 될 자질이 있어요!'};
+      if(rate>=0.7)return{label:'🥈 실력자',color:'#0d9488',msg:'잘 했어요! 조금 더 공부하면 완벽해질 거예요!'};
+      if(rate>=0.5)return{label:'🥉 입문자',color:'#0891b2',msg:'절반 이상 맞혔어요! 개념 설명을 다시 보고 도전해보세요!'};
+      return{label:'🌱 초보자',color:'#9ca3af',msg:'괜찮아요! 개념 탭에서 다시 공부하고 도전해봐요!'};
+    };
+    if(phase==='ready')return(
+      <div className="pt-4">
+        <Popup popup={popup} onClose={()=>setPopup(null)}/>
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">⚡ 스피드 퀴즈</h2>
+        <p className="text-gray-500 text-sm mb-5">제한 시간 안에 빠르게 답하세요! 빨리 맞힐수록 더 많은 포인트를 획득할 수 있어요.</p>
+        <div className="bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-sm">
+          <div className="text-6xl mb-4">⚡</div>
+          <h3 className="font-bold text-xl text-gray-800 mb-2">총 {questions.length}문제</h3>
+          <div className="grid grid-cols-3 gap-3 my-5 bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div className="text-center"><div className="font-bold text-xl text-amber-500">⏱ {TIME_PER_Q}초</div><div className="text-xs text-gray-400 mt-1">문제당 제한시간</div></div>
+            <div className="text-center"><div className="font-bold text-xl text-emerald-600">+최대 25pt</div><div className="text-xs text-gray-400 mt-1">빠를수록 고득점</div></div>
+            <div className="text-center"><div className="font-bold text-xl text-cyan-600">{questions.length}개</div><div className="text-xs text-gray-400 mt-1">총 문제 수</div></div>
+          </div>
+          <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+            📖 개념 탭에서 먼저 공부하고 도전하면 더 잘 할 수 있어요!<br/>
+            틀려도 괜찮아요 — 정답과 힌트가 바로 나와요!
+          </p>
+          <button onClick={startQuiz} className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-9 py-3.5 rounded-xl text-base">🚀 퀴즈 시작!</button>
+        </div>
+      </div>
+    );
+    if(phase==='quiz'){
+      const cur=questions[qIdx];
+      const timeRatio=timeLeft/TIME_PER_Q;
+      const barColor=timeRatio>0.5?'#10b981':timeRatio>0.25?'#f59e0b':'#ef4444';
+      return(
+        <div className="pt-4">
+          <Popup popup={popup} onClose={()=>setPopup(null)}/>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1">
+              <div className="flex justify-between mb-1">
+                <span className="text-xs font-bold text-gray-500">문제 {qIdx+1} / {questions.length}</span>
+                <span className="text-xs font-bold text-amber-500">총 {totalPts}pt</span>
+              </div>
+              <div className="progress-bar-bg"><div className="progress-bar-fill" style={{width:`${((qIdx)/questions.length)*100}%`,background:'#0d9488'}}/></div>
+            </div>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 relative"
+              style={{background:`conic-gradient(${barColor} ${timeRatio*360}deg, #e5e7eb 0)`}}>
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                <span className="font-bold text-base" style={{color:barColor}}>{timeLeft}</span>
               </div>
             </div>
           </div>
+          <div className="bg-white rounded-xl p-5 mb-3 border border-gray-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="bg-teal-100 text-teal-700 font-bold text-xs px-2 py-0.5 rounded-full">Q{qIdx+1}</span>
+              <span className="text-xs text-gray-400">빠를수록 +포인트!</span>
+            </div>
+            <p className="font-bold text-gray-800 text-base leading-relaxed">{cur.q}</p>
+          </div>
+          <div className="flex flex-col gap-0 mb-3">
+            {cur.opts.map((opt,i)=>{
+              let cls='quiz-opt';
+              if(selected!==null){
+                cls+=' locked';
+                if(opt===cur.ans)cls+=' correct';
+                else if(opt===selected)cls+=' wrong';
+              }
+              return(
+                <button key={i} className={cls} onClick={()=>handleAnswer(opt)}>
+                  <span className="opacity-50 mr-2">{'①②③④'[i]}</span>
+                  {opt}
+                  {selected!==null&&opt===cur.ans&&<span className="float-right">✅</span>}
+                  {selected!==null&&opt===selected&&opt!==cur.ans&&<span className="float-right">❌</span>}
+                </button>
+              );
+            })}
+          </div>
+          {selected&&selected!==cur.ans&&(
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">💡 힌트: {cur.hint}</div>
+          )}
+          {selected&&selected===cur.ans&&(
+            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-sm font-bold text-emerald-700">
+              🎉 정답! +{Math.max(5,timeLeft)}pt {timeLeft>15?'⚡ 스피드 보너스!':''}
+            </div>
+          )}
+          {selected===null&&timeLeft===0&&(
+            <div className="bg-red-50 border border-red-300 rounded-xl p-3 text-sm text-red-600">
+              ⏰ 시간 초과! 정답은 <strong>{cur.ans}</strong>
+            </div>
+          )}
+        </div>
+      );
+    }
+    if(phase==='result'){
+      const grade=getGrade();
+      return(
+        <div className="pt-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">⚡ 퀴즈 결과</h2>
+          <div className="bg-white rounded-2xl p-6 text-center border border-gray-200 shadow-sm mb-4">
+            <div className="text-5xl mb-3">{grade.label.split(' ')[0]}</div>
+            <h3 className="font-bold text-xl mb-1" style={{color:grade.color}}>{grade.label}</h3>
+            <p className="text-gray-500 text-sm mb-5">{grade.msg}</p>
+            <div className="grid grid-cols-3 gap-3 bg-gray-50 rounded-xl p-4 mb-5 border border-gray-200">
+              <div><div className="font-bold text-2xl text-emerald-600">{correctCount}</div><div className="text-xs text-gray-400">정답</div></div>
+              <div><div className="font-bold text-2xl text-red-500">{questions.length-correctCount}</div><div className="text-xs text-gray-400">오답</div></div>
+              <div><div className="font-bold text-2xl text-amber-500">{totalPts}</div><div className="text-xs text-gray-400">획득 포인트</div></div>
+            </div>
+            <div className="progress-bar-bg mb-1">
+              <div className="progress-bar-fill" style={{width:`${(correctCount/questions.length)*100}%`,background:grade.color}}/>
+            </div>
+            <p className="text-xs text-gray-400 mb-5">정답률 {Math.round((correctCount/questions.length)*100)}%</p>
+            <button onClick={startQuiz} className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-6 py-2.5 rounded-xl">🔄 다시 도전</button>
+          </div>
+          {results.filter(r=>!r.correct).length>0&&(
+            <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+              <h4 className="font-bold text-red-500 mb-4">📝 오답 노트 — 다시 확인해보세요!</h4>
+              {results.filter(r=>!r.correct).map((r,i)=>{
+                const q=questions.find(x=>x.id===r.qId);
+                return(
+                  <div key={i} className="bg-gray-50 rounded-xl p-3 mb-2 border border-gray-200">
+                    <p className="font-bold text-sm text-gray-800 mb-1">Q. {q.q}</p>
+                    <p className="text-xs text-red-500 mb-0.5">내 답: {r.selected||'시간 초과'}</p>
+                    <p className="text-xs text-emerald-600 mb-1">정답: {r.correctAns}</p>
+                    <p className="text-xs text-gray-400">💡 {q.hint}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
+  }
+
+  /* ─── 메인 앱 ─── */
+  let globalPoints = 0;
+  function addPoints(n) {
+    globalPoints += n;
+    const el = document.getElementById('global-score');
+    if(el) el.textContent = globalPoints + ' pt';
+  }
+
+  function App() {
+    const [activeTab, setActiveTab] = useState('home');
+
+    const switchTab = (tab) => {
+      setActiveTab(tab);
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    // 외부에서 탭 전환 가능하도록
+    window._setConceptTech = null;
+    window.setTech = function(key) {
+      if(window._setConceptTech) window._setConceptTech(key);
+    };
+
+    return (
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* 헤더 */}
+        <div className="bg-gradient-to-r from-teal-700 to-cyan-700 p-6 text-white">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-sm text-teal-100">고등학교 정보 학습자료</div>
+            <a href="index.html" className="bg-white text-teal-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-teal-50 transition-all shadow-md flex items-center gap-2">
+              🏠 홈으로
+            </a>
+          </div>
+          <h1 className="text-3xl font-bold mb-1">📡 무선 네트워크 기술</h1>
+          <p className="text-teal-100">에어팟, 삼성페이, 하이패스, 학교 Wi-Fi... 우리 주변의 무선 기술을 탐험해봅시다!</p>
+        </div>
+
+        {/* 소개 */}
+        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 border-b border-teal-100">
+          <div>
+            <h3 className="font-bold text-teal-900 text-lg mb-2">무선 네트워크 기술이란?</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <span className="font-bold text-purple-600">AP(공유기)</span>와 <span className="font-bold text-cyan-600">Wi-Fi</span>로 인터넷에 접속하고,
+              <span className="font-bold text-violet-600"> Bluetooth</span>로 이어폰을 연결하며,
+              <span className="font-bold text-amber-600"> NFC</span>로 결제하고,
+              <span className="font-bold text-emerald-600"> RFID</span>로 하이패스를 지나는 우리 일상 — 모두 무선 네트워크 기술이에요!
+            </p>
+
+          </div>
+        </div>
+
+        {/* 탭 메뉴 */}
+        <div className="flex gap-2 p-4 bg-gray-50 border-b border-gray-200 overflow-x-auto">
+          {[
+            {key:'home',   label:'🏠 홈'},
+            {key:'concept',label:'📖 개념 배우기'},
+            {key:'game',   label:'🎮 게임'},
+            {key:'quiz',   label:'⚡ 퀴즈'},
+          ].map(tab=>(
+            <button key={tab.key} onClick={()=>switchTab(tab.key)}
+              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${activeTab===tab.key?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg':'bg-white text-gray-600 hover:bg-gray-100'}`}>
+              {tab.label}
+            </button>
+          ))}
+          <div className="ml-auto flex items-center">
+            <span className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white rounded-full px-4 py-2 font-bold text-sm whitespace-nowrap" id="global-score">0 pt</span>
+          </div>
+        </div>
+
+        {/* 메인 콘텐츠 */}
+        <div className="p-6 md:p-8">
+
+          {/* 홈 탭 */}
+          {activeTab === 'home' && (
+            <div className="slide-in">
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                {[
+                  {icon:'🗼',title:'AP (공유기)',desc:'유선 인터넷을 무선 신호로 바꿔주는 장치. 학교 천장에 붙어있는 원반 모양!',badge:'최대 100m',tech:'ap',bcolor:'bg-purple-100 text-purple-700'},
+                  {icon:'📶',title:'Wi-Fi',desc:'선 없이 인터넷 연결! 집, 카페, 학교에서 매일 쓰는 기술.',badge:'최대 100m',tech:'wifi',bcolor:'bg-cyan-100 text-cyan-700'},
+                  {icon:'🎧',title:'Bluetooth',desc:'에어팟, 무선 이어폰의 원리! 가까운 기기끼리 연결해요.',badge:'최대 10m',tech:'bluetooth',bcolor:'bg-violet-100 text-violet-700'},
+                  {icon:'💳',title:'RFID',desc:'도서관 책 대출, 하이패스, 마트 도난 방지 태그. 전파로 자동 인식!',badge:'0.1~100m',tech:'rfid',bcolor:'bg-emerald-100 text-emerald-700'},
+                  {icon:'📱',title:'NFC',desc:'삼성페이, 애플페이! 단말기에 폰을 살짝 대면 결제 완료.',badge:'최대 10cm',tech:'nfc',bcolor:'bg-amber-100 text-amber-700'},
+                  {icon:'🖥️',title:'미러링',desc:'스마트폰 화면을 TV에 그대로! 거울처럼 화면을 복사해요.',badge:'Wi-Fi 범위',tech:'mirroring',bcolor:'bg-pink-100 text-pink-700'},
+                ].map((item,i)=>(
+                  <div key={i} onClick={()=>{switchTab('concept');setTimeout(()=>window.setTech&&window.setTech(item.tech),200);}}
+                    className="bg-white rounded-xl p-4 border-2 border-gray-100 cursor-pointer hover:border-teal-300 hover:shadow-md transition-all">
+                    <span className="text-4xl mb-2 block">{item.icon}</span>
+                    <div className="font-bold text-gray-900 text-base mb-1">{item.title}</div>
+                    <div className="text-sm text-gray-900 leading-relaxed mb-2">{item.desc}</div>
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-sm font-bold ${item.bcolor}`}>{item.badge}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4">
+                <div className="p-5 border-b border-gray-100">
+                  <h3 className="font-bold text-gray-800 text-base">📊 6가지 기술 한눈에 비교하기</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm" style={{minWidth:500}}>
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="px-4 py-3 text-left text-gray-500 font-bold">기술</th>
+                        <th className="px-4 py-3 text-center text-gray-500 font-bold">통신 거리</th>
+                        <th className="px-4 py-3 text-center text-gray-500 font-bold">속도</th>
+                        <th className="px-4 py-3 text-center text-gray-500 font-bold">전력 소모</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-bold">주요 용도</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {tech:'AP',color:'text-purple-600',dist:'~100m',speed:'⚡ 매우 빠름',power:'🔴 많음',use:'Wi-Fi 신호 제공'},
+                        {tech:'Wi-Fi',color:'text-cyan-600',dist:'~100m',speed:'⚡ 매우 빠름',power:'🟡 중간',use:'인터넷 연결'},
+                        {tech:'Bluetooth',color:'text-violet-600',dist:'~10m',speed:'🟡 보통',power:'🟢 적음',use:'기기 간 연결'},
+                        {tech:'RFID',color:'text-emerald-600',dist:'0.1~100m',speed:'⚡ 빠름',power:'🟢 거의 없음',use:'자동 인식·태그'},
+                        {tech:'NFC',color:'text-amber-600',dist:'~10cm',speed:'⚡ 매우 빠름',power:'🟢 거의 없음',use:'결제·정보 교환'},
+                        {tech:'미러링',color:'text-pink-600',dist:'Wi-Fi 범위',speed:'⚡ 빠름',power:'🟡 중간',use:'화면 공유'},
+                      ].map((row,i)=>(
+                        <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className={`px-4 py-3 font-bold ${row.color}`}>{row.tech}</td>
+                          <td className="px-4 py-3 text-center text-gray-600">{row.dist}</td>
+                          <td className="px-4 py-3 text-center text-gray-600">{row.speed}</td>
+                          <td className="px-4 py-3 text-center text-gray-600">{row.power}</td>
+                          <td className="px-4 py-3 text-gray-500">{row.use}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div className="p-5 border-b border-gray-100">
+                  <h3 className="font-bold text-gray-800 text-base">🤔 생각해보기</h3>
+                </div>
+                <div className="grid md:grid-cols-3 gap-0">
+                  {[
+                    {q:'Q. 왜 기술마다 거리가 다를까요?',a:'목적에 맞게 설계했기 때문이에요. NFC는 결제라서 보안을 위해 아주 가까워야 하고, Wi-Fi는 집 전체를 커버해야 하니 거리가 길어요.',color:'border-teal-400 text-teal-700'},
+                    {q:'Q. RFID와 NFC의 차이는?',a:'NFC는 RFID의 한 종류예요! 다만 NFC는 거리가 더 짧고(10cm), 두 기기가 서로 정보를 주고받을 수 있어서 결제나 데이터 교환에 더 안전해요.',color:'border-cyan-400 text-cyan-700'},
+                    {q:'Q. 미러링 vs 유튜브 캐스팅 차이?',a:'미러링은 폰 화면 전체를 TV로 복사해요. 캐스팅은 유튜브 같은 특정 앱만 TV로 보내서, 폰으로 다른 작업도 동시에 할 수 있어요!',color:'border-emerald-400 text-emerald-700'},
+                  ].map((item,i)=>(
+                    <div key={i} className={`p-5 ${i<2?'border-b md:border-b-0 md:border-r border-gray-100':''}`}>
+                      <p className={`font-bold mb-2 text-base border-l-4 pl-2 ${item.color}`}>{item.q}</p>
+                      <p className="text-sm text-gray-800 leading-relaxed">{item.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 개념 탭 */}
+          {activeTab === 'concept' && <ConceptApp/>}
+
+          {/* 게임 탭 */}
+          {activeTab === 'game' && <GameApp/>}
+
+          {/* 퀴즈 탭 */}
+          {activeTab === 'quiz' && <QuizApp/>}
 
           <div className="mt-6 text-center p-6">
             <a 
               href="index.html" 
-              className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-block bg-gradient-to-r from-teal-700 to-cyan-700 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-teal-800 hover:to-cyan-800 transition-all shadow-lg hover:shadow-xl"
             >
               🏠 홈으로 돌아가기
             </a>
           </div>
-        </div>
-      );
-    };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<WirelessNetworkEducation />);
+        </div>
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<App/>);
   </script>
 </body>
 </html>
