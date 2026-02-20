@@ -120,6 +120,86 @@
       const [ipFrom, setIpFrom] = useState('');
       const [ipTo, setIpTo] = useState('');
 
+      // ── 퀴즈 state ──
+      const [quizAnswers, setQuizAnswers] = useState({});
+      const [showQuizResult, setShowQuizResult] = useState(false);
+
+      const quizData = [
+        {
+          id: 1,
+          question: '2개의 기기(전화기/컴퓨터)를 연결할 때 주소(번호)가 필요한가요?',
+          options: [
+            '필요하다. 항상 주소가 있어야 연결된다.',
+            '필요 없다. 선으로 직접 연결하면 상대가 정해진다.',
+            '필요하다. 이진수 주소를 써야 한다.',
+            '필요 없다. 무선으로만 연결하면 된다.'
+          ],
+          correct: 1,
+          explanation: '2개만 연결할 때는 선으로 이으면 상대방이 자동으로 정해지기 때문에 별도의 주소(번호)가 필요 없어요. 주소가 필요해지는 건 3개 이상부터입니다!'
+        },
+        {
+          id: 2,
+          question: '전화번호(또는 IP 주소)가 반드시 필요해지는 시점은 언제인가요?',
+          options: [
+            '기기가 1대일 때',
+            '기기가 2대일 때',
+            '기기가 3대 이상일 때',
+            '기기가 100대 이상일 때'
+          ],
+          correct: 2,
+          explanation: '3대 이상이 되면 "누구에게 연결할지" 구별해야 해요. 그래서 각 기기에 고유한 주소(전화번호/IP 주소)를 부여해서 원하는 대상에게 정확히 연결합니다!'
+        },
+        {
+          id: 3,
+          question: '전화망의 교환기와 인터넷의 라우터(Router)는 어떤 공통 역할을 하나요?',
+          options: [
+            '데이터를 저장하는 역할',
+            '주소를 확인하고 올바른 대상에게 연결해주는 역할',
+            '전기 신호를 이진수로 변환하는 역할',
+            '화면에 문자를 출력하는 역할'
+          ],
+          correct: 1,
+          explanation: '교환기(전화망)와 라우터(인터넷) 모두 "주소를 보고 올바른 대상에게 연결"해주는 역할을 해요. 전화번호를 보고 연결하면 교환기, IP 주소를 보고 연결하면 라우터입니다!'
+        },
+        {
+          id: 4,
+          question: "IP 주소 '192.168.1.10'에서 숫자들은 어떤 범위로 구성되나요?",
+          options: [
+            '0 ~ 99 사이의 숫자 4개',
+            '0 ~ 255 사이의 숫자 4개',
+            '0 ~ 999 사이의 숫자 3개',
+            '0 ~ 127 사이의 숫자 8개'
+          ],
+          correct: 1,
+          explanation: 'IPv4 주소는 0~255 사이의 숫자 4개를 점(.)으로 구분해서 표현해요. 각 숫자는 8비트(2⁸=256가지)로 표현되기 때문에 최대 255까지 가능합니다!'
+        },
+        {
+          id: 5,
+          question: 'IPv4 주소가 부족해서 나온 새로운 주소 체계는 무엇인가요?',
+          options: [
+            'IPv5',
+            'IPv6',
+            'IPmax',
+            'SuperIP'
+          ],
+          correct: 1,
+          explanation: 'IPv4는 약 43억 개의 주소만 만들 수 있어요. 인터넷 기기가 폭발적으로 늘어나면서 주소가 부족해졌고, IPv6가 등장했어요. IPv6는 340조×1조×1조 개의 주소를 만들 수 있답니다!'
+        }
+      ];
+
+      const handleQuizAnswer = (questionId, selectedOption) => {
+        setQuizAnswers(prev => ({...prev, [questionId]: selectedOption}));
+      };
+
+      const calculateScore = () => {
+        return quizData.filter(q => quizAnswers[q.id] === q.correct).length;
+      };
+
+      const resetQuiz = () => {
+        setQuizAnswers({});
+        setShowQuizResult(false);
+      };
+
       const phones = [
         { name: '민수', number: '010-1234-5678', emoji: '👦', id: 'minsu' },
         { name: '지은', number: '010-9876-5432', emoji: '👧', id: 'jieun' },
@@ -177,7 +257,7 @@
         setShowTooltip(true);
         setTimeout(() => {
           setShowTooltip(false);
-        }, 500);
+        }, 400);
       };
 
       // 네트워크 노드 위치 계산 (교환기 중심)
@@ -567,7 +647,7 @@
                             animation: 'bounceOnce 0.5s ease-in-out'
                           }}
                         >
-                          참새다!
+                          {"\uCC38\uC0C8"}
                         </span>
                       )}
                     </span>
@@ -608,7 +688,7 @@
                   <h3 className="text-2xl font-bold text-purple-700 mb-6 text-center">🔢 3명 이상의 네트워크</h3>
                   
                   <div className="mb-8">
-                    <svg viewBox="0 0 600 400" className="w-full max-w-2xl mx-auto">
+                    <svg viewBox="0 0 600 430" className="w-full max-w-2xl mx-auto">
                       {/* 전화망 중앙 */}
                       <circle cx="300" cy="200" r="60" fill="#8B5CF6" opacity="0.2" />
                       <text x="300" y="195" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#7C3AED">전화망</text>
@@ -701,7 +781,7 @@
                   </h2>
                   
                   <div className="bg-white p-6 rounded-lg shadow-md mb-4">
-                    <svg viewBox="0 0 600 400" className="w-full max-w-2xl mx-auto">
+                    <svg viewBox="0 0 600 430" className="w-full max-w-2xl mx-auto">
                       {/* 연결선 */}
                       {renderConnections()}
                       
@@ -773,6 +853,8 @@
                         );
                       })}
                     </svg>
+                    <br/>
+                    <br/>
                   </div>
 
                   {/* 전화 걸기 버튼들 */}
@@ -955,10 +1037,10 @@
                         <text x="300" y="200" textAnchor="middle" dominantBaseline="middle" fontSize="30">
                           🔀
                         </text>
-                        <text x="300" y="250" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#6d28d9">
+                        <text x="300" y="255" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#6d28d9">
                           라우터
                         </text>
-                        <text x="300" y="268" textAnchor="middle" fontSize="11" fill="#7c3aed">
+                        <text x="300" y="273" textAnchor="middle" fontSize="14" fill="#7c3aed">
                           (IP 주소 확인)
                         </text>
                       </g>
@@ -988,10 +1070,10 @@
                             <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="middle" fontSize="28">
                               {device.emoji}
                             </text>
-                            <text x={pos.x} y={pos.y + 50} textAnchor="middle" fontSize="13" fontWeight="bold" fill="#1f2937">
+                            <text x={pos.x} y={pos.y + 50} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#1f2937">
                               {device.name}
                             </text>
-                            <text x={pos.x} y={pos.y + 68} textAnchor="middle" fontSize="11" fontFamily="monospace" fill="#059669" fontWeight="bold">
+                            <text x={pos.x} y={pos.y + 68} textAnchor="middle" fontSize="14" fontFamily="monospace" fill="#059669" fontWeight="bold">
                               {device.ip}
                             </text>
                           </g>
@@ -1132,6 +1214,104 @@
                       </p>
                     </div>
                   </div>
+                </div>
+
+                {/* ── 퀴즈 섹션 ── */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
+                  <h3 className="text-lg font-bold text-purple-900 mb-1">🎯 배운 내용 확인하기</h3>
+
+                  {!showQuizResult ? (
+                    <div className="space-y-6">
+                      {quizData.map((quiz, qIdx) => (
+                        <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                          <h4 className="font-bold text-gray-800 mb-4">
+                            Q{qIdx + 1}. {quiz.question}
+                          </h4>
+                          <div className="space-y-2">
+                            {quiz.options.map((option, oIdx) => {
+                              const answered = quizAnswers[quiz.id] !== undefined;
+                              const isSelected = quizAnswers[quiz.id] === oIdx;
+                              const isCorrect = quiz.correct === oIdx;
+                              let cls = 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                              if (answered) {
+                                if (isCorrect) cls = 'bg-green-100 border-green-400';
+                                else if (isSelected) cls = 'bg-red-100 border-red-400';
+                                else cls = 'bg-gray-50 border-gray-200';
+                              }
+                              return (
+                                <button
+                                  key={oIdx}
+                                  onClick={() => handleQuizAnswer(quiz.id, oIdx)}
+                                  disabled={answered}
+                                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                >
+                                  {oIdx + 1}. {option}
+                                  {answered && isCorrect && (
+                                    <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
+                                  )}
+                                  {answered && isSelected && !isCorrect && (
+                                    <span className="ml-2 text-red-600 font-bold">✗</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {quizAnswers[quiz.id] !== undefined && (
+                            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <p className="text-sm text-gray-700">
+                                <span className="font-bold text-blue-600">설명: </span>{quiz.explanation}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                      {Object.keys(quizAnswers).length === quizData.length && (
+                        <button
+                          onClick={() => setShowQuizResult(true)}
+                          className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                        >
+                          🏁 결과 확인하기
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                        <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
+                        <div className="text-6xl font-bold text-indigo-600 mb-4">
+                          {calculateScore()} / {quizData.length}
+                        </div>
+                        <p className="text-lg text-gray-700">
+                          {calculateScore() === quizData.length
+                            ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+                            : calculateScore() >= quizData.length * 0.7
+                            ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍'
+                            : '다시 한 번 복습해보세요! 💪'}
+                        </p>
+                      </div>
+
+                      <div className="text-left space-y-3 mb-6">
+                        {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
+                          <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
+                            <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
+                            <p className="text-sm text-gray-700">
+                              <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={resetQuiz}
+                        className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                      >
+                        🔄 다시 풀기
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-6 text-center flex justify-center gap-4">
