@@ -211,6 +211,48 @@ a { text-decoration: none; }
 .-translate-x-1\/2 { transform: translateX(-50%); }
 .-top-12 { top: -3rem; }
 .left-1\/2 { left: 50%; }
+
+/* ===== 퀴즈 스타일 ===== */
+.quiz-section { background: linear-gradient(to right, #faf5ff, #fdf2f8); padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #e9d5ff; margin-top: 1.5rem; }
+.quiz-title   { font-size: 1.125rem; font-weight: 700; color: #581c87; margin-bottom: 0.25rem; }
+.quiz-subtitle{ font-size: 0.875rem; color: #6b7280; margin-bottom: 1.25rem; }
+.quiz-card    { background: #fff; padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+.quiz-q       { font-weight: 700; color: #1f2937; margin-bottom: 1rem; line-height: 1.5; }
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz-btn {
+  width: 100%; text-align: left; padding: 0.75rem; border-radius: 0.5rem;
+  border: 2px solid #e5e7eb; background: #f9fafb;
+  font-family: inherit; font-size: 0.875rem; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.quiz-btn:hover:not(:disabled) { background: #f3f4f6; }
+.quiz-btn:disabled { cursor: not-allowed; }
+.quiz-btn.correct { background: #dcfce7; border-color: #4ade80; }
+.quiz-btn.wrong   { background: #fee2e2; border-color: #f87171; }
+.quiz-explanation { margin-top: 1rem; padding: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; font-size: 0.875rem; color: #374151; display: none; }
+.quiz-explanation.show { display: block; }
+.quiz-submit {
+  width: 100%; padding: 1rem; margin-top: 0.5rem;
+  background: linear-gradient(to right, #4f46e5, #9333ea);
+  color: #fff; font-weight: 700; font-size: 1rem;
+  border: none; border-radius: 0.5rem; cursor: pointer;
+  transition: opacity 0.15s; display: none;
+}
+.quiz-submit:hover { opacity: 0.9; }
+.quiz-result { text-align: center; display: none; }
+.quiz-result.show { display: block; }
+.quiz-score-box { background: linear-gradient(to right, #f0fdf4, #ecfdf5); padding: 2rem; border-radius: 0.5rem; border: 1px solid #bbf7d0; margin-bottom: 1.5rem; }
+.quiz-score-num { font-size: 3.75rem; font-weight: 700; color: #4f46e5; line-height: 1; margin: 0.75rem 0; }
+.quiz-score-msg { font-size: 1.125rem; color: #374151; }
+.quiz-wrong-list { text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.quiz-wrong-card { background: #fef2f2; padding: 1rem; border-radius: 0.5rem; border: 1px solid #fecaca; }
+.quiz-wrong-card p { font-size: 0.875rem; line-height: 1.6; }
+.quiz-reset {
+  padding: 1rem 2rem; background: linear-gradient(to right, #4f46e5, #9333ea);
+  color: #fff; font-weight: 700; font-size: 1rem;
+  border: none; border-radius: 0.5rem; cursor: pointer; transition: opacity 0.15s;
+}
+.quiz-reset:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -247,7 +289,7 @@ a { text-decoration: none; }
       `).join('');
 
       const secretTooltip = showSecret
-        ? `<span class="absolute left-1/2 -translate-x-1/2 -top-12 bg-yellow-400 text-gray-900 px-3 py-1 rounded-xl text-sm font-bold whitespace-nowrap shadow-2xl z-50" style="animation:bounceOnce 0.5s ease-in-out">참새다!</span>`
+        ? `<span class="absolute left-1/2 -translate-x-1/2 -top-12 bg-yellow-400 text-gray-900 px-3 py-1 rounded-xl text-sm font-bold whitespace-nowrap shadow-2xl z-50" style="animation:bounceOnce 0.4s ease-in-out">\uCC38\uC0C8</span>`
         : '';
 
       document.getElementById('root').innerHTML = `
@@ -389,6 +431,21 @@ a { text-decoration: none; }
               </div>
             </div>
 
+            <div id="quizContainer" class="quiz-section">
+              <p class="quiz-title">🎯 배운 내용 확인하기</p>
+              <div id="quizQuestions"></div>
+              <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">🏁 결과 확인하기</button>
+              <div class="quiz-result" id="quizResult">
+                <div class="quiz-score-box">
+                  <h3 style="font-size:1.875rem;font-weight:700;color:#14532d;">🎉 퀴즈 완료!</h3>
+                  <div class="quiz-score-num" id="quizScoreNum"></div>
+                  <p class="quiz-score-msg" id="quizScoreMsg"></p>
+                </div>
+                <div class="quiz-wrong-list" id="quizWrongList"></div>
+                <button class="quiz-reset" onclick="resetQuiz()">🔄 다시 풀기</button>
+              </div>
+            </div>
+
             <div class="mt-6 text-center">
               <a href="index.html" class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">🏠 홈으로 돌아가기</a>
             </div>
@@ -412,14 +469,141 @@ a { text-decoration: none; }
       if (secretTimer) clearTimeout(secretTimer);
       showSecret = true;
       render();
+      buildQuiz();
       secretTimer = setTimeout(() => {
         showSecret = false;
         render();
+        buildQuiz();
       }, 500);
     }
 
     // 최초 렌더링
     render();
+
+  /* ════════════════════════════════
+     퀴즈 로직 (render()와 독립적으로 동작)
+  ════════════════════════════════ */
+  const QUIZ_DATA = [
+    {
+      id: 1,
+      q: '비트(bit)는 무엇의 줄임말인가요?',
+      options: ['Binary Integer', 'Binary Digit', 'Byte In Total', 'Basic Input Terminal'],
+      correct: 1,
+      explanation: 'bit는 Binary Digit(이진 숫자)의 줄임말이에요. 0 또는 1, 딱 두 가지 값만 가질 수 있는 컴퓨터 데이터의 가장 작은 단위랍니다!'
+    },
+    {
+      id: 2,
+      q: '1바이트(byte)로 표현할 수 있는 경우의 수는 총 몇 가지인가요?',
+      options: ['8가지', '16가지', '128가지', '256가지'],
+      correct: 3,
+      explanation: '1바이트 = 8비트이므로 2⁸ = 2×2×2×2×2×2×2×2 = 256가지를 표현할 수 있어요. 이 256가지로 영어 대소문자, 숫자, 특수문자를 모두 담을 수 있답니다!'
+    },
+    {
+      id: 3,
+      q: '1KB(킬로바이트)는 정확히 몇 바이트인가요?',
+      options: ['100바이트', '1,000바이트', '1,024바이트', '10,000바이트'],
+      correct: 2,
+      explanation: '1KB = 1,024바이트예요. 1,000이 아니라 1,024인 이유는 컴퓨터가 2진법을 사용하기 때문이에요. 2¹⁰ = 1,024이 가장 가까운 단위가 되는 거죠!'
+    },
+    {
+      id: 4,
+      q: '1비트(bit)가 가질 수 있는 값으로 올바른 것은?',
+      options: ['0, 1, 2 세 가지 값', '0 또는 1, 두 가지 값만', '0부터 255까지', '1부터 8까지'],
+      correct: 1,
+      explanation: '비트는 전기가 흐르면 1(On), 흐르지 않으면 0(Off), 딱 두 가지 상태만 가질 수 있어요. 이 단순함 덕분에 컴퓨터 회로가 안정적으로 동작할 수 있답니다!'
+    },
+    {
+      id: 5,
+      q: '데이터 크기를 작은 것부터 큰 순서로 올바르게 나열한 것은?',
+      options: [
+        'MB → KB → GB → TB',
+        'bit → byte → KB → MB → GB → TB',
+        'byte → bit → KB → MB',
+        'KB → MB → bit → byte'
+      ],
+      correct: 1,
+      explanation: '올바른 순서는 bit(비트) → byte(바이트) → KB(킬로바이트) → MB(메가바이트) → GB(기가바이트) → TB(테라바이트)예요. 각 단계마다 1,024배씩 커진답니다!'
+    }
+  ];
+
+  const quizAnswers = {};
+
+  function buildQuiz() {
+    const container = document.getElementById('quizQuestions');
+    if (!container) return;
+    container.innerHTML = QUIZ_DATA.map((q, i) => `
+      <div class="quiz-card" id="qcard-${q.id}">
+        <p class="quiz-q">Q${i + 1}. ${q.q}</p>
+        <div class="quiz-options">
+          ${q.options.map((opt, j) => `
+            <button class="quiz-btn" id="qbtn-${q.id}-${j}" onclick="chooseAnswer(${q.id}, ${j})">
+              ${j + 1}. ${opt}
+            </button>
+          `).join('')}
+        </div>
+        <div class="quiz-explanation" id="qexp-${q.id}">
+          <strong style="color:#2563eb;">설명: </strong>${q.explanation}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function chooseAnswer(qid, optIdx) {
+    if (quizAnswers[qid] !== undefined) return;
+    quizAnswers[qid] = optIdx;
+    const q = QUIZ_DATA.find(d => d.id === qid);
+    q.options.forEach((_, j) => {
+      const btn = document.getElementById(`qbtn-${qid}-${j}`);
+      if (!btn) return;
+      btn.disabled = true;
+      if (j === q.correct) {
+        btn.classList.add('correct');
+        btn.innerHTML += ' <strong style="color:#16a34a;">✓ 정답</strong>';
+      } else if (j === optIdx) {
+        btn.classList.add('wrong');
+        btn.innerHTML += ' <strong style="color:#dc2626;">✗</strong>';
+      }
+    });
+    const exp = document.getElementById(`qexp-${qid}`);
+    if (exp) exp.classList.add('show');
+    if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+      const btn = document.getElementById('quizSubmit');
+      if (btn) btn.style.display = 'block';
+    }
+  }
+
+  function submitQuiz() {
+    const score = QUIZ_DATA.filter(q => quizAnswers[q.id] === q.correct).length;
+    const total = QUIZ_DATA.length;
+    const qs = document.getElementById('quizQuestions');
+    const sb = document.getElementById('quizSubmit');
+    if (qs) qs.style.display = 'none';
+    if (sb) sb.style.display = 'none';
+    document.getElementById('quizScoreNum').textContent = score + ' / ' + total;
+    document.getElementById('quizScoreMsg').textContent =
+      score === total ? '완벽해요! 모든 문제를 맞히셨네요! 🎊' :
+      score >= Math.ceil(total * 0.7) ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍' :
+      '다시 한 번 복습해보세요! 💪';
+    const wrongList = document.getElementById('quizWrongList');
+    wrongList.innerHTML = QUIZ_DATA.filter(q => quizAnswers[q.id] !== q.correct).map(q => `
+      <div class="quiz-wrong-card">
+        <p style="font-weight:700;color:#b91c1c;margin-bottom:0.25rem;">❌ 틀린 문제: ${q.q}</p>
+        <p><strong style="color:#16a34a;">정답: </strong>${q.options[q.correct]}</p>
+        <p style="margin-top:0.25rem;color:#4b5563;">${q.explanation}</p>
+      </div>
+    `).join('');
+    document.getElementById('quizResult').classList.add('show');
+  }
+
+  function resetQuiz() {
+    Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
+    document.getElementById('quizResult').classList.remove('show');
+    const qs = document.getElementById('quizQuestions');
+    if (qs) qs.style.display = 'block';
+    buildQuiz();
+  }
+
+  buildQuiz();
   </script>
 </body>
 </html>
