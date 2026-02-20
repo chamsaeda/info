@@ -390,6 +390,20 @@ th, td { padding: 0; }
   /* 홈 버튼 링크 밑줄 제거 */
   a { text-decoration: none; }
 
+  /* 툴팁 */
+  .tooltip {
+    position: fixed;
+    background-color: #000011;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 10pt;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    z-index: 1000;
+    pointer-events: none;
+  }
+
   </style>
 </head>
 <body>
@@ -17838,6 +17852,7 @@ function BluetoothLab({ onEarn }) {
     const [dist, setDist] = useState(3);
     const [song, setSong] = useState(null);
     const [scored, setScored] = useState(false);
+    const [tooltip, setTooltip] = useState(null);
     const MAX = 10;
     const songs = ['🎵 아이유 — 좋은 날', '🎵 BTS — Dynamite', '🎵 NewJeans — Hype Boy'];
     const bars = Math.max(0, Math.round((1 - dist / MAX) * 4));
@@ -17847,8 +17862,15 @@ function BluetoothLab({ onEarn }) {
         const t = setTimeout(() => setPhase('found'), 1500);
         return () => clearTimeout(t);
     } }, [phase]);
+    const showTooltip = (e) => {
+        setTooltip({ x: e.clientX, y: e.clientY });
+        setTimeout(() => setTooltip(null), 1800);
+    };
     return (React.createElement("div", { className: "bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4" },
-        React.createElement("h4", { className: "font-bold text-purple-600 text-base mb-1" }, "\uD83C\uDFA7 \uBE14\uB8E8\uD22C\uC2A4 \uD398\uC5B4\uB9C1 \uAC8C\uC784"),
+        tooltip && (React.createElement("div", { className: "tooltip", style: { top: `${tooltip.y - 38}px`, left: `${tooltip.x}px`, transform: 'translateX(-50%)' } }, "\uCC38\uC0C8\uB2E4! \uD83D\uDC26")),
+        React.createElement("h4", { className: "font-bold text-purple-600 text-base mb-1" },
+            React.createElement("span", { style: { cursor: 'pointer' }, onClick: showTooltip }, "\uD83C\uDFA7"),
+            " \uBE14\uB8E8\uD22C\uC2A4 \uD398\uC5B4\uB9C1 \uAC8C\uC784"),
         React.createElement("p", { className: "text-sm text-gray-500 mb-4 leading-relaxed" }, "\uAC00\uC0C1 \uBE14\uB8E8\uD22C\uC2A4 \uC774\uC5B4\uD3F0\uC744 \uC5F0\uACB0\uD558\uACE0, \uAC70\uB9AC\uB97C \uB298\uB824 10m \uD55C\uACC4\uB97C \uCCB4\uD5D8\uD574\uBCF4\uC138\uC694!"),
         React.createElement("div", { className: "flex items-center justify-center gap-6 bg-purple-50 rounded-xl p-5 mb-4" },
             React.createElement("div", { className: "text-center" },
