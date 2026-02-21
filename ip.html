@@ -1100,44 +1100,140 @@
           </div>
         </div>
 
-        <!-- DNS 시뮬레이터 -->
+        <!-- DNS 직접 체험 -->
         <div id="playground-dns-sim" class="playground-content hidden">
-          <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6 border-l-4 border-purple-500">
-            <p class="text-gray-700 leading-relaxed">
-              도메인 이름을 입력하면 DNS가 IP 주소로 변환해줘요!
+          <!-- 개념 설명 -->
+          <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-lg border border-green-300 mb-6">
+            <h3 class="font-bold text-green-900 text-lg mb-2">📖 DNS가 뭔가요?</h3>
+            <p class="text-gray-800 leading-relaxed mb-3">
+              <span class="font-bold text-green-700">DNS</span>는 <span class="font-bold">Domain Name System</span>의 약자예요.<br/>
+              우리가 인터넷 주소창에 <span class="font-bold text-blue-600">www.naver.com</span> 이라고 입력하면,
+              컴퓨터는 사실 숫자로 된 <span class="font-bold text-red-600">IP 주소</span>로 찾아가야 해요.<br/>
+              DNS는 마치 <span class="font-bold text-orange-600">전화번호부</span>처럼 도메인 이름을 IP 주소로 바꿔주는 역할을 해요!
             </p>
+            <div class="grid md:grid-cols-3 gap-3">
+              <div class="bg-white p-3 rounded-lg border border-green-200 text-center">
+                <div class="text-3xl mb-1">📖</div>
+                <p class="text-base font-bold text-green-700">DNS = 전화번호부</p>
+                <p class="text-sm text-gray-600">이름 → 번호</p>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-green-200 text-center">
+                <div class="text-3xl mb-1">🌐</div>
+                <p class="text-base font-bold text-blue-700">도메인 이름</p>
+                <p class="text-sm text-gray-600 font-mono">www.naver.com</p>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-green-200 text-center">
+                <div class="text-3xl mb-1">🔢</div>
+                <p class="text-base font-bold text-red-700">IP 주소</p>
+                <p class="text-sm text-gray-600 font-mono">223.130.200.107</p>
+              </div>
+            </div>
           </div>
 
-          <div class="mb-6">
-            <label class="block text-base font-bold text-gray-700 mb-3">도메인 이름 입력</label>
-            <div class="flex gap-3">
-              <input type="text" id="dns-input" placeholder="www.naver.com" class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-lg">
-              <button onclick="simulateDNS()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:from-purple-600 hover:to-pink-600">
-                변환 🔍
+          <!-- DNS 체험 -->
+          <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-lg mb-6">
+            <h3 class="font-bold text-gray-800 text-lg mb-4 text-center">🔍 DNS 직접 체험해보기!</h3>
+            <p class="text-center text-gray-600 text-base mb-4">아래 사이트 중 하나를 클릭하거나 직접 입력해보세요!</p>
+
+            <!-- 빠른 선택 버튼 -->
+            <div class="flex flex-wrap justify-center gap-2 mb-4">
+              <button onclick="startDNSNew('www.naver.com')" class="bg-gradient-to-r from-green-100 to-teal-100 border-2 border-green-400 text-green-800 px-4 py-2 rounded-full font-mono text-base font-bold hover:shadow-md transition-all dns-quick-btn">www.naver.com</button>
+              <button onclick="startDNSNew('www.google.com')" class="bg-gradient-to-r from-green-100 to-teal-100 border-2 border-green-400 text-green-800 px-4 py-2 rounded-full font-mono text-base font-bold hover:shadow-md transition-all dns-quick-btn">www.google.com</button>
+              <button onclick="startDNSNew('www.youtube.com')" class="bg-gradient-to-r from-green-100 to-teal-100 border-2 border-green-400 text-green-800 px-4 py-2 rounded-full font-mono text-base font-bold hover:shadow-md transition-all dns-quick-btn">www.youtube.com</button>
+              <button onclick="startDNSNew('www.kakao.com')" class="bg-gradient-to-r from-green-100 to-teal-100 border-2 border-green-400 text-green-800 px-4 py-2 rounded-full font-mono text-base font-bold hover:shadow-md transition-all dns-quick-btn">www.kakao.com</button>
+              <button onclick="startDNSNew('www.moe.go.kr')" class="bg-gradient-to-r from-green-100 to-teal-100 border-2 border-green-400 text-green-800 px-4 py-2 rounded-full font-mono text-base font-bold hover:shadow-md transition-all dns-quick-btn">www.moe.go.kr</button>
+            </div>
+
+            <!-- 직접 입력 -->
+            <div class="flex gap-2 mb-6">
+              <input type="text" id="dns-input-new" placeholder="도메인 직접 입력 (예: www.samsung.com)"
+                class="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2 font-mono text-base focus:outline-none focus:border-green-500"
+                onkeydown="if(event.key==='Enter') startDNSNew(this.value)">
+              <button onclick="startDNSNew(document.getElementById('dns-input-new').value)" id="dns-search-btn"
+                class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-5 py-2 rounded-lg font-bold hover:shadow-lg transition-all">
+                검색!
               </button>
             </div>
-            <div class="flex gap-2 mt-3">
-              <button onclick="document.getElementById('dns-input').value='www.naver.com'; simulateDNS();" class="px-3 py-1 bg-gray-200 rounded text-base hover:bg-gray-300">www.naver.com</button>
-              <button onclick="document.getElementById('dns-input').value='www.google.com'; simulateDNS();" class="px-3 py-1 bg-gray-200 rounded text-base hover:bg-gray-300">www.google.com</button>
-              <button onclick="document.getElementById('dns-input').value='www.youtube.com'; simulateDNS();" class="px-3 py-1 bg-gray-200 rounded text-base hover:bg-gray-300">www.youtube.com</button>
+
+            <!-- DNS 동작 애니메이션 -->
+            <div id="dns-anim-area" class="hidden bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div class="flex items-center justify-between flex-wrap gap-4">
+                <!-- 내 컴퓨터 -->
+                <div id="dns-node-pc" class="text-center transition-all duration-500 opacity-30">
+                  <div class="bg-blue-100 border-2 border-blue-400 rounded-xl p-4 w-32">
+                    <div class="text-3xl mb-1">💻</div>
+                    <div class="text-sm font-bold text-blue-700">내 컴퓨터</div>
+                    <div id="dns-node-pc-domain" class="text-sm font-mono text-gray-600 mt-1 break-all"></div>
+                  </div>
+                </div>
+
+                <!-- 화살표1 -->
+                <div class="flex flex-col items-center">
+                  <div id="dns-arrow1" class="text-2xl transition-all duration-300 text-gray-300">→</div>
+                  <div id="dns-arrow1-label" class="text-sm text-green-700 font-bold hidden">①요청</div>
+                </div>
+
+                <!-- DNS 서버 -->
+                <div id="dns-node-server" class="text-center transition-all duration-500 opacity-30">
+                  <div class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-4 w-32">
+                    <div class="text-3xl mb-1">🗄️</div>
+                    <div class="text-sm font-bold text-yellow-700">DNS 서버</div>
+                    <div class="text-sm text-gray-500 mt-1">전화번호부</div>
+                    <div id="dns-searching" class="text-sm text-orange-600 font-bold mt-1 hidden">🔍 검색 중...</div>
+                  </div>
+                </div>
+
+                <!-- 화살표2 -->
+                <div class="flex flex-col items-center">
+                  <div id="dns-arrow2" class="text-2xl transition-all duration-300 text-gray-300">→</div>
+                  <div id="dns-arrow2-label" class="text-sm text-purple-700 font-bold hidden">②응답</div>
+                </div>
+
+                <!-- 결과 -->
+                <div id="dns-node-result" class="text-center transition-all duration-500 opacity-30">
+                  <div class="bg-green-100 border-2 border-green-400 rounded-xl p-4 w-36">
+                    <div class="text-3xl mb-1">✅</div>
+                    <div class="text-sm font-bold text-green-700">IP 주소 발견!</div>
+                    <div id="dns-result-ip" class="text-sm font-mono text-green-800 font-bold mt-1 break-all hidden"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 단계 설명 -->
+              <div class="mt-4 bg-white p-3 rounded-lg border border-gray-200 text-base text-gray-800 text-center">
+                <span id="dns-step-msg"></span>
+                <div id="dns-final-msg" class="hidden mt-2 bg-green-50 p-2 rounded border border-green-200"></div>
+              </div>
             </div>
           </div>
 
-          <div id="dns-result" class="hidden">
-            <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-xl border-2 border-green-400">
-              <div class="flex items-center gap-3 mb-4">
-                <div class="text-3xl">✅</div>
-                <div class="font-bold text-green-800">변환 완료!</div>
+          <!-- DNS 동작 순서 요약 -->
+          <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
+            <h3 class="font-bold text-blue-900 text-lg mb-4">📋 DNS 동작 순서 정리</h3>
+            <div class="grid md:grid-cols-4 gap-3">
+              <div class="bg-white p-4 rounded-lg border border-blue-200 text-center">
+                <div class="text-2xl font-bold text-blue-600 mb-1">①</div>
+                <div class="text-3xl mb-2">💻</div>
+                <div class="font-bold text-base text-gray-800 mb-1">주소 입력</div>
+                <div class="text-sm text-gray-600">브라우저에 www.naver.com 입력</div>
               </div>
-              <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-lg">
-                  <div class="text-base text-gray-700 mb-1">도메인 이름</div>
-                  <div id="dns-domain" class="font-mono text-lg font-bold text-cyan-600">www.naver.com</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg">
-                  <div class="text-base text-gray-700 mb-1">IP 주소</div>
-                  <div id="dns-ip" class="font-mono text-lg font-bold text-blue-600">223.130.195.95</div>
-                </div>
+              <div class="bg-white p-4 rounded-lg border border-blue-200 text-center">
+                <div class="text-2xl font-bold text-blue-600 mb-1">②</div>
+                <div class="text-3xl mb-2">📤</div>
+                <div class="font-bold text-base text-gray-800 mb-1">DNS 요청</div>
+                <div class="text-sm text-gray-600">DNS 서버에 IP 주소 요청</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-blue-200 text-center">
+                <div class="text-2xl font-bold text-blue-600 mb-1">③</div>
+                <div class="text-3xl mb-2">🔍</div>
+                <div class="font-bold text-base text-gray-800 mb-1">IP 조회</div>
+                <div class="text-sm text-gray-600">DNS 서버가 IP 주소 검색</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-blue-200 text-center">
+                <div class="text-2xl font-bold text-blue-600 mb-1">④</div>
+                <div class="text-3xl mb-2">🌐</div>
+                <div class="font-bold text-base text-gray-800 mb-1">접속!</div>
+                <div class="text-sm text-gray-600">IP 주소로 웹사이트에 접속</div>
               </div>
             </div>
           </div>
@@ -1521,30 +1617,99 @@
       document.getElementById('subnet-hosts').textContent = hosts.toLocaleString() + '개';
     }
     
-    // DNS 시뮬레이터
-    const dnsDatabase = {
-      'www.naver.com': '223.130.195.95',
-      'www.google.com': '142.250.196.68',
-      'www.youtube.com': '142.250.217.46',
-      'www.daum.net': '203.133.167.21',
-      'www.moe.go.kr': '211.43.14.51'
+    // DNS 체험 시뮬레이터 (애니메이션 버전)
+    const dnsTable = {
+      'www.naver.com': '223.130.200.107',
+      'www.google.com': '172.217.25.100',
+      'www.youtube.com': '142.250.196.110',
+      'www.kakao.com': '203.133.167.16',
+      'www.moe.go.kr': '27.101.207.36',
     };
-    
-    function simulateDNS() {
-      const domain = document.getElementById('dns-input').value.trim().toLowerCase();
-      const resultDiv = document.getElementById('dns-result');
-      
-      if (!domain) {
-        alert('도메인 이름을 입력해주세요!');
-        return;
-      }
-      
-      const ip = dnsDatabase[domain] || '알 수 없음';
-      
-      document.getElementById('dns-domain').textContent = domain;
-      document.getElementById('dns-ip').textContent = ip;
-      resultDiv.classList.remove('hidden');
-      resultDiv.classList.add('fade-in');
+
+    let dnsAnimating = false;
+
+    function setDNSBtnsDisabled(disabled) {
+      document.querySelectorAll('.dns-quick-btn').forEach(b => b.disabled = disabled);
+      document.getElementById('dns-search-btn').disabled = disabled;
+    }
+
+    function startDNSNew(domain) {
+      domain = domain.trim().toLowerCase();
+      if (!domain) return;
+      if (dnsAnimating) return;
+      dnsAnimating = true;
+      setDNSBtnsDisabled(true);
+
+      // Reset UI
+      const animArea = document.getElementById('dns-anim-area');
+      animArea.classList.remove('hidden');
+
+      const pcNode = document.getElementById('dns-node-pc');
+      const serverNode = document.getElementById('dns-node-server');
+      const resultNode = document.getElementById('dns-node-result');
+      const arrow1 = document.getElementById('dns-arrow1');
+      const arrow1Label = document.getElementById('dns-arrow1-label');
+      const arrow2 = document.getElementById('dns-arrow2');
+      const arrow2Label = document.getElementById('dns-arrow2-label');
+      const searching = document.getElementById('dns-searching');
+      const resultIp = document.getElementById('dns-result-ip');
+      const stepMsg = document.getElementById('dns-step-msg');
+      const finalMsg = document.getElementById('dns-final-msg');
+      const pcDomain = document.getElementById('dns-node-pc-domain');
+
+      // Reset
+      pcNode.className = 'text-center transition-all duration-500 opacity-30';
+      serverNode.className = 'text-center transition-all duration-500 opacity-30';
+      resultNode.className = 'text-center transition-all duration-500 opacity-30';
+      arrow1.className = 'text-2xl transition-all duration-300 text-gray-300';
+      arrow2.className = 'text-2xl transition-all duration-300 text-gray-300';
+      arrow1Label.classList.add('hidden');
+      arrow2Label.classList.add('hidden');
+      searching.classList.add('hidden');
+      resultIp.classList.add('hidden');
+      finalMsg.classList.add('hidden');
+      pcDomain.textContent = '';
+
+      // Step 0
+      stepMsg.innerHTML = '💻 <strong>' + domain + '</strong>에 접속하려 해요!';
+      pcNode.className = 'text-center transition-all duration-500 opacity-100';
+      pcDomain.textContent = domain;
+
+      setTimeout(() => {
+        // Step 1
+        stepMsg.innerHTML = '📤 DNS 서버에게 "<strong>' + domain + '</strong>의 IP 주소가 뭔가요?" 물어봐요!';
+        arrow1.className = 'text-2xl transition-all duration-300 text-green-600 scale-125';
+        arrow1Label.classList.remove('hidden');
+        serverNode.className = 'text-center transition-all duration-500 opacity-100 scale-105';
+      }, 1400);
+
+      setTimeout(() => {
+        // Step 2
+        stepMsg.innerHTML = '🔍 DNS 서버가 전화번호부에서 <strong>' + domain + '</strong>을 찾고 있어요...';
+        searching.classList.remove('hidden');
+      }, 2800);
+
+      setTimeout(() => {
+        // Step 3
+        const ip = dnsTable[domain] || (
+          (Math.floor(Math.random()*200+50)) + '.' +
+          (Math.floor(Math.random()*200+50)) + '.' +
+          (Math.floor(Math.random()*200+100)) + '.' +
+          (Math.floor(Math.random()*200+1))
+        );
+        stepMsg.innerHTML = '📬 IP 주소를 찾았어요! 이제 그 주소로 접속합니다!';
+        arrow2.className = 'text-2xl transition-all duration-300 text-purple-600 scale-125';
+        arrow2Label.classList.remove('hidden');
+        resultNode.className = 'text-center transition-all duration-500 opacity-100 scale-110';
+        resultIp.textContent = ip;
+        resultIp.classList.remove('hidden');
+        searching.classList.add('hidden');
+        finalMsg.innerHTML = '🎉 <strong>' + domain + '</strong> = <span class="font-mono text-green-700 font-bold">' + ip + '</span>';
+        finalMsg.classList.remove('hidden');
+
+        dnsAnimating = false;
+        setDNSBtnsDisabled(false);
+      }, 4200);
     }
     
     // ========== 새 퀴즈 시스템 (keyboard.html 스타일) ==========
