@@ -81,7 +81,7 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .intro-card h4 { font-weight: 700; margin-bottom: 0.5rem; }
-    .intro-card p { font-size: 0.875rem; color: #374151; }
+    .intro-card p { font-size: 0.9rem; color: #374151; }
 
     /* ── 탭 ── */
     .tab-bar {
@@ -576,7 +576,7 @@
 </div><!-- /container -->
 
 <!-- 툴팁 -->
-<div class="tooltip-box" id="tooltip" style="display:none">참새다!</div>
+<div class="tooltip-box" id="tooltip" style="display:none">&#xCC38;&#xC0C8</div>
 
 <script>
 /* ══════════════════════════════════════════════
@@ -906,17 +906,17 @@ function xB1Init(){
   root.innerHTML=`<div class="xw xbuilder">
   <div class="xpanel" style="overflow-y:auto;">
     <div class="xptitle">📦 장비 목록</div>
-    <p style="font-size:13px;color:var(--xdm);margin-bottom:8px;">아래 장비를 캔버스로 드래그해서 올려보세요!</p>
+    <p style="font-size:14px;color:var(--xdm);margin-bottom:8px;">아래 장비를 캔버스로 드래그해서 올려보세요!</p>
     ${[['pc','💻','PC(컴퓨터)','데이터 주고받기'],['switch','🔀','스위칭 허브','MAC 주소로 배달'],['router','🗺️','라우터(공유기)','IP로 경로 찾기'],['server','🖥️','서버','데이터 제공']].map(([t,e,n,d])=>`
     <div class="xdevitem" draggable="true" data-t="${t}" data-e="${e}" data-n="${n}">
       <span style="font-size:20px;">${e}</span>
-      <div><div style="font-size:13px;font-weight:700;color:#1e293b;">${n}</div><div style="font-size:12px;color:var(--xdm);">${d}</div></div>
+      <div><div style="font-size:14px;font-weight:700;color:#1e293b;">${n}</div><div style="font-size:12px;color:var(--xdm);">${d}</div></div>
     </div>`).join('')}
     <div style="border-top:1px solid var(--xbd);margin:10px 0;"></div>
     <div class="xptitle">🔌 케이블 선택</div>
-    <div class="xcopt sel" onclick="xSelC('utp',this)"><div class="xcdot" style="background:var(--xutp)"></div><div><div style="font-size:13px;font-weight:700;">UTP 케이블</div><div style="font-size:11px;color:var(--xdm);">랜선·100m 이내</div></div></div>
-    <div class="xcopt" onclick="xSelC('coax',this)"><div class="xcdot" style="background:var(--xcox)"></div><div><div style="font-size:13px;font-weight:700;">동축 케이블</div><div style="font-size:11px;color:var(--xdm);">TV선·500m 이내</div></div></div>
-    <div class="xcopt" onclick="xSelC('fiber',this)"><div class="xcdot" style="background:var(--xfib)"></div><div><div style="font-size:13px;font-weight:700;">광케이블</div><div style="font-size:11px;color:var(--xdm);">빛으로 전송·km+</div></div></div>
+    <div class="xcopt sel" onclick="xSelC('utp',this)"><div class="xcdot" style="background:var(--xutp)"></div><div><div style="font-size:14px;font-weight:700;">UTP 케이블</div><div style="font-size:13px;color:var(--xdm);">랜선·100m 이내</div></div></div>
+    <div class="xcopt" onclick="xSelC('coax',this)"><div class="xcdot" style="background:var(--xcox)"></div><div><div style="font-size:14px;font-weight:700;">동축 케이블</div><div style="font-size:13px;color:var(--xdm);">TV선·500m 이내</div></div></div>
+    <div class="xcopt" onclick="xSelC('fiber',this)"><div class="xcdot" style="background:var(--xfib)"></div><div><div style="font-size:14px;font-weight:700;">광케이블</div><div style="font-size:13px;color:var(--xdm);">빛으로 전송·km+</div></div></div>
   </div>
   <div id="xcanvas">
     <div class="xmodelbl" id="xmlbl">📌 장비 배치 모드</div>
@@ -931,7 +931,7 @@ function xB1Init(){
       <div style="background:linear-gradient(135deg,#e0f2fe,#f3e8ff);border:1px solid var(--xbd);border-radius:8px;padding:12px;margin-bottom:8px;">
         <div id="xmemoji" style="font-size:26px;text-align:center;margin-bottom:5px;"></div>
         <div id="xmtitle" style="font-size:14px;font-weight:700;margin-bottom:5px;color:#1e293b;"></div>
-        <div id="xmdesc" style="font-size:13px;color:#475569;line-height:1.7;white-space:pre-line;"></div>
+        <div id="xmdesc" style="font-size:14px;color:#475569;line-height:1.7;white-space:pre-line;"></div>
       </div>
       <div style="background:var(--xsf2);border-radius:8px;padding:10px;margin-bottom:8px;">
         <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;">✅ 달성 조건</div>
@@ -939,17 +939,17 @@ function xB1Init(){
       </div>
       <div id="xhintbox" style="background:#fefce8;border:1px solid #fde047;border-radius:7px;padding:9px;margin-bottom:8px;display:none;">
         <div style="font-size:12px;font-weight:700;color:#a16207;margin-bottom:3px;">💡 힌트</div>
-        <div id="xhinttxt" style="font-size:13px;color:#475569;line-height:1.6;white-space:pre-line;"></div>
+        <div id="xhinttxt" style="font-size:14px;color:#475569;line-height:1.6;white-space:pre-line;"></div>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;">
-        <button class="xbtn xbtn-pri" id="xconnbtn" onclick="xTogConn()" style="font-size:13px;padding:7px 11px;">🔗 연결 모드</button>
-        <button class="xbtn xbtn-ol" onclick="xHint()" style="font-size:13px;padding:7px 9px;">💡 힌트</button>
-        <button class="xbtn xbtn-ol" onclick="xClear()" style="font-size:13px;padding:7px 9px;">🗑️ 초기화</button>
+        <button class="xbtn xbtn-pri" id="xconnbtn" onclick="xTogConn()" style="font-size:14px;padding:7px 11px;">🔗 연결 모드</button>
+        <button class="xbtn xbtn-ol" onclick="xHint()" style="font-size:14px;padding:7px 9px;">💡 힌트</button>
+        <button class="xbtn xbtn-ol" onclick="xClear()" style="font-size:14px;padding:7px 9px;">🗑️ 초기화</button>
       </div>
       <button class="xbtn xbtn-ok" style="width:100%;font-size:14px;" onclick="xVerify()">🔍 구성 검사하기</button>
       <div class="xvres" id="xvres"></div>
     </div>
-    <div id="xnomission" style="text-align:center;color:var(--xdm);padding:16px 0;font-size:13px;">☝️ 미션을 먼저 골라보세요!</div>
+    <div id="xnomission" style="text-align:center;color:var(--xdm);padding:16px 0;font-size:14px;">☝️ 미션을 먼저 골라보세요!</div>
     <div class="xptitle" style="margin-top:10px;">📜 연결 기록</div>
     <div class="xlog" id="xblog"><div class="xlogitem i">[시스템] 장비를 배치해주세요!</div></div>
   </div>
@@ -960,7 +960,7 @@ function xB1Init(){
     const dc={'기초':'xdb-e','중급':'xdb-m','심화':'xdb-h'}[m.diff];
     const btn=document.createElement('button');
     btn.id=`xmsb${i}`; btn.className='xmsbtn';
-    btn.innerHTML=`<span style="font-size:18px;">${m.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${m.title}</div><span class="xdbadge ${dc}">${m.diff}</span></div><span id="xmsc${i}" style="display:${xMDone[i]?'inline':'none'}">✅</span>`;
+    btn.innerHTML=`<span style="font-size:18px;">${m.emoji}</span><div style="flex:1;"><div style="font-size:14px;font-weight:700;">${m.title}</div><span class="xdbadge ${dc}">${m.diff}</span></div><span id="xmsc${i}" style="display:${xMDone[i]?'inline':'none'}">✅</span>`;
     btn.onclick=()=>xSelM(i);
     list.appendChild(btn);
   });
@@ -1005,7 +1005,7 @@ function xRenderCL(m){
   const cl=document.getElementById('xchklist'); cl.innerHTML='';
   m.checks.forEach(c=>{
     const d=document.createElement('div'); d.className='xchkrow'; d.id='xchr'+c.id;
-    d.innerHTML=`<span id="xchi${c.id}" style="font-size:13px;min-width:16px;">⬜</span><span style="font-size:13px;">${c.lbl}</span>`;
+    d.innerHTML=`<span id="xchi${c.id}" style="font-size:14px;min-width:16px;">⬜</span><span style="font-size:14px;">${c.lbl}</span>`;
     cl.appendChild(d);
   });
 }
@@ -1155,11 +1155,11 @@ function xVerify(){
   });
   const res=document.getElementById('xvres'); res.style.display='block';
   if(allOk){
-    res.style.cssText='display:block;background:#f0fdf4;border:1px solid var(--xok);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;color:#15803d;margin-top:10px;';
+    res.style.cssText='display:block;background:#f0fdf4;border:1px solid var(--xok);border-radius:8px;padding:12px;font-size:14px;line-height:1.7;color:#15803d;margin-top:10px;';
     res.textContent=m.ok;
     if(!xMDone[xMIdx]){xMDone[xMIdx]=true;const sc=document.getElementById(`xmsc${xMIdx}`);if(sc)sc.style.display='inline';}
   } else {
-    res.style.cssText='display:block;background:#fef2f2;border:1px solid var(--xer);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;color:#dc2626;margin-top:10px;';
+    res.style.cssText='display:block;background:#fef2f2;border:1px solid var(--xer);border-radius:8px;padding:12px;font-size:14px;line-height:1.7;color:#dc2626;margin-top:10px;';
     res.innerHTML='❌ 아직 조건이 다 채워지지 않았어요!<br><br>'+fails.map(f=>`• ${f}`).join('<br>')+'<br><br>💡 힌트 버튼을 눌러봐요!';
   }
 }
@@ -1222,7 +1222,7 @@ function xB2Init(){
       </div>
       <div style="font-size:30px;text-align:center;margin-bottom:8px;">${m.emoji}</div>
       <div style="font-size:14px;font-weight:700;margin-bottom:6px;color:#1e293b;">${m.sc}</div>
-      <div style="font-size:13px;color:#475569;margin-bottom:12px;line-height:1.6;">${m.desc}</div>
+      <div style="font-size:14px;color:#475569;margin-bottom:12px;line-height:1.6;">${m.desc}</div>
       <div id="xmch${i}">${m.ch.map((c,j)=>`<button class="xchoice" onclick="xMChoose(${i},${j},this)"><span>${['🟡','🟠','🟣','🔵'][j]}</span>${c}</button>`).join('')}</div>
       <div class="xmres" id="xmr${i}"></div>`;
     grid.appendChild(card);
@@ -1313,7 +1313,7 @@ function xB3Init(){
   root.innerHTML=`<div class="xw xpwrap">
     <div class="xpanel">
       <div style="margin-bottom:10px;">
-        <p style="font-size:13px;color:var(--xdm);margin-bottom:6px;">시나리오를 골라보세요:</p>
+        <p style="font-size:14px;color:var(--xdm);margin-bottom:6px;">시나리오를 골라보세요:</p>
         <div>
           <button class="xscbtn act" onclick="xPSel(0,this)">🏠 같은 네트워크</button>
           <button class="xscbtn" onclick="xPSel(1,this)">🌐 인터넷 접속</button>

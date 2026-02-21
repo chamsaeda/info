@@ -267,15 +267,15 @@
                     </span>
                     {' '}케이블
                   </h4>
-                  <p className="text-sm">데이터가 이동하는 <span className="font-bold">물리적 통로</span></p>
+                  <p className="text-base">데이터가 이동하는 <span className="font-bold">물리적 통로</span></p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-cyan-700 mb-2">🎯 네트워크 장비</h4>
-                  <p className="text-sm">데이터를 <span className="font-bold">올바르게 전달</span>하는 장치</p>
+                  <p className="text-base">데이터를 <span className="font-bold">올바르게 전달</span>하는 장치</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-blue-700 mb-2">🌐 네트워크</h4>
-                  <p className="text-sm">컴퓨터들이 <span className="font-bold">연결된 망</span></p>
+                  <p className="text-base">컴퓨터들이 <span className="font-bold">연결된 망</span></p>
                 </div>
               </div>
             </div>
@@ -341,8 +341,8 @@
             {activeTab === 'cables' && (
               <div className="slide-in">
                 <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-300 mb-6">
-                  <p className="text-sm font-semibold text-yellow-900 mb-2">💡 학습 방법</p>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-base font-semibold text-yellow-900 mb-2">💡 학습 방법</p>
+                  <p className="text-base text-gray-700">
                     <span className="font-bold text-teal-600">케이블 카드를 클릭해보세요! </span> 
                     각 케이블의 특징과 용도를 자세히 알 수 있어요.
                   </p>
@@ -375,12 +375,12 @@
                             </div>
                           </div>
                           <h3 className={`text-xl font-bold ${colors.text} mb-2 text-center`}>{cable.name}</h3>
-                          <p className="text-sm text-gray-600 text-center mb-4">{cable.subtitle}</p>
+                          <p className="text-base text-gray-600 text-center mb-4">{cable.subtitle}</p>
                           <div className="space-y-2">
-                            <div className="bg-white p-2 rounded text-sm">
+                            <div className="bg-white p-2 rounded text-base">
                               <span className="font-bold text-gray-700">속도:</span> {cable.speed}
                             </div>
-                            <div className="bg-white p-2 rounded text-sm">
+                            <div className="bg-white p-2 rounded text-base">
                               <span className="font-bold text-gray-700">거리:</span> {cable.distance}
                             </div>
                           </div>
@@ -416,15 +416,15 @@
                               {cable.features.map((feature, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
                                   <span className="text-teal-600">✓</span>
-                                  <span className="text-sm text-gray-700">{feature}</span>
+                                  <span className="text-base text-gray-700">{feature}</span>
                                 </li>
                               ))}
                             </ul>
                           </div>
 
                           <div className="bg-teal-100 p-4 rounded-lg border-2 border-teal-400">
-                            <p className="text-sm font-bold text-teal-900 mb-1">🏠 실생활 예시</p>
-                            <p className="text-sm text-gray-700">{cable.realLife}</p>
+                            <p className="text-base font-bold text-teal-900 mb-1">🏠 실생활 예시</p>
+                            <p className="text-base text-gray-700">{cable.realLife}</p>
                           </div>
                         </div>
                       );
@@ -438,8 +438,8 @@
             {activeTab === 'devices' && (
               <div className="slide-in">
                 <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-300 mb-6">
-                  <p className="text-sm font-semibold text-yellow-900 mb-2">💡 학습 방법</p>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-base font-semibold text-yellow-900 mb-2">💡 학습 방법</p>
+                  <p className="text-base text-gray-700">
                     <span className="font-bold text-teal-600">장비 카드를 클릭해보세요! </span> 
                     각 장비의 역할과 비유를 통해 쉽게 이해할 수 있어요.
                   </p>
@@ -472,13 +472,13 @@
                             </div>
                           </div>
                           <h3 className={`text-xl font-bold ${colors.text} mb-2 text-center`}>{device.name}</h3>
-                          <p className="text-sm text-gray-600 text-center mb-4">{device.subtitle}</p>
+                          <p className="text-base text-gray-600 text-center mb-4">{device.subtitle}</p>
                           <div className="space-y-2">
                             <div className="bg-white p-3 rounded text-center">
-                              <p className="text-sm font-bold text-gray-700 mb-1">비유</p>
+                              <p className="text-base font-bold text-gray-700 mb-1">비유</p>
                               <p className={`text-lg font-bold ${colors.accent}`}>{device.analogy}</p>
                             </div>
-                            <div className="bg-white p-2 rounded text-sm">
+                            <div className="bg-white p-2 rounded text-base">
                               <span className="font-bold text-gray-700">포트:</span> {device.ports}
                             </div>
                           </div>
@@ -514,7 +514,7 @@
                               <span className="text-3xl">{device.analogy === '우체부' ? '📮' : '🧭'}</span>
                               <div>
                                 <p className={`font-bold ${colors.accent}`}>{device.analogy}</p>
-                                <p className="text-sm text-gray-600">{device.analogyDesc}</p>
+                                <p className="text-base text-gray-600">{device.analogyDesc}</p>
                               </div>
                             </div>
                           </div>
@@ -525,15 +525,15 @@
                               {device.features.map((feature, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
                                   <span className="text-teal-600">✓</span>
-                                  <span className="text-sm text-gray-700">{feature}</span>
+                                  <span className="text-base text-gray-700">{feature}</span>
                                 </li>
                               ))}
                             </ul>
                           </div>
 
                           <div className="bg-teal-100 p-4 rounded-lg border-2 border-teal-400">
-                            <p className="text-sm font-bold text-teal-900 mb-1">🔄 데이터 흐름</p>
-                            <p className="text-sm text-gray-700 font-mono">{device.flow}</p>
+                            <p className="text-base font-bold text-teal-900 mb-1">🔄 데이터 흐름</p>
+                            <p className="text-base text-gray-700 font-mono">{device.flow}</p>
                           </div>
                         </div>
                       );
@@ -558,7 +558,7 @@
                           <th className="p-3 text-center">광케이블</th>
                         </tr>
                       </thead>
-                      <tbody className="text-sm">
+                      <tbody className="text-base">
                         <tr className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="p-3 font-bold text-gray-700">전송 방식</td>
                           <td className="p-3 text-center">전기 신호</td>
@@ -591,9 +591,9 @@
                         </tr>
                         <tr className="hover:bg-gray-50">
                           <td className="p-3 font-bold text-gray-700">주요 용도</td>
-                          <td className="p-3 text-center text-xs">집, 학교, 사무실</td>
-                          <td className="p-3 text-center text-xs">케이블 TV</td>
-                          <td className="p-3 text-center text-xs">통신사 기간망</td>
+                          <td className="p-3 text-center text-base">집, 학교, 사무실</td>
+                          <td className="p-3 text-center text-base">케이블 TV</td>
+                          <td className="p-3 text-center text-base">통신사 기간망</td>
                         </tr>
                       </tbody>
                     </table>
@@ -611,7 +611,7 @@
                           <th className="p-3 text-center">라우터</th>
                         </tr>
                       </thead>
-                      <tbody className="text-sm">
+                      <tbody className="text-base">
                         <tr className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="p-3 font-bold text-gray-700">OSI 계층</td>
                           <td className="p-3 text-center">2계층 (데이터링크)</td>
@@ -649,8 +649,8 @@
                         </tr>
                         <tr className="hover:bg-gray-50">
                           <td className="p-3 font-bold text-gray-700">주요 역할</td>
-                          <td className="p-3 text-center text-xs">여러 컴퓨터를 연결</td>
-                          <td className="p-3 text-center text-xs">인터넷 연결 및 공유</td>
+                          <td className="p-3 text-center text-base">여러 컴퓨터를 연결</td>
+                          <td className="p-3 text-center text-base">인터넷 연결 및 공유</td>
                         </tr>
                       </tbody>
                     </table>
@@ -662,11 +662,11 @@
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="bg-white p-3 rounded-lg">
                       <p className="font-bold text-green-600 mb-1">스위칭 허브 = 우체부 📮</p>
-                      <p className="text-xs text-gray-600">MAC 주소 보고 정확히 배달</p>
+                      <p className="text-base text-gray-600">MAC 주소 보고 정확히 배달</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg">
                       <p className="font-bold text-blue-600 mb-1">라우터 = 내비게이션 🧭</p>
-                      <p className="text-xs text-gray-600">IP 주소로 최적 경로 탐색</p>
+                      <p className="text-base text-gray-600">IP 주소로 최적 경로 탐색</p>
                     </div>
                   </div>
                 </div>
@@ -677,8 +677,7 @@
             {activeTab === 'quiz' && (
               <div className="slide-in">
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mb-6">
-                  <h3 className="text-lg font-bold text-purple-900 mb-2">🎯 배운 내용 확인하기</h3>
-                  <p className="text-sm text-gray-700">총 {quizData.length}문제를 풀어보세요!</p>
+                  <h3 className="text-lg font-bold text-purple-900 mb-2">🎯 배운 내용 확인하기</h3>                  
                 </div>
 
                 {!showQuizResult ? (
@@ -723,7 +722,7 @@
                         
                         {quizAnswers[quiz.id] !== undefined && (
                           <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <p className="text-sm text-gray-700">
+                            <p className="text-base text-gray-700">
                               <span className="font-bold text-blue-600">설명:</span> {quiz.explanation}
                             </p>
                           </div>
@@ -773,7 +772,7 @@
                 {/* 안내 */}
                 <div className="bg-gradient-to-r from-orange-50 to-rose-50 p-5 rounded-xl border-2 border-orange-200">
                   <h3 className="text-lg font-bold text-orange-900 mb-2">🛠️ 직접 체험해봐요!</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <p className="text-base text-gray-700 leading-relaxed">
                     앞에서 배운 케이블과 네트워크 장비를 이제 직접 사용해볼 차례예요!<br/>
                     아래 세 가지 체험을 하나씩 해보면서 네트워크가 어떻게 동작하는지 눈으로 확인해봐요. 😊
                   </p>
@@ -785,7 +784,7 @@
                     <span className="text-3xl">🏗️</span>
                     <div>
                       <div className="font-bold text-lg">체험 1. 네트워크 직접 구성하기</div>
-                      <div className="text-teal-100 text-sm mt-1">장비를 드래그해서 연결하고, 미션을 완성해봐요!</div>
+                      <div className="text-teal-100 text-base mt-1">장비를 드래그해서 연결하고, 미션을 완성해봐요!</div>
                     </div>
                   </div>
                   <div id="exp1-root" style={{minHeight:'660px', background:'#f8fafc'}}></div>
@@ -797,7 +796,7 @@
                     <span className="text-3xl">🎯</span>
                     <div>
                       <div className="font-bold text-lg">체험 2. 케이블 선택 미션</div>
-                      <div className="text-purple-100 text-sm mt-1">상황에 맞는 케이블을 직접 골라봐요!</div>
+                      <div className="text-purple-100 text-base mt-1">상황에 맞는 케이블을 직접 골라봐요!</div>
                     </div>
                   </div>
                   <div id="exp2-root" style={{background:'#f8fafc', padding:'20px'}}></div>
@@ -809,7 +808,7 @@
                     <span className="text-3xl">📡</span>
                     <div>
                       <div className="font-bold text-lg">체험 3. 패킷 전송 체험</div>
-                      <div className="text-blue-100 text-sm mt-1">데이터가 어떤 경로로 이동하는지 눈으로 확인해봐요!</div>
+                      <div className="text-blue-100 text-base mt-1">데이터가 어떤 경로로 이동하는지 눈으로 확인해봐요!</div>
                     </div>
                   </div>
                   <div id="exp3-root" style={{background:'#f8fafc', padding:'20px'}}></div>
@@ -837,7 +836,7 @@
               transform: 'translate(-50%, -100%)'
             }}
           >
-            참새다! 
+            {"\uCC38\uC0C8"} 
           </div>
           )}
         </div>
@@ -1036,17 +1035,17 @@ function xB1Init(){
   <!-- 왼쪽 팔레트 -->
   <div class="xpanel" style="overflow-y:auto;">
     <div class="xptitle">📦 장비 목록</div>
-    <p style="font-size:13px;color:var(--xdm);margin-bottom:8px;">아래 장비를 캔버스로 드래그해서 올려보세요!</p>
+    <p style="font-size:14px;color:var(--xdm);margin-bottom:8px;">아래 장비를 캔버스로 드래그해서 올려보세요!</p>
     ${[['pc','💻','PC(컴퓨터)','데이터 주고받기'],['switch','🔀','스위칭 허브','MAC 주소로 배달'],['router','🗺️','라우터(공유기)','IP로 경로 찾기'],['server','🖥️','서버','데이터 제공']].map(([t,e,n,d])=>`
     <div class="xdevitem" draggable="true" data-t="${t}" data-e="${e}" data-n="${n}">
       <span style="font-size:20px;">${e}</span>
-      <div><div style="font-size:13px;font-weight:700;color:#1e293b;">${n}</div><div style="font-size:12px;color:var(--xdm);">${d}</div></div>
+      <div><div style="font-size:14px;font-weight:700;color:#1e293b;">${n}</div><div style="font-size:12px;color:var(--xdm);">${d}</div></div>
     </div>`).join('')}
     <div style="border-top:1px solid var(--xbd);margin:10px 0;"></div>
     <div class="xptitle">🔌 케이블 선택</div>
-    <div class="xcopt sel" onclick="xSelC('utp',this)"><div class="xcdot" style="background:var(--xutp)"></div><div><div style="font-size:13px;font-weight:700;">UTP 케이블</div><div style="font-size:11px;color:var(--xdm);">랜선·100m 이내</div></div></div>
-    <div class="xcopt" onclick="xSelC('coax',this)"><div class="xcdot" style="background:var(--xcox)"></div><div><div style="font-size:13px;font-weight:700;">동축 케이블</div><div style="font-size:11px;color:var(--xdm);">TV선·500m 이내</div></div></div>
-    <div class="xcopt" onclick="xSelC('fiber',this)"><div class="xcdot" style="background:var(--xfib)"></div><div><div style="font-size:13px;font-weight:700;">광케이블</div><div style="font-size:11px;color:var(--xdm);">빛으로 전송·km+</div></div></div>
+    <div class="xcopt sel" onclick="xSelC('utp',this)"><div class="xcdot" style="background:var(--xutp)"></div><div><div style="font-size:14px;font-weight:700;">UTP 케이블</div><div style="font-size:13px;color:var(--xdm);">랜선·100m 이내</div></div></div>
+    <div class="xcopt" onclick="xSelC('coax',this)"><div class="xcdot" style="background:var(--xcox)"></div><div><div style="font-size:14px;font-weight:700;">동축 케이블</div><div style="font-size:13px;color:var(--xdm);">TV선·500m 이내</div></div></div>
+    <div class="xcopt" onclick="xSelC('fiber',this)"><div class="xcdot" style="background:var(--xfib)"></div><div><div style="font-size:14px;font-weight:700;">광케이블</div><div style="font-size:13px;color:var(--xdm);">빛으로 전송·km+</div></div></div>
   </div>
   <!-- 캔버스 -->
   <div id="xcanvas">
@@ -1063,7 +1062,7 @@ function xB1Init(){
       <div style="background:linear-gradient(135deg,#e0f2fe,#f3e8ff);border:1px solid var(--xbd);border-radius:8px;padding:12px;margin-bottom:8px;">
         <div id="xmemoji" style="font-size:26px;text-align:center;margin-bottom:5px;"></div>
         <div id="xmtitle" style="font-size:14px;font-weight:700;margin-bottom:5px;color:#1e293b;"></div>
-        <div id="xmdesc" style="font-size:13px;color:#475569;line-height:1.7;white-space:pre-line;"></div>
+        <div id="xmdesc" style="font-size:14px;color:#475569;line-height:1.7;white-space:pre-line;"></div>
       </div>
       <div style="background:var(--xsf2);border-radius:8px;padding:10px;margin-bottom:8px;">
         <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;">✅ 달성 조건</div>
@@ -1071,17 +1070,17 @@ function xB1Init(){
       </div>
       <div id="xhintbox" style="background:#fefce8;border:1px solid #fde047;border-radius:7px;padding:9px;margin-bottom:8px;display:none;">
         <div style="font-size:12px;font-weight:700;color:#a16207;margin-bottom:3px;">💡 힌트</div>
-        <div id="xhinttxt" style="font-size:13px;color:#475569;line-height:1.6;white-space:pre-line;"></div>
+        <div id="xhinttxt" style="font-size:14px;color:#475569;line-height:1.6;white-space:pre-line;"></div>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;">
-        <button class="xbtn xbtn-pri" id="xconnbtn" onclick="xTogConn()" style="font-size:13px;padding:7px 11px;">🔗 연결 모드</button>
-        <button class="xbtn xbtn-ol" onclick="xHint()" style="font-size:13px;padding:7px 9px;">💡 힌트</button>
-        <button class="xbtn xbtn-ol" onclick="xClear()" style="font-size:13px;padding:7px 9px;">🗑️ 초기화</button>
+        <button class="xbtn xbtn-pri" id="xconnbtn" onclick="xTogConn()" style="font-size:14px;padding:7px 11px;">🔗 연결 모드</button>
+        <button class="xbtn xbtn-ol" onclick="xHint()" style="font-size:14px;padding:7px 9px;">💡 힌트</button>
+        <button class="xbtn xbtn-ol" onclick="xClear()" style="font-size:14px;padding:7px 9px;">🗑️ 초기화</button>
       </div>
       <button class="xbtn xbtn-ok" style="width:100%;font-size:14px;" onclick="xVerify()">🔍 구성 검사하기</button>
       <div class="xvres" id="xvres"></div>
     </div>
-    <div id="xnomission" style="text-align:center;color:var(--xdm);padding:16px 0;font-size:13px;">☝️ 미션을 먼저 골라보세요!</div>
+    <div id="xnomission" style="text-align:center;color:var(--xdm);padding:16px 0;font-size:14px;">☝️ 미션을 먼저 골라보세요!</div>
     <div class="xptitle" style="margin-top:10px;">📜 연결 기록</div>
     <div class="xlog" id="xblog"><div class="xlogitem i">[시스템] 장비를 배치해주세요!</div></div>
   </div>
@@ -1093,7 +1092,7 @@ function xB1Init(){
     const dc={'기초':'xdb-e','중급':'xdb-m','심화':'xdb-h'}[m.diff];
     const btn=document.createElement('button');
     btn.id=`xmsb${i}`; btn.className='xmsbtn';
-    btn.innerHTML=`<span style="font-size:18px;">${m.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${m.title}</div><span class="xdbadge ${dc}">${m.diff}</span></div><span id="xmsc${i}" style="display:${xMDone[i]?'inline':'none'}">✅</span>`;
+    btn.innerHTML=`<span style="font-size:18px;">${m.emoji}</span><div style="flex:1;"><div style="font-size:14px;font-weight:700;">${m.title}</div><span class="xdbadge ${dc}">${m.diff}</span></div><span id="xmsc${i}" style="display:${xMDone[i]?'inline':'none'}">✅</span>`;
     btn.onclick=()=>xSelM(i);
     list.appendChild(btn);
   });
@@ -1139,7 +1138,7 @@ function xRenderCL(m){
   const cl=document.getElementById('xchklist'); cl.innerHTML='';
   m.checks.forEach(c=>{
     const d=document.createElement('div'); d.className='xchkrow'; d.id='xchr'+c.id;
-    d.innerHTML=`<span id="xchi${c.id}" style="font-size:13px;min-width:16px;">⬜</span><span style="font-size:13px;">${c.lbl}</span>`;
+    d.innerHTML=`<span id="xchi${c.id}" style="font-size:14px;min-width:16px;">⬜</span><span style="font-size:14px;">${c.lbl}</span>`;
     cl.appendChild(d);
   });
 }
@@ -1290,11 +1289,11 @@ function xVerify(){
   });
   const res=document.getElementById('xvres'); res.style.display='block';
   if(allOk){
-    res.style.cssText='display:block;background:#f0fdf4;border:1px solid var(--xok);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;color:#15803d;margin-top:10px;';
+    res.style.cssText='display:block;background:#f0fdf4;border:1px solid var(--xok);border-radius:8px;padding:12px;font-size:14px;line-height:1.7;color:#15803d;margin-top:10px;';
     res.textContent=m.ok;
     if(!xMDone[xMIdx]){xMDone[xMIdx]=true;const sc=document.getElementById(`xmsc${xMIdx}`);if(sc)sc.style.display='inline';}
   } else {
-    res.style.cssText='display:block;background:#fef2f2;border:1px solid var(--xer);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;color:#dc2626;margin-top:10px;';
+    res.style.cssText='display:block;background:#fef2f2;border:1px solid var(--xer);border-radius:8px;padding:12px;font-size:14px;line-height:1.7;color:#dc2626;margin-top:10px;';
     res.innerHTML='❌ 아직 조건이 다 채워지지 않았어요!<br><br>'+fails.map(f=>`• ${f}`).join('<br>')+'<br><br>💡 힌트 버튼을 눌러봐요!';
   }
 }
@@ -1359,7 +1358,7 @@ function xB2Init(){
       </div>
       <div style="font-size:30px;text-align:center;margin-bottom:8px;">${m.emoji}</div>
       <div style="font-size:14px;font-weight:700;margin-bottom:6px;color:#1e293b;">${m.sc}</div>
-      <div style="font-size:13px;color:#475569;margin-bottom:12px;line-height:1.6;">${m.desc}</div>
+      <div style="font-size:14px;color:#475569;margin-bottom:12px;line-height:1.6;">${m.desc}</div>
       <div id="xmch${i}">${m.ch.map((c,j)=>`<button class="xchoice" onclick="xMChoose(${i},${j},this)"><span>${['🟡','🟠','🟣','🔵'][j]}</span>${c}</button>`).join('')}</div>
       <div class="xmres" id="xmr${i}"></div>`;
     grid.appendChild(card);
@@ -1452,7 +1451,7 @@ function xB3Init(){
   root.innerHTML=`<div class="xw xpwrap">
     <div class="xpanel">
       <div style="margin-bottom:10px;">
-    <p style="font-size:13px;color:var(--xdm);margin-bottom:6px;">시나리오를 골라보세요:</p>
+    <p style="font-size:14px;color:var(--xdm);margin-bottom:6px;">시나리오를 골라보세요:</p>
         <div>
           <button class="xscbtn act" onclick="xPSel(0,this)">🏠 같은 네트워크</button>
           <button class="xscbtn" onclick="xPSel(1,this)">🌐 인터넷 접속</button>
