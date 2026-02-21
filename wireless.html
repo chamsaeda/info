@@ -50,7 +50,7 @@
       width: 100%; padding: 12px 16px; border-radius: 10px;
       border: 2px solid #e5e7eb; background: #f9fafb;
       color: #374151; cursor: pointer; transition: all 0.15s;
-      text-align: left; font-family: inherit; font-weight: 700; font-size: 0.9rem;
+      text-align: left; font-family: inherit; font-weight: 700; font-size: 1rem;
       margin-bottom: 8px;
     }
     .quiz-opt:hover:not(.locked) { border-color: #0d9488; background: #f0fdfa; }
@@ -62,7 +62,7 @@
     .drag-card {
       padding: 10px 16px; border-radius: 10px; cursor: grab;
       border: 2px solid #e5e7eb; background: white;
-      font-weight: 700; font-size: 0.88rem; text-align: center;
+      font-weight: 700; font-size: 1rem; text-align: center;
       transition: all 0.15s; user-select: none; color: #374151;
     }
     .drag-card:hover { border-color: #0d9488; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(13,148,136,0.2); }
@@ -125,14 +125,14 @@
           <h2 className={`text-xl font-bold mb-2 ${ok ? 'text-emerald-600' : 'text-yellow-600'}`}>
             {ok ? '성공!' : '아쉬워요!'}
           </h2>
-          <p className="text-gray-600 mb-4 text-sm leading-relaxed">{popup.message}</p>
+          <p className="text-gray-600 mb-4 text-base leading-relaxed">{popup.message}</p>
           {ok && (
             <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-xl px-4 py-2 font-bold mb-4">
               +{popup.points} 포인트! 🌟
             </div>
           )}
           {!ok && popup.hint && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-sm text-yellow-800 mb-4 text-left">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-base text-yellow-800 mb-4 text-left">
               💡 힌트: {popup.hint}
             </div>
           )}
@@ -235,23 +235,23 @@
     return (
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         <h4 className="font-bold text-teal-700 text-base mb-1">🗼 가상 네트워크 빌더 — 학교에 AP를 설치해보세요!</h4>
-        <p className="text-sm text-gray-500 mb-3 leading-relaxed">
+        <p className="text-base text-gray-500 mb-3 leading-relaxed">
           📌 AP를 클릭해서 지도에 배치하고, 기기(스마트폰)도 추가해보세요.<br/>
           <span className="text-emerald-600 font-bold">초록 = 연결됨</span> / <span className="text-red-500 font-bold">빨강 = 연결 안됨</span> — 기기의 80% 이상 커버 시 포인트 획득!
         </p>
         <div className="flex flex-wrap gap-2 mb-3 items-center">
           {[['ap','🗼 AP 배치','teal'],['device','📱 기기 배치','emerald']].map(([m,l,c])=>(
             <button key={m} onClick={()=>setMode(m)}
-              className={`px-3 py-1.5 rounded-lg font-bold text-sm border-2 transition-all ${mode===m?`border-${c}-500 bg-${c}-50 text-${c}-700`:'border-gray-200 bg-white text-gray-500 hover:border-teal-300'}`}>
+              className={`px-3 py-1.5 rounded-lg font-bold text-base border-2 transition-all ${mode===m?`border-${c}-500 bg-${c}-50 text-${c}-700`:'border-gray-200 bg-white text-gray-500 hover:border-teal-300'}`}>
               {l}
             </button>
           ))}
           <button onClick={()=>setAps(p=>p.slice(0,-1))}
-            className="px-3 py-1.5 rounded-lg font-bold text-sm border-2 border-gray-200 bg-white text-gray-500 hover:border-red-300">↩ AP 취소</button>
+            className="px-3 py-1.5 rounded-lg font-bold text-base border-2 border-gray-200 bg-white text-gray-500 hover:border-red-300">↩ AP 취소</button>
           <button onClick={()=>{setAps([]);setDevices([]);setScored(false);}}
-            className="px-3 py-1.5 rounded-lg font-bold text-sm border-2 border-gray-200 bg-white text-gray-500 hover:border-gray-400">🔄 초기화</button>
+            className="px-3 py-1.5 rounded-lg font-bold text-base border-2 border-gray-200 bg-white text-gray-500 hover:border-gray-400">🔄 초기화</button>
           <div className="ml-auto flex items-center gap-2 bg-teal-50 rounded-lg px-3 py-1.5">
-            <span className="text-sm font-bold text-teal-700">범위: {rangeVal}m</span>
+            <span className="text-base font-bold text-teal-700">범위: {rangeVal}m</span>
             <input type="range" min={40} max={160} value={rangeVal} onChange={e=>setRangeVal(+e.target.value)}
               className="w-20" style={{accentColor:'#0d9488'}}/>
           </div>
@@ -260,13 +260,13 @@
           <canvas ref={canvasRef} width={W} height={H} style={{display:'block',width:'100%',maxWidth:W}}/>
         </div>
         <div className="mt-3 flex flex-wrap gap-2 items-center">
-          <span className="bg-teal-50 border border-teal-200 rounded-lg px-3 py-1.5 text-sm font-bold text-teal-700">📡 AP: {stats.coverage}개</span>
-          <span className="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 text-sm font-bold text-emerald-700">📱 기기: {stats.total}대 중 {stats.connected}대 연결</span>
-          <button onClick={checkScore} className="ml-auto bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm">✅ 커버리지 확인</button>
+          <span className="bg-teal-50 border border-teal-200 rounded-lg px-3 py-1.5 text-base font-bold text-teal-700">📡 AP: {stats.coverage}개</span>
+          <span className="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 text-base font-bold text-emerald-700">📱 기기: {stats.total}대 중 {stats.connected}대 연결</span>
+          <button onClick={checkScore} className="ml-auto bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-4 py-1.5 rounded-lg text-base">✅ 커버리지 확인</button>
         </div>
         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
-          <p className="text-sm text-gray-600">학교 복도·교실 천장에 설치된 AP(원반 모양 장치)를 찾아보세요! 스마트폰 Wi-Fi 설정에서 연결된 AP 이름(SSID)을 확인하고, 교실마다 다른지 비교해보세요.</p>
+          <p className="text-base font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-base text-gray-600">학교 복도·교실 천장에 설치된 AP(원반 모양 장치)를 찾아보세요! 스마트폰 Wi-Fi 설정에서 연결된 AP 이름(SSID)을 확인하고, 교실마다 다른지 비교해보세요.</p>
         </div>
       </div>
     );
@@ -297,19 +297,19 @@
     return (
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         <h4 className="font-bold text-cyan-600 text-base mb-1">📶 Wi-Fi 속도 테스트 시뮬레이터</h4>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">거리와 장애물을 바꿔가며 Wi-Fi 속도가 어떻게 변하는지 실험해보세요!</p>
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">거리와 장애물을 바꿔가며 Wi-Fi 속도가 어떻게 변하는지 실험해보세요!</p>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-cyan-50 rounded-xl p-3 border border-cyan-100">
-            <p className="font-bold text-cyan-700 mb-2 text-sm">📏 AP와의 거리: <strong>{dist}m</strong></p>
+            <p className="font-bold text-cyan-700 mb-2 text-base">📏 AP와의 거리: <strong>{dist}m</strong></p>
             <input type="range" min={1} max={100} value={dist} onChange={e=>{setDist(+e.target.value);setResult(null);}} className="w-full" style={{accentColor:'#0891b2'}}/>
-            <div className="flex justify-between text-xs text-gray-400 mt-1"><span>1m</span><span>100m</span></div>
+            <div className="flex justify-between text-sm text-gray-400 mt-1"><span>1m</span><span>100m</span></div>
           </div>
           <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
-            <p className="font-bold text-amber-700 mb-2 text-sm">🧱 장애물</p>
+            <p className="font-bold text-amber-700 mb-2 text-base">🧱 장애물</p>
             <div className="flex flex-col gap-1.5">
               {Object.keys(obsMap).map(o=>(
                 <button key={o} onClick={()=>{setObs(o);setResult(null);}}
-                  className={`px-2 py-1 rounded-lg text-left text-xs font-bold transition-all border ${obs===o?'border-amber-400 bg-amber-100 text-amber-800':'border-gray-200 bg-white text-gray-500'}`}>
+                  className={`px-2 py-1 rounded-lg text-left text-sm font-bold transition-all border ${obs===o?'border-amber-400 bg-amber-100 text-amber-800':'border-gray-200 bg-white text-gray-500'}`}>
                   {obs===o?'✅ ':''}{o}
                 </button>
               ))}
@@ -317,35 +317,35 @@
           </div>
         </div>
         <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
-          <p className="font-bold text-gray-700 mb-3 text-sm">📡 현재 예상 속도</p>
+          <p className="font-bold text-gray-700 mb-3 text-base">📡 현재 예상 속도</p>
           <div className="flex items-end gap-1 h-8 mb-2">
             {[1,2,3,4].map(i=>(
               <div key={i} className="flex-1 rounded" style={{background:i<=bars?barColor:'#e5e7eb',height:`${25+i*10}%`,transition:'all 0.4s'}}/>
             ))}
             <span className="ml-2 font-bold text-lg" style={{color:barColor}}>{spd} Mbps</span>
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-base text-gray-500">
             {spd>50?'🟢 빠름 — 4K 영상도 문제없어요!':spd>15?'🟡 보통 — 유튜브는 가능해요':'🔴 느림 — 버퍼링이 생길 수 있어요'}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap mb-3">
           {['유튜브 보기','파일 다운로드','사진 업로드'].map(a=>(
             <button key={a} onClick={()=>simulate(a)} disabled={loading}
-              className={`px-3 py-1.5 rounded-lg font-bold text-sm border-2 transition-all ${act===a?'border-cyan-500 bg-cyan-50 text-cyan-700':'border-gray-200 bg-white text-gray-500 hover:border-teal-300'}`}>
+              className={`px-3 py-1.5 rounded-lg font-bold text-base border-2 transition-all ${act===a?'border-cyan-500 bg-cyan-50 text-cyan-700':'border-gray-200 bg-white text-gray-500 hover:border-teal-300'}`}>
               {a==='유튜브 보기'?'▶ ':a==='파일 다운로드'?'⬇ ':'⬆ '}{a}
             </button>
           ))}
         </div>
-        {loading&&<div className="text-center py-4"><span className="text-2xl" style={{display:'inline-block',animation:'spin 1s linear infinite'}}>⏳</span><p className="text-gray-400 mt-1 text-sm">로딩 중...</p></div>}
+        {loading&&<div className="text-center py-4"><span className="text-2xl" style={{display:'inline-block',animation:'spin 1s linear infinite'}}>⏳</span><p className="text-gray-400 mt-1 text-base">로딩 중...</p></div>}
         {result&&!loading&&(
           <div className={`rounded-xl p-4 border ${result.spd>15?'bg-emerald-50 border-emerald-300':'bg-red-50 border-red-300'}`}>
             <p className={`font-bold mb-1 ${result.spd>15?'text-emerald-700':'text-red-600'}`}>📊 {result.a} 결과</p>
-            <p className="text-sm text-gray-600">속도 <strong>{result.spd} Mbps</strong> → 소요시간 <strong>{result.t}초</strong></p>
+            <p className="text-base text-gray-600">속도 <strong>{result.spd} Mbps</strong> → 소요시간 <strong>{result.t}초</strong></p>
           </div>
         )}
         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
-          <p className="text-sm text-gray-600">스마트폰에서 <strong>Speedtest</strong> 앱을 실행하고, 교실 안·복도·교문 밖에서 각각 속도를 측정해 비교해보세요!</p>
+          <p className="text-base font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-base text-gray-600">스마트폰에서 <strong>Speedtest</strong> 앱을 실행하고, 교실 안·복도·교문 밖에서 각각 속도를 측정해 비교해보세요!</p>
         </div>
       </div>
     );
@@ -371,48 +371,48 @@
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         {tooltip&&(
           <div className="tooltip" style={{top:`${tooltip.y-38}px`,left:`${tooltip.x}px`,transform:'translateX(-50%)'}}>
-            참새다! 
+            {"\uCC38\uC0C8"} 
           </div>
         )}
         <h4 className="font-bold text-purple-600 text-base mb-1"><span style={{cursor:'pointer'}} onClick={showTooltip}>🎧</span> 블루투스 페어링 게임</h4>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">가상 블루투스 이어폰을 연결하고, 거리를 늘려 10m 한계를 체험해보세요!</p>
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">가상 블루투스 이어폰을 연결하고, 거리를 늘려 10m 한계를 체험해보세요!</p>
         <div className="flex items-center justify-center gap-6 bg-purple-50 rounded-xl p-5 mb-4">
-          <div className="text-center"><div className="text-4xl">📱</div><p className="text-xs text-gray-400 mt-1">스마트폰</p></div>
+          <div className="text-center"><div className="text-4xl">📱</div><p className="text-sm text-gray-400 mt-1">스마트폰</p></div>
           <div className="flex-1 text-center">
             <div className="flex justify-center gap-1 mb-1">
               {[0,1,2,3].map(i=><div key={i} className="w-2 h-2 rounded-full transition-all duration-300" style={{background:i<bars?'#9333ea':'#e5e7eb'}}/>)}
             </div>
             <div className="h-0.5 rounded-full transition-all duration-300" style={{background:`linear-gradient(90deg,#9333ea ${dist<=MAX?(1-dist/MAX)*100:0}%,#e5e7eb 0%)`}}/>
-            <p className="text-xs text-gray-400 mt-1">{dist}m {dist>MAX?'⚠️ 범위 초과!':''}</p>
+            <p className="text-sm text-gray-400 mt-1">{dist}m {dist>MAX?'⚠️ 범위 초과!':''}</p>
             {phase==='playing'&&dist<=MAX&&<div className="text-base mt-1" style={{animation:'float 2s ease-in-out infinite'}}>🎵</div>}
           </div>
-          <div className="text-center"><div className="text-4xl" style={{filter:phase==='playing'&&dist<=MAX?'none':'grayscale(1)'}}>🎧</div><p className="text-xs text-gray-400 mt-1">이어폰</p></div>
+          <div className="text-center"><div className="text-4xl" style={{filter:phase==='playing'&&dist<=MAX?'none':'grayscale(1)'}}>🎧</div><p className="text-sm text-gray-400 mt-1">이어폰</p></div>
         </div>
         <div className="bg-purple-50 rounded-xl p-3 mb-4 border border-purple-100">
-          <p className="font-bold text-purple-700 mb-2 text-sm">📏 거리 조절: <strong>{dist}m</strong></p>
+          <p className="font-bold text-purple-700 mb-2 text-base">📏 거리 조절: <strong>{dist}m</strong></p>
           <input type="range" min={1} max={20} value={dist} onChange={e=>changeDist(+e.target.value)} className="w-full" style={{accentColor:'#9333ea'}}/>
-          <div className="flex justify-between text-xs text-gray-400 mt-1"><span>1m</span><span className="text-red-500 font-bold">한계: 10m</span><span>20m</span></div>
+          <div className="flex justify-between text-sm text-gray-400 mt-1"><span>1m</span><span className="text-red-500 font-bold">한계: 10m</span><span>20m</span></div>
         </div>
         {phase==='idle'&&<button onClick={()=>setPhase('scanning')} className="w-full bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold py-2.5 rounded-xl">🔍 블루투스 기기 검색</button>}
         {phase==='scanning'&&(<div className="text-center py-4"><span className="text-3xl" style={{display:'inline-block',animation:'pulse 1.2s ease-in-out infinite'}}>📡</span><p className="text-gray-400 mt-2">기기 검색 중...</p></div>)}
         {phase==='found'&&(
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <p className="font-bold text-gray-700 mb-3 text-sm">📋 검색된 기기</p>
+            <p className="font-bold text-gray-700 mb-3 text-base">📋 검색된 기기</p>
             <div className="flex items-center justify-between bg-white rounded-xl p-3 border border-gray-200">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎧</span>
-                <div><p className="font-bold text-sm m-0">Galaxy Buds Pro</p><p className="text-xs text-gray-400">블루투스 5.2 · 배터리 85%</p></div>
+                <div><p className="font-bold text-base m-0">Galaxy Buds Pro</p><p className="text-sm text-gray-400">블루투스 5.2 · 배터리 85%</p></div>
               </div>
               <button onClick={()=>dist<=MAX?setPhase('paired'):setPhase('fail')}
-                className="bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm">연결</button>
+                className="bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold px-4 py-1.5 rounded-lg text-base">연결</button>
             </div>
           </div>
         )}
-        {phase==='fail'&&(<div className="bg-red-50 border border-red-300 rounded-xl p-4"><p className="font-bold text-red-600">❌ 연결 실패! 거리가 너무 멀어요 ({dist}m)</p><button onClick={()=>setPhase('found')} className="mt-2 bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-sm">다시 시도</button></div>)}
+        {phase==='fail'&&(<div className="bg-red-50 border border-red-300 rounded-xl p-4"><p className="font-bold text-red-600">❌ 연결 실패! 거리가 너무 멀어요 ({dist}m)</p><button onClick={()=>setPhase('found')} className="mt-2 bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-base">다시 시도</button></div>)}
         {phase==='paired'&&(
           <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4">
             <p className="font-bold text-emerald-700 mb-3">✅ 연결됨! 재생할 음악을 선택하세요:</p>
-            {songs.map(s=>(<button key={s} onClick={()=>{setSong(s);setPhase('playing');if(!scored){onEarn(20,`블루투스 연결 성공! 🎧 "${s.replace('🎵 ',"") }" 재생 중!`,'');setScored(true);}}} className="w-full mb-2 bg-white border border-emerald-200 text-left font-bold text-gray-700 px-4 py-2 rounded-lg text-sm hover:border-emerald-400 transition-all">{s}</button>))}
+            {songs.map(s=>(<button key={s} onClick={()=>{setSong(s);setPhase('playing');if(!scored){onEarn(20,`블루투스 연결 성공! 🎧 "${s.replace('🎵 ',"") }" 재생 중!`,'');setScored(true);}}} className="w-full mb-2 bg-white border border-emerald-200 text-left font-bold text-gray-700 px-4 py-2 rounded-lg text-base hover:border-emerald-400 transition-all">{s}</button>))}
           </div>
         )}
         {phase==='playing'&&dist<=MAX&&(
@@ -421,14 +421,14 @@
             <div className="flex gap-1 items-end h-6 mb-2">
               {[1,2,3,4,5].map(i=><div key={i} className="flex-1 bg-purple-400 rounded" style={{height:`${40+i*12}%`,animation:'float 2s ease-in-out infinite',animationDelay:`${i*0.1}s`}}/>)}
             </div>
-            <p className="text-xs text-gray-500">거리를 10m 이상으로 늘려보세요!</p>
-            <button onClick={()=>{setPhase('idle');setSong(null);}} className="mt-2 bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-sm">🔄 처음부터</button>
+            <p className="text-sm text-gray-500">거리를 10m 이상으로 늘려보세요!</p>
+            <button onClick={()=>{setPhase('idle');setSong(null);}} className="mt-2 bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-base">🔄 처음부터</button>
           </div>
         )}
-        {phase==='disconnected'&&(<div className="bg-red-50 border border-red-300 rounded-xl p-4"><p className="font-bold text-red-600">📵 연결 끊김! ({dist}m)</p><p className="text-sm text-gray-500 mb-2">블루투스 최대 범위(10m)를 벗어났어요!</p><button onClick={()=>{if(dist<=MAX)setPhase('playing');}} className="bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-sm">슬라이더로 거리 줄이기</button></div>)}
+        {phase==='disconnected'&&(<div className="bg-red-50 border border-red-300 rounded-xl p-4"><p className="font-bold text-red-600">📵 연결 끊김! ({dist}m)</p><p className="text-base text-gray-500 mb-2">블루투스 최대 범위(10m)를 벗어났어요!</p><button onClick={()=>{if(dist<=MAX)setPhase('playing');}} className="bg-white border border-gray-200 font-bold text-gray-600 px-3 py-1.5 rounded-lg text-base">슬라이더로 거리 줄이기</button></div>)}
         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
-          <p className="text-sm text-gray-600">블루투스 이어폰을 스마트폰에 연결하고, 멀리 가져가면서 소리가 끊기는 거리를 직접 측정해보세요!</p>
+          <p className="text-base font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-base text-gray-600">블루투스 이어폰을 스마트폰에 연결하고, 멀리 가져가면서 소리가 끊기는 거리를 직접 측정해보세요!</p>
         </div>
       </div>
     );
@@ -467,32 +467,32 @@
     return (
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         <h4 className="font-bold text-emerald-600 text-base mb-1">💳 RFID 태그 스캐너 시뮬레이션</h4>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">태그를 클릭해서 리더기에 스캔하거나, 일괄 스캔으로 여러 개를 한 번에 인식해보세요!</p>
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">태그를 클릭해서 리더기에 스캔하거나, 일괄 스캔으로 여러 개를 한 번에 인식해보세요!</p>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <p className="font-bold text-emerald-700 mb-2 text-sm">📦 태그 목록</p>
+            <p className="font-bold text-emerald-700 mb-2 text-base">📦 태그 목록</p>
             {tags.map(t=>(
               <button key={t.id} onClick={()=>scan(t)} disabled={t.scanned}
-                className={`w-full mb-1.5 px-3 py-2 rounded-lg border-2 text-left text-sm font-bold flex items-center gap-2 transition-all ${t.scanned?'border-emerald-200 bg-emerald-50 text-gray-400 cursor-default':'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 cursor-pointer'}`}>
+                className={`w-full mb-1.5 px-3 py-2 rounded-lg border-2 text-left text-base font-bold flex items-center gap-2 transition-all ${t.scanned?'border-emerald-200 bg-emerald-50 text-gray-400 cursor-default':'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 cursor-pointer'}`}>
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:t.scanned?'#10b981':typeColors[t.type]}}/>
-                <span className="flex-1 text-xs">{t.name}</span>
+                <span className="flex-1 text-sm">{t.name}</span>
                 {t.scanned&&<span className="text-emerald-500">✅</span>}
               </button>
             ))}
           </div>
           <div>
-            <p className="font-bold text-emerald-700 mb-2 text-sm">📡 리더기</p>
+            <p className="font-bold text-emerald-700 mb-2 text-base">📡 리더기</p>
             <div className={`rounded-xl p-4 text-center mb-3 transition-all border-2 ${active?'bg-emerald-50 border-emerald-400':'bg-gray-50 border-gray-200'}`} style={{minHeight:70}}>
               <span className="text-2xl">{active?'📡':'🔲'}</span>
-              <p className={`text-xs font-bold mt-1 ${active?'text-emerald-600':'text-gray-400'}`}>
+              <p className={`text-sm font-bold mt-1 ${active?'text-emerald-600':'text-gray-400'}`}>
                 {active?'인식! ✅':`대기 중 (${tags.filter(t=>t.scanned).length}/${tags.length})`}
               </p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3 max-h-32 overflow-y-auto border border-gray-200">
-              <p className="text-xs font-bold text-emerald-700 mb-2">📋 스캔 로그</p>
-              {log.length===0&&<p className="text-xs text-gray-400">태그를 스캔하면 기록돼요.</p>}
+              <p className="text-sm font-bold text-emerald-700 mb-2">📋 스캔 로그</p>
+              {log.length===0&&<p className="text-sm text-gray-400">태그를 스캔하면 기록돼요.</p>}
               {log.map((l,i)=>(
-                <div key={i} className="flex justify-between text-xs py-1 border-b border-gray-100">
+                <div key={i} className="flex justify-between text-sm py-1 border-b border-gray-100">
                   <span className="text-gray-600">{l.name}</span><span className="text-gray-400">{l.time}</span>
                 </div>
               ))}
@@ -500,12 +500,12 @@
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={batchScan} className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-2.5 rounded-xl text-sm">⚡ 일괄 스캔 (여러 태그 동시 인식)</button>
+          <button onClick={batchScan} className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-2.5 rounded-xl text-base">⚡ 일괄 스캔 (여러 태그 동시 인식)</button>
           <button onClick={()=>{setTags(p=>p.map(t=>({...t,scanned:false})));setLog([]);setScored(false);}} className="bg-gray-100 border border-gray-200 font-bold text-gray-600 px-3 py-2 rounded-xl">🔄</button>
         </div>
         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
-          <p className="text-sm text-gray-600">학교 도서관에서 책 대출·반납 시 RFID 리더기를 관찰해보세요! 책 표지 안쪽의 RFID 태그 스티커도 찾아보세요.</p>
+          <p className="text-base font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-base text-gray-600">학교 도서관에서 책 대출·반납 시 RFID 리더기를 관찰해보세요! 책 표지 안쪽의 RFID 태그 스티커도 찾아보세요.</p>
         </div>
       </div>
     );
@@ -539,51 +539,51 @@
     return (
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         <h4 className="font-bold text-amber-600 text-base mb-1">📱 NFC 결제 시뮬레이터</h4>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">상품을 담고 단말기에 폰을 가까이 대어 결제해보세요! (10cm 이내)</p>
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">상품을 담고 단말기에 폰을 가까이 대어 결제해보세요! (10cm 이내)</p>
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
-            <p className="font-bold text-amber-700 mb-2 text-sm">🛍 상품 선택</p>
+            <p className="font-bold text-amber-700 mb-2 text-base">🛍 상품 선택</p>
             {products.map(p=>(
               <button key={p.id} onClick={()=>addCart(p)}
-                className="w-full mb-1.5 px-3 py-2 rounded-lg border-2 border-gray-200 bg-white flex justify-between text-sm font-bold text-gray-700 hover:border-amber-300 transition-all">
+                className="w-full mb-1.5 px-3 py-2 rounded-lg border-2 border-gray-200 bg-white flex justify-between text-base font-bold text-gray-700 hover:border-amber-300 transition-all">
                 <span>{p.name}</span><span className="text-amber-600">{p.price.toLocaleString()}원</span>
               </button>
             ))}
           </div>
           <div>
-            <p className="font-bold text-amber-700 mb-2 text-sm">🧾 장바구니</p>
+            <p className="font-bold text-amber-700 mb-2 text-base">🧾 장바구니</p>
             <div className="bg-amber-50 rounded-xl p-3 min-h-20 mb-2 border border-amber-100">
-              <p className="text-xs text-gray-500 mb-1">잔액: <strong className="text-emerald-600">{balance.toLocaleString()}원</strong></p>
-              {cart.length===0&&<p className="text-xs text-gray-400">아직 비어있어요</p>}
+              <p className="text-sm text-gray-500 mb-1">잔액: <strong className="text-emerald-600">{balance.toLocaleString()}원</strong></p>
+              {cart.length===0&&<p className="text-sm text-gray-400">아직 비어있어요</p>}
               {cart.map(c=>(
-                <div key={c.id} className="flex justify-between text-xs mb-1">
+                <div key={c.id} className="flex justify-between text-sm mb-1">
                   <span className="text-gray-700">{c.name} ×{c.qty}</span><span className="font-bold">{(c.price*c.qty).toLocaleString()}원</span>
                 </div>
               ))}
-              {cart.length>0&&<div className="border-t border-amber-200 mt-1 pt-1 flex justify-between font-bold text-sm">
+              {cart.length>0&&<div className="border-t border-amber-200 mt-1 pt-1 flex justify-between font-bold text-base">
                 <span>합계</span><span className="text-amber-600">{total.toLocaleString()}원</span>
               </div>}
             </div>
             <div className="bg-amber-50 rounded-xl p-2 mb-2 border border-amber-100">
-              <p className="text-xs font-bold mb-1">📏 단말기 거리: <span className={dist>10?'text-red-500':'text-emerald-600'}>{dist}cm {dist>10?'⚠️':''}</span></p>
+              <p className="text-sm font-bold mb-1">📏 단말기 거리: <span className={dist>10?'text-red-500':'text-emerald-600'}>{dist}cm {dist>10?'⚠️':''}</span></p>
               <input type="range" min={1} max={30} value={dist} onChange={e=>setDist(+e.target.value)} className="w-full" style={{accentColor:'#f59e0b'}}/>
             </div>
-            {step==='idle'&&<button onClick={pay} disabled={!cart.length} className={`w-full font-bold py-2 rounded-xl text-sm ${cart.length?'bg-gradient-to-r from-amber-400 to-yellow-500 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>📱 NFC 결제 (탭!)</button>}
-            {step==='tapping'&&<div className="text-center py-2"><span className="text-xl" style={{animation:'pulse 1.2s ease-in-out infinite'}}>📡</span><p className="text-amber-600 font-bold text-xs mt-1">NFC 통신 중...</p></div>}
-            {step==='success'&&<div className="bg-emerald-50 border border-emerald-300 rounded-xl p-2 text-center"><p className="font-bold text-emerald-600 text-sm">✅ 결제 완료!</p></div>}
-            {step==='fail'&&<div className="bg-red-50 border border-red-300 rounded-xl p-2 text-center"><p className="font-bold text-red-600 text-sm">❌ 잔액 부족!</p></div>}
-            {step==='tooFar'&&<div className="bg-amber-50 border border-amber-300 rounded-xl p-2 text-center"><p className="font-bold text-amber-600 text-sm">⚠️ 너무 멀어요! 10cm 이내로!</p></div>}
+            {step==='idle'&&<button onClick={pay} disabled={!cart.length} className={`w-full font-bold py-2 rounded-xl text-base ${cart.length?'bg-gradient-to-r from-amber-400 to-yellow-500 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>📱 NFC 결제 (탭!)</button>}
+            {step==='tapping'&&<div className="text-center py-2"><span className="text-xl" style={{animation:'pulse 1.2s ease-in-out infinite'}}>📡</span><p className="text-amber-600 font-bold text-sm mt-1">NFC 통신 중...</p></div>}
+            {step==='success'&&<div className="bg-emerald-50 border border-emerald-300 rounded-xl p-2 text-center"><p className="font-bold text-emerald-600 text-base">✅ 결제 완료!</p></div>}
+            {step==='fail'&&<div className="bg-red-50 border border-red-300 rounded-xl p-2 text-center"><p className="font-bold text-red-600 text-base">❌ 잔액 부족!</p></div>}
+            {step==='tooFar'&&<div className="bg-amber-50 border border-amber-300 rounded-xl p-2 text-center"><p className="font-bold text-amber-600 text-base">⚠️ 너무 멀어요! 10cm 이내로!</p></div>}
           </div>
         </div>
         {history.length>0&&<div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
-          <p className="font-bold text-amber-700 mb-2 text-sm">📋 결제 내역</p>
-          {history.map((h,i)=><div key={i} className="flex justify-between text-xs py-1 border-b border-amber-100">
+          <p className="font-bold text-amber-700 mb-2 text-base">📋 결제 내역</p>
+          {history.map((h,i)=><div key={i} className="flex justify-between text-sm py-1 border-b border-amber-100">
             <span className="text-gray-600">{h.items}</span><span className="text-amber-600 font-bold">{h.total.toLocaleString()}원</span>
           </div>)}
         </div>}
         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
-          <p className="text-sm text-gray-600">NFC가 있는 안드로이드 폰끼리 태그해서 사진이나 연락처를 공유해보세요! (설정 → NFC → 켜기)</p>
+          <p className="text-base font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-base text-gray-600">NFC가 있는 안드로이드 폰끼리 태그해서 사진이나 연락처를 공유해보세요! (설정 → NFC → 켜기)</p>
         </div>
       </div>
     );
@@ -609,18 +609,18 @@
     return (
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         <h4 className="font-bold text-pink-600 text-base mb-1">🖥️ 화면 공유(미러링) 시뮬레이터</h4>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">스마트폰 화면을 TV로 미러링하거나, 유튜브만 캐스팅해보세요!</p>
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">스마트폰 화면을 TV로 미러링하거나, 유튜브만 캐스팅해보세요!</p>
         <div className="grid grid-cols-3 gap-2 items-center mb-4">
           <div>
-            <p className="font-bold text-gray-500 text-xs mb-2 text-center">📱 스마트폰</p>
+            <p className="font-bold text-gray-500 text-sm mb-2 text-center">📱 스마트폰</p>
             <div className="bg-gray-200 rounded-2xl p-1 border-4 border-gray-300">
               <div className="rounded-xl p-4 text-center" style={{background:cur.bg,minHeight:80}}>
-                <p className="font-bold text-gray-800 text-sm m-0">{cur.text}</p>
+                <p className="font-bold text-gray-800 text-base m-0">{cur.text}</p>
               </div>
               <div className="grid grid-cols-2 gap-1 mt-1">
                 {Object.entries(apps).map(([k,v])=>(
                   <button key={k} onClick={()=>changeApp(k)}
-                    className="p-1 rounded text-xs font-bold transition-all" style={{background:phoneApp===k?'#0d9488':'#6b7280',color:'white'}}>
+                    className="p-1 rounded text-sm font-bold transition-all" style={{background:phoneApp===k?'#0d9488':'#6b7280',color:'white'}}>
                     {v.label}
                   </button>
                 ))}
@@ -629,39 +629,39 @@
           </div>
           <div className="text-center text-2xl" style={{color:(mode==='mirroring'||mode==='casting')?'#ec4899':'#d1d5db'}}>→</div>
           <div>
-            <p className="font-bold text-gray-500 text-xs mb-2 text-center">📺 TV</p>
+            <p className="font-bold text-gray-500 text-sm mb-2 text-center">📺 TV</p>
             <div className="bg-gray-900 rounded-lg p-1 border-4 border-gray-700">
               <div className="rounded min-h-24 flex flex-col items-center justify-center p-3" style={{background:tv?tv.bg:'#111'}}>
-                {tv?(<><p className="font-bold text-gray-800 text-sm m-0">{tv.text}</p>
-                  {(mode==='mirroring'||mode==='casting')&&<p className="text-xs text-gray-400 mt-1">{quality} · {sec}초</p>}
-                </>):<p className="text-gray-600 font-bold text-xs">대기 중...</p>}
+                {tv?(<><p className="font-bold text-gray-800 text-base m-0">{tv.text}</p>
+                  {(mode==='mirroring'||mode==='casting')&&<p className="text-sm text-gray-400 mt-1">{quality} · {sec}초</p>}
+                </>):<p className="text-gray-600 font-bold text-sm">대기 중...</p>}
               </div>
             </div>
-            {mode==='casting'&&<p className="text-xs text-emerald-600 font-bold text-center mt-1">✅ 폰으로 다른 작업 가능!</p>}
+            {mode==='casting'&&<p className="text-sm text-emerald-600 font-bold text-center mt-1">✅ 폰으로 다른 작업 가능!</p>}
           </div>
         </div>
         <div className="bg-pink-50 rounded-xl p-3 border border-pink-100 mb-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-sm text-gray-700">화질:</span>
+            <span className="font-bold text-base text-gray-700">화질:</span>
             {['720p','HD','FHD','4K'].map(q=><button key={q} onClick={()=>setQuality(q)}
-              className={`px-2 py-1 rounded text-xs font-bold border-2 transition-all ${quality===q?'border-pink-400 bg-pink-100 text-pink-700':'border-gray-200 bg-white text-gray-400'}`}>{q}</button>)}
+              className={`px-2 py-1 rounded text-sm font-bold border-2 transition-all ${quality===q?'border-pink-400 bg-pink-100 text-pink-700':'border-gray-200 bg-white text-gray-400'}`}>{q}</button>)}
           </div>
         </div>
         <div className="flex gap-2">
-          {mode==='idle'&&<><button onClick={startMirror} className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 rounded-xl text-sm">📱→📺 미러링 시작</button>
-            <button onClick={startCast} className="flex-1 border-2 border-gray-200 bg-white text-gray-600 font-bold py-2 rounded-xl text-sm hover:border-teal-300">▶ 유튜브 캐스팅</button></>}
-          {mode==='connecting'&&<div className="flex-1 text-center py-2"><span className="text-xl" style={{display:'inline-block',animation:'spin 1s linear infinite'}}>🔄</span><span className="ml-2 text-gray-500 text-sm">연결 중...</span></div>}
+          {mode==='idle'&&<><button onClick={startMirror} className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 rounded-xl text-base">📱→📺 미러링 시작</button>
+            <button onClick={startCast} className="flex-1 border-2 border-gray-200 bg-white text-gray-600 font-bold py-2 rounded-xl text-base hover:border-teal-300">▶ 유튜브 캐스팅</button></>}
+          {mode==='connecting'&&<div className="flex-1 text-center py-2"><span className="text-xl" style={{display:'inline-block',animation:'spin 1s linear infinite'}}>🔄</span><span className="ml-2 text-gray-500 text-base">연결 중...</span></div>}
           {(mode==='mirroring'||mode==='casting')&&<>
             <div className="flex-1 flex items-center gap-2 bg-pink-50 rounded-xl px-4 py-2 border border-pink-200">
               <span className="text-pink-500" style={{animation:'pulse 1.2s ease-in-out infinite'}}>●</span>
-              <span className="font-bold text-pink-700 text-sm">{mode==='mirroring'?`미러링 중 (${quality})`:'유튜브 캐스팅 중'}</span>
+              <span className="font-bold text-pink-700 text-base">{mode==='mirroring'?`미러링 중 (${quality})`:'유튜브 캐스팅 중'}</span>
             </div>
-            <button onClick={()=>{setMode('idle');setTvApp(null);}} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-3 py-2 rounded-xl text-sm">⏹ 중단</button>
+            <button onClick={()=>{setMode('idle');setTvApp(null);}} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-3 py-2 rounded-xl text-base">⏹ 중단</button>
           </>}
         </div>
         <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-          <p className="text-sm font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
-          <p className="text-sm text-gray-600">집 TV와 스마트폰을 같은 Wi-Fi에 연결하고 <strong>스마트뷰(삼성)</strong> 또는 <strong>Chromecast</strong>로 미러링해보세요!</p>
+          <p className="text-base font-bold text-yellow-800 mb-1">🏫 오프라인 연계</p>
+          <p className="text-base text-gray-600">집 TV와 스마트폰을 같은 Wi-Fi에 연결하고 <strong>스마트뷰(삼성)</strong> 또는 <strong>Chromecast</strong>로 미러링해보세요!</p>
         </div>
       </div>
     );
@@ -684,11 +684,11 @@
     return (
       <div className="bg-white rounded-xl p-5 border border-teal-100 shadow-sm mt-4">
         <h4 className="font-bold text-gray-700 text-base mb-1">📏 거리 비교 시각화</h4>
-        <p className="text-sm text-gray-500 mb-4">기술을 선택하면 통신 거리를 시각적으로 비교할 수 있어요!</p>
+        <p className="text-base text-gray-500 mb-4">기술을 선택하면 통신 거리를 시각적으로 비교할 수 있어요!</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {Object.entries(techs).map(([k,v])=>(
             <button key={k} onClick={()=>setActive(k)}
-              className="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
+              className="px-3 py-1.5 rounded-full text-sm font-bold border-2 transition-all"
               style={{borderColor:active===k?v.color:'#e5e7eb',background:active===k?v.color+'22':'white',color:active===k?v.color:'#9ca3af'}}>
               {v.label}
             </button>
@@ -704,7 +704,7 @@
           <div className="relative z-10 text-center" style={{marginTop:40}}>
             <div className="text-4xl mb-1">{t.label.split(' ')[0]}</div>
             <div className="font-bold text-2xl mb-1" style={{color:t.color}}>{t.dist}{t.unit}</div>
-            <div className="text-sm text-gray-700 max-w-xs mx-auto">{t.desc}</div>
+            <div className="text-base text-gray-700 max-w-xs mx-auto">{t.desc}</div>
           </div>
         </div>
       </div>
@@ -767,15 +767,15 @@
         <Popup popup={popup} onClose={()=>setPopup(null)}/>
         <div className="pt-4">
           <h2 className="text-2xl font-bold text-gray-800 mb-1">📖 개념 배우기</h2>
-          <p className="text-gray-500 text-sm mb-4">기술 카드를 클릭하고 체험 시뮬레이터로 직접 실험해보세요! 각 활동마다 포인트를 획득할 수 있어요.</p>
+          <p className="text-gray-500 text-base mb-4">기술 카드를 클릭하고 체험 시뮬레이터로 직접 실험해보세요! 각 활동마다 포인트를 획득할 수 있어요.</p>
           <div className="flex items-center gap-2 mb-5 bg-teal-50 border border-teal-200 rounded-xl px-4 py-3">
             <span className="text-xl">⭐</span>
-            <span className="font-bold text-sm text-gray-700">개념 학습 포인트: <span className="text-amber-500">{pts}pt</span></span>
+            <span className="font-bold text-base text-gray-700">개념 학습 포인트: <span className="text-amber-500">{pts}pt</span></span>
           </div>
           <div className="flex flex-wrap gap-2 mb-5">
             {Object.entries(technologies).map(([k,t])=>(
               <button key={k} onClick={()=>setTech(k)}
-                className={`px-4 py-2 rounded-full font-bold text-sm border-2 transition-all whitespace-nowrap ${tech===k?'text-white shadow-md':'bg-white text-gray-500 border-gray-200 hover:border-teal-300'}`}
+                className={`px-4 py-2 rounded-full font-bold text-base border-2 transition-all whitespace-nowrap ${tech===k?'text-white shadow-md':'bg-white text-gray-500 border-gray-200 hover:border-teal-300'}`}
                 style={{background:tech===k?t.color:'',borderColor:tech===k?t.color:''}}>
                 {t.icon} {t.name}
               </button>
@@ -786,28 +786,28 @@
               <span className="text-5xl">{cur.icon}</span>
               <div>
                 <div className="text-xl font-bold" style={{color:cur.color}}>{cur.name}</div>
-                <div className="text-xs text-gray-700 mt-1">{cur.fullName}</div>
+                <div className="text-sm text-gray-700 mt-1">{cur.fullName}</div>
               </div>
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-              <div className="font-bold text-amber-700 mb-2 text-sm">📖 쉬운 설명</div>
+              <div className="font-bold text-amber-700 mb-2 text-base">📖 쉬운 설명</div>
               <p className="text-gray-700 text-base leading-relaxed">{cur.desc}</p>
             </div>
             <div className="grid grid-cols-3 gap-3 mb-4">
               {cur.specs.map((s,i)=>(
                 <div key={i} className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-center">
                   <div className="font-bold text-base" style={{color:cur.color}}>{s.v}</div>
-                  <div className="text-xs text-gray-700 mt-1">{s.l}</div>
+                  <div className="text-sm text-gray-700 mt-1">{s.l}</div>
                 </div>
               ))}
             </div>
             <div className="mb-4">
-              <p className="font-bold text-gray-700 mb-3 text-sm">💡 실생활 예시</p>
+              <p className="font-bold text-gray-700 mb-3 text-base">💡 실생활 예시</p>
               <div className="flex flex-col gap-2">
                 {cur.examples.map((ex,i)=>(
                   <div key={i} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{background:cur.color}}>{i+1}</div>
-                    <span className="text-sm text-gray-600">{ex}</span>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{background:cur.color}}>{i+1}</div>
+                    <span className="text-base text-gray-600">{ex}</span>
                   </div>
                 ))}
               </div>
@@ -816,7 +816,7 @@
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">🔬</span>
                 <h3 className="font-bold text-gray-800 text-base">직접 체험해보기</h3>
-                <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-bold">포인트 획득 가능!</span>
+                <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-sm font-bold">포인트 획득 가능!</span>
               </div>
               {renderLab()}
             </div>
@@ -881,12 +881,12 @@
       <div>
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 progress-bar-bg"><div className="progress-bar-fill" style={{width:`${((idx)/situations.length)*100}%`,background:'#0d9488'}}/></div>
-          <span className="font-bold text-sm text-gray-500 whitespace-nowrap">{idx+1} / {situations.length}</span>
+          <span className="font-bold text-base text-gray-500 whitespace-nowrap">{idx+1} / {situations.length}</span>
         </div>
         <div className="bg-white rounded-xl p-6 mb-4 text-center border border-gray-200 shadow-sm">
           <div className="text-5xl mb-3">{cur.emoji}</div>
           <p className="font-bold text-gray-800 text-base leading-relaxed">{cur.situation}</p>
-          <p className="text-gray-400 text-sm mt-2">어떤 무선 기술이 필요할까요?</p>
+          <p className="text-gray-400 text-base mt-2">어떤 무선 기술이 필요할까요?</p>
         </div>
         <div className="grid grid-cols-3 gap-2 mb-4">
           {choices.map(c=>{
@@ -897,10 +897,10 @@
             }
             return(
               <button key={c.key} onClick={()=>choose(c.key)}
-                className={`py-3 px-2 rounded-xl font-bold text-sm transition-all text-center ${cls} ${selected?'cursor-default':''}`}>
+                className={`py-3 px-2 rounded-xl font-bold text-base transition-all text-center ${cls} ${selected?'cursor-default':''}`}>
                 {c.label}
-                {selected&&c.key===cur.correct&&<span className="block text-xs mt-1">✅ 정답!</span>}
-                {selected&&c.key===selected&&c.key!==cur.correct&&<span className="block text-xs mt-1">❌ 틀렸어요</span>}
+                {selected&&c.key===cur.correct&&<span className="block text-sm mt-1">✅ 정답!</span>}
+                {selected&&c.key===selected&&c.key!==cur.correct&&<span className="block text-sm mt-1">❌ 틀렸어요</span>}
               </button>
             );
           })}
@@ -910,7 +910,7 @@
             <p className={`font-bold mb-2 ${result?'text-emerald-700':'text-red-600'}`}>
               {result?'🎉 정답이에요!':'💡 아쉬워요! 정답은 '+choices.find(c=>c.key===cur.correct).label+'이에요.'}
             </p>
-            <p className="text-sm text-gray-600 leading-relaxed">{cur.why}</p>
+            <p className="text-base text-gray-600 leading-relaxed">{cur.why}</p>
           </div>
         )}
         {selected&&<button onClick={next} className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold py-3 rounded-xl">
@@ -960,11 +960,11 @@
     const correctCount=problems.filter(p=>placements[p.id]===p.answer).length;
     return(
       <div>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">
           아래 기술 카드를 <strong>드래그</strong>해서 알맞은 상황에 놓아보세요! 모바일에서는 카드를 탭하면 선택되고, 빈칸을 탭하면 넣을 수 있어요.
         </p>
         <div className="flex flex-wrap gap-2 mb-5 p-4 bg-teal-50 rounded-xl border border-teal-100">
-          <p className="w-full text-xs font-bold text-gray-500 mb-1">📦 기술 카드 (드래그하거나 탭하세요)</p>
+          <p className="w-full text-sm font-bold text-gray-500 mb-1">📦 기술 카드 (드래그하거나 탭하세요)</p>
           {availCards.map(c=>(
             <div key={c.key} draggable onDragStart={()=>onDragStart(c.key)}
               onClick={()=>setDragging(dragging===c.key?null:c.key)}
@@ -972,7 +972,7 @@
               {c.label}
             </div>
           ))}
-          {availCards.length===0&&<p className="text-xs text-emerald-600 font-bold">모든 카드를 배치했어요! ✅</p>}
+          {availCards.length===0&&<p className="text-sm text-emerald-600 font-bold">모든 카드를 배치했어요! ✅</p>}
         </div>
         <div className="flex flex-col gap-2 mb-4">
           {problems.map(p=>{
@@ -983,7 +983,7 @@
             return(
               <div key={p.id} className="grid gap-2 items-center" style={{gridTemplateColumns:'1fr auto'}}>
                 <div className="bg-white border border-gray-200 rounded-xl px-4 py-2.5">
-                  <p className="text-sm font-bold text-gray-700">{p.id}. {p.situation}</p>
+                  <p className="text-base font-bold text-gray-700">{p.id}. {p.situation}</p>
                 </div>
                 <div className={`drop-zone${isCorrect?' correct':isWrong?' wrong':''}`} style={{width:110,flexShrink:0}}
                   onDragOver={e=>e.preventDefault()}
@@ -991,13 +991,13 @@
                   onClick={()=>{if(dragging&&!placed)onDrop(p.id);}}>
                   {card?(
                     <div className="flex items-center gap-1 w-full justify-center">
-                      <span className={`text-xs font-bold ${isCorrect?'text-emerald-700':isWrong?'text-red-600':'text-gray-700'}`}>{card.label}</span>
-                      {!checked&&<button onClick={e=>{e.stopPropagation();removeFromSlot(p.id);}} className="text-gray-400 text-xs bg-transparent border-none cursor-pointer p-0">✕</button>}
+                      <span className={`text-sm font-bold ${isCorrect?'text-emerald-700':isWrong?'text-red-600':'text-gray-700'}`}>{card.label}</span>
+                      {!checked&&<button onClick={e=>{e.stopPropagation();removeFromSlot(p.id);}} className="text-gray-400 text-sm bg-transparent border-none cursor-pointer p-0">✕</button>}
                       {isCorrect&&<span>✅</span>}
                       {isWrong&&<span>❌</span>}
                     </div>
                   ):(
-                    <span className="text-xs text-gray-400">여기에 놓기</span>
+                    <span className="text-sm text-gray-400">여기에 놓기</span>
                   )}
                 </div>
               </div>
@@ -1008,7 +1008,7 @@
           <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
             <p className="font-bold text-gray-800 mb-2">{correctCount}/{problems.length}개 정답!</p>
             {problems.filter(p=>placements[p.id]!==p.answer).map(p=>(
-              <p key={p.id} className="text-sm text-gray-500 mb-1">
+              <p key={p.id} className="text-base text-gray-500 mb-1">
                 ❌ {p.id}번 정답: <strong className="text-amber-600">{cards.find(c=>c.key===p.answer)?.label}</strong>
               </p>
             ))}
@@ -1016,8 +1016,8 @@
         )}
         <div className="flex gap-2">
           <button onClick={checkAll} disabled={Object.keys(placements).length<problems.length}
-            className={`flex-1 font-bold py-2.5 rounded-xl text-sm ${Object.keys(placements).length>=problems.length?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>✅ 정답 확인</button>
-          <button onClick={reset} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-4 py-2.5 rounded-xl text-sm hover:border-teal-300">🔄 초기화</button>
+            className={`flex-1 font-bold py-2.5 rounded-xl text-base ${Object.keys(placements).length>=problems.length?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white':'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>✅ 정답 확인</button>
+          <button onClick={reset} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-4 py-2.5 rounded-xl text-base hover:border-teal-300">🔄 초기화</button>
         </div>
       </div>
     );
@@ -1058,17 +1058,17 @@
     const reset=()=>{setPlacements({});setFeedback({});setSelected(null);setScored(false);};
     return(
       <div>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">기술 카드를 선택하고 방을 클릭해서 배치하세요! 방마다 가장 잘 어울리는 기술이 있어요.</p>
+        <p className="text-base text-gray-500 mb-4 leading-relaxed">기술 카드를 선택하고 방을 클릭해서 배치하세요! 방마다 가장 잘 어울리는 기술이 있어요.</p>
         <div className="flex flex-wrap gap-2 mb-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
-          <p className="w-full text-xs font-bold text-gray-500 mb-1">🔧 기술 선택 (클릭해서 선택 후 방에 배치)</p>
+          <p className="w-full text-sm font-bold text-gray-500 mb-1">🔧 기술 선택 (클릭해서 선택 후 방에 배치)</p>
           {techs.map(t=>(
             <button key={t.key} onClick={()=>setSelected(selected===t.key?null:t.key)}
-              className={`px-4 py-2 rounded-xl font-bold text-sm border-2 transition-all ${selected===t.key?'border-teal-500 bg-teal-100 text-teal-700':'border-gray-200 bg-white text-gray-600 hover:border-teal-300'}`}>
+              className={`px-4 py-2 rounded-xl font-bold text-base border-2 transition-all ${selected===t.key?'border-teal-500 bg-teal-100 text-teal-700':'border-gray-200 bg-white text-gray-600 hover:border-teal-300'}`}>
               {t.label}
             </button>
           ))}
         </div>
-        {selected&&<div className="bg-teal-50 border border-teal-300 rounded-xl px-4 py-2 mb-4 text-sm font-bold text-teal-700">
+        {selected&&<div className="bg-teal-50 border border-teal-300 rounded-xl px-4 py-2 mb-4 text-base font-bold text-teal-700">
           {techs.find(t=>t.key===selected).label} 선택됨 → 배치할 방을 클릭하세요!
         </div>}
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -1080,22 +1080,22 @@
                 style={{cursor:selected?'pointer':'default'}}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-2xl">{r.icon}</span>
-                  <span className="font-bold text-sm text-gray-800">{r.label}</span>
-                  {fb&&<span className="ml-auto text-xs">{fb.best?'⭐ 최적!':'👍 OK'}</span>}
+                  <span className="font-bold text-base text-gray-800">{r.label}</span>
+                  {fb&&<span className="ml-auto text-sm">{fb.best?'⭐ 최적!':'👍 OK'}</span>}
                 </div>
-                {!fb&&<p className="text-xs text-gray-400">{r.hint}</p>}
+                {!fb&&<p className="text-sm text-gray-400">{r.hint}</p>}
                 {fb&&(<div>
-                  <p className={`font-bold text-xs mb-1 ${fb.best?'text-emerald-600':'text-amber-500'}`}>{fb.label}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{fb.desc}</p>
+                  <p className={`font-bold text-sm mb-1 ${fb.best?'text-emerald-600':'text-amber-500'}`}>{fb.label}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed">{fb.desc}</p>
                 </div>)}
               </div>
             );
           })}
         </div>
         <div className="flex gap-2">
-          <button onClick={reset} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-4 py-2 rounded-xl text-sm hover:border-red-300">🔄 초기화</button>
+          <button onClick={reset} className="border-2 border-gray-200 bg-white text-gray-600 font-bold px-4 py-2 rounded-xl text-base hover:border-red-300">🔄 초기화</button>
           {Object.keys(placements).length>0&&(
-            <div className="flex-1 bg-teal-50 rounded-xl px-4 py-2 text-sm text-teal-700 flex items-center border border-teal-100">
+            <div className="flex-1 bg-teal-50 rounded-xl px-4 py-2 text-base text-teal-700 flex items-center border border-teal-100">
               ⭐ 최적 배치: {Object.entries(feedback).filter(([,v])=>v.best).length}/{rooms.length}개
             </div>
           )}
@@ -1123,15 +1123,15 @@
         <Popup popup={popup} onClose={()=>setPopup(null)}/>
         <div className="pt-4">
           <h2 className="text-2xl font-bold text-gray-800 mb-1">🎮 체험 게임</h2>
-          <p className="text-gray-500 text-sm mb-4">3가지 게임으로 배운 내용을 직접 적용해보세요! 정답을 맞히면 포인트를 획득할 수 있어요.</p>
+          <p className="text-gray-500 text-base mb-4">3가지 게임으로 배운 내용을 직접 적용해보세요! 정답을 맞히면 포인트를 획득할 수 있어요.</p>
           <div className="flex items-center gap-2 mb-5 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
             <span className="text-xl">🎮</span>
-            <span className="font-bold text-sm text-gray-700">게임 포인트: <span className="text-amber-500">{pts}pt</span></span>
+            <span className="font-bold text-base text-gray-700">게임 포인트: <span className="text-amber-500">{pts}pt</span></span>
           </div>
           <div className="flex gap-2 flex-wrap mb-5">
             {tabs.map(t=>(
               <button key={t.key} onClick={()=>setTab(t.key)}
-                className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${tab===t.key?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md':'bg-white text-gray-600 border-2 border-gray-200 hover:border-teal-300'}`}>
+                className={`px-5 py-2.5 rounded-xl font-bold text-base transition-all whitespace-nowrap ${tab===t.key?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md':'bg-white text-gray-600 border-2 border-gray-200 hover:border-teal-300'}`}>
                 {t.label}
               </button>
             ))}
@@ -1139,8 +1139,8 @@
           {tab==='situation'&&(
             <div>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-                <div className="font-bold text-amber-700 mb-1 text-sm">🎯 게임 방법</div>
-                <p className="text-sm text-gray-600">상황을 읽고 어떤 무선 기술이 필요한지 고르세요! 정답을 맞히면 이유도 함께 알 수 있어요.</p>
+                <div className="font-bold text-amber-700 mb-1 text-base">🎯 게임 방법</div>
+                <p className="text-base text-gray-600">상황을 읽고 어떤 무선 기술이 필요한지 고르세요! 정답을 맞히면 이유도 함께 알 수 있어요.</p>
               </div>
               <SituationGame onEarn={earnPoints}/>
             </div>
@@ -1148,8 +1148,8 @@
           {tab==='dragdrop'&&(
             <div>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-                <div className="font-bold text-amber-700 mb-1 text-sm">🃏 게임 방법</div>
-                <p className="text-sm text-gray-600">기술 카드를 드래그해서 알맞은 상황에 놓아보세요! 6개 상황에 6개 기술을 모두 연결하면 정답을 확인할 수 있어요.</p>
+                <div className="font-bold text-amber-700 mb-1 text-base">🃏 게임 방법</div>
+                <p className="text-base text-gray-600">기술 카드를 드래그해서 알맞은 상황에 놓아보세요! 6개 상황에 6개 기술을 모두 연결하면 정답을 확인할 수 있어요.</p>
               </div>
               <DragDropGame onEarn={earnPoints}/>
             </div>
@@ -1157,8 +1157,8 @@
           {tab==='smarthome'&&(
             <div>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-                <div className="font-bold text-amber-700 mb-1 text-sm">🏠 게임 방법</div>
-                <p className="text-sm text-gray-600">스마트홈 각 공간에 어울리는 무선 기술을 배치해보세요! 최적의 기술을 찾으면 별점을 받을 수 있어요.</p>
+                <div className="font-bold text-amber-700 mb-1 text-base">🏠 게임 방법</div>
+                <p className="text-base text-gray-600">스마트홈 각 공간에 어울리는 무선 기술을 배치해보세요! 최적의 기술을 찾으면 별점을 받을 수 있어요.</p>
               </div>
               <SmartHomeGame onEarn={earnPoints}/>
             </div>
@@ -1232,16 +1232,16 @@
       <div className="pt-4">
         <Popup popup={popup} onClose={()=>setPopup(null)}/>
         <h2 className="text-2xl font-bold text-gray-800 mb-1">⚡ 스피드 퀴즈</h2>
-        <p className="text-gray-500 text-sm mb-5">제한 시간 안에 빠르게 답하세요! 빨리 맞힐수록 더 많은 포인트를 획득할 수 있어요.</p>
+        <p className="text-gray-500 text-base mb-5">제한 시간 안에 빠르게 답하세요! 빨리 맞힐수록 더 많은 포인트를 획득할 수 있어요.</p>
         <div className="bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-sm">
           <div className="text-6xl mb-4">⚡</div>
           <h3 className="font-bold text-xl text-gray-800 mb-2">총 {questions.length}문제</h3>
           <div className="grid grid-cols-3 gap-3 my-5 bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <div className="text-center"><div className="font-bold text-xl text-amber-500">⏱ {TIME_PER_Q}초</div><div className="text-xs text-gray-400 mt-1">문제당 제한시간</div></div>
-            <div className="text-center"><div className="font-bold text-xl text-emerald-600">+최대 25pt</div><div className="text-xs text-gray-400 mt-1">빠를수록 고득점</div></div>
-            <div className="text-center"><div className="font-bold text-xl text-cyan-600">{questions.length}개</div><div className="text-xs text-gray-400 mt-1">총 문제 수</div></div>
+            <div className="text-center"><div className="font-bold text-xl text-amber-500">⏱ {TIME_PER_Q}초</div><div className="text-sm text-gray-400 mt-1">문제당 제한시간</div></div>
+            <div className="text-center"><div className="font-bold text-xl text-emerald-600">+최대 25pt</div><div className="text-sm text-gray-400 mt-1">빠를수록 고득점</div></div>
+            <div className="text-center"><div className="font-bold text-xl text-cyan-600">{questions.length}개</div><div className="text-sm text-gray-400 mt-1">총 문제 수</div></div>
           </div>
-          <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+          <p className="text-base text-gray-500 mb-6 leading-relaxed">
             📖 개념 탭에서 먼저 공부하고 도전하면 더 잘 할 수 있어요!<br/>
             틀려도 괜찮아요 — 정답과 힌트가 바로 나와요!
           </p>
@@ -1259,8 +1259,8 @@
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1">
               <div className="flex justify-between mb-1">
-                <span className="text-xs font-bold text-gray-500">문제 {qIdx+1} / {questions.length}</span>
-                <span className="text-xs font-bold text-amber-500">총 {totalPts}pt</span>
+                <span className="text-sm font-bold text-gray-500">문제 {qIdx+1} / {questions.length}</span>
+                <span className="text-sm font-bold text-amber-500">총 {totalPts}pt</span>
               </div>
               <div className="progress-bar-bg"><div className="progress-bar-fill" style={{width:`${((qIdx)/questions.length)*100}%`,background:'#0d9488'}}/></div>
             </div>
@@ -1273,8 +1273,8 @@
           </div>
           <div className="bg-white rounded-xl p-5 mb-3 border border-gray-200 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <span className="bg-teal-100 text-teal-700 font-bold text-xs px-2 py-0.5 rounded-full">Q{qIdx+1}</span>
-              <span className="text-xs text-gray-400">빠를수록 +포인트!</span>
+              <span className="bg-teal-100 text-teal-700 font-bold text-sm px-2 py-0.5 rounded-full">Q{qIdx+1}</span>
+              <span className="text-sm text-gray-400">빠를수록 +포인트!</span>
             </div>
             <p className="font-bold text-gray-800 text-base leading-relaxed">{cur.q}</p>
           </div>
@@ -1297,15 +1297,15 @@
             })}
           </div>
           {selected&&selected!==cur.ans&&(
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">💡 힌트: {cur.hint}</div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-base text-amber-800">💡 힌트: {cur.hint}</div>
           )}
           {selected&&selected===cur.ans&&(
-            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-sm font-bold text-emerald-700">
+            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-base font-bold text-emerald-700">
               🎉 정답! +{Math.max(5,timeLeft)}pt {timeLeft>15?'⚡ 스피드 보너스!':''}
             </div>
           )}
           {selected===null&&timeLeft===0&&(
-            <div className="bg-red-50 border border-red-300 rounded-xl p-3 text-sm text-red-600">
+            <div className="bg-red-50 border border-red-300 rounded-xl p-3 text-base text-red-600">
               ⏰ 시간 초과! 정답은 <strong>{cur.ans}</strong>
             </div>
           )}
@@ -1320,16 +1320,16 @@
           <div className="bg-white rounded-2xl p-6 text-center border border-gray-200 shadow-sm mb-4">
             <div className="text-5xl mb-3">{grade.label.split(' ')[0]}</div>
             <h3 className="font-bold text-xl mb-1" style={{color:grade.color}}>{grade.label}</h3>
-            <p className="text-gray-500 text-sm mb-5">{grade.msg}</p>
+            <p className="text-gray-500 text-base mb-5">{grade.msg}</p>
             <div className="grid grid-cols-3 gap-3 bg-gray-50 rounded-xl p-4 mb-5 border border-gray-200">
-              <div><div className="font-bold text-2xl text-emerald-600">{correctCount}</div><div className="text-xs text-gray-400">정답</div></div>
-              <div><div className="font-bold text-2xl text-red-500">{questions.length-correctCount}</div><div className="text-xs text-gray-400">오답</div></div>
-              <div><div className="font-bold text-2xl text-amber-500">{totalPts}</div><div className="text-xs text-gray-400">획득 포인트</div></div>
+              <div><div className="font-bold text-2xl text-emerald-600">{correctCount}</div><div className="text-sm text-gray-400">정답</div></div>
+              <div><div className="font-bold text-2xl text-red-500">{questions.length-correctCount}</div><div className="text-sm text-gray-400">오답</div></div>
+              <div><div className="font-bold text-2xl text-amber-500">{totalPts}</div><div className="text-sm text-gray-400">획득 포인트</div></div>
             </div>
             <div className="progress-bar-bg mb-1">
               <div className="progress-bar-fill" style={{width:`${(correctCount/questions.length)*100}%`,background:grade.color}}/>
             </div>
-            <p className="text-xs text-gray-400 mb-5">정답률 {Math.round((correctCount/questions.length)*100)}%</p>
+            <p className="text-sm text-gray-400 mb-5">정답률 {Math.round((correctCount/questions.length)*100)}%</p>
             <button onClick={startQuiz} className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold px-6 py-2.5 rounded-xl">🔄 다시 도전</button>
           </div>
           {results.filter(r=>!r.correct).length>0&&(
@@ -1339,10 +1339,10 @@
                 const q=questions.find(x=>x.id===r.qId);
                 return(
                   <div key={i} className="bg-gray-50 rounded-xl p-3 mb-2 border border-gray-200">
-                    <p className="font-bold text-sm text-gray-800 mb-1">Q. {q.q}</p>
-                    <p className="text-xs text-red-500 mb-0.5">내 답: {r.selected||'시간 초과'}</p>
-                    <p className="text-xs text-emerald-600 mb-1">정답: {r.correctAns}</p>
-                    <p className="text-xs text-gray-400">💡 {q.hint}</p>
+                    <p className="font-bold text-base text-gray-800 mb-1">Q. {q.q}</p>
+                    <p className="text-sm text-red-500 mb-0.5">내 답: {r.selected||'시간 초과'}</p>
+                    <p className="text-sm text-emerald-600 mb-1">정답: {r.correctAns}</p>
+                    <p className="text-sm text-gray-400">💡 {q.hint}</p>
                   </div>
                 );
               })}
@@ -1381,11 +1381,11 @@
         <div className="bg-gradient-to-r from-teal-700 to-cyan-700 p-6 text-white">
           <div className="flex justify-between items-center mb-2">
             <div className="text-sm text-teal-100">고등학교 정보 학습자료</div>
-            <a href="index.html" className="bg-white text-teal-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-teal-50 transition-all shadow-md flex items-center gap-2">
+            <a href="index.html" className="bg-white text-teal-700 px-4 py-2 rounded-lg font-bold text-base hover:bg-teal-50 transition-all shadow-md flex items-center gap-2">
               🏠 홈으로
             </a>
           </div>
-          <h1 className="text-3xl font-bold mb-1">📡 무선 네트워크 기술</h1>
+          <h1 className="text-2xl font-bold mb-1">📡 무선 네트워크 기술</h1>
           <p className="text-teal-100">에어팟, 삼성페이, 하이패스, 학교 Wi-Fi... 우리 주변의 무선 기술을 탐험해봅시다!</p>
         </div>
 
@@ -1412,12 +1412,12 @@
             {key:'quiz',   label:'⚡ 퀴즈'},
           ].map(tab=>(
             <button key={tab.key} onClick={()=>switchTab(tab.key)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${activeTab===tab.key?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg':'bg-white text-gray-600 hover:bg-gray-100'}`}>
+              className={`px-5 py-2.5 rounded-xl font-bold text-base transition-all whitespace-nowrap ${activeTab===tab.key?'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg':'bg-white text-gray-600 hover:bg-gray-100'}`}>
               {tab.label}
             </button>
           ))}
           <div className="ml-auto flex items-center">
-            <span className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white rounded-full px-4 py-2 font-bold text-sm whitespace-nowrap" id="global-score">0 pt</span>
+            <span className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white rounded-full px-4 py-2 font-bold text-base whitespace-nowrap" id="global-score">0 pt</span>
           </div>
         </div>
 
@@ -1441,8 +1441,8 @@
                     className="bg-white rounded-xl p-4 border-2 border-gray-100 cursor-pointer hover:border-teal-300 hover:shadow-md transition-all">
                     <span className="text-4xl mb-2 block">{item.icon}</span>
                     <div className="font-bold text-gray-900 text-base mb-1">{item.title}</div>
-                    <div className="text-sm text-gray-900 leading-relaxed mb-2">{item.desc}</div>
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-sm font-bold ${item.bcolor}`}>{item.badge}</span>
+                    <div className="text-base text-gray-900 leading-relaxed mb-2">{item.desc}</div>
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-base font-bold ${item.bcolor}`}>{item.badge}</span>
                   </div>
                 ))}
               </div>
@@ -1452,7 +1452,7 @@
                   <h3 className="font-bold text-gray-800 text-base">📊 6가지 기술 한눈에 비교하기</h3>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm" style={{minWidth:500}}>
+                  <table className="w-full text-base" style={{minWidth:500}}>
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="px-4 py-3 text-left text-gray-500 font-bold">기술</th>
@@ -1496,7 +1496,7 @@
                   ].map((item,i)=>(
                     <div key={i} className={`p-5 ${i<2?'border-b md:border-b-0 md:border-r border-gray-100':''}`}>
                       <p className={`font-bold mb-2 text-base border-l-4 pl-2 ${item.color}`}>{item.q}</p>
-                      <p className="text-sm text-gray-800 leading-relaxed">{item.a}</p>
+                      <p className="text-base text-gray-800 leading-relaxed">{item.a}</p>
                     </div>
                   ))}
                 </div>
