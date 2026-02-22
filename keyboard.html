@@ -27,6 +27,79 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    const AsciiUnicodeConverter = () => {
+      const [input, setInput] = React.useState('');
+      const [result, setResult] = React.useState(null);
+
+      const convert = (val) => {
+        setInput(val);
+        if (!val) { setResult(null); return; }
+        const ch = val[0];
+        const code = ch.codePointAt(0);
+        const hangul = code >= 0xAC00 && code <= 0xD7A3;
+        const ascii = code <= 127 ? code.toString(2).padStart(8, '0') : null;
+        const unicode16 = 'U+' + code.toString(16).toUpperCase().padStart(4, '0');
+        const unicodeBin = code.toString(2).padStart(16, '0');
+        const b1 = unicodeBin.slice(0, 8);
+        const b2 = unicodeBin.slice(8, 16);
+        let utf8size = code <= 0x7F ? '1바이트 (영어/숫자)' : code <= 0x7FF ? '2바이트' : code <= 0xFFFF ? '3바이트 (한글 등)' : '4바이트';
+        setResult({ ch, code, ascii, unicode16, b1, b2, utf8size, hangul });
+      };
+
+      return (
+        <div>
+          <div className="flex gap-2 items-center mb-3">
+            <input
+              type="text"
+              maxLength={1}
+              value={input}
+              onChange={e => convert(e.target.value)}
+              placeholder="한 글자 입력..."
+              className="border-2 border-indigo-400 rounded-lg px-3 py-2 text-base font-bold w-36 focus:outline-none focus:border-indigo-600"
+            />
+            {result && (
+              <span className="text-base text-gray-500">← 한 글자만 입력하세요. 한글은 입력 후 엔터키를 누르세요.</span>
+            )}
+          </div>
+          {result && (
+            <div className="bg-white rounded-xl border border-indigo-200 p-4 grid md:grid-cols-2 gap-3 text-base">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center bg-indigo-50 rounded-lg px-3 py-2">
+                  <span className="text-gray-600">입력 문자</span>
+                  <span className="font-bold text-base">{result.ch}</span>
+                </div>
+                <div className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+                  <span className="text-gray-600">십진수 코드</span>
+                  <span className="text-base font-bold text-gray-800">{result.code}</span>
+                </div>
+                <div className="flex justify-between items-center bg-indigo-50 rounded-lg px-3 py-2">
+                  <span className="text-gray-600">ASCII (8비트)</span>
+                  {result.ascii 
+                    ? <span className="text-base font-bold text-blue-600">{result.ascii}</span>
+                    : <span className="text-red-500 font-bold text-base">ASCII 범위 초과 (없음)</span>
+                  }
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center bg-purple-50 rounded-lg px-3 py-2">
+                  <span className="text-gray-600">유니코드</span>
+                  <span className="text-base font-bold text-purple-600">{result.unicode16}</span>
+                </div>
+                <div className="flex justify-between items-center bg-purple-50 rounded-lg px-3 py-2">
+                  <span className="text-gray-600">유니코드 16비트</span>
+                  <span className="text-base font-bold text-purple-600">{result.b1} {result.b2}</span>
+                </div>
+                <div className="flex justify-between items-center bg-orange-50 rounded-lg px-3 py-2">
+                  <span className="text-gray-600">UTF-8 크기</span>
+                  <span className={`font-bold text-base px-2 py-1 rounded-full ${result.utf8size.includes('1바이트') ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>{result.utf8size}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
     const KeyboardSimulator = () => {
       const [pendingBinary, setPendingBinary] = useState('');
       const charBufferRef = useRef('');
@@ -39,6 +112,8 @@
       const [isComposing, setIsComposing] = useState(false);
       const [keyButtonChar, setKeyButtonChar] = useState('?');
       const [showTooltip, setShowTooltip] = useState(false);
+      const [isHangul, setIsHangul] = useState(false);
+      const [binaryCode2, setBinaryCode2] = useState('00000000'); // 16비트 두 번째 바이트
 
       // ── 퀴즈 state ──
       const [quizAnswers, setQuizAnswers] = useState({});
@@ -201,39 +276,55 @@
         if (!char || typeof char !== 'string' || char.length === 0) return;
         
         const ch = char[0];
-        setKeyButtonChar(ch);  // ★ 위치 정확함!
+        setKeyButtonChar(ch);
 
         const code = ch.codePointAt(0);
-        const binary = (code & 0xFF).toString(2).padStart(8, '0');
+        const hangul = code >= 0xAC00 && code <= 0xD7A3;
+        setIsHangul(hangul);
+
+        let binary, binary2 = null;
+        if (hangul) {
+          // 유니코드 16비트 표현 (상위 바이트 / 하위 바이트)
+          binary = ((code >> 8) & 0xFF).toString(2).padStart(8, '0');
+          binary2 = (code & 0xFF).toString(2).padStart(8, '0');
+          setBinaryCode2('00000000');
+        } else {
+          binary = (code & 0xFF).toString(2).padStart(8, '0');
+        }
         
-        setPendingBinary(binary);  // 최종 이진수를 저장만 해둠
-        charBufferRef.current = ch;  // 나중에 모니터에 표시할 문자 저장
-        // setBinaryCode(binary);
+        setPendingBinary(binary);
+        charBufferRef.current = ch;
         setCurrentChar('');
         setLights(Array(8).fill({ value: '0', state: 'none' }));        
         setAnimationStep(0);
         setIsAnimating(true);
 
-        drawSignal('00000000', 0);
-
-        
-      };
-
-      const handleKeyDown = (e) => {
-        if (isComposing || e.key.length !== 1) return;
-        handleCharInput(e.key);
-      };
-
-      const handleCompositionEnd = (e) => {
-        setIsComposing(false);
-        if (e.data) {
-          handleCharInput(e.data);
+        // 한글이면 두 번째 바이트도 저장
+        if (hangul && binary2) {
+          setTimeout(() => setBinaryCode2(binary2), 8 * 140 + 400);
         }
+
+        drawSignal('00000000', 0);
       };
+
+      // stale closure 방지: ref로 최신 함수 참조 유지
+      const handleCharInputRef = useRef(handleCharInput);
+      useEffect(() => { handleCharInputRef.current = handleCharInput; });
+
+      const isComposingRef = useRef(false);
 
       useEffect(() => {
-        const handleCompositionStart = () => setIsComposing(true);
-        
+        const handleCompositionStart = () => { isComposingRef.current = true; setIsComposing(true); };
+        const handleCompositionEnd = (e) => {
+          isComposingRef.current = false;
+          setIsComposing(false);
+          if (e.data) handleCharInputRef.current(e.data);
+        };
+        const handleKeyDown = (e) => {
+          if (isComposingRef.current || e.key.length !== 1) return;
+          handleCharInputRef.current(e.key);
+        };
+
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('compositionstart', handleCompositionStart);
         document.addEventListener('compositionend', handleCompositionEnd);
@@ -264,7 +355,7 @@
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
             <div className="space-y-3 text-gray-700">
               <div>
-                <h3 className="font-bold text-indigo-900 text-lg mb-2">컴퓨터는 어떻게 글자를 이해할까요?</h3>
+                <h3 className="font-bold text-indigo-900 text-xl mb-2">컴퓨터는 어떻게 글자를 이해할까요?</h3>
                 <p className="leading-relaxed">
                   컴퓨터는 사람처럼 글자를 직접 이해할 수 없어요. 대신 <span className="font-bold text-blue-600">0과 1로만 이루어진 숫자</span>로 모든 것을 표현합니다.
                   키보드의 'A' 키를 누르면, 컴퓨터는 이것을 <span className="font-bold text-green-600">8개의 전구가 켜지고 꺼지는 패턴</span>으로 바꿔서 이해해요.
@@ -275,19 +366,19 @@
               <div className="grid md:grid-cols-4 gap-4 mt-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-indigo-700 mb-2">1️⃣ 키보드 입력</h4>
-                  <p className="text-sm">키보드의 글쇠를 누르면 전기 신호가 발생합니다.</p>
+                  <p className="text-base">키보드의 글쇠를 누르면 전기 신호가 발생합니다.</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-green-700 mb-2">2️⃣ 전기 신호</h4>
-                  <p className="text-sm">높은 전압(1)과 낮은 전압(0)으로 신호가 전달됩니다.</p>
+                  <p className="text-base">높은 전압(1)과 낮은 전압(0)으로 신호가 전달됩니다.</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-orange-700 mb-2">3️⃣ 컴퓨터 처리</h4>
-                  <p className="text-sm">컴퓨터 내부에서 8비트 이진수로 변환합니다.</p>
+                  <p className="text-base">컴퓨터 내부에서 8비트 이진수로 변환합니다.</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-purple-700 mb-2">4️⃣ 화면 출력</h4>
-                  <p className="text-sm">모니터에 우리가 입력한 글자가 나타납니다.</p>
+                  <p className="text-base">모니터에 우리가 입력한 글자가 나타납니다.</p>
                 </div>
               </div>
             </div>
@@ -295,11 +386,11 @@
 
           <div className="p-8">
             <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-              <p className="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
-              <p className="text-sm text-gray-700">
+              <p className="text-base font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+              <p className="text-base text-gray-700">
                 <span className="font-bold text-blue-600">키보드의 아무 키나 눌러보세요! </span> 
                 영어, 숫자, 특수문자 모두 가능합니다. 
-                전기 신호가 어떻게 변하는지 실시간으로 확인할 수 있어요.
+                <span className="font-bold text-orange-600"> 전기신호</span>가 어떻게 변하는지 실시간으로 확인할 수 있어요.
               </p>
             </div>
 
@@ -318,7 +409,7 @@
 
                 {/* 화살표 */}
                 <div className="text-center">
-                  <div className="arrow-text">→</div>                  
+                  <div className="arrow-text">→</div>
                 </div>
 
                 {/* 2. 전기 신호 */}
@@ -346,7 +437,9 @@
                 </div>
 
                 {/* 화살표 */}
-                <div className="arrow-text">→</div>
+                <div className="text-center">
+                  <div className="arrow-text">→</div>
+                </div>
 
                 {/* 3. 컴퓨터 내부 */}
                 <div className="text-center">
@@ -367,23 +460,50 @@
                   <div className="mt-2 font-mono text-xl font-bold text-gray-800">
                     {binaryCode}
                   </div>
-                  <div className="text-xs font-bold text-gray-600 mt-1">이진수</div>
+                  <div className="text-sm font-bold text-gray-600 mt-1">이진수</div>
                 </div>
 
                 {/* 4. 모니터 */}
                 <div className="text-center">
-                  <div className="w-40 h-32 bg-black rounded-lg border-6 border-gray-800 flex items-center justify-center text-green-400 text-6xl font-mono shadow-xl" style={{borderWidth: '6px'}}>
+                  <div className="w-40 h-32 bg-black rounded-xl border-4 border-gray-800 flex items-center justify-center text-green-400 text-6xl font-mono shadow-xl">
                     {currentChar || ''}
                   </div>
                   <div className="text-sm font-bold text-gray-700 mt-2">모니터</div>
                 </div>
               </div>
+
+              {/* 한글 설명 배너 */}
+              {isHangul && (
+                <div className="mt-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-orange-400 rounded-xl p-4 text-center">
+                  <p className="font-bold text-orange-700 text-base mb-1">🇰🇷 한글은 16비트(2바이트)가 필요해요!</p>
+                  <div className="flex justify-center items-center gap-3 my-2 flex-wrap">
+                    <div className="bg-white rounded-lg px-3 py-2 border border-orange-300">
+                      <div className="text-sm text-gray-500 mb-1">상위 바이트 (8비트)</div>
+                      <div className="font-mono font-bold text-orange-600 text-lg">{binaryCode}</div>
+                    </div>
+                    <span className="font-bold text-orange-500 text-xl">+</span>
+                    <div className="bg-white rounded-lg px-3 py-2 border border-orange-300">
+                      <div className="text-sm text-gray-500 mb-1">하위 바이트 (8비트)</div>
+                      <div className="font-mono font-bold text-orange-600 text-lg">{binaryCode2}</div>
+                    </div>
+                    <span className="font-bold text-gray-500 text-xl">=</span>
+                    <div className="bg-orange-100 rounded-lg px-3 py-2 border border-orange-400">
+                      <div className="text-sm text-orange-700 mb-1">유니코드 16비트</div>
+                      <div className="font-mono font-bold text-red-600 text-lg">{binaryCode}{binaryCode2}</div>
+                    </div>
+                  </div>
+                  <p className="text-base text-gray-600 mt-1">
+                    💡 한글은 글자 수가 <span className="font-bold text-red-600">11,172개</span>나 되기 때문에<br/>
+                    8비트(256가지)로는 <span className="font-bold">절대 부족</span>해요! → <span className="font-bold text-blue-600">유니코드(16비트)</span>로 해결했답니다.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 mt-6">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
-                <h3 className="text-lg font-bold text-green-900 mb-3">📊 이진수란?</h3>
-                <div className="space-y-3 text-sm text-gray-700">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-200">
+                <h3 className="text-xl font-bold text-green-900 mb-3">📊 이진수란?</h3>
+                <div className="space-y-3 text-base text-gray-700">
                   <div className="bg-white p-3 rounded-lg">
                     <p className="font-bold mb-1">십진수 (우리가 사용하는 숫자)</p>
                     <p>0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - 총 10개의 숫자 사용</p>
@@ -398,8 +518,8 @@
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg border border-blue-200">
-                <h3 className="text-lg font-bold text-blue-900 mb-3">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-5 rounded-xl border border-blue-200">
+                <h3 className="text-xl font-bold text-blue-900 mb-3">
                   <span 
                     className="relative inline-block cursor-pointer hover:scale-110 transition-transform"
                     onClick={() => {
@@ -416,35 +536,42 @@
                   </span>
                   {' '}변환 예시
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-base">
                   <div className="bg-white p-3 rounded-lg flex justify-between items-center">
                     <span className="font-bold text-xl">A</span>
                     <span className="text-gray-400">→</span>
-                    <span className="font-mono text-blue-600 font-bold">01000001</span>
+                    <span className="text-xl text-blue-600 font-bold">01000001</span>
                   </div>
                   <div className="bg-white p-3 rounded-lg flex justify-between items-center">
                     <span className="font-bold text-xl">B</span>
                     <span className="text-gray-400">→</span>
-                    <span className="font-mono text-blue-600 font-bold">01000010</span>
+                    <span className="text-xl text-blue-600 font-bold">01000010</span>
                   </div>
                   <div className="bg-white p-3 rounded-lg flex justify-between items-center">
                     <span className="font-bold text-xl">1</span>
                     <span className="text-gray-400">→</span>
-                    <span className="font-mono text-blue-600 font-bold">00110001</span>
+                    <span className="text-xl text-blue-600 font-bold">00110001</span>
                   </div>
-                  <p className="text-xs text-gray-600 pt-2 text-center">
+                  <p className="text-base text-gray-600 pt-2 text-center">
                     * 각 문자는 고유한 8자리 이진수를 가져요!
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
-              <h3 className="text-lg font-bold text-purple-900 mb-3">🤔 더 알아보기</h3>
+            {/* ── B. ASCII ↔ 유니코드 변환 체험기 ── */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-5 rounded-xl border border-indigo-200 mt-6">
+              <h3 className="text-xl font-bold text-indigo-900 mb-3">🔍 ASCII ↔ 유니코드 직접 변환해보기</h3>
+              <AsciiUnicodeConverter />
+
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 mt-6">
+              <h3 className="text-xl font-bold text-purple-900 mb-3">🤔 더 알아보기</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-indigo-600 mb-2">왜 8개의 비트를 사용할까요?</h4>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-base text-gray-700">
                     8개의 0과 1로 만들 수 있는 조합은 2×2×2×2×2×2×2×2 = <span className="font-bold text-red-600">256가지</span>입니다.
                     이것으로 영어 대소문자, 숫자, 특수문자 등을 모두 표현할 수 있어요. 
                     이 8비트를 <span className="font-bold text-purple-600">'1바이트(Byte)'</span>라고 부릅니다!
@@ -452,7 +579,7 @@
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-green-600 mb-2">한글은 어떻게 표현할까요?</h4>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-base text-gray-700">
                     한글은 영어보다 글자 수가 훨씬 많아서 8비트로는 부족해요. 
                     그래서 <span className="font-bold text-blue-600">16비트(2바이트) 이상</span>을 사용합니다. 
                     이를 <span className="font-bold text-purple-600">'유니코드(Unicode)'</span> 방식이라고 해요!
@@ -461,43 +588,87 @@
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-lg border border-orange-200 mt-6">
-              <h3 className="text-lg font-bold text-orange-900 mb-3">⚡ 신호 처리 과정</h3>
-              <div className="space-y-3 text-sm text-gray-700">
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-xl border border-orange-200 mt-6">
+              <h3 className="text-xl font-bold text-orange-900 mb-3">⚡ 신호 처리 과정 — 자세히 들여다보기</h3>
+              <div className="space-y-3 text-base text-gray-700">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
                   <div className="flex-1">
-                    <p className="font-bold text-indigo-700">키보드에서 키를 누름</p>
-                    <p>키를 누르면 키보드 내부 회로에서 전기 신호가 발생합니다.</p>
+                    <p className="font-bold text-indigo-700">키 누름 (Key Press)</p>
+                    <p>키보드의 'A'를 누르면 키보드 내부 회로의 스위치가 닫히면서 전기 신호가 발생합니다.</p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-2 pl-4">
+                  <div className="flex flex-col items-center"><div className="w-0.5 h-4 bg-gray-300"></div><div className="text-gray-400">▼</div></div>
+                </div>
+
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+                  <div className="w-8 h-8 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
                   <div className="flex-1">
-                    <p className="font-bold text-green-700">전기 신호로 변환</p>
-                    <p>높은 전압(1)과 낮은 전압(0)의 조합으로 8자리 이진수를 만듭니다. 전구가 켜지고 꺼지는 것처럼 신호가 변합니다.</p>
+                    <p className="font-bold text-sky-700">스캔코드(Scan Code) 생성</p>
+                    <p>키보드 안의 <span className="font-bold">키보드 컨트롤러(작은 칩)</span>가 어떤 키가 눌렸는지 고유한 번호인 <span className="font-bold text-sky-600">스캔코드</span>를 만들어요. 예: 'A' → 스캔코드 30</p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-2 pl-4">
+                  <div className="flex flex-col items-center"><div className="w-0.5 h-4 bg-gray-300"></div><div className="text-gray-400">▼</div></div>
+                </div>
+
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+                  <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
                   <div className="flex-1">
-                    <p className="font-bold text-orange-700">컴퓨터 내부에서 처리</p>
-                    <p>컴퓨터 본체의 CPU가 이진수 신호를 받아 어떤 문자인지 해석합니다.</p>
+                    <p className="font-bold text-green-700">전기 신호 전달 (USB/PS2 케이블)</p>
+                    <p>스캔코드가 <span className="font-bold">USB 또는 PS/2 케이블</span>을 통해 컴퓨터 본체로 전달됩니다. 높은 전압(1)과 낮은 전압(0)의 조합으로요!</p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-2 pl-4">
+                  <div className="flex flex-col items-center"><div className="w-0.5 h-4 bg-gray-300"></div><div className="text-gray-400">▼</div></div>
+                </div>
+
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
+                  <div className="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
                   <div className="flex-1">
-                    <p className="font-bold text-purple-700">모니터에 출력</p>
-                    <p>해석된 문자 정보가 모니터로 전송되어 우리가 볼 수 있는 글자로 화면에 나타납니다.</p>
+                    <p className="font-bold text-yellow-700">🌐 운영체제(OS)가 통역사 역할!</p>
+                    <p>Windows, macOS, Linux 등 <span className="font-bold text-yellow-700">운영체제</span>가 스캔코드를 받아서 <span className="font-bold text-blue-600">유니코드(Unicode) 문자 코드</span>로 변환해줘요.</p>
+                    <div className="mt-2 bg-yellow-100 rounded-lg px-3 py-2 border border-yellow-300 text-sm">
+                      💬 <span className="font-bold">비유:</span> 스캔코드는 "30번 버튼이 눌렸어요" 라는 신호고,<br/>
+                      OS는 "아, 그게 'A'라는 글자구나!" 하고 통역해줘요.
+                    </div>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-2 pl-4">
+                  <div className="flex flex-col items-center"><div className="w-0.5 h-4 bg-gray-300"></div><div className="text-gray-400">▼</div></div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">5</div>
+                  <div className="flex-1">
+                    <p className="font-bold text-purple-700">프로그램이 폰트로 화면에 그리기</p>
+                    <p>크롬, 메모장 같은 <span className="font-bold">프로그램</span>이 유니코드 코드를 받아서 <span className="font-bold text-purple-600">폰트(글자 그림 파일)</span>를 찾아 화면에 그려줘요. 우리 눈에 보이는 'A' 모양은 사실 <span className="font-bold">그림</span>이랍니다!</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 간단 요약 흐름도 */}
+              <div className="mt-4 bg-white rounded-xl p-3 border border-orange-200">
+                <p className="text-sm font-bold text-gray-500 mb-2 text-center">🗺️ 전체 흐름 한눈에 보기</p>
+                <div className="flex items-center justify-center gap-1 flex-wrap text-sm font-bold">
+                  {['키 누름', '스캔코드 생성', 'USB 전달', 'OS 통역', '프로그램', '화면 출력'].map((step, i, arr) => (
+                    <React.Fragment key={i}>
+                      <span className="bg-gradient-to-r from-indigo-100 to-purple-100 border border-indigo-300 px-2 py-1 rounded-lg text-indigo-700">{step}</span>
+                      {i < arr.length - 1 && <span className="text-indigo-400">→</span>}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             </div>
 
             {/* ── 퀴즈 섹션 ── */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
-              <h3 className="text-lg font-bold text-purple-900 mb-1">🎯 배운 내용 확인하기</h3>              
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 mt-6">
+              <h3 className="text-xl font-bold text-purple-900 mb-3">🎯 배운 내용 확인하기</h3>
 
               {!showQuizResult ? (
                 <div className="space-y-6">
@@ -537,9 +708,9 @@
                       </div>
 
                       {quizAnswers[quiz.id] !== undefined && (
-                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-sm text-gray-700">
-                            <span className="font-bold text-blue-600">설명: </span>{quiz.explanation}
+                        <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                          <p className="text-base text-gray-700">
+                            <span className="font-bold text-indigo-600">설명: </span>{quiz.explanation}
                           </p>
                         </div>
                       )}
@@ -547,17 +718,19 @@
                   ))}
 
                   {Object.keys(quizAnswers).length === quizData.length && (
-                    <button
-                      onClick={() => setShowQuizResult(true)}
-                      className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
-                    >
-                      🏁 결과 확인하기
-                    </button>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => setShowQuizResult(true)}
+                        className="w-48 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                      >
+                        🏁 결과 확인하기
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (
                 <div className="text-center">
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200 mb-6">
                     <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
                     <div className="text-6xl font-bold text-indigo-600 mb-4">
                       {calculateScore()} / {quizData.length}
@@ -575,18 +748,18 @@
                   <div className="text-left space-y-3 mb-6">
                     {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
                       <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
-                        <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
-                        <p className="text-sm text-gray-700">
+                        <p className="font-bold text-red-700 text-base mb-1">❌ 틀린 문제: {q.question}</p>
+                        <p className="text-base text-gray-700">
                           <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
                         </p>
-                        <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                        <p className="text-base text-gray-600 mt-1">{q.explanation}</p>
                       </div>
                     ))}
                   </div>
 
                   <button
                     onClick={resetQuiz}
-                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                    className="w-48 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
                   >
                     🔄 다시 풀기
                   </button>
@@ -597,7 +770,7 @@
             <div className="mt-6 text-center">
               <a 
                 href="index.html" 
-                className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white w-64 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
               >
                 🏠 홈으로 돌아가기
               </a>

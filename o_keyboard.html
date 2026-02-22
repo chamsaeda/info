@@ -15,12 +15,7 @@
       padding: 20px;
     }
 
-    /* ====================================================
-       원본에서 사용된 Tailwind 클래스만 추출한 CSS
-       (CDN 없이 오프라인 동작)
-    ==================================================== */
-
-    /* Layout */
+    /* ── Tailwind 유틸리티 ── */
     .flex          { display: flex; }
     .inline-block  { display: inline-block; }
     .grid          { display: grid; }
@@ -29,7 +24,6 @@
     .inset-0       { top:0; right:0; bottom:0; left:0; }
     .overflow-hidden { overflow: hidden; }
 
-    /* Flex */
     .flex-col      { flex-direction: column; }
     .flex-wrap     { flex-wrap: wrap; }
     .flex-1        { flex: 1 1 0%; }
@@ -39,7 +33,7 @@
     .justify-center  { justify-content: center; }
     .justify-between { justify-content: space-between; }
 
-    /* Grid */
+    .gap-1 { gap: 0.25rem; }
     .gap-2 { gap: 0.5rem; }
     .gap-3 { gap: 0.75rem; }
     .gap-4 { gap: 1rem; }
@@ -50,19 +44,20 @@
       .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
 
-    /* Spacing */
     .p-3  { padding: 0.75rem; }
     .p-4  { padding: 1rem; }
     .p-5  { padding: 1.25rem; }
     .p-6  { padding: 1.5rem; }
     .p-8  { padding: 2rem; }
+    .px-2 { padding-left: 0.5rem;  padding-right: 0.5rem; }
     .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
     .px-4 { padding-left: 1rem;    padding-right: 1rem; }
-    .px-8 { padding-left: 2rem;    padding-right: 2rem; }
     .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
     .py-2 { padding-top: 0.5rem;  padding-bottom: 0.5rem; }
     .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .py-4 { padding-top: 1rem;    padding-bottom: 1rem; }
     .pt-2 { padding-top: 0.5rem; }
+    .pl-4 { padding-left: 1rem; }
     .mt-1 { margin-top: 0.25rem; }
     .mt-2 { margin-top: 0.5rem; }
     .mt-3 { margin-top: 0.75rem; }
@@ -71,29 +66,36 @@
     .mb-1 { margin-bottom: 0.25rem; }
     .mb-2 { margin-bottom: 0.5rem; }
     .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
     .mb-6 { margin-bottom: 1.5rem; }
+    .ml-2 { margin-left: 0.5rem; }
+    .my-2 { margin-top: 0.5rem; margin-bottom: 0.5rem; }
     .mx-auto { margin-left: auto; margin-right: auto; }
     .space-y-2 > * + * { margin-top: 0.5rem; }
     .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-6 > * + * { margin-top: 1.5rem; }
 
-    /* Sizing */
     .w-3   { width: 0.75rem; }
     .w-8   { width: 2rem; }
     .w-12  { width: 3rem; }
     .w-16  { width: 4rem; }
     .w-20  { width: 5rem; }
     .w-28  { width: 7rem; }
+    .w-36  { width: 9rem; }
     .w-40  { width: 10rem; }
+    .w-48  { width: 12rem; }
+    .w-64  { width: 16rem; }
+    .w-full { width: 100%; }
     .h-1   { height: 0.25rem; }
     .h-3   { height: 0.75rem; }
+    .h-4   { height: 1rem; }
     .h-8   { height: 2rem; }
     .h-20  { height: 5rem; }
     .h-32  { height: 8rem; }
     .max-w-7xl { max-width: 80rem; }
 
-    /* Typography */
-    .text-xs   { font-size: 0.75rem;  line-height: 1rem; }
     .text-sm   { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-base { font-size: 1rem;     line-height: 1.5rem; }
     .text-lg   { font-size: 1.125rem; line-height: 1.75rem; }
     .text-xl   { font-size: 1.25rem;  line-height: 1.75rem; }
     .text-3xl  { font-size: 1.875rem; line-height: 2.25rem; }
@@ -102,12 +104,13 @@
     .font-semibold { font-weight: 600; }
     .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .text-center { text-align: center; }
+    .text-left   { text-align: left; }
     .leading-relaxed { line-height: 1.625; }
     .whitespace-nowrap { white-space: nowrap; }
 
-    /* Text colors */
     .text-white      { color: #ffffff; }
     .text-gray-400   { color: #9ca3af; }
+    .text-gray-500   { color: #6b7280; }
     .text-gray-600   { color: #4b5563; }
     .text-gray-700   { color: #374151; }
     .text-gray-800   { color: #1f2937; }
@@ -119,54 +122,72 @@
     .text-green-700  { color: #15803d; }
     .text-green-900  { color: #14532d; }
     .text-indigo-100 { color: #e0e7ff; }
+    .text-indigo-400 { color: #818cf8; }
     .text-indigo-600 { color: #4f46e5; }
     .text-indigo-700 { color: #4338ca; }
     .text-indigo-900 { color: #1e1b4b; }
+    .text-orange-500 { color: #f97316; }
+    .text-orange-600 { color: #ea580c; }
     .text-orange-700 { color: #c2410c; }
     .text-orange-900 { color: #7c2d12; }
     .text-purple-600 { color: #9333ea; }
     .text-purple-700 { color: #7e22ce; }
     .text-purple-900 { color: #581c87; }
+    .text-red-500    { color: #ef4444; }
     .text-red-600    { color: #dc2626; }
+    .text-red-700    { color: #b91c1c; }
+    .text-sky-600    { color: #0284c7; }
+    .text-sky-700    { color: #0369a1; }
+    .text-yellow-700 { color: #a16207; }
     .text-yellow-900 { color: #713f12; }
 
-    /* Background colors */
     .bg-black     { background-color: #000000; }
     .bg-white     { background-color: #ffffff; }
     .bg-gray-50   { background-color: #f9fafb; }
-    .bg-blue-400  { background-color: #60a5fa; }
+    .bg-gray-200  { background-color: #e5e7eb; }
+    .bg-green-100 { background-color: #dcfce7; }
     .bg-green-400 { background-color: #4ade80; }
     .bg-green-500 { background-color: #22c55e; }
+    .bg-indigo-50 { background-color: #eef2ff; }
     .bg-indigo-500{ background-color: #6366f1; }
-    .bg-orange-500{ background-color: #f97316; }
+    .bg-orange-50 { background-color: #fff7ed; }
+    .bg-orange-100{ background-color: #ffedd5; }
+    .bg-purple-50 { background-color: #faf5ff; }
     .bg-purple-500{ background-color: #a855f7; }
-    .bg-red-400   { background-color: #f87171; }
+    .bg-red-50    { background-color: #fef2f2; }
+    .bg-sky-500   { background-color: #0ea5e9; }
     .bg-yellow-50 { background-color: #fefce8; }
+    .bg-yellow-100{ background-color: #fef9c3; }
+    .bg-yellow-500{ background-color: #eab308; }
 
-    /* Gradients (CSS custom properties 방식) */
     .bg-gradient-to-r  { background-image: linear-gradient(to right,        var(--tw-from), var(--tw-to, transparent)); }
     .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-from), var(--tw-to, transparent)); }
     .from-blue-50    { --tw-from: #eff6ff; }
     .from-gray-700   { --tw-from: #374151; }
     .from-green-400  { --tw-from: #4ade80; }
     .from-green-50   { --tw-from: #f0fdf4; }
+    .from-indigo-50  { --tw-from: #eef2ff; }
+    .from-indigo-100 { --tw-from: #e0e7ff; }
     .from-indigo-600 { --tw-from: #4f46e5; }
     .from-orange-50  { --tw-from: #fff7ed; }
     .from-purple-50  { --tw-from: #faf5ff; }
-    .to-cyan-50    { --tw-to: #ecfeff; }
+    .from-red-50     { --tw-from: #fef2f2; }
     .to-emerald-50 { --tw-to: #ecfdf5; }
     .to-gray-900   { --tw-to: #111827; }
     .to-green-600  { --tw-to: #16a34a; }
     .to-indigo-50  { --tw-to: #eef2ff; }
+    .to-orange-50  { --tw-to: #fff7ed; }
     .to-pink-50    { --tw-to: #fdf2f8; }
+    .to-purple-50  { --tw-to: #faf5ff; }
+    .to-purple-100 { --tw-to: #f3e8ff; }
     .to-purple-600 { --tw-to: #9333ea; }
     .to-yellow-50  { --tw-to: #fefce8; }
+    .hover\:from-indigo-700:hover { --tw-from: #4338ca; }
+    .hover\:to-purple-700:hover   { --tw-to: #7e22ce; }
 
-    /* Borders */
     .border   { border: 1px solid; }
     .border-2 { border: 2px solid; }
     .border-4 { border: 4px solid; }
-    .border-6 { border: 6px solid; }
     .border-b { border-bottom: 1px solid; }
     .border-t { border-top: 1px solid; }
     .border-blue-200   { border-color: #bfdbfe; }
@@ -176,60 +197,58 @@
     .border-gray-800   { border-color: #1f2937; }
     .border-green-200  { border-color: #bbf7d0; }
     .border-indigo-100 { border-color: #e0e7ff; }
+    .border-indigo-200 { border-color: #c7d2fe; }
+    .border-indigo-300 { border-color: #a5b4fc; }
+    .border-indigo-400 { border-color: #818cf8; }
     .border-orange-200 { border-color: #fed7aa; }
+    .border-orange-300 { border-color: #fdba74; }
+    .border-orange-400 { border-color: #fb923c; }
     .border-purple-200 { border-color: #e9d5ff; }
+    .border-red-200    { border-color: #fecaca; }
+    .border-sky-500    { border-color: #0ea5e9; }
     .border-yellow-300 { border-color: #fde047; }
 
-    /* Border radius */
     .rounded      { border-radius: 0.25rem; }
     .rounded-lg   { border-radius: 0.5rem; }
     .rounded-xl   { border-radius: 0.75rem; }
     .rounded-2xl  { border-radius: 1rem; }
     .rounded-full { border-radius: 9999px; }
 
-    /* Shadows */
     .shadow-sm  { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .shadow-md  { box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06); }
     .shadow-lg  { box-shadow: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05); }
     .shadow-xl  { box-shadow: 0 20px 25px rgba(0,0,0,0.1), 0 8px 10px rgba(0,0,0,0.04); }
     .shadow-2xl { box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
-
-    /* Cursor & transitions */
-    .cursor-default   { cursor: default; }
-    .cursor-pointer   { cursor: pointer; }
-    .transition-all       { transition: all 0.15s ease; }
-    .transition-transform { transition: transform 0.15s ease; }
-
-    /* Hover states */
-    .hover\:bg-indigo-50:hover  { background-color: #eef2ff; }
     .hover\:shadow-lg:hover { box-shadow: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05); }
     .hover\:shadow-xl:hover { box-shadow: 0 20px 25px rgba(0,0,0,0.1), 0 8px 10px rgba(0,0,0,0.04); }
+
+    .cursor-default     { cursor: default; }
+    .cursor-pointer     { cursor: pointer; }
+    .cursor-not-allowed { cursor: not-allowed; }
+    .transition-all       { transition: all 0.15s ease; }
+    .transition-transform { transition: transform 0.15s ease; }
     .hover\:scale-110:hover { transform: scale(1.1); }
-    .hover\:from-indigo-700:hover { --tw-from: #4338ca; }
-    .hover\:to-purple-700:hover   { --tw-to: #7e22ce; }
+    .hover\:bg-indigo-50:hover { background-color: #eef2ff; }
+    .hover\:bg-gray-100:hover  { background-color: #f3f4f6; }
+    .focus\:outline-none:focus { outline: none; }
+    .focus\:border-indigo-600:focus { border-color: #4f46e5; }
 
-    /* Tooltip positioning */
-    .left-1\/2        { left: 50%; }
-    .-top-10          { top: -2.5rem; }
-    .-translate-x-1\/2 { transform: translateX(-50%); }
-
-    /* Bounce animation */
     @keyframes bounce {
       0%, 100% { transform: translateY(0) translateX(-50%); }
       50%       { transform: translateY(-30%) translateX(-50%); }
     }
     .animate-bounce { animation: bounce 0.8s infinite; }
 
-    /* ── 원본 커스텀 CSS ── */
-    a { text-decoration: none; }
+    /* ── 사이트 고유 스타일 ── */
+    a { text-decoration: none; color: inherit; }
 
     .arrow-text {
-      font-size: 36px;
+      font-size: 2.25rem;
       color: #667eea;
       line-height: 1;
     }
 
-    /* 전구 스타일 (원본 동적 클래스) */
+    /* 전구 */
     .light {
       width: 2rem; height: 2rem;
       border-radius: 50%;
@@ -239,621 +258,802 @@
       font-size: 0.75rem; font-weight: 700; color: #374151;
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .light.on  { background: #fbbf24; border-color: #d97706; box-shadow: 0 0 8px rgba(251,191,36,0.7); color: #78350f; }
+    .light.on  { background: #facc15; border-color: #d97706; box-shadow: 0 0 8px rgba(251,191,36,0.7); color: #78350f; }
     .light.off { background: #7dd3fc; border-color: #0284c7; color: #0c4a6e; }
 
+    /* 한글 배너 */
+    #hangulBanner { display: none; }
+    #hangulBanner.show { display: block; }
+
+    /* ASCII 변환기 */
+    #asciiResult { display: none; }
+    #asciiResult.show { display: grid; }
+
+    /* 툴팁 */
+    #tooltipBubble {
+      display: none;
+      position: absolute;
+      left: 50%; top: -2.5rem;
+      transform: translateX(-50%);
+      background: #60a5fa; color: #111827;
+      padding: 0.25rem 0.75rem; border-radius: 0.5rem;
+      font-size: 0.875rem; font-weight: 700;
+      white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      animation: bounce 0.8s infinite;
+    }
+    #tooltipBubble.show { display: block; }
+
     /* ── 퀴즈 스타일 ── */
-    .quiz-section { background: linear-gradient(to right, #faf5ff, #fdf2f8); padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #e9d5ff; margin-top: 1.5rem; }
-    .quiz-title   { font-size: 1.125rem; font-weight: 700; color: #581c87; margin-bottom: 0.25rem; }
-    .quiz-subtitle{ font-size: 0.875rem; color: #6b7280; margin-bottom: 1.25rem; }
+    .quiz-section { background: linear-gradient(to right, #faf5ff, #fdf2f8); padding: 1.25rem; border-radius: 0.75rem; border: 1px solid #e9d5ff; margin-top: 1.5rem; }
+    .quiz-title   { font-size: 1.25rem; font-weight: 700; color: #581c87; margin-bottom: 0.75rem; }
     .quiz-card    { background: #fff; padding: 1.25rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-    .quiz-q       { font-weight: 700; color: #1f2937; margin-bottom: 1rem; line-height: 1.5; }
+    .quiz-q       { font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; line-height: 1.5; }
     .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
     .quiz-btn {
       width: 100%; text-align: left; padding: 0.75rem; border-radius: 0.5rem;
       border: 2px solid #e5e7eb; background: #f9fafb;
-      font-family: inherit; font-size: 0.875rem; cursor: pointer;
+      font-family: inherit; font-size: 1rem; cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
     }
     .quiz-btn:hover:not(:disabled) { background: #f3f4f6; }
     .quiz-btn:disabled { cursor: not-allowed; }
     .quiz-btn.correct { background: #dcfce7; border-color: #4ade80; }
     .quiz-btn.wrong   { background: #fee2e2; border-color: #f87171; }
-    .quiz-explanation { margin-top: 1rem; padding: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; font-size: 0.875rem; color: #374151; display: none; }
+    .quiz-explanation { margin-top: 1rem; padding: 1rem; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 0.5rem; font-size: 1rem; color: #374151; display: none; }
     .quiz-explanation.show { display: block; }
     .quiz-submit {
-      width: 100%; padding: 1rem; margin-top: 0.5rem;
+      display: none; margin: 0 auto; padding: 1rem 0; width: 12rem;
       background: linear-gradient(to right, #4f46e5, #9333ea);
       color: #fff; font-weight: 700; font-size: 1rem;
       border: none; border-radius: 0.5rem; cursor: pointer;
-      transition: opacity 0.15s; display: none;
+      transition: opacity 0.15s; box-shadow: 0 4px 12px rgba(79,70,229,0.4);
     }
     .quiz-submit:hover { opacity: 0.9; }
-    .quiz-result { text-align: center; display: none; }
+    .quiz-result { display: none; text-align: center; }
     .quiz-result.show { display: block; }
-    .quiz-score-box { background: linear-gradient(to right, #f0fdf4, #ecfdf5); padding: 2rem; border-radius: 0.5rem; border: 1px solid #bbf7d0; margin-bottom: 1.5rem; }
+    .quiz-score-box { background: linear-gradient(to right, #f0fdf4, #ecfdf5); padding: 2rem; border-radius: 0.75rem; border: 1px solid #bbf7d0; margin-bottom: 1.5rem; }
     .quiz-score-num { font-size: 3.75rem; font-weight: 700; color: #4f46e5; line-height: 1; margin: 0.75rem 0; }
     .quiz-score-msg { font-size: 1.125rem; color: #374151; }
     .quiz-wrong-list { text-align: left; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .quiz-wrong-card { background: #fef2f2; padding: 1rem; border-radius: 0.5rem; border: 1px solid #fecaca; }
-    .quiz-wrong-card p { font-size: 0.875rem; line-height: 1.6; }
+    .quiz-wrong-card { background: #fef2f2; padding: 1rem; border-radius: 0.5rem; border: 1px solid #fecaca; font-size: 1rem; line-height: 1.6; }
     .quiz-reset {
-      padding: 1rem 2rem; background: linear-gradient(to right, #4f46e5, #9333ea);
+      display: block; margin: 0 auto; padding: 1rem 0; width: 12rem;
+      background: linear-gradient(to right, #4f46e5, #9333ea);
       color: #fff; font-weight: 700; font-size: 1rem;
-      border: none; border-radius: 0.5rem; cursor: pointer; transition: opacity 0.15s;
+      border: none; border-radius: 0.5rem; cursor: pointer;
+      transition: opacity 0.15s; box-shadow: 0 4px 12px rgba(79,70,229,0.4);
     }
     .quiz-reset:hover { opacity: 0.9; }
-    /* 추가 색상 클래스 */
-    .text-red-700  { color: #b91c1c; }
-    .text-green-600{ color: #16a34a; }
-    .font-bold-inline { font-weight: 700; }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root">
+  <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
 
-  <script>
-  (function () {
-    /* ── 상태 ── */
-    let binaryCode    = '00000000';
-    let pendingBinary = '';
-    let currentChar   = '';
-    let keyButtonChar = '?';
-    let lights        = Array(8).fill(null).map(() => ({ value: '0', state: 'none' }));
-    let animStep      = -1;
-    let isAnimating   = false;
-    let isComposing   = false;
-    let charBuffer    = '';
-    let animTimer     = null;
-    const ANIM_MS     = 140;
-
-    /* ── 전구 HTML ── */
-    function lightsHTML() {
-      return lights.map((l) => {
-        const cls = l.state === 'on' ? 'on' : l.state === 'off' ? 'off' : '';
-        return `<div class="light ${cls}">${l.value}</div>`;
-      }).join('');
-    }
-
-    /* ── Canvas 신호 그리기 ── */
-    function drawSignal(binary, step) {
-      const canvas = document.getElementById('signalCanvas');
-      if (!canvas) return;
-      const ctx  = canvas.getContext('2d');
-      const bitW = 40, highY = 40, lowY = 80;
-
-      ctx.clearRect(0, 0, 320, 120);
-
-      ctx.strokeStyle = '#e8e8e8';
-      ctx.lineWidth   = 1;
-      for (let i = 0; i <= 8; i++) {
-        ctx.beginPath(); ctx.moveTo(i * bitW, 0); ctx.lineTo(i * bitW, 120); ctx.stroke();
-      }
-
-      ctx.strokeStyle = '#667eea';
-      ctx.lineWidth   = 3;
-      ctx.beginPath();
-      const len = Math.min(step, 8);
-      let x = 0;
-      let y = (binary && binary[0] === '1') ? highY : lowY;
-      ctx.moveTo(x, y);
-      for (let i = 0; i < len; i++) {
-        const bit     = (binary && binary[i]) ? binary[i] : '0';
-        const targetY = bit === '1' ? highY : lowY;
-        ctx.lineTo(x, targetY);
-        y = targetY;
-        x = (i + 1) * bitW;
-        ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-
-    /* ── 전구 DOM 업데이트 ── */
-    function updateLights() {
-      const c = document.getElementById('lightsContainer');
-      if (c) c.innerHTML = lightsHTML();
-    }
-
-    /* ── 애니메이션 ── */
-    function runAnimation() {
-      if (!isAnimating) return;
-
-      if (animStep >= 0 && animStep < 8) {
-        animTimer = setTimeout(() => {
-          const bit = pendingBinary[animStep] || '0';
-          lights    = lights.slice();
-          lights[animStep] = { value: bit, state: bit === '1' ? 'on' : 'off' };
-          updateLights();
-          drawSignal(pendingBinary, animStep + 1);
-          animStep++;
-          runAnimation();
-        }, ANIM_MS);
-
-      } else if (animStep >= 8) {
-        isAnimating = false;
-        animStep    = -1;
-        binaryCode  = pendingBinary;
-        const bd = document.getElementById('binaryDisplay');
-        if (bd) bd.textContent = binaryCode;
-
-        setTimeout(() => {
-          currentChar = charBuffer;
-          const mon = document.getElementById('monitor');
-          if (mon) mon.textContent = currentChar;
-        }, 300);
-      }
-    }
-
-    /* ── 문자 입력 처리 ── */
-    function handleCharInput(char) {
-      if (!char || char.length === 0) return;
-      const ch   = char[0];
-      const code = ch.codePointAt(0);
-      const bin  = (code & 0xFF).toString(2).padStart(8, '0');
-
-      keyButtonChar = ch;
-      pendingBinary = bin;
-      currentChar   = '';
-      charBuffer    = ch;
-      lights        = Array(8).fill(null).map(() => ({ value: '0', state: 'none' }));
-
-      if (animTimer) clearTimeout(animTimer);
-      animStep    = 0;
-      isAnimating = true;
-
-      /* 키버튼 눌림 효과 */
-      const kb = document.getElementById('keyBtn');
-      if (kb) {
-        kb.textContent        = ch;
-        kb.style.transform    = 'scale(0.92)';
-        setTimeout(() => { kb.style.transform = ''; }, 120);
-      }
-
-      const mon = document.getElementById('monitor');
-      if (mon) mon.textContent = '';
-
-      drawSignal('00000000', 0);
-      updateLights();
-      runAnimation();
-    }
-
-    /* ── 키보드 이벤트 ── */
-    document.addEventListener('keydown', (e) => {
-      if (isComposing || e.key.length !== 1) return;
-      handleCharInput(e.key);
-    });
-    document.addEventListener('compositionstart', () => { isComposing = true; });
-    document.addEventListener('compositionend',   (e) => {
-      isComposing = false;
-      if (e.data) handleCharInput(e.data);
-    });
-
-    /* ── 초기 렌더링 ── */
-    document.getElementById('root').innerHTML = `
-    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
-
-      <!-- 헤더 -->
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-        <div class="flex justify-between items-center mb-2">
-          <div class="text-sm text-indigo-100">고등학교 정보 학습자료</div>
-          <a href="index.html"
-             class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-            🏠 홈으로
-          </a>
-        </div>
-        <h1 class="text-3xl font-bold mb-2">⌨️ 키보드를 누르면 컴퓨터 안에서는 무슨 일이?</h1>
-        <p class="text-indigo-100">키보드를 누르면 컴퓨터 안에서 어떤 일이 일어날까요?</p>
+    <!-- 헤더 -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+      <div class="flex justify-between items-center mb-2">
+        <div class="text-sm text-indigo-100">고등학교 정보 학습자료</div>
+        <a href="index.html"
+           class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+          🏠 홈으로
+        </a>
       </div>
+      <h1 class="text-3xl font-bold mb-2">⌨️ 키보드를 누르면 컴퓨터 안에서는 무슨 일이?</h1>
+      <p class="text-indigo-100">키보드를 누르면 컴퓨터 안에서 어떤 일이 일어날까요?</p>
+    </div>
 
-      <!-- 설명 -->
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
-        <div class="space-y-3 text-gray-700">
-          <div>
-            <h3 class="font-bold text-indigo-900 text-lg mb-2">컴퓨터는 어떻게 글자를 이해할까요?</h3>
-            <p class="leading-relaxed">
-              컴퓨터는 사람처럼 글자를 직접 이해할 수 없어요. 대신
-              <span class="font-bold text-blue-600">0과 1로만 이루어진 숫자</span>로 모든 것을 표현합니다.
-              키보드의 'A' 키를 누르면, 컴퓨터는 이것을
-              <span class="font-bold text-green-600">8개의 전구가 켜지고 꺼지는 패턴</span>으로 바꿔서 이해해요.
-              이런 방식을 <span class="font-bold text-purple-600">'이진법(Binary)'</span>이라고 합니다!
-            </p>
-          </div>
-          <div class="grid md:grid-cols-4 gap-4 mt-4">
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <h4 class="font-bold text-indigo-700 mb-2">1️⃣ 키보드 입력</h4>
-              <p class="text-sm">키보드의 글쇠를 누르면 전기 신호가 발생합니다.</p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <h4 class="font-bold text-green-700 mb-2">2️⃣ 전기 신호</h4>
-              <p class="text-sm">높은 전압(1)과 낮은 전압(0)으로 신호가 전달됩니다.</p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <h4 class="font-bold text-orange-700 mb-2">3️⃣ 컴퓨터 처리</h4>
-              <p class="text-sm">컴퓨터 내부에서 8비트 이진수로 변환합니다.</p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <h4 class="font-bold text-purple-700 mb-2">4️⃣ 화면 출력</h4>
-              <p class="text-sm">모니터에 우리가 입력한 글자가 나타납니다.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 메인 인터랙션 -->
-      <div class="p-8">
-        <div class="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-          <p class="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
-          <p class="text-sm text-gray-700">
-            <span class="font-bold text-blue-600">키보드의 아무 키나 눌러보세요! </span>
-            영어, 숫자, 특수문자 모두 가능합니다.
-            전기 신호가 어떻게 변하는지 실시간으로 확인할 수 있어요.
+    <!-- 설명 -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
+      <div class="space-y-3 text-gray-700">
+        <div>
+          <h3 class="font-bold text-indigo-900 text-xl mb-2">컴퓨터는 어떻게 글자를 이해할까요?</h3>
+          <p class="leading-relaxed">
+            컴퓨터는 사람처럼 글자를 직접 이해할 수 없어요. 대신
+            <span class="font-bold text-blue-600">0과 1로만 이루어진 숫자</span>로 모든 것을 표현합니다.
+            키보드의 'A' 키를 누르면, 컴퓨터는 이것을
+            <span class="font-bold text-green-600">8개의 전구가 켜지고 꺼지는 패턴</span>으로 바꿔서 이해해요.
+            이런 방식을 <span class="font-bold text-purple-600">'이진법(Binary)'</span>이라고 합니다!
           </p>
         </div>
-
-        <!-- 시뮬레이션 영역 -->
-        <div class="bg-gray-50 p-8 rounded-lg border border-gray-200">
-          <div class="flex items-center justify-center gap-6 flex-wrap">
-
-            <!-- 1. 키보드 -->
-            <div class="text-center">
-              <button id="keyBtn"
-                class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 text-white rounded-xl flex items-center justify-center text-3xl font-bold shadow-lg cursor-default"
-                style="pointer-events:none; border:none; transition: transform 0.1s;">
-                ?
-              </button>
-              <div class="text-sm font-bold text-gray-700 mt-2">키보드</div>
-            </div>
-
-            <!-- 화살표 -->
-            <div class="text-center"><div class="arrow-text">→</div></div>
-
-            <!-- 2. 전기 신호 -->
-            <div class="text-center">
-              <div class="bg-white rounded-lg border-2 border-gray-300 overflow-hidden"
-                   style="width:320px;height:90px;">
-                <canvas id="signalCanvas" width="320" height="100"></canvas>
-              </div>
-              <div class="flex gap-2 justify-center mt-3" id="lightsContainer">
-                ${lightsHTML()}
-              </div>
-              <div class="text-sm font-bold text-gray-700 mt-2">전기 신호</div>
-            </div>
-
-            <!-- 화살표 -->
-            <div class="arrow-text">→</div>
-
-            <!-- 3. 컴퓨터 내부 -->
-            <div class="text-center">
-              <div class="w-28 h-32 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg border-4 border-gray-600 shadow-xl relative overflow-hidden">
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <div class="w-16 h-1 bg-blue-400 mb-2 rounded"></div>
-                  <div class="w-12 h-1 bg-green-400 mb-2 rounded"></div>
-                  <div class="w-16 h-1 bg-red-400 mb-2 rounded"></div>
-                  <div class="w-3 h-3 bg-green-500 rounded-full mt-4"
-                       style="box-shadow:0 0 10px rgba(34,197,94,0.8)"></div>
-                </div>
-              </div>
-              <div class="text-sm font-bold text-gray-700 mt-2">컴퓨터 내부</div>
-            </div>
-
-            <!-- 화살표 + 이진수 -->
-            <div class="text-center">
-              <div class="arrow-text">→</div>
-              <div class="mt-2 font-mono text-xl font-bold text-gray-800" id="binaryDisplay">
-                00000000
-              </div>
-              <div class="text-xs font-bold text-gray-600 mt-1">이진수</div>
-            </div>
-
-            <!-- 4. 모니터 -->
-            <div class="text-center">
-              <div class="w-40 h-32 bg-black rounded-lg flex items-center justify-center text-green-400 text-6xl font-mono shadow-xl"
-                   style="border:6px solid #1f2937;" id="monitor"></div>
-              <div class="text-sm font-bold text-gray-700 mt-2">모니터</div>
-            </div>
-
+        <div class="grid md:grid-cols-4 gap-4 mt-4">
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <h4 class="font-bold text-base text-indigo-700 mb-2">1️⃣ 키보드 입력</h4>
+            <p class="text-base text-gray-700">키보드의 글쇠를 누르면 전기 신호가 발생합니다.</p>
           </div>
-        </div>
-
-        <!-- 하단 정보 카드 -->
-        <div class="grid md:grid-cols-2 gap-6 mt-6">
-          <!-- 이진수란? -->
-          <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
-            <h3 class="text-lg font-bold text-green-900 mb-3">📊 이진수란?</h3>
-            <div class="space-y-3 text-sm text-gray-700">
-              <div class="bg-white p-3 rounded-lg">
-                <p class="font-bold mb-1">십진수 (우리가 사용하는 숫자)</p>
-                <p>0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - 총 10개의 숫자 사용</p>
-              </div>
-              <div class="bg-white p-3 rounded-lg">
-                <p class="font-bold mb-1">이진수 (컴퓨터가 사용하는 숫자)</p>
-                <p>0, 1 - 총 2개의 숫자만 사용</p>
-              </div>
-              <p class="pt-2 border-t border-green-200">
-                💡 컴퓨터는 전기의 <span class="font-bold text-green-600">ON(1)</span>과
-                <span class="font-bold text-blue-600">OFF(0)</span>만 구분할 수 있어서 이진수를 사용해요!
-              </p>
-            </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <h4 class="font-bold text-base text-sky-700 mb-2">2️⃣ 전기 신호</h4>
+            <p class="text-base text-gray-700">높은 전압(1)과 낮은 전압(0)으로 신호가 전달됩니다.</p>
           </div>
-
-          <!-- 변환 예시 -->
-          <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg border border-blue-200">
-            <h3 class="text-lg font-bold text-blue-900 mb-3">
-              <span class="relative inline-block cursor-pointer hover:scale-110 transition-transform" id="tooltipWrap">
-                🔢
-                <span id="tooltip"
-                  class="absolute left-1\/2 -translate-x-1\/2 -top-10 bg-blue-400 text-gray-900 px-3 py-1 rounded-lg text-sm font-bold whitespace-nowrap shadow-lg animate-bounce"
-                  style="display:none;">
-                  \uCC38\uC0C8
-                </span>
-              </span>
-              변환 예시
-            </h3>
-            <div class="space-y-2 text-sm">
-              <div class="bg-white p-3 rounded-lg flex justify-between items-center">
-                <span class="font-bold text-xl">A</span>
-                <span class="text-gray-400">→</span>
-                <span class="font-mono text-blue-600 font-bold">01000001</span>
-              </div>
-              <div class="bg-white p-3 rounded-lg flex justify-between items-center">
-                <span class="font-bold text-xl">B</span>
-                <span class="text-gray-400">→</span>
-                <span class="font-mono text-blue-600 font-bold">01000010</span>
-              </div>
-              <div class="bg-white p-3 rounded-lg flex justify-between items-center">
-                <span class="font-bold text-xl">1</span>
-                <span class="text-gray-400">→</span>
-                <span class="font-mono text-blue-600 font-bold">00110001</span>
-              </div>
-              <p class="text-xs text-gray-600 pt-2 text-center">* 각 문자는 고유한 8자리 이진수를 가져요!</p>
-            </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <h4 class="font-bold text-base text-green-700 mb-2">3️⃣ 컴퓨터 처리</h4>
+            <p class="text-base text-gray-700">컴퓨터 내부에서 8비트 이진수로 변환합니다.</p>
           </div>
-        </div>
-
-        <!-- 더 알아보기 -->
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
-          <h3 class="text-lg font-bold text-purple-900 mb-3">🤔 더 알아보기</h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <h4 class="font-bold text-indigo-600 mb-2">왜 8개의 비트를 사용할까요?</h4>
-              <p class="text-sm text-gray-700">
-                8개의 0과 1로 만들 수 있는 조합은 2×2×2×2×2×2×2×2 =
-                <span class="font-bold text-red-600">256가지</span>입니다.
-                이것으로 영어 대소문자, 숫자, 특수문자 등을 모두 표현할 수 있어요.
-                이 8비트를 <span class="font-bold text-purple-600">'1바이트(Byte)'</span>라고 부릅니다!
-              </p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <h4 class="font-bold text-green-600 mb-2">한글은 어떻게 표현할까요?</h4>
-              <p class="text-sm text-gray-700">
-                한글은 영어보다 글자 수가 훨씬 많아서 8비트로는 부족해요.
-                그래서 <span class="font-bold text-blue-600">16비트(2바이트) 이상</span>을 사용합니다.
-                이를 <span class="font-bold text-purple-600">'유니코드(Unicode)'</span> 방식이라고 해요!
-              </p>
-            </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <h4 class="font-bold text-base text-purple-700 mb-2">4️⃣ 화면 출력</h4>
+            <p class="text-base text-gray-700">모니터에 우리가 입력한 글자가 나타납니다.</p>
           </div>
-        </div>
-
-        <!-- 신호 처리 과정 -->
-        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-lg border border-orange-200 mt-6">
-          <h3 class="text-lg font-bold text-orange-900 mb-3">⚡ 신호 처리 과정</h3>
-          <div class="space-y-3 text-sm text-gray-700">
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
-              <div class="flex-1">
-                <p class="font-bold text-indigo-700">키보드에서 키를 누름</p>
-                <p>키를 누르면 키보드 내부 회로에서 전기 신호가 발생합니다.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
-              <div class="flex-1">
-                <p class="font-bold text-green-700">전기 신호로 변환</p>
-                <p>높은 전압(1)과 낮은 전압(0)의 조합으로 8자리 이진수를 만듭니다. 전구가 켜지고 꺼지는 것처럼 신호가 변합니다.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
-              <div class="flex-1">
-                <p class="font-bold text-orange-700">컴퓨터 내부에서 처리</p>
-                <p>컴퓨터 본체의 CPU가 이진수 신호를 받아 어떤 문자인지 해석합니다.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
-              <div class="flex-1">
-                <p class="font-bold text-purple-700">모니터에 출력</p>
-                <p>해석된 문자 정보가 모니터로 전송되어 우리가 볼 수 있는 글자로 화면에 나타납니다.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 퀴즈 섹션 -->
-        <div class="quiz-section" id="quizSection">
-          <p class="quiz-title">🎯 배운 내용 확인하기</p>          
-
-          <div id="quizQuestions"></div>
-          <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">🏁 결과 확인하기</button>
-
-          <div class="quiz-result" id="quizResult">
-            <div class="quiz-score-box">
-              <h3 style="font-size:1.875rem;font-weight:700;color:#14532d;">🎉 퀴즈 완료!</h3>
-              <div class="quiz-score-num" id="quizScoreNum"></div>
-              <p class="quiz-score-msg" id="quizScoreMsg"></p>
-            </div>
-            <div class="quiz-wrong-list" id="quizWrongList"></div>
-            <button class="quiz-reset" onclick="resetQuiz()">🔄 다시 풀기</button>
-          </div>
-        </div>
-
-        <!-- 홈 버튼 -->
-        <div class="mt-6 text-center">
-          <a href="index.html"
-             class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all shadow-lg hover:shadow-xl">
-            🏠 홈으로 돌아가기
-          </a>
         </div>
       </div>
     </div>
-    `;
 
-    /* 툴팁 이벤트 바인딩 */
-    const tooltipWrap = document.getElementById('tooltipWrap');
-    const tooltip     = document.getElementById('tooltip');
-    if (tooltipWrap && tooltip) {
-      tooltipWrap.addEventListener('click', () => {
-        tooltip.style.display = 'block';
-        setTimeout(() => { tooltip.style.display = 'none'; }, 400);
-      });
-    }
+    <!-- 메인 인터랙션 -->
+    <div class="p-8">
+      <div class="mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-300">
+        <p class="text-base font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+        <p class="text-base text-gray-700">
+          <span class="font-bold text-blue-600">키보드의 아무 키나 눌러보세요! </span>
+          영어, 숫자, 특수문자 모두 가능합니다.
+          <span class="font-bold text-orange-600"> 전기신호</span>가 어떻게 변하는지 실시간으로 확인할 수 있어요.
+        </p>
+      </div>
 
-    /* 초기 신호 그리기 */
-    drawSignal('00000000', 8);
+      <!-- 시뮬레이션 -->
+      <div class="bg-gray-50 p-8 rounded-lg border border-gray-200">
+        <div class="flex items-center justify-center gap-6 flex-wrap">
 
-  })();
+          <!-- 키보드 -->
+          <div class="text-center">
+            <button id="keyBtn"
+              class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 text-white rounded-xl flex items-center justify-center text-3xl font-bold shadow-lg cursor-default"
+              style="pointer-events:none; border:none; transition: transform 0.1s;">?</button>
+            <div class="text-sm font-bold text-gray-600 mt-2">키보드</div>
+          </div>
 
-  /* ════════════════════════════════
-     퀴즈 로직
-  ════════════════════════════════ */
-  const QUIZ_DATA = [
-    {
-      id: 1,
-      q: '컴퓨터가 이진수(0과 1)를 사용하는 가장 큰 이유는 무엇인가요?',
-      options: [
-        '숫자가 두 개라서 계산이 쉽기 때문에',
-        '전기의 ON(켜짐)과 OFF(꺼짐) 두 가지 상태만 구분할 수 있기 때문에',
-        '이진수가 십진수보다 빠르게 전송되기 때문에',
-        '사람이 읽기 더 편리하기 때문에'
-      ],
-      correct: 1,
-      explanation: '컴퓨터 내부 회로는 전기가 흐르는 상태(1, ON)와 흐르지 않는 상태(0, OFF)만 구분할 수 있어요. 그래서 모든 데이터를 0과 1로 표현하는 이진수를 사용합니다!'
-    },
-    {
-      id: 2,
-      q: '8개의 비트(bit)로 만들 수 있는 조합은 총 몇 가지인가요?',
-      options: ['8가지', '16가지', '128가지', '256가지'],
-      correct: 3,
-      explanation: '2×2×2×2×2×2×2×2 = 2⁸ = 256가지입니다. 이 256가지 조합으로 영어 대소문자, 숫자, 특수문자를 모두 표현할 수 있어요!'
-    },
-    {
-      id: 3,
-      q: '8비트(bit)를 묶어서 부르는 단위는 무엇인가요?',
-      options: ['킬로바이트(KB)', '바이트(Byte)', '워드(Word)', '니블(Nibble)'],
-      correct: 1,
-      explanation: '8비트(bit)를 묶으면 1바이트(Byte)가 됩니다. 컴퓨터에서 데이터 용량을 표현할 때 가장 기본이 되는 단위예요!'
-    },
-    {
-      id: 4,
-      q: "키보드에서 'A'를 누를 때 발생하는 신호 처리 순서로 올바른 것은?",
-      options: [
-        '모니터 출력 → 전기 신호 → 컴퓨터 처리 → 키보드 입력',
-        '전기 신호 → 키보드 입력 → 모니터 출력 → 컴퓨터 처리',
-        '키보드 입력 → 전기 신호 → 컴퓨터 처리 → 모니터 출력',
-        '컴퓨터 처리 → 키보드 입력 → 전기 신호 → 모니터 출력'
-      ],
-      correct: 2,
-      explanation: '키보드 키를 누르면 → 전기 신호가 발생하고 → 컴퓨터 CPU가 이진수로 해석한 뒤 → 모니터에 문자가 출력됩니다. 이 순서가 매우 빠르게 일어나서 우리 눈에는 즉각적으로 보여요!'
-    },
-    {
-      id: 5,
-      q: '한글을 컴퓨터에서 표현할 때 영어보다 더 많은 비트가 필요한 이유는?',
-      options: [
-        '한글이 더 복잡하게 생겼기 때문에',
-        '한글 글자 수가 영어보다 훨씬 많아서 8비트(256가지)로는 부족하기 때문에',
-        '한국 컴퓨터가 구형이기 때문에',
-        '한글은 가로로 쓰기 때문에'
-      ],
-      correct: 1,
-      explanation: '영어는 대소문자 합쳐 52자 정도라 8비트(256가지)로 충분하지만, 한글은 자음·모음 조합으로 수천 개의 글자가 만들어져요. 그래서 16비트(2바이트) 이상을 사용하는 유니코드(Unicode) 방식이 필요합니다!'
-    }
-  ];
+          <!-- 화살표 -->
+          <div class="text-center"><div class="arrow-text">→</div></div>
 
-  const quizAnswers = {};
+          <!-- 전기 신호 -->
+          <div class="text-center">
+            <div class="bg-white rounded-lg border-2 border-gray-300 overflow-hidden" style="width:320px;height:90px;">
+              <canvas id="signalCanvas" width="320" height="100"></canvas>
+            </div>
+            <div class="flex gap-2 justify-center mt-3" id="lightsContainer"></div>
+            <div class="text-sm font-bold text-gray-600 mt-2">전기 신호</div>
+          </div>
 
-  function buildQuiz() {
-    const container = document.getElementById('quizQuestions');
-    container.innerHTML = QUIZ_DATA.map((q, i) => `
-      <div class="quiz-card" id="qcard-${q.id}">
-        <p class="quiz-q">Q${i + 1}. ${q.q}</p>
-        <div class="quiz-options">
-          ${q.options.map((opt, j) => `
-            <button class="quiz-btn" id="qbtn-${q.id}-${j}" onclick="chooseAnswer(${q.id}, ${j})">
-              ${j + 1}. ${opt}
-            </button>
-          `).join('')}
-        </div>
-        <div class="quiz-explanation" id="qexp-${q.id}">
-          <strong style="color:#2563eb;">설명: </strong>${q.explanation}
+          <!-- 화살표 -->
+          <div class="text-center"><div class="arrow-text">→</div></div>
+
+          <!-- 컴퓨터 내부 -->
+          <div class="text-center">
+            <div class="w-28 h-32 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg border-4 border-gray-600 shadow-xl relative overflow-hidden">
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <div class="w-16 h-1 bg-blue-400 mb-2 rounded" style="background-color:#60a5fa;"></div>
+                <div class="w-12 h-1 bg-green-400 mb-2 rounded" style="background-color:#4ade80;"></div>
+                <div class="w-16 h-1 mb-2 rounded" style="background-color:#f87171;"></div>
+                <div class="w-3 h-3 rounded-full mt-4" style="background-color:#22c55e;box-shadow:0 0 10px rgba(34,197,94,0.8);"></div>
+              </div>
+            </div>
+            <div class="text-sm font-bold text-gray-600 mt-2">컴퓨터 내부</div>
+          </div>
+
+          <!-- 화살표 + 이진수 -->
+          <div class="text-center">
+            <div class="arrow-text">→</div>
+            <div class="mt-2 font-mono text-xl font-bold text-gray-800" id="binaryDisplay">00000000</div>
+            <div class="text-sm font-bold text-gray-600 mt-1">이진수</div>
+          </div>
+
+          <!-- 모니터 -->
+          <div class="text-center">
+            <div class="w-40 h-32 bg-black rounded-xl border-4 border-gray-800 flex items-center justify-center text-green-400 text-6xl font-mono shadow-xl" id="monitor"></div>
+            <div class="text-sm font-bold text-gray-600 mt-2">모니터</div>
+          </div>
+
         </div>
       </div>
-    `).join('');
+
+      <!-- 한글 배너 -->
+      <div id="hangulBanner" class="mt-4 rounded-xl p-4 text-center border-2 border-orange-400"
+           style="background: linear-gradient(to right, #fef2f2, #fff7ed);">
+        <p class="font-bold text-orange-700 text-base mb-1">🇰🇷 한글은 16비트(2바이트)가 필요해요!</p>
+        <div class="flex justify-center items-center gap-3 my-2 flex-wrap">
+          <div class="bg-white rounded-lg px-3 py-2 border border-orange-300">
+            <div class="text-sm text-gray-500 mb-1">상위 바이트 (8비트)</div>
+            <div class="font-mono font-bold text-orange-600 text-base" id="hangulByte1">00000000</div>
+          </div>
+          <span class="font-bold text-orange-500 text-xl">+</span>
+          <div class="bg-white rounded-lg px-3 py-2 border border-orange-300">
+            <div class="text-sm text-gray-500 mb-1">하위 바이트 (8비트)</div>
+            <div class="font-mono font-bold text-orange-600 text-base" id="hangulByte2">00000000</div>
+          </div>
+          <span class="font-bold text-gray-500 text-xl">=</span>
+          <div class="rounded-lg px-3 py-2 border border-orange-400" style="background-color:#ffedd5;">
+            <div class="text-sm text-orange-700 mb-1">유니코드 16비트</div>
+            <div class="font-mono font-bold text-red-600 text-base" id="hangulFull">0000000000000000</div>
+          </div>
+        </div>
+        <p class="text-base text-gray-600 mt-1">
+          💡 한글은 글자 수가 <span class="font-bold text-red-600">11,172개</span>나 되기 때문에<br>
+          8비트(256가지)로는 <span class="font-bold">절대 부족</span>해요! → <span class="font-bold text-blue-600">유니코드(16비트)</span>로 해결했답니다.
+        </p>
+      </div>
+
+      <!-- 이진수 & 변환 예시 카드 -->
+      <div class="grid md:grid-cols-2 gap-6 mt-6">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-200">
+          <h3 class="text-xl font-bold text-green-900 mb-3">📊 이진수란?</h3>
+          <div class="space-y-3 text-base text-gray-700">
+            <div class="bg-white p-3 rounded-lg">
+              <p class="font-bold mb-1">십진수 (우리가 사용하는 숫자)</p>
+              <p>0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - 총 10개의 숫자 사용</p>
+            </div>
+            <div class="bg-white p-3 rounded-lg">
+              <p class="font-bold mb-1">이진수 (컴퓨터가 사용하는 숫자)</p>
+              <p>0, 1 - 총 2개의 숫자만 사용</p>
+            </div>
+            <p class="pt-2 border-t border-green-200">
+              💡 컴퓨터는 전기의 <span class="font-bold text-green-600">ON(1)</span>과
+              <span class="font-bold text-blue-600">OFF(0)</span>만 구분할 수 있어서 이진수를 사용해요!
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-5 rounded-xl border border-blue-200">
+          <h3 class="text-xl font-bold text-blue-900 mb-3">
+            <span class="relative inline-block cursor-pointer transition-transform hover:scale-110" id="tooltipWrap" style="display:inline-block;">
+              🔢
+              <span id="tooltipBubble">&#xCC38;&#xC0C8;</span>
+            </span>
+            변환 예시
+          </h3>
+          <div class="space-y-2 text-base">
+            <div class="bg-white p-3 rounded-lg flex justify-between items-center">
+              <span class="font-bold text-xl">A</span>
+              <span class="text-gray-400">→</span>
+              <span class="text-xl text-blue-600 font-bold font-mono">01000001</span>
+            </div>
+            <div class="bg-white p-3 rounded-lg flex justify-between items-center">
+              <span class="font-bold text-xl">B</span>
+              <span class="text-gray-400">→</span>
+              <span class="text-xl text-blue-600 font-bold font-mono">01000010</span>
+            </div>
+            <div class="bg-white p-3 rounded-lg flex justify-between items-center">
+              <span class="font-bold text-xl">1</span>
+              <span class="text-gray-400">→</span>
+              <span class="text-xl text-blue-600 font-bold font-mono">00110001</span>
+            </div>
+            <p class="text-base text-gray-600 pt-2 text-center">* 각 문자는 고유한 8자리 이진수를 가져요!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASCII ↔ 유니코드 변환 체험기 -->
+      <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-5 rounded-xl border border-indigo-200 mt-6">
+        <h3 class="text-xl font-bold text-indigo-900 mb-3">🔍 ASCII ↔ 유니코드 직접 변환해보기</h3>
+        <div class="flex gap-2 items-center mb-3">
+          <input type="text" id="asciiInput" maxlength="1" placeholder="한 글자 입력..."
+            class="border-2 border-indigo-400 rounded-lg px-3 py-2 text-base font-bold w-36 focus:outline-none focus:border-indigo-600"
+            style="font-family:inherit;" />
+          <span id="asciiHint" class="text-base text-gray-500" style="display:none;">← 한 글자만 입력하세요. 한글은 입력 후 엔터키를 누르세요.</span>
+        </div>
+        <div id="asciiResult" class="bg-white rounded-xl border border-indigo-200 p-4 md:grid-cols-2 gap-3 text-base" style="align-items:start;">
+          <div class="space-y-2">
+            <div class="flex justify-between items-center bg-indigo-50 rounded-lg px-3 py-2" style="min-height:2.5rem;">
+              <span class="text-gray-600">입력 문자</span>
+              <span class="font-bold text-base" id="asc_ch"></span>
+            </div>
+            <div class="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2" style="min-height:2.5rem;">
+              <span class="text-gray-600">십진수 코드</span>
+              <span class="text-base font-bold text-gray-800" id="asc_dec"></span>
+            </div>
+            <div class="flex justify-between items-center bg-indigo-50 rounded-lg px-3 py-2" style="min-height:2.5rem;">
+              <span class="text-gray-600">ASCII (8비트)</span>
+              <span class="text-base font-bold" id="asc_ascii"></span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center bg-purple-50 rounded-lg px-3 py-2" style="min-height:2.5rem;">
+              <span class="text-gray-600">유니코드</span>
+              <span class="text-base font-bold text-purple-600" id="asc_uni"></span>
+            </div>
+            <div class="flex justify-between items-center bg-purple-50 rounded-lg px-3 py-2" style="min-height:2.5rem;">
+              <span class="text-gray-600">유니코드 16비트</span>
+              <span class="text-base font-bold text-purple-600" id="asc_uni16"></span>
+            </div>
+            <div class="flex justify-between items-center bg-orange-50 rounded-lg px-3 py-2" style="min-height:2.5rem;">
+              <span class="text-gray-600">UTF-8 크기</span>
+              <span class="font-bold text-base" id="asc_utf8"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 더 알아보기 -->
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 mt-6">
+        <h3 class="text-xl font-bold text-purple-900 mb-3">🤔 더 알아보기</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <h4 class="font-bold text-base text-indigo-600 mb-2">왜 8개의 비트를 사용할까요?</h4>
+            <p class="text-base text-gray-700">
+              8개의 0과 1로 만들 수 있는 조합은 2×2×2×2×2×2×2×2 =
+              <span class="font-bold text-red-600">256가지</span>입니다.
+              이것으로 영어 대소문자, 숫자, 특수문자 등을 모두 표현할 수 있어요.
+              이 8비트를 <span class="font-bold text-purple-600">'1바이트(Byte)'</span>라고 부릅니다!
+            </p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <h4 class="font-bold text-base text-green-600 mb-2">한글은 어떻게 표현할까요?</h4>
+            <p class="text-base text-gray-700">
+              한글은 영어보다 글자 수가 훨씬 많아서 8비트로는 부족해요.
+              그래서 <span class="font-bold text-blue-600">16비트(2바이트) 이상</span>을 사용합니다.
+              이를 <span class="font-bold text-purple-600">'유니코드(Unicode)'</span> 방식이라고 해요!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신호 처리 과정 5단계 -->
+      <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-xl border border-orange-200 mt-6">
+        <h3 class="text-xl font-bold text-orange-900 mb-3">⚡ 신호 처리 과정 — 자세히 들여다보기</h3>
+        <div class="space-y-3 text-base text-gray-700">
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
+            <div class="flex-1">
+              <p class="font-bold text-indigo-700">키 누름 (Key Press)</p>
+              <p>키보드의 'A'를 누르면 키보드 내부 회로의 스위치가 닫히면서 전기 신호가 발생합니다.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 pl-4">
+            <div class="flex flex-col items-center">
+              <div style="width:2px;height:1rem;background:#d1d5db;"></div>
+              <div class="text-gray-400">▼</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+            <div class="flex-1">
+              <p class="font-bold text-sky-700">스캔코드(Scan Code) 생성</p>
+              <p>키보드 안의 <span class="font-bold">키보드 컨트롤러(작은 칩)</span>가 어떤 키가 눌렸는지 고유한 번호인 <span class="font-bold text-sky-600">스캔코드</span>를 만들어요. 예: 'A' → 스캔코드 30</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 pl-4">
+            <div class="flex flex-col items-center">
+              <div style="width:2px;height:1rem;background:#d1d5db;"></div>
+              <div class="text-gray-400">▼</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+            <div class="flex-1">
+              <p class="font-bold text-green-700">전기 신호 전달 (USB/PS2 케이블)</p>
+              <p>스캔코드가 <span class="font-bold">USB 또는 PS/2 케이블</span>을 통해 컴퓨터 본체로 전달됩니다. 높은 전압(1)과 낮은 전압(0)의 조합으로요!</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 pl-4">
+            <div class="flex flex-col items-center">
+              <div style="width:2px;height:1rem;background:#d1d5db;"></div>
+              <div class="text-gray-400">▼</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
+            <div class="flex-1">
+              <p class="font-bold text-yellow-700">🌐 운영체제(OS)가 통역사 역할!</p>
+              <p>Windows, macOS, Linux 등 <span class="font-bold text-yellow-700">운영체제</span>가 스캔코드를 받아서 <span class="font-bold text-blue-600">유니코드(Unicode) 문자 코드</span>로 변환해줘요.</p>
+              <div class="mt-2 bg-yellow-100 rounded-lg px-3 py-2 border border-yellow-300 text-base">
+                💬 <span class="font-bold">비유:</span> 스캔코드는 "30번 버튼이 눌렸어요" 라는 신호고,<br>
+                OS는 "아, 그게 'A'라는 글자구나!" 하고 통역해줘요.
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 pl-4">
+            <div class="flex flex-col items-center">
+              <div style="width:2px;height:1rem;background:#d1d5db;"></div>
+              <div class="text-gray-400">▼</div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">5</div>
+            <div class="flex-1">
+              <p class="font-bold text-purple-700">프로그램이 폰트로 화면에 그리기</p>
+              <p>크롬, 메모장 같은 <span class="font-bold">프로그램</span>이 유니코드 코드를 받아서 <span class="font-bold text-purple-600">폰트(글자 그림 파일)</span>를 찾아 화면에 그려줘요. 우리 눈에 보이는 'A' 모양은 사실 <span class="font-bold">그림</span>이랍니다!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 흐름도 -->
+        <div class="mt-4 bg-white rounded-xl p-3 border border-orange-200">
+          <p class="text-base font-bold text-gray-500 mb-2 text-center">🗺️ 전체 흐름 한눈에 보기</p>
+          <div class="flex items-center justify-center gap-1 flex-wrap text-base font-bold">
+            <span class="rounded-lg px-2 py-1 text-indigo-700 border border-indigo-300" style="background: linear-gradient(to right,#e0e7ff,#f3e8ff);">키 누름</span>
+            <span class="text-indigo-400">→</span>
+            <span class="rounded-lg px-2 py-1 text-indigo-700 border border-indigo-300" style="background: linear-gradient(to right,#e0e7ff,#f3e8ff);">스캔코드 생성</span>
+            <span class="text-indigo-400">→</span>
+            <span class="rounded-lg px-2 py-1 text-indigo-700 border border-indigo-300" style="background: linear-gradient(to right,#e0e7ff,#f3e8ff);">USB 전달</span>
+            <span class="text-indigo-400">→</span>
+            <span class="rounded-lg px-2 py-1 text-indigo-700 border border-indigo-300" style="background: linear-gradient(to right,#e0e7ff,#f3e8ff);">OS 통역</span>
+            <span class="text-indigo-400">→</span>
+            <span class="rounded-lg px-2 py-1 text-indigo-700 border border-indigo-300" style="background: linear-gradient(to right,#e0e7ff,#f3e8ff);">프로그램</span>
+            <span class="text-indigo-400">→</span>
+            <span class="rounded-lg px-2 py-1 text-indigo-700 border border-indigo-300" style="background: linear-gradient(to right,#e0e7ff,#f3e8ff);">화면 출력</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 퀴즈 -->
+      <div class="quiz-section">
+        <p class="quiz-title">🎯 배운 내용 확인하기</p>
+        <div id="quizQuestions"></div>
+        <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">🏁 결과 확인하기</button>
+        <div class="quiz-result" id="quizResult">
+          <div class="quiz-score-box">
+            <h3 class="text-3xl font-bold text-green-900">🎉 퀴즈 완료!</h3>
+            <div class="quiz-score-num" id="quizScoreNum"></div>
+            <p class="quiz-score-msg" id="quizScoreMsg"></p>
+          </div>
+          <div class="quiz-wrong-list" id="quizWrongList"></div>
+          <button class="quiz-reset" onclick="resetQuiz()">🔄 다시 풀기</button>
+        </div>
+      </div>
+
+      <!-- 홈 버튼 -->
+      <div class="mt-6 text-center">
+        <a href="index.html"
+           class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white w-64 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
+          🏠 홈으로 돌아가기
+        </a>
+      </div>
+    </div><!-- /p-8 -->
+  </div><!-- /max-w-7xl -->
+</div><!-- /root -->
+
+<script>
+(function () {
+  /* ── 상태 ── */
+  let binaryCode    = '00000000';
+  let binaryCode2   = '00000000';
+  let pendingBinary = '';
+  let currentChar   = '';
+  let keyButtonChar = '?';
+  let isHangul      = false;
+  let lights        = Array(8).fill(null).map(() => ({ value: '0', state: 'none' }));
+  let animStep      = -1;
+  let isAnimating   = false;
+  let isComposing   = false;
+  let charBuffer    = '';
+  let animTimer     = null;
+  const ANIM_MS     = 140;
+
+  /* ── 전구 HTML ── */
+  function lightsHTML() {
+    return lights.map((l) => {
+      const cls = l.state === 'on' ? 'on' : l.state === 'off' ? 'off' : '';
+      return `<div class="light ${cls}">${l.value}</div>`;
+    }).join('');
   }
 
-  function chooseAnswer(qid, optIdx) {
-    if (quizAnswers[qid] !== undefined) return;
-    quizAnswers[qid] = optIdx;
+  /* ── 전구 업데이트 ── */
+  function updateLights() {
+    const c = document.getElementById('lightsContainer');
+    if (c) c.innerHTML = lightsHTML();
+  }
 
-    const q = QUIZ_DATA.find(d => d.id === qid);
-    QUIZ_DATA[0]; // reference
+  /* ── Canvas 신호 그리기 ── */
+  function drawSignal(binary, step) {
+    const canvas = document.getElementById('signalCanvas');
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const bitW = 40, highY = 40, lowY = 80;
 
-    // 버튼 스타일 적용
-    q.options.forEach((_, j) => {
-      const btn = document.getElementById(`qbtn-${qid}-${j}`);
-      btn.disabled = true;
-      if (j === q.correct) {
-        btn.classList.add('correct');
-        btn.innerHTML += ' <strong style="color:#16a34a;">✓ 정답</strong>';
-      } else if (j === optIdx) {
-        btn.classList.add('wrong');
-        btn.innerHTML += ' <strong style="color:#dc2626;">✗</strong>';
-      }
+    ctx.clearRect(0, 0, 320, 120);
+    ctx.strokeStyle = '#e8e8e8';
+    ctx.lineWidth   = 1;
+    for (let i = 0; i <= 8; i++) {
+      ctx.beginPath(); ctx.moveTo(i * bitW, 0); ctx.lineTo(i * bitW, 120); ctx.stroke();
+    }
+    ctx.strokeStyle = '#667eea';
+    ctx.lineWidth   = 3;
+    ctx.beginPath();
+    const len = Math.min(step, 8);
+    let x = 0;
+    let y = (binary && binary[0] === '1') ? highY : lowY;
+    ctx.moveTo(x, y);
+    for (let i = 0; i < len; i++) {
+      const bit     = (binary && binary[i]) ? binary[i] : '0';
+      const targetY = bit === '1' ? highY : lowY;
+      ctx.lineTo(x, targetY);
+      y = targetY;
+      x = (i + 1) * bitW;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  /* ── 애니메이션 ── */
+  function runAnimation() {
+    if (!isAnimating) return;
+    if (animStep >= 0 && animStep < 8) {
+      animTimer = setTimeout(() => {
+        const bit     = pendingBinary[animStep] || '0';
+        lights        = lights.slice();
+        lights[animStep] = { value: bit, state: bit === '1' ? 'on' : 'off' };
+        updateLights();
+        drawSignal(pendingBinary, animStep + 1);
+        animStep++;
+        runAnimation();
+      }, ANIM_MS);
+    } else if (animStep >= 8) {
+      isAnimating = false;
+      animStep    = -1;
+      binaryCode  = pendingBinary;
+      const bd = document.getElementById('binaryDisplay');
+      if (bd) bd.textContent = binaryCode;
+
+      setTimeout(() => {
+        currentChar = charBuffer;
+        const mon = document.getElementById('monitor');
+        if (mon) mon.textContent = currentChar;
+
+        // 한글 배너 업데이트
+        if (isHangul) {
+          document.getElementById('hangulByte1').textContent = binaryCode;
+          document.getElementById('hangulByte2').textContent = binaryCode2;
+          document.getElementById('hangulFull').textContent  = binaryCode + binaryCode2;
+          document.getElementById('hangulBanner').classList.add('show');
+        }
+      }, 300);
+    }
+  }
+
+  /* ── 문자 입력 처리 ── */
+  function handleCharInput(char) {
+    if (!char || char.length === 0) return;
+    const ch   = char[0];
+    const code = ch.codePointAt(0);
+    const hangul = code >= 0xAC00 && code <= 0xD7A3;
+    isHangul = hangul;
+
+    let bin, bin2 = null;
+    if (hangul) {
+      bin  = ((code >> 8) & 0xFF).toString(2).padStart(8, '0');
+      bin2 = (code & 0xFF).toString(2).padStart(8, '0');
+      binaryCode2 = '00000000';
+    } else {
+      bin  = (code & 0xFF).toString(2).padStart(8, '0');
+      binaryCode2 = '00000000';
+    }
+
+    keyButtonChar = ch;
+    pendingBinary = bin;
+    currentChar   = '';
+    charBuffer    = ch;
+    lights        = Array(8).fill(null).map(() => ({ value: '0', state: 'none' }));
+
+    // 한글 배너 숨기기
+    document.getElementById('hangulBanner').classList.remove('show');
+
+    if (animTimer) clearTimeout(animTimer);
+    animStep    = 0;
+    isAnimating = true;
+
+    // 키버튼 눌림 효과
+    const kb = document.getElementById('keyBtn');
+    if (kb) {
+      kb.textContent     = ch;
+      kb.style.transform = 'scale(0.92)';
+      setTimeout(() => { kb.style.transform = ''; }, 120);
+    }
+
+    const mon = document.getElementById('monitor');
+    if (mon) mon.textContent = '';
+
+    drawSignal('00000000', 0);
+    updateLights();
+
+    // 한글이면 하위 바이트 저장
+    if (hangul && bin2) {
+      setTimeout(() => { binaryCode2 = bin2; }, 8 * ANIM_MS + 400);
+    }
+
+    runAnimation();
+  }
+
+  /* ── 키보드 이벤트 ── */
+  document.addEventListener('keydown', (e) => {
+    if (isComposing || e.key.length !== 1) return;
+    handleCharInput(e.key);
+  });
+  document.addEventListener('compositionstart', () => { isComposing = true; });
+  document.addEventListener('compositionend',   (e) => {
+    isComposing = false;
+    if (e.data) handleCharInput(e.data);
+  });
+
+  /* ── 초기 신호 그리기 / 전구 초기화 ── */
+  updateLights();
+  drawSignal('00000000', 8);
+
+  /* ── 툴팁 ── */
+  const tooltipWrap   = document.getElementById('tooltipWrap');
+  const tooltipBubble = document.getElementById('tooltipBubble');
+  if (tooltipWrap && tooltipBubble) {
+    tooltipWrap.addEventListener('click', () => {
+      tooltipBubble.classList.add('show');
+      setTimeout(() => tooltipBubble.classList.remove('show'), 500);
     });
-
-    // 해설 표시
-    const exp = document.getElementById(`qexp-${qid}`);
-    exp.classList.add('show');
-
-    // 모두 답했으면 제출 버튼 표시
-    if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
-      document.getElementById('quizSubmit').style.display = 'block';
-    }
   }
 
-  function submitQuiz() {
-    const score = QUIZ_DATA.filter(q => quizAnswers[q.id] === q.correct).length;
-    const total = QUIZ_DATA.length;
+  /* ── ASCII 변환기 ── */
+  const asciiInput = document.getElementById('asciiInput');
+  if (asciiInput) {
+    asciiInput.addEventListener('input', function () {
+      const val = this.value;
+      const hint   = document.getElementById('asciiHint');
+      const result = document.getElementById('asciiResult');
+      if (!val) {
+        hint.style.display   = 'none';
+        result.classList.remove('show');
+        return;
+      }
+      hint.style.display = 'inline';
+      const ch   = val[0];
+      const code = ch.codePointAt(0);
+      const ascii    = code <= 127 ? code.toString(2).padStart(8, '0') : null;
+      const uni16    = 'U+' + code.toString(16).toUpperCase().padStart(4, '0');
+      const uniBin   = code.toString(2).padStart(16, '0');
+      const utf8size = code <= 0x7F   ? '1바이트 (영어/숫자)'
+                     : code <= 0x7FF  ? '2바이트'
+                     : code <= 0xFFFF ? '3바이트 (한글 등)'
+                     : '4바이트';
 
-    document.getElementById('quizQuestions').style.display = 'none';
-    document.getElementById('quizSubmit').style.display = 'none';
+      document.getElementById('asc_ch').textContent    = ch;
+      document.getElementById('asc_dec').textContent   = code;
+      document.getElementById('asc_uni').textContent   = uni16;
+      document.getElementById('asc_uni16').textContent = uniBin.slice(0,8) + ' ' + uniBin.slice(8);
 
-    document.getElementById('quizScoreNum').textContent = score + ' / ' + total;
-    document.getElementById('quizScoreMsg').textContent =
-      score === total ? '완벽해요! 모든 문제를 맞히셨네요! 🎊' :
-      score >= Math.ceil(total * 0.7) ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍' :
-      '다시 한 번 복습해보세요! 💪';
+      const asciiEl = document.getElementById('asc_ascii');
+      if (ascii) {
+        asciiEl.textContent  = ascii;
+        asciiEl.className    = 'text-base font-bold text-blue-600';
+      } else {
+        asciiEl.textContent  = 'ASCII 범위 초과 (없음)';
+        asciiEl.className    = 'text-base font-bold text-red-500';
+      }
 
-    const wrongList = document.getElementById('quizWrongList');
-    const wrongs = QUIZ_DATA.filter(q => quizAnswers[q.id] !== q.correct);
-    wrongList.innerHTML = wrongs.map(q => `
-      <div class="quiz-wrong-card">
-        <p style="font-weight:700;color:#b91c1c;margin-bottom:0.25rem;">❌ 틀린 문제: ${q.q}</p>
-        <p><strong style="color:#16a34a;">정답: </strong>${q.options[q.correct]}</p>
-        <p style="margin-top:0.25rem;color:#4b5563;">${q.explanation}</p>
+      const utf8El = document.getElementById('asc_utf8');
+      utf8El.textContent = utf8size;
+      utf8El.className   = utf8size.includes('1바이트')
+        ? 'font-bold text-base rounded-full bg-green-100 text-green-700 px-2'
+        : 'font-bold text-base rounded-full bg-orange-100 text-orange-700 px-2';
+
+      result.classList.add('show');
+    });
+  }
+
+})();
+
+/* ════════════ 퀴즈 ════════════ */
+const QUIZ_DATA = [
+  {
+    id: 1,
+    q: '컴퓨터가 이진수(0과 1)를 사용하는 가장 큰 이유는 무엇인가요?',
+    options: [
+      '숫자가 두 개라서 계산이 쉽기 때문에',
+      '전기의 ON(켜짐)과 OFF(꺼짐) 두 가지 상태만 구분할 수 있기 때문에',
+      '이진수가 십진수보다 빠르게 전송되기 때문에',
+      '사람이 읽기 더 편리하기 때문에'
+    ],
+    correct: 1,
+    explanation: '컴퓨터 내부 회로는 전기가 흐르는 상태(1, ON)와 흐르지 않는 상태(0, OFF)만 구분할 수 있어요. 그래서 모든 데이터를 0과 1로 표현하는 이진수를 사용합니다!'
+  },
+  {
+    id: 2,
+    q: '8개의 비트(bit)로 만들 수 있는 조합은 총 몇 가지인가요?',
+    options: ['8가지', '16가지', '128가지', '256가지'],
+    correct: 3,
+    explanation: '2×2×2×2×2×2×2×2 = 2⁸ = 256가지입니다. 이 256가지 조합으로 영어 대소문자, 숫자, 특수문자를 모두 표현할 수 있어요!'
+  },
+  {
+    id: 3,
+    q: '8비트(bit)를 묶어서 부르는 단위는 무엇인가요?',
+    options: ['킬로바이트(KB)', '바이트(Byte)', '워드(Word)', '니블(Nibble)'],
+    correct: 1,
+    explanation: '8비트(bit)를 묶으면 1바이트(Byte)가 됩니다. 컴퓨터에서 데이터 용량을 표현할 때 가장 기본이 되는 단위예요!'
+  },
+  {
+    id: 4,
+    q: "키보드에서 'A'를 누를 때 발생하는 신호 처리 순서로 올바른 것은?",
+    options: [
+      '모니터 출력 → 전기 신호 → 컴퓨터 처리 → 키보드 입력',
+      '전기 신호 → 키보드 입력 → 모니터 출력 → 컴퓨터 처리',
+      '키보드 입력 → 전기 신호 → 컴퓨터 처리 → 모니터 출력',
+      '컴퓨터 처리 → 키보드 입력 → 전기 신호 → 모니터 출력'
+    ],
+    correct: 2,
+    explanation: '키보드 키를 누르면 → 전기 신호가 발생하고 → 컴퓨터 CPU가 이진수로 해석한 뒤 → 모니터에 문자가 출력됩니다!'
+  },
+  {
+    id: 5,
+    q: '한글을 컴퓨터에서 표현할 때 영어보다 더 많은 비트가 필요한 이유는?',
+    options: [
+      '한글이 더 복잡하게 생겼기 때문에',
+      '한글 글자 수가 영어보다 훨씬 많아서 8비트(256가지)로는 부족하기 때문에',
+      '한국 컴퓨터가 구형이기 때문에',
+      '한글은 가로로 쓰기 때문에'
+    ],
+    correct: 1,
+    explanation: '영어는 대소문자 합쳐 52자 정도라 8비트(256가지)로 충분하지만, 한글은 자음·모음 조합으로 수천 개의 글자가 만들어져요. 그래서 16비트(2바이트) 이상을 사용하는 유니코드(Unicode) 방식이 필요합니다!'
+  }
+];
+
+const quizAnswers = {};
+
+function buildQuiz() {
+  const container = document.getElementById('quizQuestions');
+  container.innerHTML = QUIZ_DATA.map((q, i) => `
+    <div class="quiz-card" id="qcard-${q.id}">
+      <p class="quiz-q">Q${i + 1}. ${q.q}</p>
+      <div class="quiz-options">
+        ${q.options.map((opt, j) => `
+          <button class="quiz-btn" id="qbtn-${q.id}-${j}" onclick="chooseAnswer(${q.id}, ${j})">
+            ${j + 1}. ${opt}
+          </button>
+        `).join('')}
       </div>
-    `).join('');
+      <div class="quiz-explanation" id="qexp-${q.id}">
+        <strong style="color:#4f46e5;">설명: </strong>${q.explanation}
+      </div>
+    </div>
+  `).join('');
+}
 
-    document.getElementById('quizResult').classList.add('show');
+function chooseAnswer(qid, optIdx) {
+  if (quizAnswers[qid] !== undefined) return;
+  quizAnswers[qid] = optIdx;
+  const q = QUIZ_DATA.find(d => d.id === qid);
+  q.options.forEach((_, j) => {
+    const btn = document.getElementById(`qbtn-${qid}-${j}`);
+    btn.disabled = true;
+    if (j === q.correct) {
+      btn.classList.add('correct');
+      btn.innerHTML += ' <strong style="color:#16a34a;">✓ 정답</strong>';
+    } else if (j === optIdx) {
+      btn.classList.add('wrong');
+      btn.innerHTML += ' <strong style="color:#dc2626;">✗</strong>';
+    }
+  });
+  document.getElementById(`qexp-${qid}`).classList.add('show');
+  if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+    document.getElementById('quizSubmit').style.display = 'block';
   }
+}
 
-  function resetQuiz() {
-    Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
-    document.getElementById('quizResult').classList.remove('show');
-    document.getElementById('quizQuestions').style.display = 'block';
-    buildQuiz();
-  }
+function submitQuiz() {
+  const score = QUIZ_DATA.filter(q => quizAnswers[q.id] === q.correct).length;
+  const total = QUIZ_DATA.length;
+  document.getElementById('quizQuestions').style.display = 'none';
+  document.getElementById('quizSubmit').style.display    = 'none';
+  document.getElementById('quizScoreNum').textContent    = score + ' / ' + total;
+  document.getElementById('quizScoreMsg').textContent    =
+    score === total          ? '완벽해요! 모든 문제를 맞히셨네요! 🎊' :
+    score >= Math.ceil(total * 0.7) ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍' :
+                               '다시 한 번 복습해보세요! 💪';
+  const wrongs = QUIZ_DATA.filter(q => quizAnswers[q.id] !== q.correct);
+  document.getElementById('quizWrongList').innerHTML = wrongs.map(q => `
+    <div class="quiz-wrong-card">
+      <p style="font-weight:700;color:#b91c1c;margin-bottom:0.25rem;">❌ 틀린 문제: ${q.q}</p>
+      <p><strong style="color:#16a34a;">정답: </strong>${q.options[q.correct]}</p>
+      <p style="margin-top:0.25rem;color:#4b5563;">${q.explanation}</p>
+    </div>
+  `).join('');
+  document.getElementById('quizResult').classList.add('show');
+}
 
+function resetQuiz() {
+  Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizQuestions').style.display = 'block';
   buildQuiz();
-  </script>
+}
+
+buildQuiz();
+</script>
 </body>
 </html>
