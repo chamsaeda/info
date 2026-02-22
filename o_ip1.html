@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IP 주소의 종류</title>
+<style>
+/* ── 리셋 & 기본 ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:linear-gradient(135deg,#06b6d4 0%,#3b82f6 50%,#8b5cf6 100%);min-height:100vh;padding:20px;font-size:16px}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+table{border-collapse:collapse;width:100%}
+
+/* ── 레이아웃 ── */
+.wrap{max-width:900px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+
+/* ── 헤더 ── */
+.hdr{background:linear-gradient(135deg,#0891b2,#2563eb);padding:24px 28px;color:#fff}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hdr-sub{font-size:16px;color:#bfdbfe}
+.hdr h1{font-size:30px;font-weight:800;margin-bottom:4px}
+.hdr p{font-size:14px;color:#bfdbfe}
+.btn-home{background:#fff;color:#0891b2;padding:8px 14px;border-radius:8px;font-weight:700;font-size:16px;border:none;text-decoration:none;display:flex;align-items:center;gap:6px}
+.btn-home:hover{background:#e0f2fe}
+
+/* ── 탭 메뉴 ── */
+.tabs{background:#f1f5f9;padding:12px 16px;display:flex;gap:8px;overflow-x:auto;border-bottom:1px solid #e2e8f0}
+.tabs::-webkit-scrollbar{height:4px}
+.tabs::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:2px}
+.tab-btn{padding:10px 16px;border-radius:8px;border:none;background:#fff;color:#475569;font-weight:700;white-space:nowrap;transition:all .2s}
+.tab-btn:hover{background:#e0f2fe;color:#0891b2}
+.tab-btn.active{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;box-shadow:0 4px 12px rgba(8,145,178,.35)}
+
+/* ── 탭 패널 ── */
+.panel{display:none;padding:28px;animation:slideIn .4s ease}
+.panel.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── 공통 박스 ── */
+.box{border-radius:12px;padding:20px;margin-bottom:18px}
+.box-green{background:#f0fdf4;border:1px solid #86efac}
+.box-yellow{background:#fefce8;border:1px solid #fde047}
+.box-red{background:#fff1f2;border:1px solid #fca5a5}
+.box-purple{background:#faf5ff;border:1px solid #d8b4fe}
+.box-blue{background:#eff6ff;border:1px solid #93c5fd}
+.box-cyan{background:#ecfeff;border:1px solid #67e8f9}
+.box-orange{background:#fff7ed;border:1px solid #fdba74}
+.box-indigo{background:#eef2ff;border:1px solid #a5b4fc}
+.box-sky{background:#f0f9ff;border:1px solid #7dd3fc}
+.box-white{background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.box-gray{background:#f8fafc;border:1px solid #cbd5e1}
+
+.box-title{font-weight:800;font-size:18px;margin-bottom:10px}
+.t-green{color:#166534}.t-yellow{color:#854d0e}.t-red{color:#991b1b}.t-purple{color:#6b21a8}
+.t-blue{color:#1e40af}.t-cyan{color:#164e63}.t-orange{color:#9a3412}.t-indigo{color:#3730a3}
+.t-sky{color:#0c4a6e}.t-gray{color:#374151}
+
+/* ── 그리드 ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+/* ── 카드 ── */
+.card{border-radius:10px;padding:14px;text-align:center}
+.card-icon{font-size:30px;margin-bottom:6px}
+.card-title{font-weight:700;font-size:16px;margin-bottom:4px}
+.card-desc{font-size:14px;color:#64748b}
+.card-desc.mono{font-size:14px;font-family:'Courier New',monospace;color:#374151}
+
+/* ── 버튼 ── */
+.btn{padding:10px 20px;border-radius:8px;border:none;font-weight:700;transition:all .2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none }
+.btn-cyan{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff}
+.btn-cyan:hover{box-shadow:0 4px 12px rgba(8,145,178,.4)}
+.btn-green{background:linear-gradient(135deg,#16a34a,#0d9488);color:#fff}
+.btn-green:hover{box-shadow:0 4px 12px rgba(22,163,74,.4)}
+.btn-purple{background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff}
+.btn-purple:hover{box-shadow:0 4px 12px rgba(124,58,237,.4)}
+.btn-gray{background:#e2e8f0;color:#374151}
+.btn-gray:hover{background:#cbd5e1}
+.btn-full{width:100%;justify-content:center;padding:14px}
+
+/* ── 배지 ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.badge-cyan{background:#cffafe;color:#164e63}
+
+/* ── 모노스페이스 ── */
+.mono{font-family:'Courier New',monospace}
+.code-block{background:#0f172a;color:#4ade80;padding:16px;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8}
+.code-yellow{color:#fde047}
+.code-gray{color:#94a3b8}
+.code-white{color:#fff}
+
+/* ── 장단점 ── */
+.pros-cons li{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:16px}
+.pros-cons li::marker{content:''}
+.pros-cons{list-style:none;padding:0}
+
+/* ── 체크 아이콘 ── */
+.chk-g{color:#16a34a;font-weight:900}
+.chk-r{color:#dc2626;font-weight:900}
+
+/* ── 홈 버튼 하단 ── */
+.footer-home{text-align:center;padding:24px;border-top:1px solid #e2e8f0}
+
+/* ── 네트워크 시각화 ── */
+.net-vis{display:grid;grid-template-columns:1fr 60px 1fr;gap:8px;align-items:center}
+.net-box{border-radius:12px;border:2px solid;padding:12px}
+.net-box-blue{background:#eff6ff;border-color:#93c5fd}
+.net-box-purple{background:#faf5ff;border-color:#d8b4fe}
+.dev-btn{width:100%;padding:8px 10px;border-radius:8px;border:2px solid;background:#fff;margin-bottom:6px;font-size:13px;transition:all .2s;text-align:left}
+.dev-btn:last-child{margin-bottom:0}
+.dev-btn-blue{border-color:#93c5fd}.dev-btn-blue:hover{border-color:#3b82f6}
+.dev-btn-blue.sel{background:#3b82f6;color:#fff;border-color:#1d4ed8}
+.dev-btn-purple{border-color:#d8b4fe}.dev-btn-purple:hover{border-color:#7c3aed}
+.dev-btn-purple.sel{background:#7c3aed;color:#fff;border-color:#4c1d95}
+.gw-box{text-align:center;padding:10px;border-radius:12px;border:3px solid #cbd5e1;background:#f8fafc;transition:all .3s}
+.gw-box.active{background:#fef9c3;border-color:#ca8a04}
+
+/* ── DNS 체험 ── */
+.dns-flow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.dns-node{text-align:center;padding:14px;border-radius:12px;border:2px solid;min-width:90px;transition:all .4s;opacity:.35}
+.dns-node.on{opacity:1;transform:scale(1.05)}
+.dns-node-pc{background:#eff6ff;border-color:#93c5fd}
+.dns-node-srv{background:#fefce8;border-color:#fde047}
+.dns-node-ok{background:#f0fdf4;border-color:#86efac}
+.dns-arrow{font-size:24px;color:#cbd5e1;transition:all .3s;text-align:center;min-width:30px}
+.dns-arrow.on{color:#16a34a;transform:scale(1.3)}
+.dns-quick-btn{padding:8px 14px;border-radius:999px;border:2px solid #86efac;background:#f0fdf4;color:#166534;font-weight:700;font-size:16px;font-family:'Courier New',monospace;margin:4px;cursor:pointer}
+.dns-quick-btn:hover{background:#bbf7d0}
+.dns-quick-btn:disabled{opacity:.4;cursor:default}
+
+/* ── 서브넷 비트 ── */
+.bit-grid{display:flex;flex-wrap:wrap;gap:3px}
+.bit{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Courier New',monospace}
+.bit-net{background:#e9d5ff;color:#5b21b6}
+.bit-sep{width:8px}
+.bit-host{background:#ffedd5;color:#c2410c}
+
+/* ── NAT 시각화 ── */
+.nat-vis{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:20px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;min-height:160px;flex-wrap:wrap}
+.nat-node{text-align:center;padding:12px 14px;border-radius:10px;border:2px solid;min-width:90px;transition:all .4s}
+.nat-arrow{font-size:30px;color:#94a3b8;min-width:30px;text-align:center;transition:all .3s}
+.nat-arrow.on{color:#16a34a}
+.nat-arrow.rev{color:#0ea5e9}
+
+/* ── 진행바 ── */
+.progress-bar{display:flex;gap:4px;margin-top:10px}
+.progress-seg{flex:1;height:6px;border-radius:999px;background:#e2e8f0;transition:background .3s}
+.progress-seg.done{background:#7c3aed}
+
+/* ── 서브넷 계산기 ── */
+.ip-inputs{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.oct-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.oct-label{font-size:11px;color:#94a3b8}
+.oct-input{width:60px;height:48px;text-align:center;font-size:18px;font-weight:700;border:2px solid #c4b5fd;border-radius:10px;color:#6b21a8;font-family:'Courier New',monospace;outline:none}
+.oct-input:focus{border-color:#7c3aed}
+.oct-input.err{border-color:#f87171;background:#fff1f2;color:#dc2626}
+.oct-err{font-size:11px;color:#dc2626;height:14px}
+.oct-dot{font-size:22px;font-weight:700;color:#94a3b8;margin-top:16px}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.result-grid{grid-template-columns:1fr 1fr}}
+.result-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.result-label{font-size:14px;color:#000000;margin-bottom:4px}
+.result-val{font-family:'Courier New',monospace;font-weight:700;font-size:16px}
+.result-desc{font-size:14px;color:#6b7280;margin-top:4px}
+.range-wrap{display:flex;align-items:center;gap:8px;margin:8px 0}
+.range-wrap input[type=range]{flex:1;accent-color:#7c3aed}
+.cidr-num{width:54px;height:38px;text-align:center;font-size:16px;font-weight:700;border:2px solid #c4b5fd;border-radius:8px;color:#6b21a8;font-family:'Courier New',monospace;outline:none}
+
+/* ── 퀴즈 ── */
+.quiz-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:16px}
+.quiz-q{font-weight:700;font-size:16px;margin-bottom:12px}
+.opt-btn{width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:2px solid #e2e8f0;background:#fff;margin-bottom:6px;transition:all .2s;font-size:16px}
+.opt-btn:hover:not(:disabled){background:#ecfeff;border-color:#0891b2}
+.opt-btn.correct{background:#f0fdf4;border-color:#4ade80}
+.opt-btn.wrong{background:#fff1f2;border-color:#f87171}
+.opt-btn:disabled{cursor:default}
+.explain-box{background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px;margin-top:10px;font-size:16px}
+
+/* ── 테이블 ── */
+.nice-table{width:100%;border-collapse:collapse;font-size:16px}
+.nice-table th{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;padding:10px;text-align:center}
+.nice-table td{padding:10px;text-align:center;border-top:1px solid #e2e8f0}
+.nice-table tr:hover td{background:#f0f9ff}
+
+/* ── 비교표 (라우터 vs GW) ── */
+.cmp-table th{background:linear-gradient(135deg,#0284c7,#4f46e5);color:#fff;padding:10px;text-align:center}
+.cmp-table td{padding:10px;border-top:1px solid #e2e8f0}
+.cmp-table td:first-child{background:#f8fafc;font-weight:700;color:#475569;text-align:center}
+
+/* ── 유동 IP 카드 ── */
+.ip-card{border-radius:16px;border:4px solid;padding:20px;text-align:center}
+.ip-card-cyan{background:linear-gradient(135deg,#cffafe,#bfdbfe);border-color:#0891b2}
+.ip-card-purple{background:linear-gradient(135deg,#f3e8ff,#fce7f3);border-color:#7c3aed}
+
+/* ── 기기 추가 ── */
+.device-chip{background:#fff;border:1px solid #67e8f9;border-radius:8px;padding:10px;text-align:center;min-width:90px}
+
+/* ── ipconfig 터미널 ── */
+.terminal{background:#0f172a;color:#4ade80;padding:16px;border-radius:10px;font-family:'Courier New',monospace;font-size:13px;line-height:1.9}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <span class="hdr-sub">고등학교 정보 학습자료</span>
+      <a href="index.html" class="btn-home">🏠 홈으로</a>
+    </div>
+    <h1>🌐 IP 주소의 종류</h1>
+    <p>고정/유동 IP와 공인/사설 IP, NAT를 재미있게 배워봅시다!</p>
+  </div>
+
+  <!-- 탭 메뉴 -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('fixed')">고정 IP vs 유동 IP</button>
+    <button class="tab-btn" onclick="showTab('pubpriv')">공인 IP vs 사설 IP</button>
+    <button class="tab-btn" onclick="showTab('nat')">NAT 원리</button>
+    <button class="tab-btn" onclick="showTab('dns')">DNS</button>
+    <button class="tab-btn" onclick="showTab('subnet')">서브넷 마스크</button>
+    <button class="tab-btn" onclick="showTab('gateway')">게이트웨이</button>
+    <button class="tab-btn" onclick="showTab('quiz')">퀴즈</button>
+  </div>
+
+  <!-- ══════════════ 탭 1: 고정 vs 유동 ══════════════ -->
+  <div id="tab-fixed" class="panel active">
+
+    <div class="box box-cyan">
+      <div class="box-title t-cyan">🏠 IP 주소가 뭐예요?</div>
+      <p style="color:#1e293b;line-height:1.7"><strong style="color:#2563eb">IP 주소</strong>는 인터넷에 연결된 컴퓨터나 스마트폰의 <strong style="color:#0891b2">주소</strong>예요. 마치 우리 집에 주소가 있어서 택배를 받을 수 있는 것처럼, 컴퓨터도 IP 주소가 있어야 인터넷에서 데이터를 주고받을 수 있어요!</p>
+      <div style="background:#fff;border:1px solid #67e8f9;border-radius:8px;padding:10px;margin-top:12px;font-size:16px">
+        <strong style="color:#0891b2">📍 예시:</strong> 192.168.0.1 처럼 점(.)으로 구분된 숫자들이에요.
+      </div>
+    </div>
+
+    <!-- 고정 vs 유동 시각 -->
+    <div class="box box-white">
+      <div style="display:flex;align-items:flex-start;justify-content:center;gap:40px;flex-wrap:wrap;padding:10px 0">
+        <!-- 고정 IP -->
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center">
+          <div style="font-size:30px;font-weight:800;color:#0891b2;margin-bottom:14px">🔒 고정 IP</div>
+          <div class="ip-card ip-card-cyan" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+            <div style="font-size:60px;margin-bottom:10px">🏠</div>
+            <div class="mono" style="font-size:20px;font-weight:700;color:#164e63">192.168.1.10</div>
+            <div style="font-size:16px;font-weight:700;color:#0891b2;margin-top:8px">절대 변하지 않는 주소!</div>
+          </div>
+          <!-- 버튼 자리 공백 (유동 IP 버튼 높이와 맞춤) -->
+          <div style="height:48px;margin-top:12px"></div>
+        </div>
+        <!-- vs -->
+        <div style="text-align:center;padding-top:60px">
+          <div style="font-size:20px;font-weight:800;color:#7c3aed">vs</div>
+          <div style="font-size:60px">⚡</div>
+        </div>
+        <!-- 유동 IP -->
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center">
+          <div style="font-size:30px;font-weight:800;color:#7c3aed;margin-bottom:14px">🔄 유동 IP</div>
+          <div class="ip-card ip-card-purple" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+            <div style="font-size:60px;margin-bottom:10px">🏠</div>
+            <div class="mono" style="font-size:20px;font-weight:700;color:#4c1d95" id="dynamic-ip">192.168.1.100</div>
+            <div style="font-size:16px;font-weight:700;color:#7c3aed;margin-top:8px">연결할 때마다 바뀌어요!</div>
+          </div>
+          <button class="btn btn-purple" style="margin-top:12px" onclick="changeDynamicIP()">인터넷 다시 연결</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 장단점 -->
+    <div class="grid2">
+      <div class="box box-cyan" style="margin-bottom:0">
+        <div class="box-title t-cyan">🔒 고정 IP</div>
+        <div class="box box-white" style="margin-bottom:8px">
+          <div style="font-weight:700;color:#16a34a;margin-bottom:6px">👍 장점</div>
+          <ul class="pros-cons">
+            <li><span class="chk-g">✓</span> 항상 같은 주소라서 서버 운영에 좋아요</li>
+            <li><span class="chk-g">✓</span> 외부에서 쉽게 접속할 수 있어요</li>
+            <li><span class="chk-g">✓</span> 게임 서버, 웹 서버 운영 가능</li>
+          </ul>
+        </div>
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;color:#dc2626;margin-bottom:6px">👎 단점</div>
+          <ul class="pros-cons">
+            <li><span class="chk-r">✗</span> 추가 비용이 들어요 (월 1~2만원)</li>
+            <li><span class="chk-r">✗</span> 보안에 더 신경써야 해요</li>
+          </ul>
+        </div>
+      </div>
+      <div class="box box-purple" style="margin-bottom:0">
+        <div class="box-title t-purple">🔄 유동 IP</div>
+        <div class="box box-white" style="margin-bottom:8px">
+          <div style="font-weight:700;color:#16a34a;margin-bottom:6px">👍 장점</div>
+          <ul class="pros-cons">
+            <li><span class="chk-g">✓</span> 무료로 사용할 수 있어요</li>
+            <li><span class="chk-g">✓</span> IP가 바뀌어서 보안에 유리해요</li>
+            <li><span class="chk-g">✓</span> 일반 인터넷 사용에 충분해요</li>
+          </ul>
+        </div>
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;color:#dc2626;margin-bottom:6px">👎 단점</div>
+          <ul class="pros-cons">
+            <li><span class="chk-r">✗</span> 서버 운영이 어려워요</li>
+            <li><span class="chk-r">✗</span> 외부에서 접속하기 힘들어요</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-yellow" style="margin-top:16px">
+      <div class="box-title t-yellow">💡 실생활에서는 이렇게 사용해요!</div>
+      <div class="grid2">
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;color:#0891b2;margin-bottom:6px">🔒 고정 IP를 쓰는 경우</div>
+          <ul class="pros-cons"><li>▸ 마인크래프트 서버 운영</li><li>▸ 회사 웹사이트 호스팅</li><li>▸ CCTV 원격 모니터링</li><li>▸ FTP 파일 서버</li></ul>
+        </div>
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;color:#7c3aed;margin-bottom:6px">🔄 유동 IP를 쓰는 경우</div>
+          <ul class="pros-cons"><li>▸ 일반 가정집 인터넷</li><li>▸ 웹서핑, 유튜브 시청</li><li>▸ 온라인 게임 접속</li><li>▸ 카톡, 인스타그램 사용</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭 2: 공인 vs 사설 ══════════════ -->
+  <div id="tab-pubpriv" class="panel">
+
+    <div class="box box-green">
+      <div class="box-title t-green">🌍 공인 IP와 사설 IP는 왜 필요할까요?</div>
+      <p style="color:#1e293b;line-height:1.7">전 세계 사람들이 모두 인터넷을 사용하는데, IP 주소가 부족해요! 그래서 <strong style="color:#16a34a">공인 IP</strong>는 전 세계에서 하나만 있고, <strong style="color:#2563eb">사설 IP</strong>는 집 안에서만 사용하는 주소로 나눴어요.</p>
+    </div>
+
+    <!-- 우리 집 네트워크 시각화 -->
+    <div class="box box-white">
+      <div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:20px">🏠 우리 집 네트워크</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+        <div style="background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;padding:18px 28px;border-radius:16px;text-align:center;box-shadow:0 8px 24px rgba(59,130,246,.3)">
+          <div style="font-size:48px;margin-bottom:6px">🌐</div>
+          <div style="font-weight:800;font-size:20px">인터넷</div>
+          <div style="background:#fff;color:#2563eb;font-family:'Courier New',monospace;font-weight:700;padding:6px 16px;border-radius:8px;margin-top:8px;font-size:16px" id="public-ip-display">확인 중...</div>
+          <div style="font-size:16px;color:#bfdbfe;margin-top:4px">나의 공인 IP 🎯</div>
+        </div>
+        <div style="font-size:36px;color:#94a3b8">⬇️</div>
+        <div style="background:linear-gradient(135deg,#fb923c,#ef4444);color:#fff;padding:16px 28px;border-radius:16px;text-align:center">
+          <div style="font-size:48px;margin-bottom:4px">📡</div>
+          <div style="font-weight:800;font-size:20px">공유기 (라우터)</div>
+          <div style="font-size:16px;margin-top:4px;opacity:.9">주소 변환 장치</div>
+        </div>
+        <div style="font-size:36px;color:#94a3b8">⬇️</div>
+        <div class="box box-cyan" style="width:100%;margin-bottom:0">
+          <div style="font-weight:800;color:#164e63;text-align:center;margin-bottom:12px">집 안 네트워크 (사설 IP) — 우리 집 안에서만 쓰는 주소들</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center" id="device-list"></div>
+          <button class="btn btn-cyan btn-full" style="margin-top:12px" onclick="addDevice()">➕ 기기 추가하기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="box box-blue">
+        <div class="box-title t-blue">🌍 공인 IP (Public IP)</div>
+        <div class="box box-white" style="margin-bottom:8px">
+          <div style="font-weight:700;color:#2563eb;margin-bottom:6px">📍 특징</div>
+          <ul class="pros-cons"><li>▸ 전 세계에서 유일한 주소</li><li>▸ 통신사(KT, SK 등)가 제공</li><li>▸ 인터넷에서 직접 접근 가능</li><li>▸ 한정된 개수 (약 43억 개)</li></ul>
+        </div>
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;color:#2563eb;margin-bottom:6px">📌 예시</div>
+          <div class="mono" id="public-ip-example">---</div>
+          <div class="mono">8.8.8.8 (구글 DNS)</div>
+        </div>
+      </div>
+      <div class="box box-cyan">
+        <div class="box-title t-cyan">🏠 사설 IP (Private IP)</div>
+        <div class="box box-white" style="margin-bottom:8px">
+          <div style="font-weight:700;color:#0891b2;margin-bottom:6px">📍 특징</div>
+          <ul class="pros-cons"><li>▸ 집이나 회사 안에서만 사용</li><li>▸ 공유기가 자동으로 배정</li><li>▸ 인터넷에서 직접 접근 불가</li><li>▸ 무제한으로 사용 가능</li></ul>
+        </div>
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;color:#0891b2;margin-bottom:6px">📌 대표 범위</div>
+          <div class="mono">192.168.x.x</div>
+          <div class="mono">10.x.x.x</div>
+          <div class="mono">172.16.x.x ~ 172.31.x.x</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-yellow" style="margin-top:16px">
+      <div class="box-title t-yellow">💡 왜 공인 IP와 사설 IP로 나눴을까요?</div>
+      <div class="box box-white" style="margin-bottom:8px"><div style="font-weight:700;color:#dc2626;margin-bottom:4px">❌ 문제: IP 주소가 부족해요!</div><p style="font-size:14px;color:#374151">IPv4는 약 43억 개의 주소만 만들 수 있어요. 하지만 전 세계 인터넷 기기는 수백억 개! 모든 기기에 공인 IP를 주면 주소가 부족해요.</p></div>
+      <div class="box box-white" style="margin-bottom:0"><div style="font-weight:700;color:#16a34a;margin-bottom:4px">✅ 해결: 사설 IP를 사용해요!</div><p style="font-size:14px;color:#374151">집마다 하나의 공인 IP만 사용하고, 집 안 기기들은 사설 IP를 사용해요. 이렇게 하면 43억 개의 공인 IP로 전 세계 모든 사람이 인터넷을 쓸 수 있어요!</p></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭 3: NAT ══════════════ -->
+  <div id="tab-nat" class="panel">
+
+    <div class="box box-orange">
+      <div class="box-title t-orange">🔄 NAT가 뭔가요?</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:8px"><strong style="color:#c2410c">NAT</strong>는 <strong>Network Address Translation</strong>의 약자로, <strong style="color:#2563eb">"네트워크 주소 변환"</strong>이라는 뜻이에요.</p>
+      <p style="color:#1e293b;line-height:1.7">쉽게 말하면, 공유기가 <strong style="color:#16a34a">사설 IP</strong>를 <strong style="color:#7c3aed">공인 IP</strong>로 바꿔주는 일을 해요! 마치 <strong>통역사</strong>처럼요! 🗣️</p>
+    </div>
+
+    <!-- 비유 -->
+    <div class="box box-white">
+      <div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:16px">🏢 아파트 우편물로 이해하는 NAT</div>
+      <div class="grid3">
+        <div class="card" style="background:#eff6ff;border:1px solid #93c5fd">
+          <div class="card-icon">📬</div>
+          <div class="card-title" style="color:#1e40af">집 주소 = 공인 IP</div>
+          <div class="card-desc">서울시 강남구 123번지<br/><span class="mono" id="nat-public" style="font-size:16px">xxx.xxx.xxx.xxx</span></div>
+        </div>
+        <div class="card" style="background:#fff7ed;border:1px solid #fdba74">
+          <div class="card-icon">🚪</div>
+          <div class="card-title" style="color:#9a3412">경비실 = 공유기</div>
+          <div class="card-desc">우편물을 받아서<br/>각 집으로 배달</div>
+        </div>
+        <div class="card" style="background:#ecfeff;border:1px solid #67e8f9">
+          <div class="card-icon">🏠</div>
+          <div class="card-title" style="color:#164e63">호수 = 사설 IP</div>
+          <div class="card-desc">101호, 102호, 103호<br/>(192.168.0.2, .3...)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAT 인터랙티브 -->
+    <div class="box box-purple">
+      <div style="font-size:16px;font-weight:800;color:#4c1d95;text-align:center;margin-bottom:16px">🔄 NAT 동작 과정 (클릭해보세요!)</div>
+      <div id="nat-select-area">
+        <div class="grid3" id="nat-device-btns"></div>
+      </div>
+      <div id="nat-anim-area" style="display:none">
+        <!-- 단계 설명 -->
+        <div class="box box-white" style="margin-bottom:12px">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div id="nat-step-num" style="width:32px;height:32px;background:#7c3aed;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div>
+            <p id="nat-step-msg" style="font-weight:700;color:#1e293b;flex:1;padding-top:4px"></p>
+          </div>
+          <div class="progress-bar" id="nat-progress"></div>
+        </div>
+        <!-- 시각화 -->
+        <div class="nat-vis">
+          <div class="nat-node" id="nat-node-dev" style="background:#ecfeff;border-color:#67e8f9">
+            <div style="font-size:30px;margin-bottom:4px" id="nat-dev-icon">💻</div>
+            <div style="font-weight:700;font-size:14px;color:#164e63" id="nat-dev-name">기기</div>
+            <div class="mono" style="font-size:14px;color:#0891b2" id="nat-dev-ip">---</div>
+            <div style="font-size:14px;color:#64748b">사설 IP</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="nat-arrow" id="nat-arr1">→</div>
+            <div class="nat-arrow" id="nat-arr2" style="color:#e2e8f0">←</div>
+          </div>
+          <div class="nat-node" id="nat-node-gw" style="background:#fff7ed;border-color:#fdba74">
+            <div style="font-size:36px;margin-bottom:4px">📡</div>
+            <div style="font-weight:700;font-size:14px;color:#9a3412">공유기</div>
+            <div style="font-size:14px;color:#64748b" id="nat-conv-label">NAT 변환</div>
+            <div class="mono" style="font-size:14px;margin-top:4px" id="nat-conv-text"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="nat-arrow" id="nat-arr3">→</div>
+            <div class="nat-arrow" id="nat-arr4" style="color:#e2e8f0">←</div>
+          </div>
+          <div class="nat-node" id="nat-node-inet" style="background:#faf5ff;border-color:#d8b4fe">
+            <div style="font-size:36px;margin-bottom:4px">🌐</div>
+            <div style="font-weight:700;font-size:14px;color:#6b21a8">인터넷</div>
+            <div class="mono" style="font-size:14px;color:#7c3aed" id="nat-inet-ip">---</div>
+            <div style="font-size:14px;color:#64748b">공인 IP</div>
+          </div>
+        </div>
+        <!-- 이전/다음 버튼 -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px">
+          <button class="btn btn-gray" onclick="natReset()">↩ 처음으로</button>
+          <span id="nat-step-counter" style="font-size:14px;color:#64748b;font-weight:700"></span>
+          <button class="btn btn-purple" id="nat-next-btn" onclick="natNext()">다음 단계 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAT 테이블 -->
+    <div class="box box-white">
+      <div class="box-title">📋 NAT 변환 테이블</div>
+      <p style="font-size:16px;color:#64748b;margin-bottom:12px">공유기는 어떤 기기가 어떤 요청을 보냈는지 기억하기 위해 테이블을 만들어요!</p>
+      <div style="overflow-x:auto">
+        <table class="nice-table">
+          <thead><tr><th>내부 주소 (사설 IP)</th><th>포트</th><th>↔️</th><th>외부 주소 (공인 IP)</th><th>포트</th></tr></thead>
+          <tbody id="nat-table-body"></tbody>
+        </table>
+      </div>
+      <div class="box box-yellow" style="margin-top:12px;margin-bottom:0"><p style="font-size:16px;color:#374151"><strong>💡 포인트:</strong> 공유기는 포트 번호를 사용해서 어느 기기에서 온 데이터인지 구분해요!</p></div>
+    </div>
+
+    <!-- 장단점 -->
+    <div class="grid2">
+      <div class="box box-green" style="margin-bottom:0">
+        <div class="box-title t-green">👍 NAT의 장점</div>
+        <ul class="pros-cons"><li><span class="chk-g">✓</span><span><strong>IP 주소 절약:</strong> 하나의 공인 IP로 여러 기기 사용 가능</span></li><li><span class="chk-g">✓</span><span><strong>보안 강화:</strong> 외부에서 내부 기기를 직접 볼 수 없음</span></li><li><span class="chk-g">✓</span><span><strong>비용 절감:</strong> 공인 IP를 적게 사용하므로 저렴</span></li><li><span class="chk-g">✓</span><span><strong>유연성:</strong> 내부 네트워크를 자유롭게 구성 가능</span></li></ul>
+      </div>
+      <div class="box box-orange" style="margin-bottom:0">
+        <div class="box-title t-orange">👎 NAT의 단점</div>
+        <ul class="pros-cons"><li><span class="chk-r">✗</span><span><strong>서버 운영 어려움:</strong> 외부에서 내부로 직접 접속 불가</span></li><li><span class="chk-r">✗</span><span><strong>처리 속도:</strong> 주소 변환에 약간의 시간 소요</span></li><li><span class="chk-r">✗</span><span><strong>일부 앱 문제:</strong> P2P 프로그램 등에서 제약 가능</span></li><li><span class="chk-r">✗</span><span><strong>포트 포워딩 필요:</strong> 서버 운영 시 추가 설정 필요</span></li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭 4: DNS ══════════════ -->
+  <div id="tab-dns" class="panel">
+
+    <div class="box box-green">
+      <div class="box-title t-green">📖 DNS가 뭔가요?</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:10px"><strong style="color:#166534">DNS</strong>는 <strong>Domain Name System</strong>의 약자예요. 우리가 인터넷 주소창에 <strong style="color:#2563eb">www.naver.com</strong>이라고 입력하면, 컴퓨터는 숫자로 된 <strong style="color:#dc2626">IP 주소</strong>로 찾아가야 해요. DNS는 마치 <strong style="color:#ea580c">전화번호부</strong>처럼 도메인 이름을 IP 주소로 바꿔주는 역할을 해요!</p>
+      <div class="grid3">
+        <div class="card" style="background:#fff;border:1px solid #86efac"><div class="card-icon">📖</div><div class="card-title t-green">DNS = 전화번호부</div><div class="card-desc">이름 → 번호</div></div>
+        <div class="card" style="background:#fff;border:1px solid #86efac"><div class="card-icon">🌐</div><div class="card-title t-blue">도메인 이름</div><div class="card-desc mono">www.naver.com</div></div>
+        <div class="card" style="background:#fff;border:1px solid #86efac"><div class="card-icon">🔢</div><div class="card-title t-red" style="color:#dc2626">IP 주소</div><div class="card-desc mono">223.130.200.107</div></div>
+      </div>
+    </div>
+
+    <!-- DNS 체험 -->
+    <div class="box box-white">
+      <div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:6px">🔍 DNS 직접 체험해보기!</div>
+      <p style="text-align:center;font-size:14px;color:#64748b;margin-bottom:12px">아래 사이트 중 하나를 클릭하거나 직접 입력해보세요!</p>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:12px" id="dns-quick-btns"></div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <input type="text" id="dns-input" placeholder="도메인 직접 입력 (예: www.samsung.com)" style="flex:1;border:2px solid #d1d5db;border-radius:8px;padding:10px 14px;font-size:14px;outline:none" onfocus="this.style.borderColor='#0891b2'" onblur="this.style.borderColor='#d1d5db'" onkeydown="if(event.key==='Enter')startDNS()">
+        <button class="btn btn-green" onclick="startDNS()" id="dns-search-btn">검색!</button>
+      </div>
+      <div id="dns-flow-area" style="display:none">
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;border:1px solid #e2e8f0">
+          <div class="dns-flow">
+            <div class="dns-node dns-node-pc" id="dns-node-pc">
+              <div style="font-size:30px">💻</div>
+              <div style="font-size:14px;font-weight:700;color:#1e40af;margin-top:4px">내 컴퓨터</div>
+              <div class="mono" style="font-size:14px;color:#475569;margin-top:4px;word-break:break-all" id="dns-pc-label"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <div class="dns-arrow" id="dns-arr1">→</div>
+              <div style="font-size:14px;font-weight:700;color:#16a34a;height:16px" id="dns-arr1-label"></div>
+            </div>
+            <div class="dns-node dns-node-srv" id="dns-node-srv">
+              <div style="font-size:30px">🗄️</div>
+              <div style="font-size:14px;font-weight:700;color:#854d0e;margin-top:4px">DNS 서버</div>
+              <div style="font-size:14px;color:#64748b">전화번호부</div>
+              <div style="font-size:14px;font-weight:700;color:#ea580c;margin-top:4px;height:14px" id="dns-searching"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <div class="dns-arrow" id="dns-arr2">→</div>
+              <div style="font-size:14px;font-weight:700;color:#7c3aed;height:16px" id="dns-arr2-label"></div>
+            </div>
+            <div class="dns-node dns-node-ok" id="dns-node-ok">
+              <div style="font-size:30px">✅</div>
+              <div style="font-size:14px;font-weight:700;color:#166534;margin-top:4px">IP 주소 발견!</div>
+              <div class="mono" style="font-size:14px;font-weight:700;color:#15803d;margin-top:4px;word-break:break-all" id="dns-result-ip"></div>
+            </div>
+          </div>
+          <div class="box" id="dns-step-msg-box" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:12px;text-align:center;font-size:16px;color:#1e293b"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DNS 동작 순서 -->
+    <div class="box box-blue">
+      <div class="box-title t-blue">📋 DNS 동작 순서 정리</div>
+      <div class="grid4">
+        <div class="card" style="background:#fff;border:1px solid #93c5fd"><div style="font-size:24px;font-weight:800;color:#2563eb;margin-bottom:4px">①</div><div class="card-icon">💻</div><div class="card-title">주소 입력</div><div class="card-desc">브라우저에 www.naver.com 입력</div></div>
+        <div class="card" style="background:#fff;border:1px solid #93c5fd"><div style="font-size:24px;font-weight:800;color:#2563eb;margin-bottom:4px">②</div><div class="card-icon">📤</div><div class="card-title">DNS 요청</div><div class="card-desc">DNS 서버에 IP 주소 요청</div></div>
+        <div class="card" style="background:#fff;border:1px solid #93c5fd"><div style="font-size:24px;font-weight:800;color:#2563eb;margin-bottom:4px">③</div><div class="card-icon">🔍</div><div class="card-title">IP 조회</div><div class="card-desc">DNS 서버가 IP 주소 검색</div></div>
+        <div class="card" style="background:#fff;border:1px solid #93c5fd"><div style="font-size:24px;font-weight:800;color:#2563eb;margin-bottom:4px">④</div><div class="card-icon">🌐</div><div class="card-title">접속!</div><div class="card-desc">IP 주소로 웹사이트에 접속</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭 5: 서브넷 마스크 ══════════════ -->
+  <div id="tab-subnet" class="panel">
+
+    <div class="box box-green">
+      <div class="box-title t-green">🏘️ 서브넷(Subnet)이 뭐예요?</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:10px">인터넷 전체를 <strong>거대한 도시</strong>라고 하면, 서브넷은 그 도시 안의 <strong>아파트 단지</strong>예요. 하나의 큰 네트워크를 용도나 장소에 따라 <strong>작은 구역으로 나눈 것</strong>이 서브넷이에요.</p>
+      <div class="code-block">🌆 인터넷 (거대한 도시)<br>&nbsp;├── 🏢 1반 네트워크 &nbsp;(192.168.1.???)<br>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── PC-01 (192.168.1.1)<br>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└── PC-02 (192.168.1.2)<br>&nbsp;└── 🏢 2반 네트워크 &nbsp;(192.168.2.???)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PC-01 (192.168.2.1)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── PC-02 (192.168.2.2)</div>
+    </div>
+
+    <div class="box box-yellow">
+      <div class="box-title t-yellow">🤔 왜 굳이 나눌까요?</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:22px">🚦</span><div style="font-size:16px;color:#1e293b;line-height:1.6"><strong>교통 정리</strong> — 컴퓨터가 많을수록 신호가 뒤엉켜요. 반별로 나누면 각 반 안에서만 신호가 돌아서 훨씬 빠르고 조용해져요.</div></div>
+        <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:22px">🔒</span><div style="font-size:16px;color:#1e293b;line-height:1.6"><strong>보안</strong> — 서버실(2반)과 학생 PC(1반)를 다른 서브넷으로 분리하면, 학생이 실수로 서버에 접근하는 걸 막을 수 있어요.</div></div>
+        <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:22px">📦</span><div style="font-size:16px;color:#1e293b;line-height:1.6"><strong>효율</strong> — 필요한 만큼만 IP를 나눠쓰기 때문에 IP 주소 낭비가 없어요.</div></div>
+      </div>
+    </div>
+
+    <div class="box box-red">
+      <div class="box-title t-red">🚧 그럼 어떻게 접근을 막아요? — 라우터가 경비원!</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:10px">서브넷을 나누는 것만으로는 자동으로 막히지 않아요. 서로 다른 서브넷 사이에는 반드시 <strong>라우터(Router)</strong>를 거쳐야 하는데, 바로 이 라우터에 <strong>"1반 → 2반 통행 금지"</strong> 규칙을 설정하면 차단돼요.</p>
+      <div class="code-block">🖥️ 1반 PC (192.168.1.10)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ "2반 서버에 접속하고 싶어요!"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▼<br>&nbsp;&nbsp;🚦 라우터 (교문 경비원)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ 규칙 확인 중... ❌ 1반은 2반 접근 불가!<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✖ 차단!<br>🖥️ 2반 서버 (192.168.2.10) ← 도달 못 함</div>
+      <p style="font-size:16px;color:#64748b;margin-top:10px">💡 같은 서브넷 안의 컴퓨터끼리는 라우터를 거치지 않고 직접 통신해요. 다른 서브넷으로 가려면 무조건 라우터를 통과해야 하기 때문에, 라우터가 <strong>유일한 출입구</strong>가 되는 거예요.</p>
+    </div>
+
+    <div class="box box-purple">
+      <div class="box-title t-purple">✂️ /숫자는 무슨 뜻이에요? (CIDR 표기법)</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:12px">IP 주소 32비트 중에서 <strong>앞 몇 비트를 "동 번호(네트워크)"로 쓸지</strong> 결정해요. 숫자가 클수록 네트워크가 작아지고, 연결 가능한 기기 수도 줄어요.</p>
+      <div style="overflow-x:auto">
+        <table class="nice-table">
+          <thead><tr><th>CIDR</th><th>서브넷 마스크</th><th>네트워크 비트</th><th>기기 번호 비트</th><th>연결 가능 기기 수</th></tr></thead>
+          <tbody>
+            <tr><td class="mono" style="font-weight:700;color:#7c3aed">/8</td><td class="mono">255.0.0.0</td><td>8비트 고정</td><td>24비트 자유</td><td style="font-weight:700;color:#16a34a">약 1,600만 대</td></tr>
+            <tr><td class="mono" style="font-weight:700;color:#7c3aed">/16</td><td class="mono">255.255.0.0</td><td>16비트 고정</td><td>16비트 자유</td><td style="font-weight:700;color:#16a34a">약 65,000 대</td></tr>
+            <tr style="background:#faf5ff"><td class="mono" style="font-weight:700;color:#7c3aed">/24</td><td class="mono">255.255.255.0</td><td>24비트 고정</td><td>8비트 자유</td><td style="font-weight:700;color:#2563eb">254 대 ← 가정용</td></tr>
+            <tr><td class="mono" style="font-weight:700;color:#7c3aed">/32</td><td class="mono">255.255.255.255</td><td>32비트 전부</td><td>없음</td><td style="font-weight:700;color:#dc2626">1 대 (딱 한 컴퓨터)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 계산기 -->
+    <div class="box box-white" style="border:2px solid #d8b4fe">
+      <div style="font-size:16px;font-weight:800;color:#6b21a8;margin-bottom:16px">🧮 직접 계산해보기 — 슬라이더를 움직여보세요!</div>
+
+      <!-- IP 입력 -->
+      <div style="margin-bottom:14px">
+        <div style="font-weight:700;color:#374151;margin-bottom:8px">📍 IP 주소 입력</div>
+        <div class="ip-inputs" id="oct-inputs"></div>
+      </div>
+
+      <!-- CIDR 슬라이더 -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-weight:700;color:#374151">구역 크기:</span>
+          <span style="font-weight:800;color:#7c3aed;font-size:18px;font-family:'Courier New',monospace">/</span>
+          <input type="number" class="cidr-num" id="cidr-num" min="1" max="32" value="24" oninput="syncCidr('num')">
+          <span style="font-size:14px;color:#94a3b8">← 이 숫자가 클수록 구역이 좁아져요</span>
+        </div>
+        <div class="range-wrap">
+          <span style="font-size:12px;color:#94a3b8;white-space:nowrap">/1 (큰 구역)</span>
+          <input type="range" id="cidr-range" min="1" max="32" value="24" oninput="syncCidr('range')">
+          <span style="font-size:12px;color:#94a3b8;white-space:nowrap">/32 (1대)</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;padding:0 2px">/1 /8 /16 /24 /32</div>
+      </div>
+
+      <!-- 비트 시각화 -->
+      <div class="box box-gray" style="margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:8px">🔬 32비트 시각화 — 슬라이더를 움직이면 색이 바뀌어요!</div>
+        <div class="bit-grid" id="bit-display"></div>
+        <div style="display:flex;gap:16px;margin-top:8px;font-size:12px">
+          <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#e9d5ff;border:1px solid #a78bfa"></span><span style="color:#5b21b6;font-weight:700">네트워크 비트 (동 번호 — 고정)</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#ffedd5;border:1px solid #fb923c"></span><span style="color:#c2410c;font-weight:700">기기 번호 비트 (호수 — 자유)</span></span>
+        </div>
+      </div>
+
+      <!-- 결과 카드 -->
+      <div class="result-grid" id="subnet-results"></div>
+
+      <!-- 요약 -->
+      <div class="box box-yellow" style="margin-top:12px;margin-bottom:0;font-size:16px" id="subnet-summary"></div>
+    </div>
+
+    <!-- 서브넷 시각화 -->
+    <div class="box box-white" style="margin-top:4px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:14px">🗂️ 서브넷으로 나누면 이렇게 돼요!</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:14px">
+        <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:12px;padding:14px;width:140px;text-align:center"><div style="font-size:24px;margin-bottom:6px">🏫</div><div style="font-weight:700;color:#1e40af;font-size:14px">1학년 네트워크</div><div class="mono" style="font-size:13px;color:#000000;margin-top:4px">192.168.1.0/24</div><div style="font-weight:700;color:#1e40af;font-size:12px;margin-top:4px">최대 254대</div></div>
+        <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:14px;width:140px;text-align:center"><div style="font-size:24px;margin-bottom:6px">🏫</div><div style="font-weight:700;color:#166534;font-size:14px">2학년 네트워크</div><div class="mono" style="font-size:13px;color:#000000;margin-top:4px">192.168.2.0/24</div><div style="font-weight:700;color:#166534;font-size:12px;margin-top:4px">최대 254대</div></div>
+        <div style="background:#fff7ed;border:2px solid #fdba74;border-radius:12px;padding:14px;width:140px;text-align:center"><div style="font-size:24px;margin-bottom:6px">🏫</div><div style="font-weight:700;color:#9a3412;font-size:14px">교무실 네트워크</div><div class="mono" style="font-size:13px;color:#000000;margin-top:4px">192.168.3.0/24</div><div style="font-weight:700;color:#9a3412;font-size:12px;margin-top:4px">최대 254대</div></div>
+        <div style="background:#faf5ff;border:2px solid #d8b4fe;border-radius:12px;padding:14px;width:140px;text-align:center"><div style="font-size:24px;margin-bottom:6px">🏫</div><div style="font-weight:700;color:#6b21a8;font-size:14px">행정실 네트워크</div><div class="mono" style="font-size:13px;color:#000000;margin-top:4px">192.168.4.0/24</div><div style="font-weight:700;color:#6b21a8;font-size:12px;margin-top:4px">최대 254대</div></div>
+      </div>
+      <div class="box box-yellow" style="margin-bottom:0;text-align:center;font-size:16px">💡 서브넷 마스크로 네트워크를 나누면 <strong>학년별, 부서별로 네트워크를 분리</strong>해서 보안과 관리가 편해져요!</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭 6: 게이트웨이 ══════════════ -->
+  <div id="tab-gateway" class="panel">
+
+    <div class="box box-indigo">
+      <div class="box-title t-indigo">🚪 게이트웨이가 뭔가요?</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:12px"><strong style="color:#4338ca">게이트웨이(Gateway)</strong>는 영어로 <strong>"문(Gate) + 길(Way)"</strong>이에요. 서로 다른 네트워크를 연결해주는 <strong style="color:#ea580c">입구 역할</strong>을 하는 장치예요. 마치 <strong style="color:#16a34a">다른 나라로 가려면 공항을 통과해야 하는 것</strong>처럼, 다른 네트워크로 가려면 게이트웨이를 통과해야 해요!</p>
+      <div class="grid3">
+        <div class="card" style="background:#fff;border:1px solid #a5b4fc"><div class="card-icon">✈️</div><div class="card-title t-indigo">공항 = 게이트웨이</div><div class="card-desc">다른 나라(네트워크)로 가는 관문</div></div>
+        <div class="card" style="background:#fff;border:1px solid #a5b4fc"><div class="card-icon">🇰🇷</div><div class="card-title t-indigo">한국 = 내 네트워크</div><div class="card-desc">192.168.1.x</div></div>
+        <div class="card" style="background:#fff;border:1px solid #a5b4fc"><div class="card-icon">🌍</div><div class="card-title t-indigo">해외 = 다른 네트워크</div><div class="card-desc">인터넷 / 다른 서브넷</div></div>
+      </div>
+    </div>
+
+    <!-- 패킷 전송 체험 -->
+    <div class="box box-white">
+      <div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:6px">📦 패킷 전송 체험!</div>
+      <p style="text-align:center;font-size:16px;color:#64748b;margin-bottom:16px">아래 기기를 클릭해서 다른 기기로 데이터를 보내보세요!</p>
+      <div class="net-vis">
+        <!-- A반 -->
+        <div class="net-box net-box-blue">
+          <div style="text-align:center;font-weight:800;color:#1d4ed8;margin-bottom:10px">🏫 A반 네트워크<br><span class="mono" style="font-size:12px">192.168.1.x</span></div>
+          <button class="dev-btn dev-btn-blue" id="from-0" onclick="selectFrom(0)">💻 선생님PC<br><span class="mono" style="font-size:12px">192.168.1.1</span></button>
+          <button class="dev-btn dev-btn-blue" id="from-1" onclick="selectFrom(1)">🖥️ 학생1<br><span class="mono" style="font-size:12px">192.168.1.10</span></button>
+          <button class="dev-btn dev-btn-blue" id="from-2" onclick="selectFrom(2)">📱 학생2<br><span class="mono" style="font-size:12px">192.168.1.11</span></button>
+        </div>
+        <!-- 게이트웨이 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="gw-box" id="gw-box">
+            <div style="font-size:28px">📡</div>
+            <div style="font-weight:700;font-size:14px;color:#374151;margin-top:4px">게이트웨이</div>
+            <div style="font-size:11px;color:#64748b">라우터</div>
+            <div style="font-size:11px;font-weight:700;color:#ca8a04;height:14px" id="gw-status"></div>
+          </div>
+          <button class="btn btn-cyan" id="gw-send-btn" style="display:none;font-size:12px;padding:6px 12px" onclick="startGateway()">📤 전송!</button>
+          <div style="font-size:12px;color:#94a3b8;text-align:center" id="gw-hint">양쪽에서<br>기기 선택</div>
+        </div>
+        <!-- B반 -->
+        <div class="net-box net-box-purple">
+          <div style="text-align:center;font-weight:800;color:#6b21a8;margin-bottom:10px">🏫 B반 네트워크<br><span class="mono" style="font-size:12px">192.168.2.x</span></div>
+          <button class="dev-btn dev-btn-purple" id="to-0" onclick="selectTo(0)">💻 선생님PC<br><span class="mono" style="font-size:12px">192.168.2.1</span></button>
+          <button class="dev-btn dev-btn-purple" id="to-1" onclick="selectTo(1)">🖥️ 학생3<br><span class="mono" style="font-size:12px">192.168.2.10</span></button>
+          <button class="dev-btn dev-btn-purple" id="to-2" onclick="selectTo(2)">📱 학생4<br><span class="mono" style="font-size:12px">192.168.2.11</span></button>
+        </div>
+      </div>
+      <!-- 전송 진행 -->
+      <div id="gw-anim-box" style="display:none;margin-top:14px">
+        <div class="box box-indigo" style="margin-bottom:0">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="gw-step-num" style="width:32px;height:32px;background:#4338ca;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">0</div>
+            <p id="gw-step-msg" style="font-weight:700;color:#1e293b"></p>
+          </div>
+          <div style="background:#e2e8f0;border-radius:999px;height:6px;margin-top:10px;overflow:hidden">
+            <div id="gw-progress" style="background:linear-gradient(90deg,#4338ca,#7c3aed);height:100%;border-radius:999px;transition:width .7s;width:0%"></div>
+          </div>
+        </div>
+      </div>
+      <div id="gw-done-box" style="display:none;margin-top:14px">
+        <div class="box box-green" style="margin-bottom:0;text-align:center">
+          <p style="font-weight:800;color:#166534;font-size:16px">🎉 전송 완료!</p>
+          <p style="font-size:16px;color:#374151;margin-top:4px" id="gw-done-msg"></p>
+          <button class="btn btn-gray" style="margin-top:10px" onclick="gwReset()">다시 해보기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ipconfig -->
+    <div class="box box-gray" style="margin-bottom:16px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:14px">💻 내 게이트웨이 주소 확인하는 방법</div>
+      <div class="grid2">
+        <div class="terminal"><span class="code-gray"># 윈도우 명령 프롬프트(CMD)</span><br>C:\&gt; <span class="code-white">ipconfig</span><br><br><span class="code-yellow">기본 게이트웨이: 192.168.1.1<br>서브넷 마스크: 255.255.255.0<br>IPv4 주소: 192.168.1.5</span></div>
+        <div class="box box-white" style="margin-bottom:0">
+          <div style="font-weight:700;margin-bottom:10px">📋 ipconfig 결과 해석</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+            <div style="display:flex;gap:8px"><span style="font-weight:700;color:#ca8a04;width:96px;flex-shrink:0">IPv4 주소</span><span>= 내 컴퓨터의 IP 주소</span></div>
+            <div style="display:flex;gap:8px"><span style="font-weight:700;color:#ca8a04;width:96px;flex-shrink:0">서브넷 마스크</span><span>= 네트워크 구분 기준</span></div>
+            <div style="display:flex;gap:8px"><span style="font-weight:700;color:#ca8a04;width:96px;flex-shrink:0">기본 게이트웨이</span><span>= 인터넷으로 나가는 출구 (보통 공유기)</span></div>
+          </div>
+          <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:8px;margin-top:10px;font-size:14px;color:#1e40af">💡 보통 게이트웨이 주소는 <strong>192.168.x.1</strong>이에요!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 라우터 vs 게이트웨이 비교 -->
+    <div class="box box-sky">
+      <div class="box-title t-sky">🤔 라우터(Router)와 게이트웨이(Gateway)는 다른 건가요?</div>
+      <p style="color:#1e293b;line-height:1.7;margin-bottom:16px">많이 헷갈리는 개념이에요! 한마디로 정리하면 — <strong style="color:#ea580c">게이트웨이는 역할</strong>이고, <strong style="color:#2563eb">라우터는 장치</strong>예요. 마치 <strong>"경비원"</strong>이 역할이고 <strong>"아저씨"</strong>가 그 일을 하는 사람인 것처럼요.</p>
+
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="box box-white" style="margin-bottom:0;border:2px solid #93c5fd">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:36px">📡</span>
+            <div><div style="font-weight:800;color:#1e40af;font-size:16px">라우터 (Router)</div><div style="font-size:16px;color:#64748b">= 장치 (Hardware)</div></div>
+          </div>
+          <ul class="pros-cons"><li><span style="color:#2563eb">▸</span><span>네트워크와 네트워크 사이에서 <strong>데이터를 어느 길로 보낼지 결정</strong>하는 장치예요.</span></li><li><span style="color:#2563eb">▸</span><span>집에 있는 <strong>공유기(Wi-Fi 기계)</strong>가 대표적인 라우터예요.</span></li><li><span style="color:#2563eb">▸</span><span>여러 길(경로) 중에서 가장 빠른 길을 골라줘요.</span></li></ul>
+        </div>
+        <div class="box box-white" style="margin-bottom:0;border:2px solid #fdba74">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:36px">🚪</span>
+            <div><div style="font-weight:800;color:#9a3412;font-size:16px">게이트웨이 (Gateway)</div><div style="font-size:16px;color:#64748b">= 역할 (Role)</div></div>
+          </div>
+          <ul class="pros-cons"><li><span style="color:#ea580c">▸</span><span>서로 다른 네트워크를 연결해주는 <strong>"출입구 역할"</strong>을 뜻하는 말이에요.</span></li><li><span style="color:#ea580c">▸</span><span>라우터가 게이트웨이 역할을 하는 경우가 가장 많아요.</span></li><li><span style="color:#ea580c">▸</span><span>라우터 외에도 <strong>방화벽, 스위치</strong> 등이 게이트웨이 역할을 할 수 있어요.</span></li></ul>
+        </div>
+      </div>
+
+      <div class="box box-white" style="margin-bottom:14px">
+        <div style="font-weight:700;margin-bottom:10px">🏫 학교로 비유해볼게요!</div>
+        <div class="grid3">
+          <div class="card" style="background:#eff6ff;border:1px solid #93c5fd"><div class="card-icon">🧑‍✈️</div><div class="card-title t-blue">경비 아저씨</div><div class="card-desc">= 라우터<br>(실제로 일하는 장치)</div></div>
+          <div class="card" style="background:#fff7ed;border:1px solid #fdba74"><div class="card-icon">🚪</div><div class="card-title t-orange">교문 경비 역할</div><div class="card-desc">= 게이트웨이<br>(출입을 관리하는 역할)</div></div>
+          <div class="card" style="background:#f0fdf4;border:1px solid #86efac"><div class="card-icon">💡</div><div class="card-title t-green">결론</div><div class="card-desc">경비 아저씨가 교문 역할을 한다<br>= 라우터가 게이트웨이</div></div>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;margin-bottom:14px">
+        <table class="nice-table cmp-table">
+          <thead><tr><th>구분</th><th>📡 라우터</th><th>🚪 게이트웨이</th></tr></thead>
+          <tbody>
+            <tr><td>개념</td><td>물리적인 <strong>장치</strong></td><td>네트워크의 <strong>출입구 역할</strong></td></tr>
+            <tr><td>주요 기능</td><td>데이터를 목적지까지 최적 경로로 전달</td><td>다른 네트워크로 나가는 입구 제공</td></tr>
+            <tr><td>실생활 예</td><td>집에 있는 공유기</td><td>공유기의 역할(기능)</td></tr>
+            <tr><td>관계</td><td colspan="2" style="color:#2563eb;font-weight:700;text-align:center">라우터가 게이트웨이 역할을 하는 경우가 대부분! 🤝</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="box box-yellow" style="margin-bottom:0;text-align:center;font-size:16px">
+        ⭐ <strong>핵심 정리:</strong> 우리가 일상에서 쓰는 <strong>공유기 = 라우터 = 게이트웨이</strong>! 공유기 한 대가 이 세 가지 역할을 모두 하고 있어요. 그래서 실제로는 거의 같은 말처럼 쓰여요.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭 7: 퀴즈 ══════════════ -->
+  <div id="tab-quiz" class="panel">
+    <div class="box box-purple">
+      <div class="box-title t-purple">🎯 배운 내용 확인하기</div>
+      <p style="color:#374151">지금까지 배운 내용을 문제로 풀어봅시다!</p>
+    </div>
+    <div id="quiz-area"></div>
+    <div id="quiz-result" style="display:none;text-align:center">
+      <div class="box box-green">
+        <div style="font-size:24px;font-weight:800;color:#166534;margin-bottom:10px">
+          <span style="cursor:pointer;position:relative;display:inline-block" onclick="showSparrow(this)">🎉
+            <span id="sparrow-tip" style="display:none;position:absolute;top:-36px;left:50%;transform:translateX(-50%);background:#fde047;color:#111;padding:4px 12px;border-radius:10px;font-size:14px;font-weight:700;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:50">&#xCC38;&#xC0C8;</span>
+          </span> 퀴즈 완료!
+        </div>
+        <div style="font-size:60px;font-weight:800;color:#0891b2;margin-bottom:10px" id="quiz-score-display"></div>
+        <p id="quiz-score-msg" style="color:#374151"></p>
+      </div>
+      <div id="quiz-wrongs" style="text-align:left;margin-bottom:16px"></div>
+      <button class="btn btn-cyan" onclick="resetQuiz()">🔄 다시 풀기</button>
+    </div>
+    <div id="quiz-submit-wrap" style="display:none;margin-top:8px">
+      <button class="btn btn-cyan btn-full" onclick="showQuizResult()">🏁 결과 확인하기</button>
+    </div>
+  </div>
+
+  <!-- 홈 버튼 -->
+  <div class="footer-home">
+    <a href="index.html" class="btn btn-cyan" style="font-size:15px;padding:12px 32px">🏠 홈으로 돌아가기</a>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   공통 유틸
+═══════════════════════════════════════════════ */
+function $(id){ return document.getElementById(id); }
+
+/* 탭 전환 */
+function showTab(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  $('tab-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* 랜덤 공인 IP 생성 (오프라인 fallback) */
+function randomPublicIP(){
+  const pre=['59','61','110','118','121','175','203','211','220'];
+  const a=pre[Math.floor(Math.random()*pre.length)];
+  const r=()=>Math.floor(Math.random()*200+10);
+  return `${a}.${r()}.${r()}.${r()}`;
+}
+
+let publicIP = randomPublicIP(); // 오프라인 기본값
+
+/* 공인 IP 조회 시도 (온라인이면 실제 IP 표시) */
+(function(){
+  const apis=[
+    {url:'https://api.ipify.org',parse:t=>t.trim()},
+    {url:'https://api4.my-ip.io/ip',parse:t=>t.trim()},
+    {url:'https://ipecho.net/plain',parse:t=>t.trim()},
+  ];
+  function tryNext(i){
+    if(i>=apis.length){ applyIP(randomPublicIP()); return; }
+    fetch(apis[i].url,{signal:AbortSignal.timeout(3000)})
+      .then(r=>r.text())
+      .then(t=>{
+        const ip=apis[i].parse(t);
+        if(/^\d+\.\d+\.\d+\.\d+$/.test(ip)){ publicIP=ip; applyIP(ip); }
+        else tryNext(i+1);
+      }).catch(()=>tryNext(i+1));
+  }
+  function applyIP(ip){
+    publicIP=ip;
+    const els=['public-ip-display','public-ip-example','nat-public','nat-inet-ip'];
+    els.forEach(id=>{ const el=$(id); if(el) el.textContent=ip; });
+    renderNatTable();
+  }
+  tryNext(0);
+})();
+
+/* ═══════════════════════════════════════════════
+   탭1: 고정 vs 유동
+═══════════════════════════════════════════════ */
+function changeDynamicIP(){
+  const ip='192.168.1.'+Math.floor(Math.random()*200+50);
+  $('dynamic-ip').textContent=ip;
+}
+
+/* ═══════════════════════════════════════════════
+   탭2: 공인 vs 사설
+═══════════════════════════════════════════════ */
+let devices=[
+  {name:'💻 컴퓨터',ip:'192.168.0.2'},
+  {name:'📱 스마트폰',ip:'192.168.0.3'},
+  {name:'📺 TV',ip:'192.168.0.4'},
+];
+function renderDevices(){
+  const el=$('device-list');
+  if(!el) return;
+  el.innerHTML=devices.map(d=>`
+    <div class="device-chip">
+      <div style="font-size:20px;margin-bottom:2px">${d.name}</div>
+      <div class="mono" style="font-size:16px;font-weight:700;color:#0891b2">${d.ip}</div>
+    </div>`).join('');
+}
+function addDevice(){
+  const names=['🎮 게임기','💻 노트북','⌚ 스마트워치','🖨️ 프린터','🎧 이어폰'];
+  const n=names[Math.floor(Math.random()*names.length)];
+  devices.push({name:n,ip:'192.168.0.'+(devices.length+2)});
+  renderDevices();
+}
+renderDevices();
+
+/* ═══════════════════════════════════════════════
+   탭3: NAT
+═══════════════════════════════════════════════ */
+const natDevices=[
+  {name:'💻 컴퓨터',icon:'💻',ip:'192.168.0.2'},
+  {name:'📱 스마트폰',icon:'📱',ip:'192.168.0.3'},
+  {name:'📺 TV',icon:'📺',ip:'192.168.0.4'},
+];
+let natStep=0, natDev=null;
+
+const natMsgs=[
+  d=>`${d.name}이(가) 유튜브를 보고 싶어요!`,
+  ()=>'① 기기가 공유기에게 요청을 보냅니다',
+  ()=>'② 공유기가 사설 IP를 공인 IP로 변환합니다',
+  ()=>'③ 공유기가 인터넷으로 데이터를 보냅니다',
+  ()=>'④ 인터넷에서 공유기로 응답이 돌아옵니다',
+  ()=>'⑤ 공유기가 공인 IP를 다시 사설 IP로 변환해서 기기에 전달합니다! 🎉',
+];
+
+function renderNatDeviceBtns(){
+  $('nat-device-btns').innerHTML=natDevices.map((d,i)=>`
+    <button onclick="startNAT(${i})" style="background:#fff;border:2px solid #67e8f9;border-radius:10px;padding:14px;text-align:center;transition:all .2s;cursor:pointer" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#67e8f9'">
+      <div style="font-size:28px;margin-bottom:6px">${d.icon}</div>
+      <div class="mono" style="font-weight:700;color:#0891b2;font-size:16px">${d.ip}</div>
+      <div style="font-size:14px;color:#64748b;margin-top:4px">클릭하여 작동 확인</div>
+    </button>`).join('');
+}
+renderNatDeviceBtns();
+
+function startNAT(i){
+  natDev=natDevices[i];
+  natStep=0;
+  $('nat-select-area').style.display='none';
+  $('nat-anim-area').style.display='block';
+  $('nat-dev-icon').textContent=natDev.icon;
+  $('nat-dev-name').textContent=natDev.name;
+  $('nat-dev-ip').textContent=natDev.ip;
+  $('nat-inet-ip').textContent=publicIP;
+  updateNatUI();
+}
+function natNext(){
+  if(natStep<5) natStep++;
+  updateNatUI();
+}
+function natReset(){
+  $('nat-select-area').style.display='block';
+  $('nat-anim-area').style.display='none';
+  natDev=null; natStep=0;
+  renderNatDeviceBtns();
+}
+function updateNatUI(){
+  if(!natDev) return;
+  $('nat-step-num').textContent=natStep+1;
+  $('nat-step-msg').textContent=natMsgs[natStep](natDev);
+  $('nat-step-counter').textContent=`${natStep+1} / 6 단계`;
+  // 진행바
+  const pb=$('nat-progress');
+  pb.innerHTML=[0,1,2,3,4,5].map(i=>`<div class="progress-seg ${i<=natStep?'done':''}"></div>`).join('');
+  // 화살표
+  $('nat-arr1').className='nat-arrow'+(natStep===1?' on':'');
+  $('nat-arr3').className='nat-arrow'+(natStep===3?' on':'');
+  $('nat-arr4').style.color=natStep===4?'#0ea5e9':'#e2e8f0';
+  $('nat-arr2').style.color=natStep===5?'#0ea5e9':'#e2e8f0';
+  // 공유기 변환 표시
+  if(natStep>=2){
+    $('nat-conv-text').innerHTML=`<span style="color:#0891b2">${natDev.ip}</span><br>⬇<br><span style="color:#7c3aed">${publicIP}</span>`;
+    $('nat-node-gw').style.transform='scale(1.1)';
+  } else {
+    $('nat-conv-text').textContent='';
+    $('nat-node-gw').style.transform='';
+  }
+  // 노드 opacity
+  $('nat-node-dev').style.opacity=natStep>=1?'1':'0.5';
+  $('nat-node-inet').style.opacity=natStep>=3?'1':'0.5';
+  // 다음 버튼
+  const nb=$('nat-next-btn');
+  if(natStep>=5){
+    nb.textContent='🔄 다시 보기';
+    nb.onclick=natReset;
+  } else {
+    nb.textContent='다음 단계 →';
+    nb.onclick=natNext;
+  }
+}
+function renderNatTable(){
+  const body=$('nat-table-body');
+  if(!body) return;
+  const rows=[
+    {priv:'192.168.0.2',port:'5001'},
+    {priv:'192.168.0.3',port:'5002'},
+    {priv:'192.168.0.4',port:'5003'},
+  ];
+  body.innerHTML=rows.map((r,i)=>`
+    <tr style="${i%2===0?'background:#ecfeff':''}">
+      <td class="mono">${r.priv}</td>
+      <td class="mono">${r.port}</td>
+      <td>🔄</td>
+      <td class="mono">${publicIP}</td>
+      <td class="mono">${r.port}</td>
+    </tr>`).join('');
+}
+renderNatTable();
+
+/* ═══════════════════════════════════════════════
+   탭4: DNS
+═══════════════════════════════════════════════ */
+const dnsTable={
+  'www.naver.com':'223.130.200.107',
+  'www.google.com':'172.217.25.100',
+  'www.youtube.com':'142.250.196.110',
+  'www.kakao.com':'203.133.167.16',
+  'www.moe.go.kr':'27.101.207.36',
+};
+let dnsTimer=null, dnsStep=0, dnsDomain='', dnsRunning=false;
+
+// 빠른 선택 버튼 렌더
+const qb=$('dns-quick-btns');
+Object.keys(dnsTable).forEach(d=>{
+  const btn=document.createElement('button');
+  btn.className='dns-quick-btn'; btn.textContent=d;
+  btn.onclick=()=>{ $('dns-input').value=d; startDNS(); };
+  qb.appendChild(btn);
+});
+
+function startDNS(){
+  const val=($('dns-input').value||'').trim().toLowerCase();
+  if(!val||dnsRunning) return;
+  dnsDomain=val; dnsStep=0; dnsRunning=true;
+  document.querySelectorAll('.dns-quick-btn').forEach(b=>b.disabled=true);
+  $('dns-search-btn').disabled=true;
+  // 초기화
+  $('dns-flow-area').style.display='block';
+  ['dns-node-pc','dns-node-srv','dns-node-ok'].forEach(id=>{ const el=$(id); el.classList.remove('on'); });
+  ['dns-arr1','dns-arr2'].forEach(id=>{ const el=$(id); el.classList.remove('on'); });
+  $('dns-arr1-label').textContent='';
+  $('dns-arr2-label').textContent='';
+  $('dns-searching').textContent='';
+  $('dns-result-ip').textContent='';
+  $('dns-pc-label').textContent=dnsDomain;
+  $('dns-step-msg-box').innerHTML='💻 <strong>'+dnsDomain+'</strong>에 접속하려 해요!';
+  $('dns-node-pc').classList.add('on');
+  advanceDNS();
+}
+function advanceDNS(){
+  dnsTimer=setTimeout(()=>{
+    dnsStep++;
+    if(dnsStep===1){
+      $('dns-arr1').classList.add('on');
+      $('dns-arr1-label').textContent='①요청';
+      $('dns-node-srv').classList.add('on');
+      $('dns-step-msg-box').innerHTML='📤 DNS 서버에게 "<strong>'+dnsDomain+'</strong>의 IP 주소가 뭔가요?" 물어봐요!';
+      advanceDNS();
+    } else if(dnsStep===2){
+      $('dns-searching').textContent='🔍 검색 중...';
+      $('dns-step-msg-box').innerHTML='🔍 DNS 서버가 전화번호부에서 <strong>'+dnsDomain+'</strong>을 찾고 있어요...';
+      advanceDNS();
+    } else if(dnsStep===3){
+      $('dns-arr2').classList.add('on');
+      $('dns-arr2-label').textContent='②응답';
+      $('dns-node-ok').classList.add('on');
+      $('dns-searching').textContent='';
+      const ip=dnsTable[dnsDomain]||(Math.floor(Math.random()*200+50)+'.'+Math.floor(Math.random()*200+50)+'.'+Math.floor(Math.random()*200+100)+'.'+Math.floor(Math.random()*200+1));
+      $('dns-result-ip').textContent=ip;
+      $('dns-step-msg-box').innerHTML='📬 IP 주소를 찾았어요!<br><div style="background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:6px;margin-top:6px">🎉 <strong>'+dnsDomain+'</strong> = <span class="mono" style="color:#15803d;font-weight:700">'+ip+'</span></div>';
+      dnsRunning=false;
+      document.querySelectorAll('.dns-quick-btn').forEach(b=>b.disabled=false);
+      $('dns-search-btn').disabled=false;
+    }
+  },1400);
+}
+
+/* ═══════════════════════════════════════════════
+   탭5: 서브넷 마스크
+═══════════════════════════════════════════════ */
+let subnetOctets=[192,168,1,0];
+let subnetCidr=24;
+
+// oct 입력 렌더
+function renderOctInputs(){
+  const wrap=$('oct-inputs');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  for(let i=0;i<4;i++){
+    if(i>0){
+      const dot=document.createElement('div');
+      dot.className='oct-dot'; dot.textContent='.'; wrap.appendChild(dot);
+    }
+    const w=document.createElement('div'); w.className='oct-wrap';
+    const lbl=document.createElement('div'); lbl.className='oct-label'; lbl.textContent=(i+1)+'번째';
+    const inp=document.createElement('input');
+    inp.type='number'; inp.min=0; inp.max=255; inp.value=subnetOctets[i];
+    inp.className='oct-input'; inp.id='oct-'+i;
+    inp.oninput=()=>handleOctet(i,inp.value);
+    const err=document.createElement('div'); err.className='oct-err'; err.id='oct-err-'+i;
+    w.appendChild(lbl); w.appendChild(inp); w.appendChild(err);
+    wrap.appendChild(w);
+  }
+}
+function handleOctet(idx,val){
+  const n=parseInt(val);
+  const err=$('oct-err-'+idx);
+  const inp=$('oct-'+idx);
+  if(val===''||isNaN(n)){ inp.classList.add('err'); err.textContent='숫자 필요'; }
+  else if(n<0||n>255){ inp.classList.add('err'); err.textContent='0~255만'; }
+  else { inp.classList.remove('err'); err.textContent=''; subnetOctets[idx]=n; updateSubnet(); }
+}
+function syncCidr(from){
+  if(from==='range'){ subnetCidr=parseInt($('cidr-range').value); $('cidr-num').value=subnetCidr; }
+  else { subnetCidr=Math.max(1,Math.min(32,parseInt($('cidr-num').value)||1)); $('cidr-range').value=subnetCidr; }
+  updateSubnet();
+}
+
+function calcSubnetInfo(octs,cidr){
+  const o=octs.map(v=>Math.max(0,Math.min(255,isNaN(v)?0:v)));
+  const c=Math.max(1,Math.min(32,cidr));
+  const maskInt=c===32?0xFFFFFFFF:(~(0xFFFFFFFF>>>c))>>>0;
+  const maskOcts=[(maskInt>>>24)&255,(maskInt>>>16)&255,(maskInt>>>8)&255,maskInt&255];
+  const ipInt=((o[0]<<24)|(o[1]<<16)|(o[2]<<8)|o[3])>>>0;
+  const netInt=(ipInt&maskInt)>>>0;
+  const broadInt=(netInt|(~maskInt>>>0))>>>0;
+  const toIP=n=>[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+  const hb=32-c;
+  const hosts=hb>=2?(Math.pow(2,hb)-2):hb===1?0:1;
+  return{
+    mask:maskOcts.join('.'),
+    network:toIP(netInt),
+    broadcast:toIP(broadInt),
+    firstHost:c<31?toIP(netInt+1):toIP(netInt),
+    lastHost:c<31?toIP(broadInt-1):toIP(broadInt),
+    hosts:c===32?'없음 (단일 기기)':c===31?'2개 (특수 연결용)':hosts.toLocaleString()+'개',
+    hostBits:hb,
+  };
+}
+
+function updateSubnet(){
+  const info=calcSubnetInfo(subnetOctets,subnetCidr);
+  // 비트 시각화
+  const bd=$('bit-display');
+  if(bd){
+    bd.innerHTML='';
+    for(let pos=0;pos<32;pos++){
+      if(pos>0&&pos%8===0){const sep=document.createElement('div');sep.className='bit-sep';bd.appendChild(sep);}
+      const b=document.createElement('div');
+      b.className='bit '+(pos<subnetCidr?'bit-net':'bit-host');
+      b.textContent=pos<subnetCidr?'1':'0';
+      b.title=(pos<subnetCidr?'네트워크 비트':'기기 번호 비트')+' ('+(pos+1)+'번째)';
+      bd.appendChild(b);
+    }
+  }
+  // 결과 카드
+  const cards=[
+    {label:'서브넷 마스크',val:info.mask,color:'#374151',desc:'네트워크를 구분하는 기준값'},
+    {label:'네트워크 주소',val:info.network,color:'#1d4ed8',desc:'이 구역(서브넷)의 이름'},
+    {label:'브로드캐스트 주소',val:info.broadcast,color:'#dc2626',desc:'구역 전체에 동시 전송하는 주소'},
+    {label:'첫 번째 기기 IP',val:info.firstHost,color:'#4338ca',desc:'기기에 줄 수 있는 첫 번째 IP'},
+    {label:'마지막 기기 IP',val:info.lastHost,color:'#4338ca',desc:'기기에 줄 수 있는 마지막 IP'},
+    {label:'연결 가능한 기기 수',val:info.hosts,color:'#16a34a',desc:'실제로 사용할 수 있는 IP 개수'},
+  ];
+  const rg=$('subnet-results');
+  if(rg) rg.innerHTML=cards.map(c=>`
+    <div class="result-card">
+      <div class="result-label">${c.label}</div>
+      <div class="result-val mono" style="color:${c.color}">${c.val}</div>
+      <div class="result-desc">${c.desc}</div>
+    </div>`).join('');
+  // 요약
+  const sm=$('subnet-summary');
+  if(sm) sm.innerHTML=`💡 <strong>${subnetOctets.join('.')}/${subnetCidr}</strong> 네트워크에서는 최대 <strong style="color:#16a34a">${info.hosts}</strong>의 기기를 연결할 수 있어요. 네트워크 주소 <strong style="color:#1d4ed8">${info.network}</strong>와 브로드캐스트 주소 <strong style="color:#dc2626">${info.broadcast}</strong>는 기기에 줄 수 없어요.`;
+}
+renderOctInputs();
+updateSubnet();
+
+/* ═══════════════════════════════════════════════
+   탭6: 게이트웨이
+═══════════════════════════════════════════════ */
+const fromDevs=[
+  {label:'💻 선생님PC',ip:'192.168.1.1'},
+  {label:'🖥️ 학생1',ip:'192.168.1.10'},
+  {label:'📱 학생2',ip:'192.168.1.11'},
+];
+const toDevs=[
+  {label:'💻 선생님PC',ip:'192.168.2.1'},
+  {label:'🖥️ 학생3',ip:'192.168.2.10'},
+  {label:'📱 학생4',ip:'192.168.2.11'},
+];
+let gwFrom=-1, gwTo=-1, gwAnimating=false, gwStep=0, gwTimer=null;
+
+function selectFrom(i){
+  if(gwAnimating) return;
+  gwFrom=gwFrom===i?-1:i;
+  fromDevs.forEach((_,j)=>{ const el=$('from-'+j); if(el) el.classList.toggle('sel',j===gwFrom); });
+  updateGwUI();
+}
+function selectTo(i){
+  if(gwAnimating) return;
+  gwTo=gwTo===i?-1:i;
+  toDevs.forEach((_,j)=>{ const el=$('to-'+j); if(el) el.classList.toggle('sel',j===gwTo); });
+  updateGwUI();
+}
+function updateGwUI(){
+  const ready=gwFrom>=0&&gwTo>=0;
+  $('gw-send-btn').style.display=ready?'block':'none';
+  $('gw-hint').style.display=ready?'none':'block';
+}
+function startGateway(){
+  if(gwFrom<0||gwTo<0||gwAnimating) return;
+  gwAnimating=true; gwStep=0;
+  $('gw-anim-box').style.display='block';
+  $('gw-done-box').style.display='none';
+  $('gw-send-btn').style.display='none';
+  $('gw-hint').style.display='none';
+  advanceGW();
+}
+const gwMsgs=[
+  ()=>`📦 ${fromDevs[gwFrom].ip}에서 데이터를 보냅니다!`,
+  ()=>`➡️ 목적지 ${toDevs[gwTo].ip}는 다른 네트워크! 게이트웨이로 전달합니다.`,
+  ()=>'📡 게이트웨이(라우터)에 데이터 전달 중...',
+  ()=>'🔀 게이트웨이가 최적 경로를 찾아 전달합니다!',
+  ()=>`✅ ${toDevs[gwTo].ip}에 데이터가 도착했어요! 🎉`,
+];
+function advanceGW(){
+  $('gw-step-num').textContent=gwStep+1;
+  $('gw-step-msg').textContent=gwMsgs[gwStep]?gwMsgs[gwStep]():'';
+  $('gw-progress').style.width=((gwStep+1)/gwMsgs.length*100)+'%';
+  if(gwStep<gwMsgs.length-1){
+    gwStep++;
+    gwTimer=setTimeout(advanceGW,1200);
+  } else {
+    gwTimer=setTimeout(()=>{
+      gwAnimating=false;
+      $('gw-anim-box').style.display='none';
+      $('gw-done-box').style.display='block';
+      $('gw-done-msg').textContent=fromDevs[gwFrom].ip+' → 게이트웨이 → '+toDevs[gwTo].ip;
+    },1500);
+  }
+}
+function gwReset(){
+  clearTimeout(gwTimer);
+  gwFrom=-1; gwTo=-1; gwAnimating=false; gwStep=0;
+  fromDevs.forEach((_,j)=>{ const el=$('from-'+j); if(el) el.classList.remove('sel'); });
+  toDevs.forEach((_,j)=>{ const el=$('to-'+j); if(el) el.classList.remove('sel'); });
+  $('gw-anim-box').style.display='none';
+  $('gw-done-box').style.display='none';
+  $('gw-send-btn').style.display='none';
+  $('gw-hint').style.display='block';
+  $('gw-progress').style.width='0%';
+}
+
+/* ═══════════════════════════════════════════════
+   탭7: 퀴즈
+═══════════════════════════════════════════════ */
+const quizData=[
+  {id:1,tag:null,q:'고정 IP에 대한 설명으로 맞는 것은?',opts:['인터넷에 연결할 때마다 주소가 바뀐다','항상 같은 IP 주소를 사용한다','무료로 사용할 수 있다','집 안에서만 사용하는 주소다'],ans:1,exp:'고정 IP는 한번 부여받으면 변하지 않는 IP 주소예요. 서버나 CCTV처럼 항상 같은 주소가 필요한 곳에 사용해요.'},
+  {id:2,tag:null,q:'192.168.0.5는 어떤 IP인가요?',opts:['공인 IP','사설 IP','고정 IP','유동 IP'],ans:1,exp:'192.168.x.x는 대표적인 사설 IP 범위예요. 집이나 회사 내부에서만 사용하는 주소로, 인터넷에서는 직접 접근할 수 없어요.'},
+  {id:3,tag:null,q:'우리 집 공유기에 연결된 기기들은 무엇을 사용하나요?',opts:['모두 같은 사설 IP를 사용한다','각각 다른 사설 IP를 사용한다','각각 다른 공인 IP를 사용한다','IP 주소가 필요 없다'],ans:1,exp:'공유기는 DHCP를 통해 각 기기에 서로 다른 사설 IP를 자동으로 배정해요. 그래서 컴퓨터·스마트폰·TV 모두 다른 사설 IP를 갖게 돼요.'},
+  {id:4,tag:null,q:'게임 서버를 운영하려면 어떤 IP가 필요한가요?',opts:['사설 IP','유동 IP','고정 공인 IP','IP 주소가 필요 없다'],ans:2,exp:'서버는 항상 같은 주소를 유지해야 다른 사람들이 접속할 수 있어요. 그래서 고정 공인 IP가 필요해요.'},
+  {id:5,tag:null,q:'NAT의 역할은 무엇인가요?',opts:['사설 IP를 공인 IP로 변환해준다','인터넷 속도를 빠르게 해준다','바이러스를 차단해준다','Wi-Fi 신호를 강하게 해준다'],ans:0,exp:'NAT(Network Address Translation)는 공유기가 사설 IP를 공인 IP로 변환해서 인터넷에 연결할 수 있게 해주는 기술이에요.'},
+  {id:6,tag:null,q:'DNS의 역할로 올바른 것은?',opts:['사설 IP를 공인 IP로 변환한다','도메인 이름을 IP 주소로 변환한다','인터넷 속도를 높여준다','바이러스를 검사한다'],ans:1,exp:'DNS는 전화번호부처럼 www.naver.com 같은 도메인 이름을 223.130.200.107 같은 IP 주소로 바꿔줘요.'},
+  {id:7,tag:null,q:'서브넷 마스크 /24는 무엇을 의미하나요?',opts:['사용 가능한 IP 주소가 24개다','네트워크 속도가 24Mbps다','앞 24비트가 네트워크 주소를 나타낸다','24개의 서브넷으로 나뉜다'],ans:2,exp:'/24는 IP 주소 32비트 중 앞 24비트를 네트워크 주소로 사용한다는 뜻이에요. 255.255.255.0과 같은 표현이에요.'},
+  {id:8,tag:null,q:'게이트웨이가 필요한 상황은?',opts:['같은 네트워크 안에서 파일을 공유할 때','다른 네트워크(인터넷)에 접속할 때','IP 주소를 새로 받을 때','Wi-Fi 비밀번호를 변경할 때'],ans:1,exp:'게이트웨이는 서로 다른 네트워크를 연결하는 입구 역할이에요. 같은 네트워크 내부는 게이트웨이 없이 통신하고, 인터넷(다른 네트워크)으로 나갈 때만 게이트웨이를 통해요.'},
+];
+
+let quizAnswers={};
+
+function renderQuiz(){
+  const area=$('quiz-area');
+  area.innerHTML=quizData.map((q,qi)=>`
+    <div class="quiz-card">
+      ${q.tag?`<span class="badge badge-cyan" style="margin-bottom:8px;display:inline-block">${q.tag}</span>`:''}
+      <div class="quiz-q">Q${qi+1}. ${q.q}</div>
+      <div id="opts-${q.id}">
+        ${q.opts.map((o,oi)=>`
+          <button class="opt-btn" id="opt-${q.id}-${oi}" onclick="answerQuiz(${q.id},${oi})">${oi+1}. ${o}</button>
+        `).join('')}
+      </div>
+      <div id="exp-${q.id}" style="display:none" class="explain-box"></div>
+    </div>`).join('');
+  $('quiz-result').style.display='none';
+  $('quiz-submit-wrap').style.display='none';
+}
+
+function answerQuiz(qid,oi){
+  if(quizAnswers[qid]!==undefined) return;
+  quizAnswers[qid]=oi;
+  const q=quizData.find(x=>x.id===qid);
+  q.opts.forEach((_,i)=>{
+    const btn=$(`opt-${qid}-${i}`);
+    btn.disabled=true;
+    if(i===q.ans){
+      btn.classList.add('correct');
+      btn.innerHTML += '<span style="margin-left:8px;color:#16a34a;font-weight:700">✓ 정답</span>';
+    } else if(i===oi&&i!==q.ans){
+      btn.classList.add('wrong');
+      btn.innerHTML += '<span style="margin-left:8px;color:#dc2626;font-weight:700">✗</span>';
+    }
+  });
+  const expBox=$('exp-'+qid);
+  expBox.innerHTML='<strong style="color:#1d4ed8">설명: </strong>'+q.exp;
+  expBox.style.display='block';
+  if(Object.keys(quizAnswers).length===quizData.length){
+    $('quiz-submit-wrap').style.display='block';
+  }
+}
+
+function showQuizResult(){
+  const score=quizData.filter(q=>quizAnswers[q.id]===q.ans).length;
+  $('quiz-area').style.display='none';
+  $('quiz-submit-wrap').style.display='none';
+  $('quiz-result').style.display='block';
+  $('quiz-score-display').textContent=score+' / '+quizData.length;
+  $('quiz-score-msg').textContent=score===quizData.length?'완벽해요! 모든 문제를 맞히셨네요! 🎊':score>=Math.ceil(quizData.length*.7)?'잘하셨어요! 조금만 더 복습하면 완벽해요! 👍':'다시 한 번 복습해보세요! 💪';
+  const wrongs=quizData.filter(q=>quizAnswers[q.id]!==q.ans);
+  $('quiz-wrongs').innerHTML=wrongs.map(q=>`
+    <div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="font-weight:700;color:#dc2626;font-size:16px;margin-bottom:4px">❌ 틀린 문제: ${q.q}</div>
+      <div style="font-size:16px;color:#374151"><strong style="color:#16a34a">정답: </strong>${q.opts[q.ans]}</div>
+      <div style="font-size:16px;color:#475569;margin-top:4px">${q.exp}</div>
+    </div>`).join('');
+}
+
+function resetQuiz(){
+  quizAnswers={};
+  $('quiz-area').style.display='block';
+  $('quiz-result').style.display='none';
+  renderQuiz();
+}
+
+renderQuiz();
+function showSparrow(el){
+  const tip = el.querySelector('#sparrow-tip');
+  tip.style.display='block';
+  setTimeout(()=>{ tip.style.display='none'; }, 500);
+}
+</script>
+</body>
+</html>
