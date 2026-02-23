@@ -19,21 +19,202 @@
       0%, 100% { transform: translateY(0) translateX(-50%); }
       50% { transform: translateY(-10px) translateX(-50%); }
     }
+    @keyframes popIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop-in { animation: popIn 0.3s ease-out forwards; }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useRef } = React;
 
+    /* ══════════════════════════════════════════
+       심화 체험 1: 이진수 → 십진수 변환 퀴즈
+    ══════════════════════════════════════════ */
+    const BinaryQuizGame = () => {
+      const generateQ = () => {
+        const val = Math.floor(Math.random() * 200) + 10;
+        return { val, bits: val.toString(2).padStart(8, '0') };
+      };
+      const [q, setQ] = useState(generateQ);
+      const [input, setInput] = useState('');
+      const [result, setResult] = useState(null); // null | 'correct' | 'wrong'
+      const [score, setScore] = useState(0);
+      const [total, setTotal] = useState(0);
+
+      const check = () => {
+        if (input === '') return;
+        const correct = parseInt(input, 10) === q.val;
+        setResult(correct ? 'correct' : 'wrong');
+        setTotal(t => t + 1);
+        if (correct) setScore(s => s + 1);
+      };
+
+      const next = () => {
+        setQ(generateQ());
+        setInput('');
+        setResult(null);
+      };
+
+      // 비트별 힌트 (2의 거�수)
+      const powers = [128, 64, 32, 16, 8, 4, 2, 1];
+
+      return (
+        <div className="bg-white rounded-xl border border-emerald-200 p-5">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-base text-gray-600">다음 이진수를 십진수로 바꿔보세요!</p>
+            <div className="bg-emerald-50 px-3 py-1 rounded-full text-sm font-bold text-emerald-700">
+              정답: {score} / {total}
+            </div>
+          </div>
+
+          {/* 비트 표시 + 2의 거듭제곱 힌트 */}
+          <div className="flex justify-center gap-1 mb-2">
+            {powers.map((p, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="text-xs text-gray-400 mb-1">2<sup>{7-i}</sup></div>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold border-2 ${
+                  q.bits[i] === '1'
+                    ? 'bg-emerald-500 text-white border-emerald-600'
+                    : 'bg-gray-100 text-gray-400 border-gray-300'
+                }`}>
+                  {q.bits[i]}
+                </div>
+                {q.bits[i] === '1' && (
+                  <div className="text-xs font-bold text-emerald-600 mt-1">{p}</div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="text-center text-base text-gray-500 mb-4">
+            켜진(1) 자리의 숫자를 모두 더하면?
+          </div>
+
+          {result === null ? (
+            <div className="flex gap-2 justify-center">
+              <input
+                type="number"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && check()}
+                placeholder="십진수 입력"
+                className="border-2 border-emerald-300 rounded-lg px-4 py-2 text-base font-bold w-36 focus:outline-none focus:border-emerald-500 text-center"
+              />
+              <button
+                onClick={check}
+                className="px-5 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-all"
+              >
+                확인
+              </button>
+            </div>
+          ) : (
+            <div className={`text-center p-4 rounded-xl pop-in ${result === 'correct' ? 'bg-green-50 border border-green-300' : 'bg-red-50 border border-red-300'}`}>
+              {result === 'correct' ? (
+                <p className="text-green-700 font-bold text-lg">🎉 정답! <span className="text-2xl">{q.val}</span></p>
+              ) : (
+                <p className="text-red-700 font-bold text-base">
+                  ❌ 틀렸어요. 정답은 <span className="text-xl">{q.val}</span> 이에요!
+                  <br/>
+                  <span className="text-sm font-normal text-gray-600">
+                    {q.bits.split('').map((b,i) => b==='1' ? powers[i] : null).filter(Boolean).join(' + ')} = {q.val}
+                  </span>
+                </p>
+              )}
+              <button
+                onClick={next}
+                className="mt-3 px-5 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-all"
+              >
+                다음 문제 →
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    /* ══════════════════════════════════════════
+       심화 체험 2: "몇 비트가 필요할까?" 슬라이더
+    ══════════════════════════════════════════ */
+    const BitSlider = () => {
+      const [bits, setBits] = useState(4);
+      const combinations = Math.pow(2, bits);
+      const examples = {
+        1: '0, 1 — 켜짐/꺼짐만 표현',
+        2: '0~3 — 신호등(빨강/노랑/초록/없음)',
+        3: '0~7 — 8가지 색상',
+        4: '0~15 — 16진수 한 자리(0~F)',
+        5: '0~31 — 알파벳 소문자 표현 가능',
+        6: '0~63 — 대소문자 영어 표현 시작',
+        7: '0~127 — ASCII 코드 (영어 전체)',
+        8: '0~255 — 1바이트! 영어+숫자+특수문자 전부',
+        9: '0~511',
+        10: '0~1,023',
+        11: '0~2,047',
+        12: '0~4,095 — 12비트(0.5KB에 가까움)',
+        13: '0~8,191',
+        14: '0~16,383',
+        15: '0~32,767',
+        16: '0~65,535 — 2바이트! 한글(유니코드) 표현 가능 🇰🇷',
+      };
+
+      const highlight = bits === 8 || bits === 16;
+
+      return (
+        <div className="bg-white rounded-xl border border-teal-200 p-5">
+          <div className="flex items-center gap-4 mb-4">
+            <span className="text-base font-bold text-gray-700">비트 수:</span>
+            <input
+              type="range" min="1" max="16" value={bits}
+              onChange={e => setBits(Number(e.target.value))}
+              className="flex-1 accent-teal-600"
+            />
+            <span className="text-2xl font-bold text-teal-600 w-10 text-center">{bits}</span>
+          </div>
+
+          {/* 비트 시각화 */}
+          <div className="flex gap-1 justify-center flex-wrap mb-4">
+            {Array.from({length: bits}).map((_, i) => (
+              <div key={i} className={`w-7 h-7 rounded flex items-center justify-center text-xs font-bold ${
+                highlight ? 'bg-indigo-500 text-white' : 'bg-teal-400 text-white'
+              }`}>
+                {i % 2 === 0 ? '1' : '0'}
+              </div>
+            ))}
+          </div>
+
+          <div className={`text-center p-4 rounded-xl ${highlight ? 'bg-indigo-50 border-2 border-indigo-400' : 'bg-teal-50 border border-teal-200'}`}>
+            <p className={`text-3xl font-bold mb-1 ${highlight ? 'text-indigo-700' : 'text-teal-700'}`}>
+              2<sup>{bits}</sup> = <span>{combinations.toLocaleString()}가지</span>
+            </p>
+            <p className="text-base text-gray-600">{examples[bits]}</p>
+            {highlight && (
+              <p className="mt-2 text-sm font-bold text-indigo-600">
+                {bits === 8 ? '⭐ 이게 바로 1바이트(Byte)!' : '⭐ 이게 바로 2바이트(유니코드 기본 단위)!'}
+              </p>
+            )}
+          </div>
+
+          <p className="text-sm text-center text-gray-500 mt-3">
+            슬라이더를 움직여서 비트 수가 늘어날수록 표현할 수 있는 경우의 수가<br/>
+            <span className="font-bold text-teal-600">2배씩</span> 늘어나는 것을 확인해보세요!
+          </p>
+        </div>
+      );
+    };
+
+    /* ══════════════════════════════════════════
+       메인 컴포넌트
+    ══════════════════════════════════════════ */
     const BitByteEducation = () => {
       const [bitState, setBitState] = useState(false);
       const [byteStates, setByteStates] = useState([false, false, false, false, false, false, true, true]);
       const [showSecret, setShowSecret] = useState(false);
       
-      const toggleBit = () => {
-        setBitState(!bitState);
-      };
+      const toggleBit = () => setBitState(!bitState);
 
       const toggleByte = (index) => {
         const newStates = [...byteStates];
@@ -41,33 +222,24 @@
         setByteStates(newStates);
       };
 
-      const countOnes = (states) => {
-        return states.filter(state => state).length;
-      };
+      const countOnes = (states) => states.filter(s => s).length;
 
       const binaryToDecimal = (states) => {
-        const powers = [128, 64, 32, 16, 8, 4, 2, 1]; // 2^7, 2^6, ..., 2^0
+        const powers = [128, 64, 32, 16, 8, 4, 2, 1];
         let parts = [];
         let total = 0;
-        
         states.forEach((state, index) => {
-          if (state) {
-            parts.push(powers[index]);
-            total += powers[index];
-          }
+          if (state) { parts.push(powers[index]); total += powers[index]; }
         });
-        
-        if (parts.length === 0) {
-          return '0';
-        }
-        
-        return parts.join('+') + ' = ' + total;
+        if (parts.length === 0) return '0';
+        return parts.join(' + ') + ' = ' + total;
       };
 
       // ── 퀴즈 state ──
       const [quizAnswers, setQuizAnswers] = useState({});
       const [showQuizResult, setShowQuizResult] = useState(false);
 
+      // keyboard.html과 중복되지 않는 심화 퀴즈 문항
       const quizData = [
         {
           id: 1,
@@ -78,24 +250,29 @@
         },
         {
           id: 2,
-          question: '1바이트(byte)로 표현할 수 있는 경우의 수는 총 몇 가지인가요?',
-          options: ['8가지', '16가지', '128가지', '256가지'],
-          correct: 3,
-          explanation: '1바이트 = 8비트이므로 2⁸ = 2×2×2×2×2×2×2×2 = 256가지를 표현할 수 있어요. 이 256가지로 영어 대소문자, 숫자, 특수문자를 모두 담을 수 있답니다!'
-        },
-        {
-          id: 3,
           question: '1KB(킬로바이트)는 정확히 몇 바이트인가요?',
           options: ['100바이트', '1,000바이트', '1,024바이트', '10,000바이트'],
           correct: 2,
-          explanation: '1KB = 1,024바이트예요. 1,000이 아니라 1,024인 이유는 컴퓨터가 2진법을 사용하기 때문이에요. 2¹⁰ = 1,024이 가장 가까운 단위가 되는 거죠!'
+          explanation: '1KB = 1,024바이트예요. 1,000이 아니라 1,024인 이유는 컴퓨터가 2진법을 사용하기 때문이에요. 2¹⁰ = 1,024이 가장 가까운 2의 거듭제곱 단위가 되는 거죠!'
+        },
+        {
+          id: 3,
+          question: '사진 1장(약 3MB)을 비트(bit) 단위로 바꾸면 대략 얼마일까요?',
+          options: ['약 3,000비트', '약 24,000비트', '약 3,000,000비트', '약 24,000,000비트'],
+          correct: 3,
+          explanation: '3MB = 3×1,024×1,024바이트 ≈ 3,145,728바이트이고, 1바이트 = 8비트이므로 ×8 하면 약 24,000,000비트(2400만 비트)가 됩니다. 사진 한 장이 이렇게 많은 비트로 이루어져 있어요!'
         },
         {
           id: 4,
-          question: '1비트(bit)가 가질 수 있는 값으로 올바른 것은?',
-          options: ['0, 1, 2 세 가지 값', '0 또는 1, 두 가지 값만', '0부터 255까지', '1부터 8까지'],
-          correct: 1,
-          explanation: '비트는 전기가 흐르면 1(On), 흐르지 않으면 0(Off), 딱 두 가지 상태만 가질 수 있어요. 이 단순함 덕분에 컴퓨터 회로가 안정적으로 동작할 수 있답니다!'
+          question: '1TB(테라바이트) 하드디스크에 가장 많이 저장할 수 있는 것은?',
+          options: [
+            '영화 약 1편',
+            '사진 약 1,000장',
+            '영화 약 500편 또는 사진 약 25만 장',
+            '문자 약 1,000개'
+          ],
+          correct: 2,
+          explanation: '1TB ≈ 1,024GB이에요. 영화 한 편이 약 2GB라면 약 500편, 사진 한 장이 약 4MB라면 약 25만 장을 저장할 수 있어요. 단위가 커질수록 어마어마한 데이터를 담을 수 있답니다!'
         },
         {
           id: 5,
@@ -107,7 +284,7 @@
             'KB → MB → bit → byte'
           ],
           correct: 1,
-          explanation: '올바른 순서는 bit(비트) → byte(바이트) → KB(킬로바이트) → MB(메가바이트) → GB(기가바이트) → TB(테라바이트)예요. 각 단계마다 1,024배씩 커진답니다!'
+          explanation: '올바른 순서는 bit → byte → KB → MB → GB → TB예요. 각 단계마다 1,024배씩 커진답니다! (bit→byte는 8배)'
         }
       ];
 
@@ -115,9 +292,7 @@
         setQuizAnswers(prev => ({...prev, [questionId]: selectedOption}));
       };
 
-      const calculateScore = () => {
-        return quizData.filter(q => quizAnswers[q.id] === q.correct).length;
-      };
+      const calculateScore = () => quizData.filter(q => quizAnswers[q.id] === q.correct).length;
 
       const resetQuiz = () => {
         setQuizAnswers({});
@@ -126,13 +301,13 @@
 
       const handleEmojiClick = () => {
         setShowSecret(true);
-        setTimeout(() => {
-          setShowSecret(false);
-        }, 500);
+        setTimeout(() => setShowSecret(false), 500);
       };
 
       return (
         <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+          {/* ── 헤더 (keyboard.html과 동일 구조) ── */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
             <div className="flex justify-between items-center mb-2">
               <div className="text-sm text-indigo-100">고등학교 정보 학습자료</div>
@@ -147,11 +322,12 @@
             <p className="text-indigo-100">컴퓨터가 데이터를 저장하는 가장 기본적인 단위를 알아봅시다!</p>
           </div>
 
+          {/* ── 개요 (복습 + 이번 시간 안내) ── */}
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-indigo-100">
             <div className="space-y-3 text-gray-700">
               <div>
-                <h3 className="font-bold text-indigo-900 text-lg mb-2">컴퓨터는 어떻게 데이터를 저장할까요?</h3>
-                <p className="leading-relaxed">
+                <h3 className="font-bold text-indigo-900 text-xl mb-2">컴퓨터는 어떻게 데이터를 저장할까요?</h3>
+                <p className="leading-relaxed text-base">
                   컴퓨터는 모든 정보를 <span className="font-bold text-blue-600">0과 1</span>로만 표현합니다.
                   마치 전구가 <span className="font-bold text-yellow-600">켜지거나(1)</span> <span className="font-bold text-gray-600">꺼지는(0)</span> 것처럼요!
                   이 0과 1 하나하나를 <span className="font-bold text-purple-600">'비트(bit)'</span>라고 부르고,
@@ -162,51 +338,49 @@
               <div className="grid md:grid-cols-3 gap-4 mt-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-indigo-700 mb-2">💡 비트 (bit)</h4>
-                  <p className="text-sm">0 또는 1의 값을 가지는 컴퓨터 데이터의 <span className="font-bold">가장 작은 단위</span></p>
+                  <p className="text-base">0 또는 1의 값을 가지는 컴퓨터 데이터의 <span className="font-bold">가장 작은 단위</span></p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-green-700 mb-2">📦 바이트 (byte)</h4>
-                  <p className="text-sm">8개의 비트가 모인 것. 하나의 <span className="font-bold">문자</span>를 표현할 수 있어요</p>
+                  <p className="text-base">8개의 비트가 모인 것. 문자 하나를 표현할 수 있는 기본 단위</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-bold text-orange-700 mb-2">🔢 표현 범위</h4>
-                  <p className="text-sm">1비트: 2가지 / 1바이트: <span className="font-bold">256가지</span> 표현 가능</p>
+                  <p className="text-base">비트 수가 1개 늘어날 때마다 표현 가능한 경우의 수는 <span className="font-bold">2배</span>씩 증가!</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="p-8">
+
+            {/* ── 체험 방법 안내 ── */}
             <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-              <p className="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
-              <p className="text-sm text-gray-700">
+              <p className="text-base font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
+              <p className="text-base text-gray-700">
                 <span className="font-bold text-blue-600">전구를 클릭해보세요! </span> 
                 전구가 켜지면 1, 꺼지면 0이 됩니다. 
-                비트와 바이트의 차이를 직접 눈으로 확인할 수 있어요.
+                비트와 바이트의 차이를 직접 눈으로 확인해보세요.
               </p>
             </div>
 
-            {/* 비트와 바이트 비교 영역 */}
-            <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-lg">
+            {/* ── 전구 체험 영역 ── */}
+            <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
               <div className="flex items-center justify-center gap-12 flex-wrap">
+
                 {/* 왼쪽: 1 bit */}
                 <div className="text-center">
                   <h2 className="text-3xl font-bold text-indigo-600 mb-6">1 bit</h2>
                   <div className="flex flex-col items-center gap-4">
-                    <div 
-                      className="cursor-pointer transition-transform"
-                      onClick={toggleBit}
-                    >
+                    <div className="cursor-pointer transition-transform hover:scale-105" onClick={toggleBit}>
                       <img 
                         src={bitState ? "src/on.png" : "src/off.png"}
                         alt="전구"
                         className="w-28 h-32"
                       />
                     </div>
-                    <div className="text-4xl font-bold text-gray-800">
-                      {bitState ? '1' : '0'}
-                    </div>
-                    <div className="text-lg text-gray-600 bg-white px-4 py-2 rounded-lg">
+                    <div className="text-4xl font-bold text-gray-800">{bitState ? '1' : '0'}</div>
+                    <div className="text-base text-gray-600 bg-white px-4 py-2 rounded-lg">
                       2<sup>1</sup> = <span className="font-bold text-indigo-600">2가지</span>
                     </div>
                   </div>
@@ -226,7 +400,7 @@
                       {byteStates.map((state, index) => (
                         <div 
                           key={index}
-                          className="flex flex-col items-center cursor-pointer transition-transform"
+                          className="flex flex-col items-center cursor-pointer transition-transform hover:scale-105"
                           onClick={() => toggleByte(index)}
                         >
                           <img 
@@ -240,7 +414,7 @@
                         </div>
                       ))}
                     </div>
-                    <div className="text-lg text-gray-600 bg-white px-4 py-2 rounded-lg">
+                    <div className="text-base text-gray-600 bg-white px-4 py-2 rounded-lg">
                       2<sup>8</sup> = <span className="font-bold text-green-600">256가지</span>
                     </div>
                   </div>
@@ -250,34 +424,32 @@
               {/* 현재 상태 표시 */}
               <div className="mt-8 grid md:grid-cols-2 gap-4">
                 <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                  <h3 className="font-bold text-indigo-900 mb-2">왼쪽 비트 상태</h3>
-                  <p className="text-sm text-gray-700">
+                  <h3 className="font-bold text-indigo-900 mb-2 text-base">왼쪽 비트 상태</h3>
+                  <p className="text-base text-gray-700">
                     현재 값: <span className="font-bold text-indigo-600 text-lg">{bitState ? '1' : '0'}</span>
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    비트는 2가지 상태만 표현할 수 있어요
-                  </p>
+                  <p className="text-base text-gray-600 mt-1">비트는 2가지 상태만 표현할 수 있어요</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h3 className="font-bold text-green-900 mb-2">오른쪽 바이트 상태</h3>
-                  <p className="text-sm text-gray-700">
+                  <h3 className="font-bold text-green-900 mb-2 text-base">오른쪽 바이트 상태</h3>
+                  <p className="text-base text-gray-700">
                     이진수: <span className="font-bold text-green-600 text-lg font-mono">
                       {byteStates.map(s => s ? '1' : '0').join('')}
                     </span>
                     {' '}<span className="ml-2">십진수: <span className="font-bold text-blue-600">{binaryToDecimal(byteStates)}</span></span>
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-base text-gray-600 mt-1">
                     켜진 전구: {countOnes(byteStates)}개 / 꺼진 전구: {8 - countOnes(byteStates)}개
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* 설명 섹션들 */}
+            {/* ── 설명 섹션 ── */}
             <div className="grid md:grid-cols-2 gap-6 mt-6">
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-lg border border-blue-200">
-                <h3 className="text-lg font-bold text-blue-900 mb-3">🔍 비트(bit)란?</h3>
-                <div className="space-y-3 text-sm text-gray-700">
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-xl border border-blue-200">
+                <h3 className="text-xl font-bold text-blue-900 mb-3">🔍 비트(bit)란?</h3>
+                <div className="space-y-3 text-base text-gray-700">
                   <div className="bg-white p-3 rounded-lg">
                     <p className="font-bold mb-1">Binary Digit의 줄임말</p>
                     <p>컴퓨터가 이해할 수 있는 <span className="font-bold text-blue-600">가장 작은 정보 단위</span></p>
@@ -292,9 +464,9 @@
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
-                <h3 className="text-lg font-bold text-green-900 mb-3">📦 바이트(byte)란?</h3>
-                <div className="space-y-3 text-sm text-gray-700">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-200">
+                <h3 className="text-xl font-bold text-green-900 mb-3">📦 바이트(byte)란?</h3>
+                <div className="space-y-3 text-base text-gray-700">
                   <div className="bg-white p-3 rounded-lg">
                     <p className="font-bold mb-1">8개의 비트 = 1바이트</p>
                     <p>하나의 <span className="font-bold text-green-600">문자</span>를 저장하는 기본 단위</p>
@@ -310,39 +482,41 @@
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
-              <h3 className="text-lg font-bold text-purple-900 mb-3">📊 데이터 크기 단위</h3>
+            {/* ── 데이터 크기 단위 ── */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 mt-6">
+              <h3 className="text-xl font-bold text-purple-900 mb-3">📊 데이터 크기 단위</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="bg-white p-3 rounded-lg shadow-sm">
-                    <p className="font-bold text-indigo-600">1 bit (비트)</p>
-                    <p className="text-sm text-gray-700">0 또는 1</p>
+                    <p className="font-bold text-base text-indigo-600">1 bit (비트)</p>
+                    <p className="text-base text-gray-700">0 또는 1</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-sm">
-                    <p className="font-bold text-blue-600">8 bits = 1 byte (바이트)</p>
-                    <p className="text-sm text-gray-700">문자 하나 (예: 'A', '1', '!')</p>
+                    <p className="font-bold text-base text-blue-600">8 bits = 1 byte (바이트)</p>
+                    <p className="text-base text-gray-700">문자 하나 (예: 'A', '1', '!')</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-sm">
-                    <p className="font-bold text-green-600">1,024 bytes = 1 KB (킬로바이트)</p>
-                    <p className="text-sm text-gray-700">짧은 문장 정도</p>
+                    <p className="font-bold text-base text-green-600">1,024 bytes = 1 KB (킬로바이트)</p>
+                    <p className="text-base text-gray-700">짧은 문장 정도</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-sm">
-                    <p className="font-bold text-orange-600">1,024 KB = 1 MB (메가바이트)</p>
-                    <p className="text-sm text-gray-700">사진 한 장 정도</p>
+                    <p className="font-bold text-base text-orange-600">1,024 KB = 1 MB (메가바이트)</p>
+                    <p className="text-base text-gray-700">사진 한 장 정도</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="bg-white p-3 rounded-lg shadow-sm">
-                    <p className="font-bold text-red-600">1,024 MB = 1 GB (기가바이트)</p>
-                    <p className="text-sm text-gray-700">영화 한 편 정도</p>
+                    <p className="font-bold text-base text-red-600">1,024 MB = 1 GB (기가바이트)</p>
+                    <p className="text-base text-gray-700">영화 한 편 정도</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-sm">
-                    <p className="font-bold text-purple-600">1,024 GB = 1 TB (테라바이트)</p>
-                    <p className="text-sm text-gray-700">수천 개의 영화</p>
+                    <p className="font-bold text-base text-purple-600">1,024 GB = 1 TB (테라바이트)</p>
+                    <p className="text-base text-gray-700">수천 개의 영화</p>
                   </div>
-                  <div className="bg-indigo-100 p-3 rounded-lg border-2 border-indigo-400">
-                    <p className="text-xs text-gray-600 font-bold">💡 재미있는 사실</p>
-                    <p className="text-xs text-gray-700 mt-1">
+                  {/* 수정: 튀는 배경색 → 흰 카드 통일 */}
+                  <div className="bg-white p-3 rounded-lg shadow-sm border border-indigo-300">
+                    <p className="text-base text-gray-600 font-bold">💡 재미있는 사실</p>
+                    <p className="text-base text-gray-700 mt-1">
                       1KB가 정확히 1,000바이트가 아니라 1,024바이트인 이유는 
                       컴퓨터가 2진법(2<sup>10</sup>=1,024)을 사용하기 때문이에요!
                     </p>
@@ -351,9 +525,10 @@
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-lg border border-orange-200 mt-6">
-              <h3 className="text-lg font-bold text-orange-900 mb-3">🎯 실생활 예시</h3>
-              <div className="space-y-3 text-sm text-gray-700">
+            {/* ── 실생활 예시 ── */}
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-xl border border-orange-200 mt-6">
+              <h3 className="text-xl font-bold text-orange-900 mb-3">🎯 실생활 예시</h3>
+              <div className="space-y-3 text-base text-gray-700">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
                   <div className="flex-1 bg-white p-3 rounded-lg">
@@ -378,8 +553,9 @@
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-5 rounded-lg border border-cyan-200 mt-6">
-              <h3 className="text-lg font-bold text-cyan-900 mb-3">
+            {/* ── 생각해보기 ── */}
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-5 rounded-xl border border-cyan-200 mt-6">
+              <h3 className="text-xl font-bold text-cyan-900 mb-3">
                 <span 
                   className="relative inline-block cursor-pointer"
                   onClick={handleEmojiClick}
@@ -390,9 +566,7 @@
                       className="absolute left-1/2 -translate-x-1/2 -top-12 
                                  bg-yellow-400 text-gray-900 px-3 py-1 rounded-xl 
                                  text-sm font-bold whitespace-nowrap shadow-2xl z-50"
-                      style={{
-                        animation: 'bounceOnce 0.5s ease-in-out'
-                      }}
+                      style={{ animation: 'bounceOnce 0.4s ease-in-out' }}
                     >
                       {"\uCC38\uC0C8"}
                     </span>
@@ -402,33 +576,51 @@
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h4 className="font-bold text-indigo-600 mb-2">Q. 왜 컴퓨터는 0과 1만 사용할까요?</h4>
-                  <p className="text-sm text-gray-700">
+                  <h4 className="font-bold text-base text-indigo-600 mb-2">Q. 왜 컴퓨터는 0과 1만 사용할까요?</h4>
+                  <p className="text-base text-gray-700">
                     컴퓨터는 전기 신호로 작동합니다. 전기가 <span className="font-bold text-yellow-600">흐르면(On) 1</span>, 
                     <span className="font-bold text-gray-600"> 흐르지 않으면(Off) 0</span>으로 표현해요. 
-                    이렇게 두 가지 상태만 구분하면 되니까 간단하고 정확하답니다!
+                    두 가지 상태만 구분하면 되니까 간단하고 정확하답니다!
                   </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h4 className="font-bold text-green-600 mb-2">Q. 왜 8개씩 묶어서 바이트를 만들까요?</h4>
-                  <p className="text-sm text-gray-700">
+                  <h4 className="font-bold text-base text-green-600 mb-2">Q. 왜 8개씩 묶어서 바이트를 만들까요?</h4>
+                  <p className="text-base text-gray-700">
                     8비트면 256가지(2<sup>8</sup>)를 표현할 수 있어요. 
-                    이 정도면 영어 알파벳 대소문자(52개), 숫자(10개), 
+                    영어 알파벳 대소문자(52개), 숫자(10개), 
                     특수문자들을 모두 표현하기에 충분해서 8개를 기본 단위로 정했어요!
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* ── 심화 체험 1: 이진수 → 십진수 변환 퀴즈 ── */}
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-5 rounded-xl border border-emerald-200 mt-6">
+              <h3 className="text-xl font-bold text-emerald-900 mb-1">🧮 심화 체험 ① — 이진수를 십진수로 변환해보자!</h3>
+              <p className="text-base text-gray-600 mb-4">
+                지난 시간에 <code className="bg-white px-2 py-0.5 rounded font-mono text-emerald-700">01000001 = 'A'</code> 같은 변환을 봤죠? 이제 직접 계산해보세요!
+              </p>
+              <BinaryQuizGame />
+            </div>
+
+            {/* ── 심화 체험 2: 비트 수 슬라이더 ── */}
+            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-5 rounded-xl border border-teal-200 mt-6">
+              <h3 className="text-xl font-bold text-teal-900 mb-1">🎛️ 심화 체험 ② — 비트가 1개 늘어나면?</h3>
+              <p className="text-base text-gray-600 mb-4">
+                비트 수가 1개씩 늘어날 때마다 표현 가능한 경우의 수가 어떻게 바뀌는지 확인해보세요!
+              </p>
+              <BitSlider />
+            </div>
+
             {/* ── 퀴즈 섹션 ── */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
-              <h3 className="text-lg font-bold text-purple-900 mb-1">🎯 배운 내용 확인하기</h3>              
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 mt-6">
+              <h3 className="text-xl font-bold text-purple-900 mb-3">🎯 배운 내용 확인하기</h3>              
 
               {!showQuizResult ? (
                 <div className="space-y-6">
                   {quizData.map((quiz, qIdx) => (
-                    <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-                      <h4 className="font-bold text-gray-800 mb-4">
+                    <div key={quiz.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                      <h4 className="font-bold text-gray-800 mb-4 text-base">
                         Q{qIdx + 1}. {quiz.question}
                       </h4>
                       <div className="space-y-2">
@@ -447,23 +639,19 @@
                               key={oIdx}
                               onClick={() => handleQuizAnswer(quiz.id, oIdx)}
                               disabled={answered}
-                              className={`w-full text-left p-3 rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                              className={`w-full text-left p-3 rounded-lg border transition-all text-base ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                               {oIdx + 1}. {option}
-                              {answered && isCorrect && (
-                                <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
-                              )}
-                              {answered && isSelected && !isCorrect && (
-                                <span className="ml-2 text-red-600 font-bold">✗</span>
-                              )}
+                              {answered && isCorrect && <span className="ml-2 text-green-600 font-bold">✓ 정답</span>}
+                              {answered && isSelected && !isCorrect && <span className="ml-2 text-red-600 font-bold">✗</span>}
                             </button>
                           );
                         })}
                       </div>
                       {quizAnswers[quiz.id] !== undefined && (
-                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-sm text-gray-700">
-                            <span className="font-bold text-blue-600">설명: </span>{quiz.explanation}
+                        <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                          <p className="text-base text-gray-700">
+                            <span className="font-bold text-indigo-600">설명: </span>{quiz.explanation}
                           </p>
                         </div>
                       )}
@@ -471,17 +659,19 @@
                   ))}
 
                   {Object.keys(quizAnswers).length === quizData.length && (
-                    <button
-                      onClick={() => setShowQuizResult(true)}
-                      className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
-                    >
-                      🏁 결과 확인하기
-                    </button>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => setShowQuizResult(true)}
+                        className="w-48 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                      >
+                        🏁 결과 확인하기
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (
                 <div className="text-center">
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200 mb-6">
                     <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
                     <div className="text-6xl font-bold text-indigo-600 mb-4">
                       {calculateScore()} / {quizData.length}
@@ -494,20 +684,23 @@
                         : '다시 한 번 복습해보세요! 💪'}
                     </p>
                   </div>
+
+                  {/* 오답 해설 */}
                   <div className="text-left space-y-3 mb-6">
                     {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
-                      <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
-                        <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
-                        <p className="text-sm text-gray-700">
+                      <div key={q.id} className="bg-red-50 p-4 rounded-xl border border-red-200">
+                        <p className="font-bold text-red-700 text-base mb-1">❌ 틀린 문제: {q.question}</p>
+                        <p className="text-base text-gray-700">
                           <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
                         </p>
-                        <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                        <p className="text-base text-gray-600 mt-1">{q.explanation}</p>
                       </div>
                     ))}
                   </div>
+
                   <button
                     onClick={resetQuiz}
-                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                    className="w-48 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
                   >
                     🔄 다시 풀기
                   </button>
@@ -515,10 +708,11 @@
               )}
             </div>
 
+            {/* 홈으로 버튼 */}
             <div className="mt-6 text-center">
               <a 
                 href="index.html" 
-                className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white w-64 py-3 rounded-lg font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
               >
                 🏠 홈으로 돌아가기
               </a>
