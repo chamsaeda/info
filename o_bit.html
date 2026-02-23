@@ -5,7 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>비트와 바이트 - 컴퓨터 데이터의 기본 단위</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tailwind Preflight 핵심 리셋 ── */
+    h1, h2, h3, h4, h5, h6 {
+      font-size: inherit;
+      font-weight: inherit;
+      margin: 0;
+    }
+    p { margin: 0; }
+    a { color: inherit; text-decoration: inherit; }
+    button { font-family: inherit; font-size: 100%; line-height: inherit; }
+    img { display: block; }
+    sup { vertical-align: super; font-size: 0.75em; line-height: 0; position: relative; top: -0.4em; }
 
     body {
       font-family: 'Malgun Gothic', sans-serif;
