@@ -5,851 +5,886 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🔐 자물쇠로 배우는 경우의 수</title>
   <style>
-    /* ===== Reset & Base ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    a { text-decoration: none; }
     body {
-      font-family: 'Malgun Gothic', sans-serif;
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      margin: 0;
-      padding: 20px;
       min-height: 100vh;
+      padding: 20px;
     }
-
-    /* ===== Tailwind-equivalent utilities ===== */
-    .max-w-7xl   { max-width: 80rem; }
-    .mx-auto     { margin-left: auto; margin-right: auto; }
-    .overflow-hidden { overflow: hidden; }
-    .rounded-2xl { border-radius: 1rem; }
-    .shadow-2xl  { box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); }
-    .bg-white    { background-color: #fff; }
-
-    /* flex */
-    .flex        { display: flex; }
-    .inline-block{ display: inline-block; }
-    .grid        { display: grid; }
-    .flex-col    { flex-direction: column; }
-    .flex-wrap   { flex-wrap: wrap; }
-    .items-center{ align-items: center; }
-    .items-start { align-items: flex-start; }
-    .justify-center  { justify-content: center; }
-    .justify-between { justify-content: space-between; }
-    .flex-shrink-0   { flex-shrink: 0; }
-    .gap-2  { gap: .5rem; }
-    .gap-3  { gap: .75rem; }
-    .gap-4  { gap: 1rem; }
-    .gap-8  { gap: 2rem; }
-    .space-y-3 > * + * { margin-top: .75rem; }
-
-    /* grid */
-    @media (min-width: 768px) {
-      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    }
-
-    /* position */
-    .relative { position: relative; }
-    .absolute { position: absolute; }
-
-    /* sizing */
-    .w-6  { width: 1.5rem; }
-    .w-8  { width: 2rem; }
-    .w-10 { width: 2.5rem; }
-    .w-16 { width: 4rem; }
-    .w-20 { width: 5rem; }
-    .w-32 { width: 8rem; }
-    .h-8  { height: 2rem; }
-    .h-9  { height: 2.25rem; }
-    .h-10 { height: 2.5rem; }
-    .h-28 { height: 7rem; }
-    .h-44 { height: 11rem; }
-
-    /* spacing */
-    .p-4  { padding: 1rem; }
-    .p-5  { padding: 1.25rem; }
-    .p-6  { padding: 1.5rem; }
-    .p-8  { padding: 2rem; }
-    .px-4 { padding-left: 1rem; padding-right: 1rem; }
-    .px-8 { padding-left: 2rem; padding-right: 2rem; }
-    .py-2 { padding-top: .5rem; padding-bottom: .5rem; }
-    .py-3 { padding-top: .75rem; padding-bottom: .75rem; }
-    .mt-1 { margin-top: .25rem; }
-    .mt-4 { margin-top: 1rem; }
-    .mt-6 { margin-top: 1.5rem; }
-    .mt-8 { margin-top: 2rem; }
-    .mb-2 { margin-bottom: .5rem; }
-    .mb-3 { margin-bottom: .75rem; }
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .ml-24{ margin-left: 6rem; }
-    .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
-    .-mt-5{ margin-top: -1.25rem; }
-
-    /* positioning helpers */
-    .top-1\/2      { top: 50%; }
-    .right-20      { right: 5rem; }
-    .-translate-y-1\/2     { transform: translateY(-50%); }
-    .-translate-y-26px     { transform: translateY(-26px); }
-    .-translate-x-16       { transform: translateX(-4rem); }
-    .translate-x-4px       { transform: translateX(4px); }
-
-    /* text */
-    .text-sm  { font-size: .875rem; line-height: 1.25rem; }
-    .text-lg  { font-size: 1.125rem; line-height: 1.75rem; }
-    .text-xl  { font-size: 1.25rem; line-height: 1.75rem; }
-    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-    .text-5xl { font-size: 3rem; line-height: 1; }
-    .font-bold    { font-weight: 700; }
-    .font-semibold{ font-weight: 600; }
-    .font-mono    { font-family: ui-monospace, monospace; }
-    .leading-relaxed { line-height: 1.625; }
-    .tracking-widest { letter-spacing: .2em; }
-    .text-center  { text-align: center; }
-    .opacity-90   { opacity: .9; }
-
-    /* colors - text */
-    .text-white       { color: #fff; }
-    .text-gray-600    { color: #4b5563; }
-    .text-gray-700    { color: #374151; }
-    .text-gray-800    { color: #1f2937; }
-    .text-blue-600    { color: #2563eb; }
-    .text-blue-700    { color: #1d4ed8; }
-    .text-blue-900    { color: #1e3a8a; }
-    .text-green-600   { color: #16a34a; }
-    .text-green-700   { color: #15803d; }
-    .text-green-900   { color: #14532d; }
-    .text-indigo-100  { color: #e0e7ff; }
-    .text-indigo-600  { color: #4f46e5; }
-    .text-indigo-700  { color: #4338ca; }
-    .text-indigo-900  { color: #312e81; }
-    .text-orange-600  { color: #ea580c; }
-    .text-orange-700  { color: #c2410c; }
-    .text-orange-900  { color: #7c2d12; }
-    .text-purple-600  { color: #9333ea; }
-    .text-purple-700  { color: #7e22ce; }
-    .text-purple-900  { color: #581c87; }
-    .text-red-600     { color: #dc2626; }
-    .text-yellow-900  { color: #713f12; }
-
-    /* colors - background */
-    .bg-gray-50       { background-color: #f9fafb; }
-    .bg-gray-600      { background-color: #4b5563; }
-    .bg-blue-50       { background-color: #eff6ff; }
-    .bg-yellow-50     { background-color: #fefce8; }
-    .bg-green-500     { background-color: #22c55e; }
-    .bg-indigo-500    { background-color: #6366f1; }
-    .bg-orange-500    { background-color: #f97316; }
-    .bg-purple-500    { background-color: #a855f7; }
-
-    /* gradients */
-    .bg-gradient-to-r  { background-image: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to)); }
-    .bg-gradient-to-b  { background-image: linear-gradient(to bottom, var(--tw-gradient-from), var(--tw-gradient-to)); }
-    .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to)); }
-    .bg-gradient-to-l  { background-image: linear-gradient(to left, var(--tw-gradient-from), var(--tw-gradient-to)); }
-
-    .from-blue-50    { --tw-gradient-from: #eff6ff; }
-    .from-cyan-50    { --tw-gradient-from: #ecfeff; }  /* fallback */
-    .from-gray-500   { --tw-gradient-from: #6b7280; }
-    .from-gray-600   { --tw-gradient-from: #4b5563; }
-    .from-gray-700   { --tw-gradient-from: #374151; }
-    .from-gray-900   { --tw-gradient-from: #111827; }
-    .from-green-50   { --tw-gradient-from: #f0fdf4; }
-    .from-indigo-500 { --tw-gradient-from: #6366f1; }
-    .from-indigo-600 { --tw-gradient-from: #4f46e5; }
-    .from-orange-50  { --tw-gradient-from: #fff7ed; }
-    .from-purple-50  { --tw-gradient-from: #faf5ff; }
-
-    .to-black        { --tw-gradient-to: #000; }
-    .to-cyan-50      { --tw-gradient-to: #ecfeff; }
-    .to-emerald-50   { --tw-gradient-to: #ecfdf5; }
-    .to-gray-500     { --tw-gradient-to: #6b7280; }
-    .to-gray-700     { --tw-gradient-to: #374151; }
-    .to-indigo-50    { --tw-gradient-to: #eef2ff; }
-    .to-pink-50      { --tw-gradient-to: #fdf2f8; }
-    .to-purple-600   { --tw-gradient-to: #9333ea; }
-    .to-yellow-50    { --tw-gradient-to: #fefce8; }
-
-    /* borders */
-    .border      { border-width: 1px; border-style: solid; }
-    .border-2    { border-width: 2px; border-style: solid; }
-    .border-3    { border-width: 3px; border-style: solid; }
-    .border-4    { border-width: 4px; border-style: solid; }
-    .border-b    { border-bottom-width: 1px; border-bottom-style: solid; }
-    .border-l-4  { border-left-width: 4px; border-left-style: solid; }
-    .border-dashed { border-style: dashed; }
-
-    .border-blue-200    { border-color: #bfdbfe; }
-    .border-gray-200    { border-color: #e5e7eb; }
-    .border-gray-600    { border-color: #4b5563; }
-    .border-gray-800    { border-color: #1f2937; }
-    .border-green-200   { border-color: #bbf7d0; }
-    .border-green-500   { border-color: #22c55e; }
-    .border-indigo-100  { border-color: #e0e7ff; }
-    .border-indigo-500  { border-color: #6366f1; }
-    .border-orange-200  { border-color: #fed7aa; }
-    .border-orange-500  { border-color: #f97316; }
-    .border-purple-200  { border-color: #e9d5ff; }
-    .border-purple-500  { border-color: #a855f7; }
-    .border-yellow-300  { border-color: #fde047; }
-    .border-yellow-400  { border-color: #facc15; }
-
-    /* border-radius */
-    .rounded-full  { border-radius: 9999px; }
-    .rounded-lg    { border-radius: .5rem; }
-    .rounded-xl    { border-radius: .75rem; }
-    .rounded-t-md  { border-top-left-radius: .375rem; border-top-right-radius: .375rem; }
-    .rounded-l-3xl { border-top-left-radius: 1.5rem; border-bottom-left-radius: 1.5rem; }
-    .rounded-r-3xl { border-top-right-radius: 1.5rem; border-bottom-right-radius: 1.5rem; }
-
-    /* shadows */
-    .shadow-sm  { box-shadow: 0 1px 2px 0 rgba(0,0,0,.05); }
-    .shadow-md  { box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1); }
-    .shadow-lg  { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1); }
-    .shadow-xl  { box-shadow: 0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1); }
-    .shadow-inner{ box-shadow: inset 0 2px 4px 0 rgba(0,0,0,.05); }
-    .cursor-pointer { cursor: pointer; }
-
-    /* transitions */
-    .transition-all       { transition: all .15s ease-in-out; }
-    .transition-transform { transition: transform .15s ease-in-out; }
-
-    /* hover states */
-    button { cursor: pointer; border: none; }
-    .hover\:bg-gray-700:hover    { background-color: #374151; }
-    .hover\:bg-indigo-50:hover   { background-color: #eef2ff; }
-    .hover\:scale-105:hover      { transform: scale(1.05); }
-    .hover\:scale-110:hover      { transform: scale(1.1); }
-    .hover\:shadow-lg:hover      { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); }
-    .hover\:shadow-xl:hover      { box-shadow: 0 20px 25px -5px rgba(0,0,0,.1); }
-    .hover\:from-indigo-700:hover{ --tw-gradient-from: #4338ca; }
-    .hover\:to-purple-700:hover  { --tw-gradient-to: #7e22ce; }
-
-    /* ===== Animation ===== */
     @keyframes bounceOnce {
       0%, 100% { transform: translateY(0) translateX(-50%); }
-      50%       { transform: translateY(-10px) translateX(-50%); }
+      50% { transform: translateY(-10px) translateX(-50%); }
     }
-    .tooltip-bounce {
-      animation: bounceOnce 0.5s ease-in-out;
-    }
-
-    /* ===== Custom component styles ===== */
-    .header-area {
-      background-image: linear-gradient(to right, #4f46e5, #9333ea);
-      padding: 1.5rem;
-      color: #fff;
-    }
-    .header-top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .5rem;
-    }
-    .btn-home {
-      background-color: #fff;
-      color: #4f46e5;
-      padding: .5rem 1rem;
-      border-radius: .5rem;
-      font-weight: 700;
-      font-size: .875rem;
-      transition: all .15s;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .btn-home:hover { background-color: #eef2ff; }
-
-    .lock-body-left {
-      width: 5rem; height: 11rem;
-      background-image: linear-gradient(to right, #4b5563, #374151);
-      border-radius: 1.5rem 0 0 1.5rem;
-      border: 4px solid #1f2937;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,.1);
-    }
-    .lock-body-right-wrap {
-      position: relative;
-      margin-left: 6rem;
-    }
-    .lock-body-right {
-      width: 5rem; height: 11rem;
-      background-image: linear-gradient(to left, #4b5563, #374151);
-      border-radius: 0 1.5rem 1.5rem 0;
-      border: 4px solid #1f2937;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,.1);
-    }
-    .lock-bar-h {
-      position: absolute;
-      right: 5rem; top: 50%;
-      transform: translateX(4px) translateY(-50%);
-      width: 8rem; height: 2.25rem;
-      background-image: linear-gradient(to right, #374151, #6b7280);
-      border: 4px solid #1f2937;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,.1);
-    }
-    .lock-bar-v {
-      position: absolute;
-      right: 5rem; top: 50%;
-      transform: translateY(-26px) translateX(-4rem);
-      width: 1.5rem; height: 2rem;
-      background-image: linear-gradient(to bottom, #6b7280, #374151);
-      border: 4px solid #1f2937;
-      border-radius: .375rem .375rem 0 0;
-      margin-top: -1.25rem;
-    }
-
-    .tooltip-bubble {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: -4rem;
-      background-color: #fbcfe8;
-      color: #111827;
-      padding: .25rem .75rem;
-      border-radius: .75rem;
-      font-size: .875rem;
-      font-weight: 700;
-      white-space: nowrap;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
-      z-index: 50;
-    }
-
-    /* ===== 퀴즈 스타일 ===== */
-    .quiz-section {
-      background: linear-gradient(to right, #faf5ff, #fdf2f8);
-      padding: 1.5rem;
-      border-radius: .5rem;
-      border: 1px solid #e9d5ff;
-      margin-top: 1.5rem;
-    }
-    .quiz-card {
-      background: #fff;
-      padding: 1.25rem;
-      border-radius: .5rem;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 1px 2px rgba(0,0,0,.05);
-      margin-bottom: 1.25rem;
-    }
-    .quiz-question {
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-      line-height: 1.5;
-    }
+    /* Layout */
+    .container { max-width: 1280px; margin: 0 auto; background: #fff; border-radius: 1rem; box-shadow: 0 25px 50px rgba(0,0,0,.25); overflow: hidden; }
+    /* Header */
+    .header { background: linear-gradient(to right, #4f46e5, #7c3aed); padding: 1.5rem; color: #fff; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+    .header-label { font-size: .875rem; color: #c7d2fe; }
+    .home-btn { background: #fff; color: #4f46e5; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700; font-size: .875rem; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: background .2s; }
+    .home-btn:hover { background: #e0e7ff; }
+    .header h1 { font-size: 1.875rem; font-weight: 800; margin-bottom: .25rem; }
+    .header p { color: #c7d2fe; }
+    /* Question area */
+    .question-area { background: linear-gradient(to right, #eff6ff, #eef2ff); padding: 1.5rem; border-bottom: 1px solid #c7d2fe; }
+    .question-area h3 { font-weight: 700; color: #1e1b4b; font-size: 1.125rem; margin-bottom: .5rem; }
+    .question-area p { color: #374151; line-height: 1.7; }
+    /* Main content */
+    .main { padding: 2rem; }
+    /* Tip box */
+    .tip-box { background: #fefce8; padding: 1rem; border-radius: .5rem; border: 1px solid #fcd34d; margin-bottom: 1.5rem; }
+    .tip-box p.tip-title { font-size: 1rem; font-weight: 600; color: #78350f; margin-bottom: .25rem; }
+    .tip-box p { color: #374151; font-size: 1rem; }
+    /* Section boxes */
+    .section { border-radius: .5rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .section-gray { background: #f9fafb; border: 1px solid #e5e7eb; }
+    .section-indigo-blue { background: linear-gradient(to right, #eef2ff, #eff6ff); border: 1px solid #c7d2fe; }
+    .section-purple-pink { background: linear-gradient(to right, #faf5ff, #fdf2f8); border: 1px solid #e9d5ff; }
+    .section-orange { background: linear-gradient(to right, #fff7ed, #fefce8); border: 1px solid #fed7aa; }
+    .section-red-pink { background: linear-gradient(to right, #fef2f2, #fdf2f8); border: 2px solid #fecaca; }
+    .section-emerald { background: linear-gradient(to right, #ecfdf5, #f0fdfa); border: 2px solid #6ee7b7; }
+    .section-sky { background: linear-gradient(to right, #f0f9ff, #eff6ff); border: 2px solid #7dd3fc; }
+    .section-red-brute { background: linear-gradient(to right, #fef2f2, #fff1f2); border: 2px solid #fca5a5; }
+    .section h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: .75rem; }
+    /* Lock simulator */
+    .lock-wrap { display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .lock-body { width: 5rem; height: 11rem; background: linear-gradient(to right, #4b5563, #374151); border-radius: 1.5rem 0 0 1.5rem; border: 4px solid #1f2937; box-shadow: 0 10px 25px rgba(0,0,0,.3); }
+    .lock-body-right { width: 5rem; height: 11rem; background: linear-gradient(to left, #4b5563, #374151); border-radius: 0 1.5rem 1.5rem 0; border: 4px solid #1f2937; box-shadow: 0 10px 25px rgba(0,0,0,.3); position: relative; }
+    .lock-shackle { position: absolute; right: 100%; top: 50%; transform: translateX(4px) translateY(-50%); width: 8rem; height: 2.25rem; background: linear-gradient(to right, #374151, #6b7280); border: 4px solid #1f2937; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .lock-shackle-top { position: absolute; right: 100%; top: 50%; transform: translateY(-26px) translateX(-64px); width: 1.5rem; height: 2rem; background: linear-gradient(to bottom, #6b7280, #374151); border: 4px solid #1f2937; border-radius: .25rem .25rem 0 0; margin-top: -20px; }
+    .dials-wrap { display: flex; gap: 1rem; }
+    .dial-col { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+    .dial-btn { width: 2.5rem; height: 2.5rem; background: linear-gradient(135deg, #6366f1, #7c3aed); color: #fff; border: none; border-radius: .5rem; font-size: 1.25rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.2); transition: transform .1s; display: flex; align-items: center; justify-content: center; }
+    .dial-btn:hover { transform: scale(1.1); }
+    .dial-display { width: 4rem; height: 7rem; background: linear-gradient(to bottom, #111827, #000); border-radius: .75rem; border: 2px solid #4b5563; box-shadow: inset 0 2px 10px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
+    .dial-num { color: #fff; font-size: 3rem; font-weight: 700; }
+    .dial-label { font-size: 1rem; font-weight: 700; color: #4f46e5; margin-top: .25rem; }
+    /* Current code display */
+    .code-display { background: linear-gradient(to right, #6366f1, #7c3aed); color: #fff; padding: 1.5rem; border-radius: .75rem; text-align: center; margin-top: 2rem; }
+    .code-display .label { font-size: 1rem; margin-bottom: .5rem; }
+    .code-display .code { font-size: 3rem; font-weight: 700; letter-spacing: .25rem; margin-bottom: .75rem; }
+    .code-display .attempts { font-size: 1rem; opacity: .9; }
+    .reset-wrap { text-align: center; margin-top: 1.5rem; }
+    .btn-gray { background: #4b5563; color: #fff; border: none; padding: .75rem 2rem; border-radius: .75rem; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .btn-gray:hover { background: #374151; transform: scale(1.05); }
+    /* Formula box */
+    .formula-box { background: #fefce8; border: 3px dashed #fbbf24; padding: 1.5rem; border-radius: .75rem; text-align: center; }
+    .formula-box h4 { font-size: 1.125rem; font-weight: 700; color: #1f2937; margin-bottom: .75rem; }
+    .formula-main { font-size: 2.5rem; font-weight: 700; color: #dc2626; margin: 1rem 0; }
+    .formula-result { font-size: 1.875rem; font-weight: 700; color: #4f46e5; margin-bottom: .75rem; }
+    .formula-note { color: #6b7280; }
+    /* Grid 2 col */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:600px){ .grid2 { grid-template-columns: 1fr; } }
+    /* Digit card */
+    .digit-card { background: #fff; padding: 1rem; border-radius: .5rem; box-shadow: 0 1px 4px rgba(0,0,0,.06); display: flex; justify-content: space-between; align-items: center; }
+    .digit-card span:first-child { font-weight: 700; }
+    .digit-card span:last-child { font-family: monospace; font-weight: 700; }
+    .bl-indigo { border-left: 4px solid #6366f1; } .bl-green { border-left: 4px solid #22c55e; } .bl-orange { border-left: 4px solid #f97316; } .bl-purple { border-left: 4px solid #a855f7; }
+    .tc-indigo { color: #4f46e5; } .tc-green { color: #16a34a; } .tc-orange { color: #ea580c; } .tc-purple { color: #9333ea; }
+    /* Why multiply */
+    .step-list { display: flex; flex-direction: column; gap: .75rem; }
+    .step-item { display: flex; align-items: flex-start; gap: .75rem; color: #374151; }
+    .step-circle { width: 2rem; height: 2rem; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+    .circle-indigo { background: #6366f1; } .circle-purple { background: #a855f7; }
+    /* Bar chart */
+    .bar-list { display: flex; flex-direction: column; gap: 1rem; }
+    .bar-item { background: #fff; padding: 1rem; border-radius: .5rem; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; flex-wrap: wrap; gap: .25rem; }
+    .bar-left { display: flex; align-items: center; gap: .5rem; }
+    .bar-digits { font-size: .75rem; color: #9ca3af; font-family: monospace; }
+    .bar-track { width: 100%; background: #f3f4f6; border-radius: 9999px; height: 1.25rem; overflow: hidden; }
+    .bar-fill { height: 1.25rem; border-radius: 9999px; display: flex; align-items: center; justify-content: flex-end; padding-right: .5rem; }
+    .bar-time { color: #fff; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+    .bar-green { background: #4ade80; } .bar-orange { background: #fb923c; } .bar-red { background: #ef4444; } .bar-purple { background: #9333ea; }
+    .key-note { background: #fed7aa; padding: .75rem; border-radius: .5rem; margin-top: 1rem; font-size: 1rem; color: #92400e; }
+    /* Misconception boxes */
+    .misc-list { display: flex; flex-direction: column; gap: 1rem; }
+    .misc-item { background: #fff; padding: 1rem; border-radius: .5rem; border: 1px solid #fecaca; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    .misc-inner { display: flex; align-items: flex-start; gap: .75rem; }
+    .misc-badge { font-size: .875rem; font-weight: 700; padding: .25rem .5rem; border-radius: 9999px; color: #fff; flex-shrink: 0; }
+    .badge-red { background: #ef4444; } .badge-orange { background: #f97316; } .badge-yellow { background: #eab308; }
+    .misc-title { font-weight: 700; color: #1f2937; margin-bottom: .25rem; }
+    .misc-correct { color: #15803d; font-weight: 600; font-size: 1rem; }
+    .misc-explain { color: #6b7280; font-size: 1rem; margin-top: .25rem; }
+    /* Game */
+    .game-inner { background: #fff; border-radius: .75rem; padding: 1.25rem; border: 1px solid #6ee7b7; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 1rem; }
+    .game-dials { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+    .game-dial-col { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+    .game-dial-btn { width: 2.5rem; height: 2.5rem; background: #10b981; border: none; color: #fff; border-radius: .5rem; font-weight: 700; font-size: 1.125rem; cursor: pointer; transition: all .1s; }
+    .game-dial-btn:hover { background: #059669; transform: scale(1.1); }
+    .game-dial-display { width: 3.5rem; height: 4rem; background: #111827; border-radius: .75rem; display: flex; align-items: center; justify-content: center; border: 2px solid #34d399; }
+    .game-dial-num { color: #fff; font-size: 2.5rem; font-weight: 700; }
+    .game-btns { display: flex; gap: .75rem; justify-content: center; }
+    .btn-green { background: #059669; color: #fff; border: none; padding: .75rem 2rem; border-radius: .75rem; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .btn-green:hover { background: #047857; } .btn-green:disabled { background: #9ca3af; cursor: default; }
+    .solved-box { background: #fef9c3; border: 2px solid #fbbf24; border-radius: .75rem; padding: 1rem; text-align: center; margin-bottom: 1rem; }
+    .solved-box p:first-child { font-size: 1.5rem; font-weight: 700; color: #92400e; }
+    .solved-box p:last-child { color: #6b7280; font-size: 1rem; margin-top: .25rem; }
+    .history-box { background: #fff; border-radius: .75rem; padding: 1rem; border: 1px solid #e5e7eb; }
+    .history-title { font-weight: 700; color: #374151; margin-bottom: .5rem; font-size: 1rem; }
+    .history-legend { font-size: .75rem; color: #9ca3af; margin-left: .5rem; }
+    .history-list { display: flex; flex-direction: column; gap: .25rem; max-height: 10rem; overflow-y: auto; }
+    .history-row { display: flex; align-items: center; gap: .75rem; padding: .5rem; border-radius: .5rem; font-size: 1rem; }
+    .history-row.correct { background: #dcfce7; }
+    .history-row.wrong { background: #f9fafb; }
+    .history-code { font-family: monospace; font-weight: 700; font-size: 1.125rem; letter-spacing: .25rem; }
+    .history-hint { font-size: 1.125rem; letter-spacing: .15rem; }
+    .history-ok { color: #16a34a; font-weight: 700; margin-left: auto; }
+    .game-note { font-size: .75rem; color: #9ca3af; text-align: center; margin-top: .75rem; }
+    /* Calculator */
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem; }
+    @media(max-width:600px){ .calc-grid { grid-template-columns: 1fr; } }
+    .calc-card { background: #fff; border-radius: .75rem; padding: 1rem; border: 1px solid #bae6fd; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .calc-card label { display: block; font-weight: 700; color: #0369a1; margin-bottom: .5rem; }
+    .calc-card label span { font-size: 1.5rem; color: #4f46e5; }
+    input[type=range] { width: 100%; height: .75rem; border-radius: 9999px; cursor: pointer; accent-color: #4f46e5; }
+    .range-labels { display: flex; justify-content: space-between; font-size: .75rem; color: #9ca3af; margin-top: .25rem; }
+    .result-box { background: linear-gradient(to right, #4f46e5, #7c3aed); color: #fff; border-radius: 1rem; padding: 1.5rem; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,.2); }
+    .result-formula { color: #c7d2fe; font-size: .875rem; margin-bottom: .25rem; }
+    .result-formula-big { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
+    .result-total { font-size: 3rem; font-weight: 700; letter-spacing: -.025em; margin-bottom: .75rem; }
+    .result-time-box { background: rgba(255,255,255,.2); border-radius: .75rem; padding: .75rem; }
+    .result-time-box p { font-size: 1rem; }
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-top: 1rem; }
+    @media(max-width:500px){ .preset-grid { grid-template-columns: repeat(2,1fr); } }
+    .preset-btn { padding: .5rem .75rem; background: #e0f2fe; color: #0c4a6e; font-size: .75rem; font-weight: 700; border: 1px solid #7dd3fc; border-radius: .5rem; cursor: pointer; transition: all .15s; }
+    .preset-btn:hover { background: #bae6fd; }
+    .hacker-warn { background: #fef2f2; border: 2px solid #fca5a5; border-radius: .75rem; padding: 1rem; margin-top: 1rem; }
+    .hacker-warn p:first-child { color: #991b1b; font-weight: 700; font-size: 1rem; margin-bottom: .5rem; }
+    .hacker-warn p:last-child { color: #374151; font-size: 1rem; line-height: 1.7; }
+    /* Brute force */
+    .bf-screen { background: #111827; border-radius: 1rem; padding: 1.5rem; text-align: center; margin-bottom: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,.3); }
+    .bf-label { color: #9ca3af; font-size: 1rem; margin-bottom: .5rem; }
+    .bf-target { font-size: 2.5rem; font-weight: 700; color: #fbbf24; letter-spacing: .25rem; margin-bottom: 1rem; }
+    .bf-current { font-size: 3rem; font-weight: 700; font-family: monospace; letter-spacing: .25rem; margin-bottom: 1rem; transition: color .15s; }
+    .bf-current.running { color: #f87171; }
+    .bf-current.found { color: #4ade80; }
+    .bf-current.idle { color: #fff; }
+    .bf-bar-track { width: 100%; background: #374151; border-radius: 9999px; height: .75rem; margin-bottom: .75rem; overflow: hidden; }
+    .bf-bar-fill { background: linear-gradient(to right, #ef4444, #fb923c); height: .75rem; border-radius: 9999px; transition: width .1s; }
+    .bf-count { color: #9ca3af; font-size: 1rem; }
+    .bf-success { background: #dcfce7; border: 2px solid #4ade80; border-radius: .75rem; padding: 1rem; text-align: center; margin-bottom: 1rem; }
+    .bf-success p:first-child { font-size: 1.25rem; font-weight: 700; color: #14532d; }
+    .bf-success p:last-child { color: #6b7280; font-size: 1rem; margin-top: .25rem; }
+    .speed-box { background: #fff; border-radius: .75rem; padding: 1rem; border: 1px solid #fca5a5; margin-bottom: 1rem; }
+    .speed-box label { display: block; font-weight: 700; color: #991b1b; margin-bottom: .75rem; }
+    .speed-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .5rem; }
+    .speed-btn { padding: .5rem; border-radius: .75rem; font-weight: 700; font-size: .875rem; border: 2px solid; cursor: pointer; transition: all .15s; }
+    .speed-btn:disabled { opacity: .5; cursor: default; }
+    .speed-btn.active { background: #ef4444; border-color: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.15); transform: scale(1.05); }
+    .speed-btn.inactive { background: #f9fafb; border-color: #d1d5db; color: #374151; }
+    .speed-btn.inactive:hover:not(:disabled) { border-color: #fca5a5; }
+    .bf-action-row { display: flex; gap: .75rem; }
+    .btn-red { background: #dc2626; color: #fff; border: none; padding: .75rem; border-radius: .75rem; font-weight: 700; font-size: 1.125rem; cursor: pointer; flex: 1; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .btn-red:hover { background: #b91c1c; }
+    .btn-red-stop { background: #4b5563; color: #fff; border: none; padding: .75rem; border-radius: .75rem; font-weight: 700; font-size: 1.125rem; cursor: pointer; flex: 1; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .btn-red-stop:hover { background: #374151; }
+    .btn-orange { background: #f97316; color: #fff; border: none; padding: .75rem; border-radius: .75rem; font-weight: 700; font-size: 1.125rem; cursor: pointer; flex: 1; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .btn-orange:hover { background: #ea580c; }
+    .btn-sm-gray { background: #6b7280; color: #fff; border: none; padding: .75rem 1.5rem; border-radius: .75rem; font-weight: 700; cursor: pointer; transition: all .15s; }
+    .btn-sm-gray:hover { background: #4b5563; }
+    .bf-note { font-size: .75rem; color: #9ca3af; text-align: center; margin-top: .75rem; }
+    /* Quiz */
+    .quiz-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .quiz-item { background: #fff; padding: 1.25rem; border-radius: .5rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .quiz-q { font-weight: 700; color: #1f2937; margin-bottom: 1rem; }
     .quiz-options { display: flex; flex-direction: column; gap: .5rem; }
-    .quiz-option {
-      width: 100%;
-      text-align: left;
-      padding: .75rem 1rem;
-      border-radius: .5rem;
-      border: 2px solid #e5e7eb;
-      background: #f9fafb;
-      cursor: pointer;
-      font-size: .95rem;
-      transition: all .15s;
-      font-family: 'Malgun Gothic', sans-serif;
-    }
-    .quiz-option:hover:not(:disabled) { background: #f3f4f6; }
-    .quiz-option:disabled { cursor: not-allowed; }
-    .quiz-option.correct  { background: #dcfce7; border-color: #4ade80; }
-    .quiz-option.wrong    { background: #fee2e2; border-color: #f87171; }
-    .quiz-option.dimmed   { background: #f9fafb; border-color: #e5e7eb; opacity: .7; }
-    .quiz-badge-correct { margin-left: .5rem; color: #16a34a; font-weight: 700; }
-    .quiz-badge-wrong   { margin-left: .5rem; color: #dc2626; font-weight: 700; }
-    .quiz-explanation {
-      margin-top: 1rem;
-      padding: .75rem 1rem;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: .5rem;
-      font-size: .875rem;
-      color: #374151;
-      line-height: 1.6;
-    }
-    .quiz-explanation strong { color: #2563eb; }
-    .quiz-submit-btn {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(to right, #4f46e5, #9333ea);
-      color: #fff;
-      font-weight: 700;
-      font-size: 1.1rem;
-      border-radius: .5rem;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
-      transition: all .15s;
-      font-family: 'Malgun Gothic', sans-serif;
-      margin-top: .5rem;
-    }
-    .quiz-submit-btn:hover { opacity: .9; }
-
-    /* 결과 화면 */
-    .quiz-result {
-      text-align: center;
-    }
-    .result-box {
-      background: linear-gradient(to right, #f0fdf4, #ecfdf5);
-      border: 1px solid #bbf7d0;
-      border-radius: .5rem;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-    }
-    .result-score {
-      font-size: 3.75rem;
-      font-weight: 700;
-      color: #4f46e5;
-      margin: 1rem 0;
-    }
-    .wrong-review {
-      text-align: left;
-      margin-bottom: 1.5rem;
-    }
-    .wrong-card {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: .5rem;
-      padding: 1rem;
-      margin-bottom: .75rem;
-    }
-    .wrong-card-title { font-weight: 700; color: #b91c1c; font-size: .875rem; margin-bottom: .25rem; }
-    .wrong-card-answer { font-size: .875rem; color: #374151; }
-    .wrong-card-answer span { font-weight: 700; color: #16a34a; }
-    .wrong-card-exp { font-size: .875rem; color: #4b5563; margin-top: .25rem; }
-    .quiz-retry-btn {
-      padding: .75rem 2rem;
-      background: linear-gradient(to right, #4f46e5, #9333ea);
-      color: #fff;
-      font-weight: 700;
-      font-size: 1rem;
-      border-radius: .5rem;
-      transition: all .15s;
-      font-family: 'Malgun Gothic', sans-serif;
-    }
-    .quiz-retry-btn:hover { opacity: .9; }
-    .space-y-5 > * + * { margin-top: 1.25rem; }
+    .quiz-opt { width: 100%; text-align: left; padding: .75rem; border-radius: .5rem; border: 2px solid; cursor: pointer; font-size: 1rem; transition: all .15s; background: #f9fafb; border-color: #e5e7eb; }
+    .quiz-opt:hover:not(:disabled) { background: #f3f4f6; }
+    .quiz-opt:disabled { cursor: default; }
+    .quiz-opt.correct { background: #dcfce7; border-color: #4ade80; }
+    .quiz-opt.wrong { background: #fee2e2; border-color: #f87171; }
+    .quiz-opt.neutral { background: #f9fafb; border-color: #e5e7eb; }
+    .opt-correct { margin-left: .5rem; color: #16a34a; font-weight: 700; }
+    .opt-wrong { margin-left: .5rem; color: #dc2626; font-weight: 700; }
+    .quiz-explain { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: .75rem; padding: 1rem; margin-top: 1rem; font-size: 1rem; color: #374151; }
+    .quiz-explain span { font-weight: 700; color: #4f46e5; }
+    .quiz-submit-wrap { display: flex; justify-content: center; margin-top: 1rem; }
+    .btn-indigo { background: linear-gradient(to right, #4f46e5, #7c3aed); color: #fff; border: none; padding: 1rem 2rem; border-radius: .5rem; font-weight: 700; font-size: 1.125rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .btn-indigo:hover { background: linear-gradient(to right, #4338ca, #6d28d9); }
+    /* Quiz result */
+    .quiz-result-box { background: linear-gradient(to right, #f0fdf4, #ecfdf5); padding: 2rem; border-radius: .75rem; border: 1px solid #bbf7d0; margin-bottom: 1.5rem; text-align: center; }
+    .quiz-result-box h3 { font-size: 1.875rem; font-weight: 700; color: #14532d; margin-bottom: 1rem; }
+    .quiz-score { font-size: 3.75rem; font-weight: 700; color: #4f46e5; margin-bottom: 1rem; }
+    .quiz-msg { font-size: 1.125rem; color: #374151; }
+    .quiz-wrong-list { text-align: left; display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.5rem; }
+    .quiz-wrong-item { background: #fef2f2; padding: 1rem; border-radius: .5rem; border: 1px solid #fecaca; }
+    .quiz-wrong-item p:first-child { font-weight: 700; color: #b91c1c; font-size: 1rem; margin-bottom: .25rem; }
+    .quiz-wrong-item p:nth-child(2) { color: #374151; font-size: 1rem; }
+    .quiz-wrong-item p:last-child { color: #6b7280; font-size: 1rem; margin-top: .25rem; }
+    /* More study */
+    .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:600px){ .more-grid { grid-template-columns: 1fr; } }
+    .more-card { background: #fff; padding: 1rem; border-radius: .5rem; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .more-card p:first-child { font-weight: 700; margin-bottom: .5rem; }
+    .more-card p:last-child { color: #374151; font-size: 1rem; line-height: 1.7; }
+    .more-note { background: #e0e7ff; padding: 1rem; border-radius: .5rem; margin-top: 1rem; text-align: center; }
+    .more-note p:first-child { color: #312e81; font-weight: 600; }
+    .more-note p:last-child { color: #4f46e5; font-size: 1rem; margin-top: .25rem; }
+    .footer-home { text-align: center; margin-top: 1.5rem; }
+    .footer-home a { display: inline-block; background: linear-gradient(to right, #4f46e5, #7c3aed); color: #fff; width: 16rem; padding: .75rem; border-radius: .5rem; font-weight: 700; font-size: 1.125rem; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: all .15s; }
+    .footer-home a:hover { box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+    /* Tooltip */
+    .tooltip-wrap { position: relative; display: inline-block; cursor: pointer; }
+    .tooltip-bubble { position: absolute; left: 50%; top: -3.5rem; transform: translateX(-50%); background: #fbcfe8; color: #111827; padding: .25rem .75rem; border-radius: .75rem; font-size: .875rem; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.2); z-index: 50; animation: bounceOnce .4s ease-in-out; }
+    /* Visibility helpers */
+    .hidden { display: none !important; }
+    sup { font-size: .6em; vertical-align: super; }
   </style>
 </head>
 <body>
-  <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+<div class="container" id="root">
 
-    <!-- 헤더 -->
-    <div class="header-area">
-      <div class="header-top-row">
-        <div class="text-sm" style="color:#e0e7ff;">고등학교 정보 학습자료</div>
-        <a href="index.html" class="btn-home">🏠 홈으로</a>
-      </div>
-      <h1 class="text-3xl font-bold mb-2">🔐 자물쇠로 배우는 경우의 수</h1>
-      <p style="color:#e0e7ff;">화살표를 클릭해서 자물쇠를 돌려보세요!</p>
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-label">고등학교 정보 학습자료</div>
+      <a href="index.html" class="home-btn">🏠 홈으로</a>
     </div>
-
-    <!-- 질문 영역 -->
-    <div class="p-6 border-b border-indigo-100" style="background: linear-gradient(to right,#eff6ff,#eef2ff);">
-      <h3 class="font-bold text-indigo-900 text-lg mb-2">📌 자물쇠의 비밀번호는 몇 개일까?</h3>
-      <p class="leading-relaxed text-gray-700">
-        아래 그림처럼 4자리 숫자 자물쇠가 있습니다. 각 자리마다
-        <span class="font-bold text-blue-600">0부터 9까지</span> 총 10개의 숫자를 선택할 수 있어요.
-        그렇다면 만들 수 있는 비밀번호의 개수는 총 몇 개일까요?
-      </p>
-    </div>
-
-    <div class="p-8">
-
-      <!-- 체험 방법 안내 -->
-      <div class="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-        <p class="text-sm font-semibold text-yellow-900 mb-2">💡 체험 방법</p>
-        <p class="text-sm text-gray-700">
-          <span class="font-bold text-blue-600">화살표 버튼을 클릭해서 자물쇠를 돌려보세요!</span>
-          각 다이얼은 0부터 9까지 순환하며, 모든 조합을 만들어 볼 수 있습니다.
-        </p>
-      </div>
-
-      <!-- 자물쇠 시뮬레이터 -->
-      <div class="bg-gray-50 p-8 rounded-lg border border-gray-200 mb-6">
-        <div class="flex justify-center items-center gap-8 flex-wrap">
-
-          <!-- 왼쪽 몸통 -->
-          <div class="lock-body-left"></div>
-
-          <!-- 다이얼 영역 -->
-          <div class="flex gap-4" id="dials-container">
-            <!-- JS로 생성 -->
-          </div>
-
-          <!-- 오른쪽 U자형 막대 -->
-          <div class="lock-body-right-wrap">
-            <div class="lock-body-right"></div>
-            <div class="lock-bar-h"></div>
-            <div class="lock-bar-v"></div>
-          </div>
-        </div>
-
-        <!-- 현재 상태 -->
-        <div class="mt-8 p-6 rounded-xl text-center text-white" style="background: linear-gradient(to right,#6366f1,#9333ea);">
-          <div class="text-lg mb-2">현재 번호</div>
-          <div class="text-5xl font-bold tracking-widest mb-3" id="current-code">0000</div>
-          <div class="text-sm opacity-90">
-            시도 횟수: <span class="font-bold" id="attempt-count">0</span>회 / 전체 10,000가지
-          </div>
-        </div>
-
-        <!-- 리셋 -->
-        <div class="text-center mt-6">
-          <button
-            onclick="resetLock()"
-            class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform"
-          >🔄 초기화</button>
-        </div>
-      </div>
-
-      <!-- 경우의 수 계산 -->
-      <div class="p-6 rounded-lg border border-green-200 mb-6" style="background: linear-gradient(to right,#f0fdf4,#ecfdf5);">
-        <h3 class="text-xl font-bold text-green-900 mb-4">📊 경우의 수 계산하기</h3>
-        <p class="text-gray-700 mb-4">각 자리마다 <span class="font-bold text-blue-600">0부터 9까지</span> 10가지 선택 가능</p>
-        <div class="bg-yellow-50 p-6 rounded-xl text-center" style="border: 3px dashed #facc15;">
-          <h4 class="text-lg font-bold text-gray-800 mb-3">💡 곱셈 원리 공식</h4>
-          <div class="text-4xl font-bold text-red-600 my-4">10 × 10 × 10 × 10 = 10⁴</div>
-          <div class="text-3xl font-bold text-indigo-600 mb-3">= 10,000가지</div>
-          <p class="text-gray-600">10을 4번 곱한다 = 만 가지의 경우의 수</p>
-        </div>
-      </div>
-
-      <!-- 자릿수별 -->
-      <div class="p-6 rounded-lg border border-blue-200 mb-6" style="background: linear-gradient(to right,#eff6ff,#ecfeff);">
-        <h3 class="text-xl font-bold text-blue-900 mb-4">
-          <span class="relative inline-block cursor-pointer" id="sparrow-trigger">🎯
-            <span
-              id="sparrow-tooltip"
-              class="tooltip-bubble"
-              style="display:none;"
-            >&#xCC38;&#xC0C8;</span>
-          </span>
-          자릿수별 경우의 수
-        </h3>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-indigo-700">1자리 자물쇠</span>
-              <span class="font-mono text-indigo-600 font-bold">10¹ = 10가지 (0~9)</span>
-            </div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-green-700">2자리 자물쇠</span>
-              <span class="font-mono text-green-600 font-bold">10² = 100가지 (00~99)</span>
-            </div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-orange-700">3자리 자물쇠</span>
-              <span class="font-mono text-orange-600 font-bold">10³ = 1,000가지 (000~999)</span>
-            </div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-purple-700">4자리 자물쇠</span>
-              <span class="font-mono text-purple-600 font-bold">10⁴ = 10,000가지 (0000~9999)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 왜 곱셈인가 -->
-      <div class="p-6 rounded-lg border border-purple-200 mb-6" style="background: linear-gradient(to right,#faf5ff,#fdf2f8);">
-        <h3 class="text-xl font-bold text-purple-900 mb-4">🤔 왜 곱셈을 할까?</h3>
-        <div class="space-y-3 text-gray-700">
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
-            <p><strong>첫째 자리</strong>에서 숫자를 하나 선택하면 (예: 3)</p>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
-            <p><strong>둘째 자리</strong>에서는 다시 10가지를 선택할 수 있어요</p>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
-            <p>각 자리가 <strong class="text-indigo-600">독립적으로</strong> 선택되기 때문에</p>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
-            <p><strong class="text-indigo-600 text-lg">곱셈</strong>을 사용합니다!</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 재미있는 사실 -->
-      <div class="p-6 rounded-lg border border-orange-200 mb-6" style="background: linear-gradient(to right,#fff7ed,#fefce8);">
-        <h3 class="text-xl font-bold text-orange-900 mb-4">💡 재미있는 사실</h3>
-        <div class="bg-white p-5 rounded-lg shadow-sm">
-          <p class="text-gray-700 text-lg leading-relaxed">
-            만약 1초에 1개씩 비밀번호를 시도한다면, 모든 조합을 시도하는데
-            <span class="font-bold text-red-600 text-xl"> 약 2시간 47분</span>이 걸려요!
-            그래서 더 긴 비밀번호일수록 안전하답니다. 🔒
-          </p>
-          <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-            <p class="text-sm text-gray-600">
-              <strong class="text-blue-700">참고:</strong> 5자리면 10⁵ = 100,000가지 (약 27시간 47분),
-              6자리면 10⁶ = 1,000,000가지 (약 11.5일) 걸립니다!
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== 퀴즈 섹션 ===== -->
-      <div class="quiz-section">
-        <h3 class="text-lg font-bold mb-4" style="color:#581c87;">🎯 배운 내용 확인하기</h3>
-
-        <!-- 문제 풀기 화면 -->
-        <div id="quiz-questions">
-          <div class="space-y-5" id="quiz-list">
-            <!-- JS로 생성 -->
-          </div>
-          <button
-            id="quiz-submit-btn"
-            class="quiz-submit-btn"
-            style="display:none;"
-            onclick="showQuizResult()"
-          >🏁 결과 확인하기</button>
-        </div>
-
-        <!-- 결과 화면 -->
-        <div id="quiz-result" style="display:none;" class="quiz-result">
-          <div class="result-box">
-            <h3 class="text-3xl font-bold" style="color:#14532d;">🎉 퀴즈 완료!</h3>
-            <div class="result-score" id="result-score">0 / 5</div>
-            <p class="text-lg text-gray-700" id="result-msg"></p>
-          </div>
-          <div class="wrong-review" id="wrong-review"></div>
-          <button class="quiz-retry-btn" onclick="resetQuiz()">🔄 다시 풀기</button>
-        </div>
-      </div>
-
-      <div class="mt-6 text-center">
-        <a
-          href="index.html"
-          class="inline-block text-white px-8 py-3 rounded-lg font-bold text-lg transition-all shadow-lg hover:shadow-xl"
-          style="background: linear-gradient(to right,#4f46e5,#9333ea);"
-        >🏠 홈으로 돌아가기</a>
-      </div>
-    </div>
+    <h1>🔐 자물쇠로 배우는 경우의 수</h1>
+    <p>화살표를 클릭해서 자물쇠를 돌려보세요!</p>
   </div>
 
-  <script>
-    // ===== State =====
-    const dials  = [0, 0, 0, 0];
-    let attempts = 0;
-    const labels = ['첫째', '둘째', '셋째', '넷째'];
+  <!-- 질문 영역 -->
+  <div class="question-area">
+    <h3>📌 자물쇠의 비밀번호는 몇 개일까?</h3>
+    <p>아래 그림처럼 4자리 숫자 자물쇠가 있습니다. 각 자리마다 <strong style="color:#2563eb">0부터 9까지</strong> 총 10개의 숫자를 선택할 수 있어요. 그렇다면 만들 수 있는 비밀번호의 개수는 총 몇 개일까요?</p>
+  </div>
 
-    // ===== Build dial UI =====
-    function buildDials() {
-      const container = document.getElementById('dials-container');
-      container.innerHTML = '';
-      dials.forEach((val, idx) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'flex flex-col items-center gap-2';
-        wrap.innerHTML = `
-          <button
-            class="w-10 h-10 text-white rounded-lg flex items-center justify-center text-xl font-bold shadow-lg hover:scale-110 transition-transform"
-            style="background: linear-gradient(to bottom right,#6366f1,#9333ea);"
-            onclick="rotateDial(${idx}, 1)"
-          >▲</button>
-          <div
-            class="w-16 h-28 rounded-xl border-2 border-gray-600 shadow-inner flex items-center justify-center"
-            style="background: linear-gradient(to bottom,#111827,#000);"
-          >
-            <span id="dial-${idx}" class="text-white text-5xl font-bold">${val}</span>
+  <div class="main">
+
+    <!-- 체험 방법 안내 -->
+    <div class="tip-box">
+      <p class="tip-title">💡 체험 방법</p>
+      <p><strong style="color:#2563eb">화살표 버튼을 클릭해서 자물쇠를 돌려보세요! </strong>각 다이얼은 0부터 9까지 순환하며, 모든 조합을 만들어 볼 수 있습니다.</p>
+    </div>
+
+    <!-- 자물쇠 시뮬레이터 -->
+    <div class="section section-gray">
+      <div class="lock-wrap">
+        <div class="lock-body"></div>
+        <div class="dials-wrap" id="dialsWrap"></div>
+        <div style="position:relative; margin-left:6rem;">
+          <div class="lock-body-right"></div>
+          <div class="lock-shackle"></div>
+          <div class="lock-shackle-top"></div>
+        </div>
+      </div>
+
+      <!-- 현재 상태 표시 -->
+      <div class="code-display">
+        <div class="label">현재 번호</div>
+        <div class="code" id="currentCode">0000</div>
+        <div class="attempts">시도 횟수: <strong id="attemptCount">0</strong>회 / 전체 10,000가지</div>
+      </div>
+
+      <div class="reset-wrap">
+        <button class="btn-gray" onclick="resetLock()">🔄 초기화</button>
+      </div>
+    </div>
+
+    <!-- 경우의 수 계산 설명 -->
+    <div class="section section-indigo-blue">
+      <h3 style="color:#1e1b4b">📊 경우의 수 계산하기</h3>
+      <p style="color:#374151; margin-bottom:1rem">각 자리마다 <strong style="color:#4f46e5">0부터 9까지</strong> 10가지 선택 가능</p>
+      <div class="formula-box">
+        <h4>💡 곱셈 원리 공식</h4>
+        <div class="formula-main">10 × 10 × 10 × 10 = 10<sup>4</sup></div>
+        <div class="formula-result">= 10,000가지</div>
+        <p class="formula-note">10을 4번 곱한다 = 만 가지의 경우의 수</p>
+      </div>
+    </div>
+
+    <!-- 자릿수별 경우의 수 -->
+    <div class="section section-indigo-blue" style="background:linear-gradient(to right,#eef2ff,#faf5ff)">
+      <h3 style="color:#1e1b4b">
+        <span class="tooltip-wrap" id="tooltipTarget" onclick="showTooltip()">🎯<span class="tooltip-bubble hidden" id="tooltipBubble">&#xCC38;&#xC0C8;</span></span>
+        자릿수별 경우의 수
+      </h3>
+      <div class="grid2">
+        <div class="digit-card bl-indigo"><span class="tc-indigo" style="font-weight:700">1자리 자물쇠</span><span class="tc-indigo">10<sup>1</sup> = 10가지 (0~9)</span></div>
+        <div class="digit-card bl-green"><span class="tc-green" style="font-weight:700">2자리 자물쇠</span><span class="tc-green">10<sup>2</sup> = 100가지 (00~99)</span></div>
+        <div class="digit-card bl-orange"><span class="tc-orange" style="font-weight:700">3자리 자물쇠</span><span class="tc-orange">10<sup>3</sup> = 1,000가지 (000~999)</span></div>
+        <div class="digit-card bl-purple"><span class="tc-purple" style="font-weight:700">4자리 자물쇠</span><span class="tc-purple">10<sup>4</sup> = 10,000가지 (0000~9999)</span></div>
+      </div>
+    </div>
+
+    <!-- 왜 곱셈인가 -->
+    <div class="section section-purple-pink">
+      <h3 style="color:#4a1d96">🤔 왜 곱셈을 할까?</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-circle circle-indigo">1</div><p><strong>첫째 자리</strong>에서 숫자를 하나 선택하면 (예: 3)</p></div>
+        <div class="step-item"><div class="step-circle circle-indigo">2</div><p><strong>둘째 자리</strong>에서는 다시 10가지를 선택할 수 있어요</p></div>
+        <div class="step-item"><div class="step-circle circle-purple">3</div><p>각 자리가 <strong style="color:#4f46e5">독립적으로</strong> 선택되기 때문에</p></div>
+        <div class="step-item"><div class="step-circle circle-purple">4</div><p><strong style="color:#4f46e5; font-size:1.125rem">곱셈</strong>을 사용합니다!</p></div>
+      </div>
+    </div>
+
+    <!-- 재미있는 사실 -->
+    <div class="section section-orange">
+      <h3 style="color:#7c2d12">💡 자릿수가 늘어나면 얼마나 안전해질까?</h3>
+      <p style="color:#6b7280; font-size:1rem; margin-bottom:1.25rem">1초에 1000만 번씩 모든 비밀번호를 시도할 때 걸리는 시간이에요</p>
+      <div class="bar-list">
+        <div class="bar-item">
+          <div class="bar-header"><div class="bar-left"><span style="font-size:1.25rem">😐</span><span style="font-weight:700; color:#15803d">4자리 PIN</span></div><span class="bar-digits">10<sup>4</sup> = 10,000가지</span></div>
+          <div class="bar-track"><div class="bar-fill bar-green" style="width:8%"><span class="bar-time">약 0.001초 (1밀리초)</span></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><div class="bar-left"><span style="font-size:1.25rem">😮</span><span style="font-weight:700; color:#c2410c">6자리 PIN</span></div><span class="bar-digits">10<sup>6</sup> = 1,000,000가지</span></div>
+          <div class="bar-track"><div class="bar-fill bar-orange" style="width:28%"><span class="bar-time">약 0.1초</span></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><div class="bar-left"><span style="font-size:1.25rem">😱</span><span style="font-weight:700; color:#b91c1c">8자리 PIN</span></div><span class="bar-digits">10<sup>8</sup> = 100,000,000가지</span></div>
+          <div class="bar-track"><div class="bar-fill bar-red" style="width:60%"><span class="bar-time">약 10초</span></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><div class="bar-left"><span style="font-size:1.25rem">🤯</span><span style="font-weight:700; color:#7e22ce">12자리 PIN</span></div><span class="bar-digits">10<sup>12</sup> = 1조 가지</span></div>
+          <div class="bar-track"><div class="bar-fill bar-purple" style="width:100%"><span class="bar-time">약 27.8시간</span></div></div>
+        </div>
+      </div>
+      <div class="key-note">
+        <strong>🔑 핵심:</strong> 자리가 하나씩 늘어날 때마다 경우의 수가 <strong>10배</strong>씩 증가해요! 위 계산은 1초에 1000만 번 기준이지만, 실제 해킹 프로그램은 GPU를 사용하여 <strong style="color:#dc2626">초당 1조 번 이상</strong> 시도하므로 <strong>8자리 이상의 복합 비밀번호</strong>가 필요합니다.
+      </div>
+    </div>
+
+    <!-- 착각 Top 3 -->
+    <div class="section section-red-pink">
+      <h3 style="color:#991b1b">⚠️ 학생들이 자주 하는 착각 Top 3</h3>
+      <p style="color:#dc2626; font-size:1rem; margin-bottom:1rem">퀴즈 풀기 전에 꼭 읽어보세요!</p>
+      <div class="misc-list">
+        <div class="misc-item">
+          <div class="misc-inner">
+            <span class="misc-badge badge-red">착각 1</span>
+            <div>
+              <p class="misc-title">"0000은 진짜 비밀번호가 아니니까 9,999가지 아냐?"</p>
+              <p class="misc-correct">✅ 아니에요! 0000도 완전히 유효한 비밀번호예요!</p>
+              <p class="misc-explain">자물쇠는 '숫자'가 아니라 '기호 조합'이에요. 앞자리가 0이어도 전혀 문제없어요. 0000부터 9999까지 딱 10,000가지!</p>
+            </div>
           </div>
-          <button
-            class="w-10 h-10 text-white rounded-lg flex items-center justify-center text-xl font-bold shadow-lg hover:scale-110 transition-transform"
-            style="background: linear-gradient(to bottom right,#6366f1,#9333ea);"
-            onclick="rotateDial(${idx}, -1)"
-          >▼</button>
-          <div class="text-sm font-bold text-indigo-600 mt-1">${labels[idx]}</div>
-        `;
-        container.appendChild(wrap);
-      });
-    }
+        </div>
+        <div class="misc-item">
+          <div class="misc-inner">
+            <span class="misc-badge badge-orange">착각 2</span>
+            <div>
+              <p class="misc-title">"뒤 자리일수록 앞에서 골랐으니 선택지가 줄어들지 않나?"</p>
+              <p class="misc-correct">✅ 전혀요! 매 자리마다 항상 독립적으로 10가지예요!</p>
+              <p class="misc-explain">첫째 자리에 3을 골라도 둘째 자리에서 또 3을 고를 수 있어요. 각 자리는 서로 영향을 주지 않아요. (중복 허용이니까요!)</p>
+            </div>
+          </div>
+        </div>
+        <div class="misc-item">
+          <div class="misc-inner">
+            <span class="misc-badge badge-yellow">착각 3</span>
+            <div>
+              <p class="misc-title">"10,000가지면 1초에 1000만 번씩 시도해도 시간이 좀 걸리지 않을까?"</p>
+              <p class="misc-correct">✅ 10,000번 ÷ 10,000,000번/초 = 0.001초 = 1밀리초만에 뚫려요!</p>
+              <p class="misc-explain">현대 컴퓨터로 1초에 1000만 번씩 시도하면 4자리 자물쇠는 <strong>눈 깜짝할 사이(1밀리초)</strong>에 모든 비밀번호를 시도할 수 있어요. 그래서 훨씬 더 긴 비밀번호가 필요한 거예요!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    function updateDisplay() {
-      dials.forEach((val, idx) => {
-        document.getElementById(`dial-${idx}`).textContent = val;
-      });
-      document.getElementById('current-code').textContent = dials.join('');
-      document.getElementById('attempt-count').textContent = attempts;
-    }
+    <!-- 체험 1: 비밀번호 맞추기 게임 -->
+    <div class="section section-emerald" style="margin-top:1.5rem">
+      <h3 style="color:#064e3b">🎮 비밀번호 맞추기 게임</h3>
+      <p style="color:#6b7280; font-size:1rem; margin-bottom:1rem">컴퓨터가 4자리 비밀번호를 숨겼어요! 몇 번 만에 맞출 수 있을까요?</p>
 
-    function rotateDial(idx, dir) {
-      dials[idx] = (dials[idx] + dir + 10) % 10;
-      attempts++;
-      updateDisplay();
-    }
+      <div class="game-inner">
+        <p style="text-align:center; color:#6b7280; font-size:1rem; margin-bottom:.75rem; font-weight:600">▲▼ 버튼으로 숫자를 맞추고 [제출] 버튼을 누르세요</p>
+        <div class="game-dials" id="gameDials"></div>
+        <div class="game-btns">
+          <button class="btn-green" id="submitBtn" onclick="submitGuess()">🔍 제출 (<span id="gameAttempts">0</span>번 시도)</button>
+          <button class="btn-gray" onclick="resetGame()">🔄 새 게임</button>
+        </div>
+      </div>
 
-    function resetLock() {
-      dials.fill(0);
-      attempts = 0;
-      updateDisplay();
-    }
+      <div class="solved-box hidden" id="solvedBox">
+        <p>🎉 정답! <span id="solvedAttempts"></span>번 만에 맞췄어요!</p>
+        <p>최악의 경우 10,000번이 필요했을 텐데, 훨씬 빠르게 맞췄네요!</p>
+      </div>
 
-    // ===== Sparrow tooltip =====
-    const sparrowTrigger = document.getElementById('sparrow-trigger');
-    const sparrowTooltip = document.getElementById('sparrow-tooltip');
-    sparrowTrigger.addEventListener('click', () => {
-      sparrowTooltip.style.display = 'block';
-      sparrowTooltip.classList.remove('tooltip-bounce');
-      void sparrowTooltip.offsetWidth; // reflow
-      sparrowTooltip.classList.add('tooltip-bounce');
-      setTimeout(() => {
-        sparrowTooltip.style.display = 'none';
-      }, 400);
-    });
+      <div class="history-box hidden" id="historyBox">
+        <p class="history-title">📋 시도 기록 <span class="history-legend">🟩정답자리 🟨숫자는맞지만자리틀림 ⬛없는숫자</span></p>
+        <div class="history-list" id="historyList"></div>
+      </div>
+      <p class="game-note">💡 최대 10,000가지 조합 중 하나예요. 힌트를 활용하면 훨씬 빨리 찾을 수 있어요!</p>
+    </div>
 
-    // ===== Init =====
-    buildDials();
+    <!-- 체험 2: 실시간 경우의 수 계산기 -->
+    <div class="section section-sky" style="margin-top:1.5rem">
+      <h3 style="color:#0c4a6e">📊 실시간 경우의 수 계산기</h3>
+      <p style="color:#6b7280; font-size:1rem; margin-bottom:1.25rem">자릿수와 선택지 수를 바꿔보면서 경우의 수가 얼마나 달라지는지 직접 확인해보세요!</p>
 
-    // ===== 퀴즈 데이터 & 로직 =====
-    const quizData = [
-      {
-        id: 1,
-        question: '4자리 숫자 자물쇠에서 각 자리마다 0~9까지 선택 가능할 때, 만들 수 있는 비밀번호의 총 개수는?',
-        options: ['4,000가지', '10,000가지', '40,000가지', '1,000가지'],
-        correct: 1,
-        explanation: '각 자리마다 10가지(0~9)를 선택할 수 있고, 자리가 4개이므로 10 × 10 × 10 × 10 = 10⁴ = 10,000가지입니다. 이것을 "곱셈의 원리"라고 해요!'
-      },
-      {
-        id: 2,
-        question: '경우의 수를 계산할 때 곱셈을 사용하는 이유로 가장 올바른 것은?',
-        options: [
-          '숫자가 크면 항상 곱셈이 빠르기 때문에',
-          '각 자리의 선택이 서로 독립적으로 이루어지기 때문에',
-          '덧셈보다 곱셈이 더 정확하기 때문에',
-          '자물쇠 제조사가 정한 규칙이기 때문에'
-        ],
-        correct: 1,
-        explanation: '첫째 자리에서 어떤 숫자를 선택해도 둘째 자리는 항상 10가지를 선택할 수 있어요. 이처럼 각 자리의 선택이 서로 영향을 주지 않고 "독립적"이기 때문에 곱셈을 사용합니다!'
-      },
-      {
-        id: 3,
-        question: '3자리 자물쇠(각 자리 0~9)의 비밀번호 경우의 수는?',
-        options: ['30가지', '300가지', '1,000가지', '3,000가지'],
-        correct: 2,
-        explanation: '10 × 10 × 10 = 10³ = 1,000가지입니다. 000부터 999까지 총 1,000개의 비밀번호를 만들 수 있어요!'
-      },
-      {
-        id: 4,
-        question: '각 자리마다 선택지가 5개인 4자리 자물쇠가 있다면, 비밀번호의 경우의 수는?',
-        options: ['20가지', '500가지', '625가지', '2,500가지'],
-        correct: 2,
-        explanation: '각 자리마다 5가지 선택, 자리가 4개이므로 5 × 5 × 5 × 5 = 5⁴ = 625가지입니다. 선택지 개수가 줄어들면 경우의 수도 확 줄어드는 것을 볼 수 있죠!'
-      },
-      {
-        id: 5,
-        question: '1초에 1번씩 비밀번호를 시도할 때, 4자리 자물쇠(0~9) 10,000가지를 모두 시도하려면 얼마나 걸릴까요?',
-        options: ['약 1분 40초', '약 16분 40초', '약 2시간 47분', '약 27시간 47분'],
-        correct: 2,
-        explanation: '10,000초 ÷ 60 ≈ 167분 ≈ 2시간 47분이 걸립니다! 그래서 자릿수가 길수록 훨씬 안전한 비밀번호가 됩니다. 5자리면 약 27시간, 6자리면 약 11.5일이 걸려요!'
-      }
-    ];
+      <div class="calc-grid">
+        <div class="calc-card">
+          <label>🔢 자릿수: <span id="digitLabel">4</span>자리</label>
+          <input type="range" min="1" max="12" value="4" id="digitRange" oninput="updateCalc()">
+          <div class="range-labels"><span>1자리</span><span>12자리</span></div>
+        </div>
+        <div class="calc-card">
+          <label>🎲 자리당 선택지: <span id="choiceLabel">10</span>가지</label>
+          <input type="range" min="2" max="95" value="10" id="choiceRange" oninput="updateCalc()">
+          <div class="range-labels"><span>2가지</span><span>95가지(전체문자)</span></div>
+        </div>
+      </div>
 
-    const quizAnswers = {};
+      <div class="result-box">
+        <p class="result-formula">계산식</p>
+        <p class="result-formula-big" id="calcFormula">10<sup>4</sup> = 10를 4번 곱하기</p>
+        <p class="result-total" id="calcTotal">10,000가지</p>
+        <div class="result-time-box">
+          <p>⏱️ 1초에 1000만 번씩 시도 시 <strong style="color:#fde047" id="calcTime">0.001초</strong> 소요</p>
+        </div>
+      </div>
 
-    function buildQuiz() {
-      const list = document.getElementById('quiz-list');
-      list.innerHTML = '';
-      quizData.forEach((quiz, qIdx) => {
-        const card = document.createElement('div');
-        card.className = 'quiz-card';
-        card.id = `quiz-card-${quiz.id}`;
+      <div class="preset-grid">
+        <button class="preset-btn" onclick="setPreset(4,10)">4자리 숫자(ATM)</button>
+        <button class="preset-btn" onclick="setPreset(6,10)">6자리 숫자(앱)</button>
+        <button class="preset-btn" onclick="setPreset(8,62)">8자리 숫+대소문자</button>
+        <button class="preset-btn" onclick="setPreset(8,95)">8자리 전체문자(안전)</button>
+      </div>
 
-        const qTitle = document.createElement('p');
-        qTitle.className = 'quiz-question';
-        qTitle.textContent = `Q${qIdx + 1}. ${quiz.question}`;
-        card.appendChild(qTitle);
+      <div class="hacker-warn">
+        <p>⚠️ 실제 해커의 속도는?</p>
+        <p>위 계산은 <strong>1초에 1000만 번</strong> 기준이지만, 실제 해커는 <strong>GPU(그래픽카드)</strong>를 사용하여 <span style="font-weight:700; color:#dc2626">1초에 1조 번 이상</span> 시도할 수 있습니다! 고성능 해킹 장비는 이 속도의 <strong>10만 배 이상 더 빠릅니다.</strong> 따라서 <span style="font-weight:700; color:#4f46e5">8자리 이상의 복합 비밀번호</span>가 필수입니다.</p>
+      </div>
+    </div>
 
-        const opts = document.createElement('div');
-        opts.className = 'quiz-options';
-        quiz.options.forEach((opt, oIdx) => {
-          const btn = document.createElement('button');
-          btn.className = 'quiz-option';
-          btn.id = `opt-${quiz.id}-${oIdx}`;
-          btn.textContent = `${oIdx + 1}. ${opt}`;
-          btn.onclick = () => handleAnswer(quiz.id, oIdx);
-          opts.appendChild(btn);
-        });
-        card.appendChild(opts);
+    <!-- 체험 3: 브루트포스 시뮬레이터 -->
+    <div class="section section-red-brute" style="margin-top:1.5rem">
+      <h3 style="color:#7f1d1d">⚡ 브루트포스(무차별 대입) 시뮬레이터</h3>
+      <p style="color:#6b7280; font-size:1rem; margin-bottom:1rem">해킹 프로그램은 0000부터 순서대로 모든 번호를 시도해요. 직접 눈으로 확인해보세요!</p>
 
-        const exp = document.createElement('div');
-        exp.className = 'quiz-explanation';
-        exp.id = `exp-${quiz.id}`;
-        exp.style.display = 'none';
-        exp.innerHTML = `<strong>💡 설명: </strong>${quiz.explanation}`;
-        card.appendChild(exp);
+      <div class="bf-screen">
+        <p class="bf-label">🎯 목표 비밀번호</p>
+        <p class="bf-target" id="bfTargetDisplay">????</p>
+        <p class="bf-label">💻 현재 시도 중</p>
+        <p class="bf-current idle" id="bfCurrentDisplay">0000</p>
+        <div class="bf-bar-track"><div class="bf-bar-fill" id="bfBar" style="width:0%"></div></div>
+        <p class="bf-count" id="bfCountDisplay">0 / 10,000 시도</p>
+      </div>
 
-        list.appendChild(card);
-      });
-    }
+      <div class="bf-success hidden" id="bfSuccessBox">
+        <p>🔓 해킹 성공! <span id="bfFoundCount"></span>번 만에 찾았어요!</p>
+        <p>실제 해킹 프로그램은 초당 수백만 번 시도해요. 4자리 비밀번호는 순식간에 뚫립니다!</p>
+      </div>
 
-    function handleAnswer(questionId, selectedIdx) {
-      if (quizAnswers[questionId] !== undefined) return;
-      quizAnswers[questionId] = selectedIdx;
+      <div class="speed-box">
+        <label>⚡ 시도 속도 선택</label>
+        <div class="speed-grid" id="speedGrid"></div>
+      </div>
 
-      const quiz = quizData.find(q => q.id === questionId);
-      quiz.options.forEach((_, oIdx) => {
-        const btn = document.getElementById(`opt-${questionId}-${oIdx}`);
-        btn.disabled = true;
-        if (oIdx === quiz.correct) {
-          btn.classList.add('correct');
-          btn.innerHTML += '<span class="quiz-badge-correct">✓ 정답</span>';
-        } else if (oIdx === selectedIdx) {
-          btn.classList.add('wrong');
-          btn.innerHTML += '<span class="quiz-badge-wrong">✗</span>';
-        } else {
-          btn.classList.add('dimmed');
-        }
-      });
+      <div class="bf-action-row" id="bfActions"></div>
+      <p class="bf-note">💡 실제 해커는 이 방법을 쓰며, GPU를 사용하면 <strong style="color:#dc2626">이 속도의 10만 배 이상</strong>으로 시도하기 때문에 비밀번호가 길수록 안전해요!</p>
+    </div>
 
-      document.getElementById(`exp-${questionId}`).style.display = 'block';
+    <!-- 퀴즈 섹션 -->
+    <div class="section section-purple-pink" style="margin-top:1.5rem; padding:1.25rem;">
+      <h3 style="color:#4a1d96">🎯 배운 내용 확인하기</h3>
 
-      if (Object.keys(quizAnswers).length === quizData.length) {
-        document.getElementById('quiz-submit-btn').style.display = 'block';
-      }
-    }
+      <div id="quizArea">
+        <div class="quiz-list" id="quizList"></div>
+        <div class="quiz-submit-wrap hidden" id="quizSubmitWrap">
+          <button class="btn-indigo" onclick="showQuizResult()">🏁 결과 확인하기</button>
+        </div>
+      </div>
 
-    function showQuizResult() {
-      const score = quizData.filter(q => quizAnswers[q.id] === q.correct).length;
-      document.getElementById('quiz-questions').style.display = 'none';
-      document.getElementById('quiz-result').style.display = 'block';
-      document.getElementById('result-score').textContent = `${score} / ${quizData.length}`;
+      <div id="quizResultArea" class="hidden">
+        <div class="quiz-result-box">
+          <h3>🎉 퀴즈 완료!</h3>
+          <div class="quiz-score" id="quizScore"></div>
+          <p class="quiz-msg" id="quizMsg"></p>
+        </div>
+        <div class="quiz-wrong-list" id="quizWrongList"></div>
+        <div style="text-align:center">
+          <button class="btn-indigo" onclick="resetQuiz()">🔄 다시 풀기</button>
+        </div>
+      </div>
+    </div>
 
-      const msgs = [
-        '다시 한 번 복습해보세요! 💪',
-        '다시 한 번 복습해보세요! 💪',
-        '다시 한 번 복습해보세요! 💪',
-        '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍',
-        '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍',
-        '완벽해요! 모든 문제를 맞히셨네요! 🎊'
-      ];
-      document.getElementById('result-msg').textContent = msgs[score];
+    <!-- 더 공부하고 싶다면 -->
+    <div class="section section-indigo-blue" style="margin-top:1.5rem">
+      <h3 style="color:#1e1b4b">📚 더 공부하고 싶다면?</h3>
+      <div class="more-grid">
+        <div class="more-card bl-indigo">
+          <p style="color:#4338ca">🔢 순열 (Permutation)</p>
+          <p>오늘 Q6처럼 <strong>순서가 중요하고 중복이 없는</strong> 경우를 "순열"이라고 해요. 10 × 9 × 8 × 7처럼 하나씩 줄어드는 방식이죠. 다음 단원에서 자세히 배울 거예요!</p>
+        </div>
+        <div class="more-card bl-green">
+          <p style="color:#15803d">🎲 조합 (Combination)</p>
+          <p>"1, 2, 3을 뽑는데 순서가 달라도 같다고 칠 때"처럼 <strong>순서가 중요하지 않은</strong> 경우를 "조합"이라고 해요. 순열보다 경우의 수가 더 적어져요!</p>
+        </div>
+      </div>
+      <div class="more-note">
+        <p>오늘 배운 것 (중복 허용) → 순열 (중복 없음, 순서 중요) → 조합 (순서도 중요하지 않음)</p>
+        <p>이 순서로 배워나가면 경우의 수 단원 완성! 🎯</p>
+      </div>
+    </div>
 
-      const wrongReview = document.getElementById('wrong-review');
-      wrongReview.innerHTML = '';
-      quizData.filter(q => quizAnswers[q.id] !== q.correct).forEach(q => {
-        wrongReview.innerHTML += `
-          <div class="wrong-card">
-            <p class="wrong-card-title">❌ 틀린 문제: ${q.question}</p>
-            <p class="wrong-card-answer"><span>정답: </span>${q.options[q.correct]}</p>
-            <p class="wrong-card-exp">${q.explanation}</p>
-          </div>`;
-      });
-    }
+    <div class="footer-home">
+      <a href="index.html">🏠 홈으로 돌아가기</a>
+    </div>
 
-    function resetQuiz() {
-      Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
-      document.getElementById('quiz-result').style.display = 'none';
-      document.getElementById('quiz-questions').style.display = 'block';
-      document.getElementById('quiz-submit-btn').style.display = 'none';
-      buildQuiz();
-    }
+  </div><!-- /main -->
+</div><!-- /container -->
 
-    buildQuiz();
-  </script>
+<script>
+// ======= LOCK SIMULATOR =======
+let dials = [0,0,0,0];
+let attempts = 0;
+const dialLabels = ['첫째','둘째','셋째','넷째'];
+
+function buildDials() {
+  const wrap = document.getElementById('dialsWrap');
+  wrap.innerHTML = '';
+  dials.forEach((val, idx) => {
+    const col = document.createElement('div');
+    col.className = 'dial-col';
+    col.innerHTML = `
+      <button class="dial-btn" onclick="rotateDial(${idx},1)">▲</button>
+      <div class="dial-display"><span class="dial-num" id="dial${idx}">${val}</span></div>
+      <button class="dial-btn" onclick="rotateDial(${idx},-1)">▼</button>
+      <div class="dial-label">${dialLabels[idx]}</div>
+    `;
+    wrap.appendChild(col);
+  });
+}
+
+function rotateDial(idx, dir) {
+  dials[idx] = (dials[idx] + dir + 10) % 10;
+  attempts++;
+  document.getElementById('dial'+idx).textContent = dials[idx];
+  document.getElementById('currentCode').textContent = dials.join('');
+  document.getElementById('attemptCount').textContent = attempts;
+}
+
+function resetLock() {
+  dials = [0,0,0,0];
+  attempts = 0;
+  buildDials();
+  document.getElementById('currentCode').textContent = '0000';
+  document.getElementById('attemptCount').textContent = '0';
+}
+
+// tooltip
+function showTooltip() {
+  const bubble = document.getElementById('tooltipBubble');
+  bubble.classList.remove('hidden');
+  setTimeout(() => bubble.classList.add('hidden'), 500);
+}
+
+buildDials();
+
+// ======= GAME =======
+let secretCode = generateSecret();
+let gameGuess = [0,0,0,0];
+let gameAttempts = 0;
+let gameSolved = false;
+
+function generateSecret() {
+  return Array.from({length:4}, () => Math.floor(Math.random()*10));
+}
+
+function buildGameDials() {
+  const wrap = document.getElementById('gameDials');
+  wrap.innerHTML = '';
+  gameGuess.forEach((val, idx) => {
+    const col = document.createElement('div');
+    col.className = 'game-dial-col';
+    col.innerHTML = `
+      <button class="game-dial-btn" onclick="rotateGameDial(${idx},1)">▲</button>
+      <div class="game-dial-display"><span class="game-dial-num" id="gdial${idx}">${val}</span></div>
+      <button class="game-dial-btn" onclick="rotateGameDial(${idx},-1)">▼</button>
+    `;
+    wrap.appendChild(col);
+  });
+}
+
+function rotateGameDial(idx, dir) {
+  if(gameSolved) return;
+  gameGuess[idx] = (gameGuess[idx] + dir + 10) % 10;
+  document.getElementById('gdial'+idx).textContent = gameGuess[idx];
+}
+
+function submitGuess() {
+  if(gameSolved) return;
+  gameAttempts++;
+  document.getElementById('gameAttempts').textContent = gameAttempts;
+  const isCorrect = gameGuess.join('') === secretCode.join('');
+  const hint = gameGuess.map((d,i) => {
+    if(d === secretCode[i]) return '🟩';
+    else if(secretCode.includes(d)) return '🟨';
+    else return '⬛';
+  }).join('');
+  addHistoryRow(gameGuess.join(''), hint, isCorrect);
+  if(isCorrect) {
+    gameSolved = true;
+    document.getElementById('submitBtn').disabled = true;
+    const box = document.getElementById('solvedBox');
+    document.getElementById('solvedAttempts').textContent = gameAttempts;
+    box.classList.remove('hidden');
+  }
+}
+
+function addHistoryRow(code, hint, correct) {
+  const box = document.getElementById('historyBox');
+  box.classList.remove('hidden');
+  const list = document.getElementById('historyList');
+  const row = document.createElement('div');
+  row.className = 'history-row ' + (correct ? 'correct' : 'wrong');
+  row.innerHTML = `<span class="history-code">${code}</span><span class="history-hint">${hint}</span>${correct ? '<span class="history-ok">✓ 정답!</span>' : ''}`;
+  list.prepend(row);
+}
+
+function resetGame() {
+  secretCode = generateSecret();
+  gameGuess = [0,0,0,0];
+  gameAttempts = 0;
+  gameSolved = false;
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('gameAttempts').textContent = '0';
+  document.getElementById('solvedBox').classList.add('hidden');
+  document.getElementById('historyBox').classList.add('hidden');
+  document.getElementById('historyList').innerHTML = '';
+  buildGameDials();
+}
+
+buildGameDials();
+
+// ======= CALCULATOR =======
+function updateCalc() {
+  const d = parseInt(document.getElementById('digitRange').value);
+  const c = parseInt(document.getElementById('choiceRange').value);
+  document.getElementById('digitLabel').textContent = d;
+  document.getElementById('choiceLabel').textContent = c;
+  const total = Math.pow(c, d);
+  const hackSec = total / 10000000;
+  document.getElementById('calcFormula').innerHTML = `${c}<sup>${d}</sup> = ${c}를 ${d}번 곱하기`;
+  let totalStr;
+  if(total >= 1e12) totalStr = (total/1e12).toFixed(1)+'조';
+  else if(total >= 1e8) totalStr = (total/1e8).toFixed(1)+'억';
+  else if(total >= 1e4) totalStr = (total/1e4).toFixed(1)+'만';
+  else totalStr = total.toLocaleString();
+  document.getElementById('calcTotal').textContent = totalStr+'가지';
+  document.getElementById('calcTime').textContent = formatTime(hackSec);
+}
+
+function formatTime(sec) {
+  if(sec < 60) return sec+'초';
+  if(sec < 3600) return (sec/60).toFixed(1)+'분';
+  if(sec < 86400) return (sec/3600).toFixed(1)+'시간';
+  if(sec < 31536000) return (sec/86400).toFixed(1)+'일';
+  return (sec/31536000).toFixed(1)+'년';
+}
+
+function setPreset(d, c) {
+  document.getElementById('digitRange').value = d;
+  document.getElementById('choiceRange').value = c;
+  updateCalc();
+}
+
+updateCalc();
+
+// ======= BRUTE FORCE =======
+let bfTarget = Math.floor(Math.random()*10000).toString().padStart(4,'0');
+let bfRunning = false;
+let bfFound = false;
+let bfCount = 0;
+let bfSpeed = 3;
+let bfTimer = null;
+let bfCounter = 0;
+const speedLabels = ['','🚀 초고속','⚡ 빠름','🐇 보통','🐢 느림'];
+
+function getBatchSize(s){ return s===1?1000:s===2?200:s===3?30:1; }
+function getDelay(s){ return s===1?16:s===2?16:s===3?30:150; }
+
+function buildSpeedBtns() {
+  const grid = document.getElementById('speedGrid');
+  grid.innerHTML = '';
+  [1,2,3,4].forEach(spd => {
+    const btn = document.createElement('button');
+    btn.className = 'speed-btn ' + (bfSpeed===spd?'active':'inactive');
+    btn.textContent = speedLabels[spd];
+    btn.disabled = bfRunning;
+    btn.onclick = () => { if(!bfRunning){ bfSpeed=spd; buildSpeedBtns(); } };
+    grid.appendChild(btn);
+  });
+}
+
+function buildBfActions() {
+  const row = document.getElementById('bfActions');
+  row.innerHTML = '';
+  if(!bfRunning && !bfFound) {
+    const btn = document.createElement('button');
+    btn.className = 'btn-red'; btn.textContent = '▶ 해킹 시작!';
+    btn.onclick = startBruteForce; row.appendChild(btn);
+  } else if(bfRunning) {
+    const btn = document.createElement('button');
+    btn.className = 'btn-red-stop'; btn.textContent = '⏸ 일시정지';
+    btn.onclick = stopBruteForce; row.appendChild(btn);
+  }
+  if(!bfRunning && bfCount > 0 && !bfFound) {
+    const btn = document.createElement('button');
+    btn.className = 'btn-orange'; btn.textContent = '▶ 계속하기';
+    btn.onclick = startBruteForce; row.appendChild(btn);
+  }
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'btn-sm-gray'; resetBtn.textContent = '🔄 새 번호';
+  resetBtn.onclick = resetBruteForce; row.appendChild(resetBtn);
+}
+
+function startBruteForce() {
+  if(bfCount === 0) {
+    bfCounter = 0;
+    updateBfDisplay('0000', 0, false);
+  }
+  bfFound = false;
+  bfRunning = true;
+  document.getElementById('bfSuccessBox').classList.add('hidden');
+  buildSpeedBtns();
+  buildBfActions();
+  runStep();
+}
+
+function stopBruteForce() {
+  bfRunning = false;
+  if(bfTimer) clearTimeout(bfTimer);
+  buildSpeedBtns();
+  buildBfActions();
+}
+
+function resetBruteForce() {
+  stopBruteForce();
+  bfTarget = Math.floor(Math.random()*10000).toString().padStart(4,'0');
+  bfCounter = 0; bfCount = 0; bfFound = false;
+  document.getElementById('bfTargetDisplay').textContent = '????';
+  document.getElementById('bfSuccessBox').classList.add('hidden');
+  updateBfDisplay('0000', 0, false);
+  buildSpeedBtns();
+  buildBfActions();
+}
+
+function updateBfDisplay(cur, count, found) {
+  const el = document.getElementById('bfCurrentDisplay');
+  el.textContent = cur;
+  el.className = 'bf-current ' + (found?'found':bfRunning?'running':'idle');
+  document.getElementById('bfBar').style.width = ((count/10000)*100)+'%';
+  document.getElementById('bfCountDisplay').textContent = count.toLocaleString() + ' / 10,000 시도';
+  bfCount = count;
+}
+
+function runStep() {
+  if(!bfRunning) return;
+  const batch = getBatchSize(bfSpeed);
+  const delay = getDelay(bfSpeed);
+  let cur = bfCounter;
+  let found = false;
+  let lastStr = cur.toString().padStart(4,'0');
+  for(let i=0;i<batch;i++){
+    const s = cur.toString().padStart(4,'0');
+    lastStr = s;
+    if(s === bfTarget){ found=true; cur++; break; }
+    cur++;
+    if(cur>9999) break;
+  }
+  bfCounter = cur;
+  updateBfDisplay(lastStr, cur, found);
+  if(found){
+    bfFound=true; bfRunning=false;
+    document.getElementById('bfTargetDisplay').textContent = bfTarget;
+    document.getElementById('bfCurrentDisplay').className='bf-current found';
+    document.getElementById('bfFoundCount').textContent = cur.toLocaleString();
+    document.getElementById('bfSuccessBox').classList.remove('hidden');
+    buildSpeedBtns(); buildBfActions(); return;
+  }
+  if(cur>9999){ bfRunning=false; buildSpeedBtns(); buildBfActions(); return; }
+  bfTimer = setTimeout(runStep, delay);
+}
+
+buildSpeedBtns();
+buildBfActions();
+
+// ======= QUIZ =======
+const quizData = [
+  {id:1, question:'4자리 숫자 자물쇠에서 각 자리마다 0~9까지 선택 가능할 때, 만들 수 있는 비밀번호의 총 개수는?', options:['4,000가지','10,000가지','40,000가지','1,000가지'], correct:1, explanation:'각 자리마다 10가지(0~9)를 선택할 수 있고, 자리가 4개이므로 10 × 10 × 10 × 10 = 10⁴ = 10,000가지입니다. 이것을 "곱셈의 원리"라고 해요!'},
+  {id:2, question:'경우의 수를 계산할 때 곱셈을 사용하는 이유로 가장 올바른 것은?', options:['숫자가 크면 항상 곱셈이 빠르기 때문에','각 자리의 선택이 서로 독립적으로 이루어지기 때문에','덧셈보다 곱셈이 더 정확하기 때문에','자물쇠 제조사가 정한 규칙이기 때문에'], correct:1, explanation:'첫째 자리에서 어떤 숫자를 선택해도 둘째 자리는 항상 10가지를 선택할 수 있어요. 이처럼 각 자리의 선택이 서로 영향을 주지 않고 "독립적"이기 때문에 곱셈을 사용합니다!'},
+  {id:3, question:'3자리 자물쇠(각 자리 0~9)의 비밀번호 경우의 수는?', options:['30가지','300가지','1,000가지','3,000가지'], correct:2, explanation:'10 × 10 × 10 = 10³ = 1,000가지입니다. 000부터 999까지 총 1,000개의 비밀번호를 만들 수 있어요!'},
+  {id:4, question:'각 자리마다 선택지가 5개인 4자리 자물쇠가 있다면, 비밀번호의 경우의 수는?', options:['20가지','500가지','625가지','2,500가지'], correct:2, explanation:'각 자리마다 5가지 선택, 자리가 4개이므로 5 × 5 × 5 × 5 = 5⁴ = 625가지입니다. 선택지 개수가 줄어들면 경우의 수도 확 줄어드는 것을 볼 수 있죠!'},
+  {id:5, question:'1초에 1000만 번씩 비밀번호를 시도할 때, 4자리 자물쇠(0~9) 10,000가지를 모두 시도하려면 얼마나 걸릴까요?', options:['약 0.001초 (1밀리초)','약 0.01초 (10밀리초)','약 0.1초 (100밀리초)','약 1초'], correct:0, explanation:'10,000번 ÷ 10,000,000번/초 = 0.001초 = 1밀리초가 걸립니다! 1초에 1000만 번씩 시도하면 4자리 자물쇠는 순식간에 뚫려요. 자릿수가 길수록 훨씬 안전한 비밀번호가 됩니다.'},
+  {id:6, question:'이번 자물쇠는 같은 숫자를 두 번 이상 쓸 수 없어요. (중복 불가!) 4자리 자물쇠에서 만들 수 있는 비밀번호는 몇 가지일까요?', options:['5,040가지','7,560가지','10,000가지','504가지'], correct:0, explanation:'첫째 자리 10가지 → 둘째 자리는 쓴 숫자 빼고 9가지 → 셋째 자리 8가지 → 넷째 자리 7가지. 10 × 9 × 8 × 7 = 5,040가지! 중복 허용(10,000가지)보다 훨씬 적죠? 이렇게 순서가 중요하고 중복이 없는 경우를 수학에서 "순열"이라고 불러요. 나중에 더 자세히 배울 거예요~'},
+  {id:7, question:'"0000"은 앞자리가 0이니까 진짜 비밀번호가 아니다. 그러므로 4자리 자물쇠의 비밀번호는 총 9,999가지다. — 맞을까요, 틀릴까요?', options:['맞다. 0000은 숫자가 아니니 제외해야 한다.','틀리다. 0000도 유효한 비밀번호이므로 10,000가지다.','맞다. 0으로 시작하는 번호는 모두 제외한다.','틀리다. 하지만 이유는 모르겠다.'], correct:1, explanation:'틀렸어요! 자물쇠는 "수(number)"가 아니라 "순서 있는 기호 조합"이에요. 0000, 0001처럼 0으로 시작해도 완전히 유효한 비밀번호예요. 실제 은행 ATM도 0000을 비밀번호로 설정할 수 있답니다. 0~9 각각 10가지이므로 10,000가지 전부 유효해요!'}
+];
+const quizAnswers = {};
+
+function buildQuiz() {
+  const list = document.getElementById('quizList');
+  list.innerHTML = '';
+  quizData.forEach((quiz, qIdx) => {
+    const item = document.createElement('div');
+    item.className = 'quiz-item';
+    item.id = 'quizItem'+quiz.id;
+    let optHtml = quiz.options.map((opt, oIdx) =>
+      `<button class="quiz-opt" id="qopt_${quiz.id}_${oIdx}" onclick="answerQuiz(${quiz.id},${oIdx})">${oIdx+1}. ${opt}</button>`
+    ).join('');
+    item.innerHTML = `
+      <p class="quiz-q">Q${qIdx+1}. ${quiz.question}</p>
+      <div class="quiz-options">${optHtml}</div>
+      <div class="quiz-explain hidden" id="qexp_${quiz.id}"><span>설명: </span>${quiz.explanation}</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function answerQuiz(qid, oIdx) {
+  if(quizAnswers[qid] !== undefined) return;
+  quizAnswers[qid] = oIdx;
+  const quiz = quizData.find(q=>q.id===qid);
+  quiz.options.forEach((_,i) => {
+    const btn = document.getElementById(`qopt_${qid}_${i}`);
+    btn.disabled = true;
+    if(i === quiz.correct) { btn.className='quiz-opt correct'; btn.innerHTML += '<span class="opt-correct">✓ 정답</span>'; }
+    else if(i === oIdx) { btn.className='quiz-opt wrong'; btn.innerHTML += '<span class="opt-wrong">✗</span>'; }
+    else btn.className='quiz-opt neutral';
+  });
+  document.getElementById('qexp_'+qid).classList.remove('hidden');
+  // check if all answered
+  if(Object.keys(quizAnswers).length === quizData.length) {
+    document.getElementById('quizSubmitWrap').classList.remove('hidden');
+  }
+}
+
+function showQuizResult() {
+  const score = quizData.filter(q=>quizAnswers[q.id]===q.correct).length;
+  document.getElementById('quizArea').classList.add('hidden');
+  document.getElementById('quizResultArea').classList.remove('hidden');
+  document.getElementById('quizScore').textContent = score + ' / ' + quizData.length;
+  let msg;
+  if(score===quizData.length) msg='완벽해요! 모든 문제를 맞히셨네요! 🎊';
+  else if(score>=quizData.length*0.7) msg='잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍';
+  else msg='다시 한 번 복습해보세요! 💪';
+  document.getElementById('quizMsg').textContent = msg;
+  const wrongList = document.getElementById('quizWrongList');
+  wrongList.innerHTML = '';
+  quizData.filter(q=>quizAnswers[q.id]!==q.correct).forEach(q=>{
+    const div = document.createElement('div');
+    div.className='quiz-wrong-item';
+    div.innerHTML=`<p>❌ 틀린 문제: ${q.question}</p><p><span style="font-weight:700;color:#16a34a">정답: </span>${q.options[q.correct]}</p><p>${q.explanation}</p>`;
+    wrongList.appendChild(div);
+  });
+}
+
+function resetQuiz() {
+  Object.keys(quizAnswers).forEach(k=>delete quizAnswers[k]);
+  document.getElementById('quizArea').classList.remove('hidden');
+  document.getElementById('quizResultArea').classList.add('hidden');
+  document.getElementById('quizSubmitWrap').classList.add('hidden');
+  buildQuiz();
+}
+
+buildQuiz();
+</script>
 </body>
 </html>
