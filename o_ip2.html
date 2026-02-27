@@ -63,7 +63,7 @@
     .box            { border-radius: .5rem; padding: 1.5rem; margin-bottom: 1rem; }
     .box-yellow     { background: #fefce8; border: 1px solid #fde047; }
     .box-blue       { background: #eff6ff; border: 1px solid #bfdbfe; }
-    .box-green      { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .box-green      { background: #dcfce7; border: 2px solid #4ade80; }
     .box-red        { background: #fef2f2; border: 1px solid #fecaca; }
     .box-indigo     { background: linear-gradient(to right, #eef2ff, #f5f3ff); border: 2px solid #a5b4fc; border-radius: .75rem; padding: 1.5rem; }
     .box-orange     { background: linear-gradient(to right, #fff7ed, #fefce8); border: 1px solid #fed7aa; border-radius: .5rem; padding: 1.5rem; }
@@ -176,6 +176,24 @@
                     font-size: .875rem; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.2);
                     animation: bounceOnce .5s ease-in-out; }
     .svg-wrap     { background: #fff; border-radius: .5rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); border: 2px solid; margin-bottom: 1rem; }
+
+    /* ── Step Nav ── */
+    .step-nav     { padding: 1.5rem 2rem .5rem; }
+    .step-track   { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .25rem; }
+    .step-item    { display: flex; flex-direction: column; align-items: center; flex: 1; cursor: pointer; }
+    .step-circle  { width: 2.25rem; height: 2.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                    font-weight: 700; font-size: .875rem; border: 2px solid; transition: all .2s; }
+    .step-circle.done    { background: #22c55e; color: #fff; border-color: #22c55e; }
+    .step-circle.active  { background: #4f46e5; color: #fff; border-color: #4f46e5; transform: scale(1.1); box-shadow: 0 4px 12px rgba(79,70,229,.4); }
+    .step-circle.pending { background: #fff; color: #9ca3af; border-color: #d1d5db; }
+    .step-label   { font-size: .7rem; margin-top: .25rem; text-align: center; display: none; }
+    @media(min-width:480px){ .step-label { display: block; } }
+    .step-label.done    { color: #16a34a; }
+    .step-label.active  { color: #4f46e5; font-weight: 700; }
+    .step-label.pending { color: #9ca3af; }
+    .progress-bar { position: relative; height: .5rem; background: #e5e7eb; border-radius: 9999px; margin-top: .25rem; }
+    .progress-fill{ position: absolute; left: 0; top: 0; height: .5rem; background: linear-gradient(to right,#4f46e5,#9333ea); border-radius: 9999px; transition: width .5s; }
+    .step-count   { text-align: right; font-size: .75rem; color: #9ca3af; margin-top: .25rem; }
   </style>
 </head>
 <body>
@@ -189,6 +207,9 @@
     <h1>📞 인터넷 주소가 왜 필요하지?</h1>
     <p>인터넷을 하려면 IP 주소가 필요해요! 어떻게 서로를 찾을까요?</p>
   </div>
+
+  <!-- ── Step Nav ── -->
+  <div class="step-nav" id="step-nav"></div>
 
   <!-- ── Content ── -->
   <div class="content" id="content"></div>
@@ -461,7 +482,7 @@ function renderStep0() {
   return `
     <div class="box box-yellow mb6">
       <p class="bold mb4" style="color:#713f12;font-size:1.125rem">🤔 먼저 생각해볼까요?</p>
-      <p class="text-lg" style="color:#374151">
+      <p class="text-base" style="color:#374151">
         지구상에 <span class="bold text-blue">전화기 2대</span>만 있다고 상상해보세요.
         두 전화기가 서로 통신하려면 <span class="bold text-orange">가장 먼저</span> 무엇이 필요할까요?
       </p>
@@ -492,10 +513,10 @@ function renderStep1() {
   return `
     <div class="box box-green mb6 animate-slide-in">
       <div class="flex-center mb4">
-        <span style="font-size:2.5rem">✅</span>
-        <h2 class="title-lg" style="color:#166534;margin:0">정답! 먼저 선이 필요합니다!</h2>
+        <span style="font-size:1.125rem">✅</span>
+        <h2 class="text-lg" style="color:#166534;margin:0">정답! 먼저 선이 필요합니다!</h2>
       </div>
-      <p class="text-lg" style="color:#374151">
+      <p class="text-base" style="color:#374151">
         전화기 2대가 통신하려면 신호를 주고받을 수 있는 <span class="bold text-blue">물리적 연결</span>이 필요합니다.
       </p>
     </div>
@@ -570,12 +591,12 @@ function renderStep2() {
 
   return `
     <div class="box" style="background:linear-gradient(to right,#fff7ed,#fef2f2);border:2px solid #fb923c;border-radius:.5rem;margin-bottom:1.5rem">
-      <h2 class="title-lg" style="color:#9a3412">📞 전화기가 3대 이상이면?</h2>
-      <p class="text-lg" style="color:#374151">이제는 <span class="bold text-red">전화번호</span>가 필요합니다!</p>
+      <h2 class="text-lg" style="color:#9a3412">📞 전화기가 3대 이상이면?</h2>
+      <p class="text-base" style="color:#374151">이제는 <span class="bold text-red">전화번호</span>가 필요합니다!</p>
     </div>
     <div class="card">
       <h3 class="title-lg text-center" style="color:#7c3aed">🔢 3명 이상의 네트워크</h3>
-      <svg viewBox="0 0 600 400" style="width:100%;max-width:600px;display:block;margin:0 auto 1rem">
+      <svg viewBox="0 0 600 400" style="width:100%;max-width:900px;display:block;margin:0 auto 1rem">
         <circle cx="300" cy="200" r="60" fill="#8b5cf6" opacity=".2"/>
         <text x="300" y="195" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3aed">전화망</text>
         <text x="300" y="215" text-anchor="middle" font-size="14" fill="#7c3aed">(교환기)</text>
@@ -600,7 +621,7 @@ function renderStep2() {
       </svg>
       <div class="text-center mb4">
         <p class="bold text-purple">모든 전화기가 중앙 전화망(교환기)에 연결되어 있어요!</p>
-        <p class="text-sm mt1" style="color:#374151">점선은 각 전화기와 교환기를 연결하는 선을 나타냅니다.</p>
+        <p class="text-base mt1" style="color:#374151">점선은 각 전화기와 교환기를 연결하는 선을 나타냅니다.</p>
       </div>
       <div class="box box-red">
         <h4 class="flex-center mb4" style="color:#991b1b"><span style="font-size:1.5rem">⚠️</span>문제 발생!</h4>
@@ -624,7 +645,7 @@ function renderStep2() {
         💡 <strong>아래 버튼을 클릭</strong>해서 신호가 전송되는 모습을 확인하세요! 🔵
       </div>
       <div class="svg-wrap" style="border-color:#bfdbfe">
-        <svg viewBox="0 0 600 430" style="width:100%;max-width:600px;display:block;margin:0 auto">
+        <svg viewBox="0 0 600 430" style="width:100%;max-width:900px;display:block;margin:0 auto">
           ${lines}${signals}
           <circle cx="300" cy="200" r="60" fill="#8b5cf6" opacity=".2"/>
           <text x="300" y="195" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3aed">전화망</text>
@@ -730,7 +751,7 @@ function renderStep3() {
       </div>
       <div class="device-grid">${deviceBtns}</div>
       <div class="svg-wrap" style="border-color:#bbf7d0">
-        <svg viewBox="0 0 600 400" style="width:100%;max-width:600px;display:block;margin:0 auto">
+        <svg viewBox="0 0 600 400" style="width:100%;max-width:900px;display:block;margin:0 auto">
           ${lines}
           <circle cx="300" cy="200" r="40" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3"/>
           <text x="300" y="200" text-anchor="middle" dominant-baseline="middle" font-size="30">🔀</text>
@@ -818,9 +839,34 @@ function renderStep3() {
 }
 
 /* ═══════════════════════════════════════════════
+   STEP NAV
+═══════════════════════════════════════════════ */
+const stepLabels = ['물리적 연결', '전화번호의 필요성', '인터넷 IP 주소', '정리 & 퀴즈'];
+
+function renderStepNav() {
+  const el = document.getElementById('step-nav');
+  if (!el) return;
+  const n = state.step;
+  const items = stepLabels.map((label, idx) => {
+    const cls = idx < n ? 'done' : idx === n ? 'active' : 'pending';
+    const txt = idx < n ? '✓' : String(idx + 1);
+    return `<div class="step-item" onclick="goStep(${idx})">
+      <div class="step-circle ${cls}">${txt}</div>
+      <span class="step-label ${cls}">${label}</span>
+    </div>`;
+  }).join('');
+  const pct = (n / (stepLabels.length - 1)) * 100;
+  el.innerHTML = `
+    <div class="step-track">${items}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <p class="step-count">${n + 1} / ${stepLabels.length} 단계</p>`;
+}
+
+/* ═══════════════════════════════════════════════
    MAIN RENDER
 ═══════════════════════════════════════════════ */
 function render() {
+  renderStepNav();
   const el = document.getElementById('content');
   if      (state.step===0) el.innerHTML = renderStep0();
   else if (state.step===1) el.innerHTML = renderStep1();

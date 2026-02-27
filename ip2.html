@@ -104,6 +104,686 @@
   <script type="text/babel">
     const { useState } = React;
 
+    /* ══════════════════════════════════════════════════════════
+       PhoneExchange — 실제 전화기 UI + 전자 교환기 시스템
+       ══════════════════════════════════════════════════════════ */
+    const PhoneExchange = () => {
+      const { useState: useS, useEffect: useE, useRef: useR } = React;
+
+      /* ── 사용자 디렉토리 ── */
+      const USERS = [
+        { id: 'minsu',   name: '민수',   emoji: '👦', number: '010-1234-5678', color: '#3B82F6' },
+        { id: 'jieun',   name: '지은',   emoji: '👧', number: '010-9876-5432', color: '#10B981' },
+        { id: 'teacher', name: '선생님', emoji: '👨‍🏫', number: '010-1004-1004', color: '#A855F7' },
+        { id: 'junho',   name: '준호',   emoji: '🧑', number: '010-5555-7777', color: '#F59E0B' },
+      ];
+
+      /* ── 전자 교환기 대기열 ── */
+      const [queue,       setQueue]       = useS([]);
+      const [processing,  setProcessing]  = useS(null);   // 현재 전자 교환기가 처리 중인 통화
+      const [callHistory, setCallHistory] = useS([]);
+      const [caller,      setCaller]      = useS('minsu'); // 발신자 선택
+      const [dialInput,   setDialInput]   = useS('');     // 다이얼 패드 입력
+      const [phase,       setPhase]       = useS('idle'); // idle | dialing | queued | routing | connecting | connected | error | busy_wait
+      const [errorMsg,    setErrorMsg]    = useS('');
+      const [waitSec,     setWaitSec]     = useS(0);
+      const [highlight,   setHighlight]   = useS('');
+      const timerRef = useR(null);
+
+      /* 통화 이력 최대 6개 */
+      const addHistory = (entry) =>
+        setCallHistory(prev => [entry, ...prev].slice(0, 6));
+
+      /* 전자 교환기 처리 시뮬레이션 */
+      const simulateExchange = (callerUser, targetUser, correct) => {
+        const busyChance = queue.length > 0 ? 0.5 : 0.15;
+        const isBusy = Math.random() < busyChance;
+
+        if (isBusy) {
+          /* 대기열에 추가 */
+          const waitId = Date.now();
+          setQueue(prev => [...prev, { id: waitId, caller: callerUser, target: targetUser, correct }]);
+          setPhase('queued');
+          let sec = 3 + queue.length * 2;
+          setWaitSec(sec);
+          const iv = setInterval(() => {
+            sec -= 1;
+            setWaitSec(sec);
+            if (sec <= 0) {
+              clearInterval(iv);
+              setQueue(prev => prev.filter(q => q.id !== waitId));
+              doRoute(callerUser, targetUser, correct);
+            }
+          }, 1000);
+          return;
+        }
+        doRoute(callerUser, targetUser, correct);
+      };
+
+      const doRoute = (callerUser, targetUser, correct) => {
+        setPhase('routing');
+        setProcessing({ caller: callerUser, target: targetUser });
+        setHighlight('exchange');
+
+        setTimeout(() => {
+          setHighlight('target');
+          setTimeout(() => {
+            if (!correct) {
+              /* 번호 오류 → 엉뚱한 곳 */
+              const others = USERS.filter(u => u.id !== callerUser.id && u.id !== targetUser.id);
+              const wrong = others[Math.floor(Math.random() * others.length)];
+              setPhase('error');
+              setErrorMsg(`전자 교환기: 📋 번호 ${dialInput} 찾는 중... ❌ 등록된 번호가 없어요! 가장 가까운 번호(${wrong.number})로 잘못 연결됩니다!`);
+              addHistory({ type: 'error', from: callerUser, to: wrong, number: dialInput, time: new Date().toLocaleTimeString() });
+              setTimeout(() => reset(), 4000);
+            } else {
+              setPhase('connected');
+              addHistory({ type: 'success', from: callerUser, to: targetUser, number: dialInput, time: new Date().toLocaleTimeString() });
+              setTimeout(() => reset(), 4000);
+            }
+            setProcessing(null);
+            setHighlight('');
+          }, 1200);
+        }, 1500);
+      };
+
+      const reset = () => {
+        setPhase('idle');
+        setDialInput('');
+        setErrorMsg('');
+        setHighlight('');
+      };
+
+      /* 다이얼 패드 */
+      const KEYS = ['1','2','3','4','5','6','7','8','9','*','0','#'];
+      const formatDial = (raw) => {
+        const digits = raw.replace(/\D/g, '').slice(0, 11);
+        if (digits.length <= 3) return digits;
+        if (digits.length <= 7) return digits.slice(0,3) + '-' + digits.slice(3);
+        return digits.slice(0,3) + '-' + digits.slice(3,7) + '-' + digits.slice(7);
+      };
+      const pressKey = (k) => {
+        if (phase !== 'idle') return;
+        if (k === '#') { handleCall(); return; }
+        if (k === '*') { setDialInput(''); return; }
+        setDialInput(prev => {
+          const digits = prev.replace(/\D/g,'');
+          if (digits.length >= 11) return prev;
+          return formatDial(digits + k);
+        });
+      };
+
+      /* 통화 시도 */
+      const handleCall = () => {
+        if (phase !== 'idle') return;
+        if (!dialInput) return;
+        const callerUser = USERS.find(u => u.id === caller);
+        const target = USERS.find(u => u.number === dialInput);
+        const correct = !!target && target.id !== callerUser.id;
+        const targetUser = correct ? target : (USERS.find(u => u.id !== callerUser.id));
+        setPhase('dialing');
+        setTimeout(() => simulateExchange(callerUser, targetUser, correct), 800);
+      };
+
+      const callerUser = USERS.find(u => u.id === caller);
+
+      /* 상태별 메시지 */
+      const statusInfo = {
+        idle:        { bg: 'bg-gray-100',   text: 'text-gray-600',  msg: '📱 전화번호를 누르고 📞 버튼을 눌러보세요!' },
+        dialing:     { bg: 'bg-blue-100',   text: 'text-blue-700',  msg: '📡 신호를 교환기로 보내는 중...' },
+        queued:      { bg: 'bg-yellow-100', text: 'text-yellow-800',msg: `⏳ 교환기가 처리 중이에요! 대기 중... (${waitSec}초 남음)` },
+        routing:     { bg: highlight === 'exchange' ? 'bg-purple-100' : 'bg-indigo-100',
+                       text: highlight === 'exchange' ? 'text-purple-800' : 'text-indigo-800',
+                       msg: highlight === 'exchange' ? '🔍 전자 교환기: 번호 조회 중...' : '🔀 전자 교환기: 연결 경로 계산 중...' },
+        connecting:  { bg: 'bg-green-100',  text: 'text-green-700', msg: '🔔 연결 중...' },
+        connected:   { bg: 'bg-green-200',  text: 'text-green-800', msg: `✅ 연결 성공! ${USERS.find(u=>u.number===dialInput)?.name || ''}와 통화 중이에요!` },
+        error:       { bg: 'bg-red-100',    text: 'text-red-700',   msg: errorMsg },
+        busy_wait:   { bg: 'bg-yellow-100', text: 'text-yellow-800',msg: '⏳ 대기 중...' },
+      };
+      const status = statusInfo[phase] || statusInfo.idle;
+
+      return (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200 shadow-lg mb-6">
+          {/* 헤더 — 기존 섹션과 동일한 스타일 */}
+          <h2 className="text-xl font-bold text-blue-700 mb-2 flex items-center gap-2">
+            📞 전화 걸기 직접 체험
+          </h2>
+          <p className="text-base text-gray-700 mb-5">
+            번호를 직접 눌러 전화해보세요! <span className="font-bold text-purple-700">전자 교환기</span>가 어떻게 번호를 보고 연결하는지 관찰하세요.
+          </p>
+
+          {/* ── 메인 레이아웃 ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+            {/* ① 발신자 선택 + 전화기 */}
+            <div className="bg-white p-5 rounded-xl shadow-lg border-2 border-gray-200 flex flex-col items-center">
+              <h4 className="font-bold text-indigo-700 mb-3 flex items-center gap-1">
+                <span className="text-lg">👤</span> 발신자 선택
+              </h4>
+              <div className="grid grid-cols-2 gap-2 w-full mb-5">
+                {USERS.map(u => (
+                  <button key={u.id}
+                    onClick={() => { if(phase==='idle') setCaller(u.id); }}
+                    disabled={phase !== 'idle'}
+                    style={{ borderColor: caller===u.id ? u.color : '#e5e7eb',
+                             background: caller===u.id ? u.color+'22' : 'white' }}
+                    className="border-2 rounded-lg p-2 text-center transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <div className="text-2xl">{u.emoji}</div>
+                    <div className="text-sm font-bold" style={{color: caller===u.id ? u.color : '#374151'}}>{u.name}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* 전화기 본체 — 어두운 배경은 전화기 내부에만 적용 */}
+              <div className="w-full max-w-xs bg-gray-800 rounded-2xl p-4 shadow-xl border-2 border-gray-600">
+                {/* 화면 */}
+                <div className="bg-black rounded-xl p-3 mb-4 border border-gray-600">
+                  <div className="text-xs text-gray-400 flex justify-between mb-1">
+                    <span>{callerUser.emoji} {callerUser.name}</span>
+                    <span style={{color: phase==='connected'?'#4ade80': phase==='error'?'#f87171':'#94a3b8'}}>
+                      {phase==='idle'?'대기':phase==='connected'?'통화중':phase==='error'?'오류':'처리중'}
+                    </span>
+                  </div>
+                  <div className="text-white font-mono text-lg tracking-widest text-center min-h-7">
+                    {dialInput || <span className="text-gray-500 text-sm">번호를 눌러보세요</span>}
+                  </div>
+                </div>
+
+                {/* 다이얼 패드 */}
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {KEYS.map(k => (
+                    <button key={k}
+                      onClick={() => pressKey(k)}
+                      disabled={phase !== 'idle'}
+                      className="bg-gray-600 hover:bg-gray-500 active:bg-gray-400 text-white rounded-lg py-2 text-base font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >{k}</button>
+                  ))}
+                </div>
+
+                {/* 통화/종료 버튼 */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={handleCall} disabled={phase !== 'idle' || !dialInput}
+                    className="bg-green-500 hover:bg-green-400 text-white rounded-lg py-2 text-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed">📞</button>
+                  <button onClick={() => reset()}
+                    className="bg-red-500 hover:bg-red-400 text-white rounded-lg py-2 text-xl font-bold transition-all">📵</button>
+                </div>
+              </div>
+            </div>
+
+            {/* ② 교환기 흐름도 */}
+            <div className="bg-white p-5 rounded-xl shadow-lg border-2 border-gray-200 flex flex-col">
+              <h4 className="font-bold text-indigo-700 mb-3 flex items-center gap-1">
+                <span className="text-lg">🔀</span> 교환기 내부 흐름
+              </h4>
+
+              {/* 발신자 노드 */}
+              <div style={{borderColor: callerUser.color, background: callerUser.color+'18'}}
+                   className={`border-2 rounded-lg p-3 text-center mb-1 transition-all ${phase!=='idle'?'scale-105 shadow-md':''}`}>
+                <div className="text-2xl">{callerUser.emoji}</div>
+                <div className="font-bold text-base" style={{color: callerUser.color}}>{callerUser.name}</div>
+                <div className="text-sm text-gray-500 font-mono">{callerUser.number}</div>
+              </div>
+
+              <div className="text-center text-xl my-1 transition-all"
+                   style={{color: phase==='dialing'?'#3B82F6':'#9CA3AF'}}>↓</div>
+
+              {/* 교환기 노드 */}
+              <div className={`border-2 rounded-lg p-3 text-center mb-1 transition-all
+                ${highlight==='exchange'
+                  ? 'border-purple-500 bg-purple-100 scale-105 shadow-lg'
+                  : phase==='queued'
+                  ? 'border-yellow-400 bg-yellow-50'
+                  : 'border-purple-300 bg-purple-50'}`}>
+                <div className="text-2xl">🏛️</div>
+                <div className="font-bold text-base text-purple-800">전자 교환기 (자동)</div>
+                {phase === 'queued' && (
+                  <div className="text-sm text-yellow-700 mt-1 font-bold">⏳ 대기열 {queue.length}건 처리 중...</div>
+                )}
+                {highlight === 'exchange' && (
+                  <div className="text-sm text-purple-700 mt-1 font-bold animate-pulse">🔍 번호 조회 중...</div>
+                )}
+                {phase === 'routing' && highlight !== 'exchange' && (
+                  <div className="text-sm text-indigo-700 mt-1 font-bold">📋 경로 계산 중...</div>
+                )}
+              </div>
+
+              <div className="text-center text-xl my-1 transition-all"
+                   style={{color: highlight==='target'?'#10B981':'#9CA3AF'}}>↓</div>
+
+              {/* 수신자 노드 */}
+              {processing ? (() => {
+                const t = phase==='error'
+                  ? USERS.find(u=>u.id!==processing.caller.id && u.id!==processing.target.id) || processing.target
+                  : processing.target;
+                return (
+                  <div style={{borderColor: t.color, background: t.color+'18'}}
+                       className={`border-2 rounded-lg p-3 text-center transition-all ${highlight==='target'?'scale-105 shadow-md':''}`}>
+                    <div className="text-2xl">{t.emoji}</div>
+                    <div className="font-bold text-base" style={{color: t.color}}>{t.name}</div>
+                    <div className="text-sm text-gray-500 font-mono">{t.number}</div>
+                    {phase==='connected' && <div className="text-sm text-green-600 font-bold mt-1">📞 통화 중!</div>}
+                    {phase==='error' && <div className="text-sm text-red-500 font-bold mt-1">❌ 잘못 연결됨!</div>}
+                  </div>
+                );
+              })() : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-400">
+                  <div className="text-2xl">❓</div>
+                  <div className="text-base">수신자</div>
+                  <div className="text-sm">(번호로 결정됨)</div>
+                </div>
+              )}
+
+              {/* 대기열 */}
+              {queue.length > 0 && (
+                <div className="mt-3 bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                  <div className="text-sm font-bold text-yellow-800 mb-1">⏳ 대기열</div>
+                  {queue.map((q,i) => (
+                    <div key={q.id} className="text-sm text-yellow-700 flex gap-1 items-center">
+                      <span>{q.caller.emoji}→{q.target.emoji}</span>
+                      <span className="text-gray-400">#{i+1}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ③ 전화번호부 + 상태창 */}
+            <div className="flex flex-col gap-4">
+              {/* 전화번호부 */}
+              <div className="bg-white p-4 rounded-xl shadow-lg border-2 border-gray-200">
+                <h4 className="font-bold text-indigo-700 mb-1 flex items-center gap-1">
+                  <span className="text-lg">📒</span> 전화번호부
+                </h4>
+                <p className="text-sm text-gray-500 mb-3">번호를 클릭하면 자동 입력!</p>
+                {USERS.map(u => (
+                  <button key={u.id}
+                    disabled={phase !== 'idle' || u.id === caller}
+                    onClick={() => setDialInput(u.number)}
+                    style={{borderColor: u.color+'66'}}
+                    className="w-full flex items-center gap-2 border rounded-lg p-2 mb-2 hover:opacity-80 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-left">
+                    <span className="text-xl">{u.emoji}</span>
+                    <div>
+                      <div className="font-bold text-base" style={{color: u.color}}>{u.name}</div>
+                      <div className="text-sm font-mono text-gray-500">{u.number}</div>
+                    </div>
+                    {u.id === caller && <span className="ml-auto text-sm text-gray-400">나</span>}
+                  </button>
+                ))}
+              </div>
+
+              {/* 상태창 */}
+              <div className={`${status.bg} rounded-xl p-4 border-2 ${
+                phase==='connected'?'border-green-400':
+                phase==='error'?'border-red-400':
+                phase==='queued'?'border-yellow-400':
+                'border-gray-200'} transition-all`}>
+                <p className={`${status.text} font-bold text-base leading-relaxed`}>{
+                  phase==='queued'
+                    ? `⏳ 교환기가 처리 중이에요! 대기 중... (${waitSec}초 남음)`
+                    : status.msg
+                }</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 통화 이력 ── */}
+          {callHistory.length > 0 && (
+            <div className="mt-5 bg-white rounded-xl border-2 border-gray-200 p-4 shadow-lg">
+              <h4 className="font-bold text-indigo-700 mb-3 flex items-center gap-1">
+                <span className="text-lg">📋</span> 통화 이력
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                {callHistory.map((h, i) => (
+                  <div key={i}
+                       className={`rounded-lg p-3 text-sm flex items-start gap-2
+                         ${h.type==='success'?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200'}`}>
+                    <span className="text-lg">{h.type==='success'?'✅':'❌'}</span>
+                    <div>
+                      <div className="font-bold text-gray-800">{h.from.emoji}{h.from.name} → {h.to.emoji}{h.to.name}</div>
+                      <div className="text-sm text-gray-500 font-mono">{h.number}</div>
+                      <div className="text-sm text-gray-400">{h.time}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── 학습 포인트 — 기존 bg-indigo-50 스타일과 통일 ── */}
+          <div className="mt-5 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+            <p className="text-base font-bold text-indigo-700 mb-3">💡 관찰해보세요!</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { emoji: '🔢', title: '정확한 번호가 핵심!', desc: '번호를 하나라도 틀리게 누르면 엉뚱한 곳으로 연결돼요.' },
+                { emoji: '🏛️', title: '전자 교환기의 역할', desc: '교환기는 번호를 보고 올바른 수신자를 찾아 연결해줘요.' },
+                { emoji: '⏳', title: '교환기가 바쁘면?', desc: '여러 통화가 동시에 들어오면 대기 줄이 생겨요!' },
+              ].map((p, i) => (
+                <div key={i} className="bg-white rounded-lg p-3 border border-indigo-100 text-center shadow-sm">
+                  <div className="text-3xl mb-1">{p.emoji}</div>
+                  <div className="font-bold text-base text-gray-800 mb-1">{p.title}</div>
+                  <div className="text-sm text-gray-600">{p.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       IPExperience — IP 주소 2단계 체험
+       1단계: IP 조립 퍼즐 (슬라이더로 0~255 맞추기)
+       2단계: IP 입력 후 패킷 배달 게임 (라우터 경유, 오류 체험)
+       ═══════════════════════════════════════════════════════════ */
+    const IPExperience = () => {
+      const { useState: useS, useEffect: useE, useRef: useR } = React;
+
+      /* ── 네트워크 기기 목록 ── */
+      const DEVICES = [
+        { id: 'pc',     name: '학교 컴퓨터', emoji: '💻', ip: [192,168,1,10],  color:'#3B82F6' },
+        { id: 'phone',  name: '스마트폰',    emoji: '📱', ip: [192,168,1,25],  color:'#10B981' },
+        { id: 'tablet', name: '태블릿',      emoji: '📲', ip: [192,168,1,30],  color:'#F59E0B' },
+        { id: 'tv',     name: '스마트TV',    emoji: '📺', ip: [192,168,1,50],  color:'#EF4444' },
+      ];
+
+      /* ══ 패킷 배달 게임 ══ */
+      const [inputOctets, setInputOctets] = useS(['','','','']);
+      const [sender, setSender]   = useS('pc');
+      const [packetPhase, setPacketPhase] = useS('idle');
+        // idle | routing | travelling | arrived | lost
+      const [packetTarget, setPacketTarget] = useS(null);
+      const [packetPos, setPacketPos]       = useS(0);   // 0→1 진행도
+      const [packetMsg, setPacketMsg]       = useS('');
+      const [deliveryLog, setDeliveryLog]   = useS([]);
+      const animRef = useR(null);
+
+      const ipStr = (arr) => arr.join('.');
+
+      const handleOctet = (idx, val) => {
+        const clean = val.replace(/\D/g,'').slice(0,3);
+        const num = Math.min(255, Number(clean)||0);
+        setInputOctets(prev => { const n=[...prev]; n[idx]=clean===''?'':String(num); return n; });
+      };
+
+      const sendPacket = () => {
+        const octets = inputOctets.map(v => Number(v)||0);
+        const typed  = ipStr(octets);
+        const found  = DEVICES.find(d => ipStr(d.ip) === typed && d.id !== sender);
+        const senderDev = DEVICES.find(d => d.id === sender);
+
+        if (typed === ipStr(senderDev.ip)) {
+          setPacketMsg('⚠️ 자기 자신의 IP로는 보낼 수 없어요!');
+          setPacketPhase('idle');
+          return;
+        }
+
+        setPacketPhase('routing');
+        setPacketMsg('🔀 라우터: IP 주소 조회 중...');
+        setPacketPos(0);
+
+        setTimeout(() => {
+          if (found) {
+            setPacketTarget(found);
+            setPacketPhase('travelling');
+            setPacketMsg(`📦 패킷이 ${found.name}(${typed})으로 이동 중!`);
+            let p = 0;
+            const iv = setInterval(() => {
+              p += 0.05;
+              setPacketPos(p);
+              if (p >= 1) {
+                clearInterval(iv);
+                setPacketPhase('arrived');
+                setPacketMsg(`✅ 도착! ${found.emoji} ${found.name}이 패킷을 받았어요!`);
+                setDeliveryLog(prev => [{type:'ok', from: senderDev.name, to: found.name, ip: typed, time: new Date().toLocaleTimeString()}, ...prev].slice(0,5));
+                setTimeout(() => { setPacketPhase('idle'); setPacketMsg(''); setPacketTarget(null); setPacketPos(0); }, 2500);
+              }
+            }, 80);
+          } else {
+            setPacketPhase('lost');
+            setPacketMsg(`❌ IP ${typed}를 찾을 수 없어요! 패킷이 길을 잃었습니다.`);
+            setDeliveryLog(prev => [{type:'err', from: senderDev.name, to:'???', ip: typed, time: new Date().toLocaleTimeString()}, ...prev].slice(0,5));
+            setTimeout(() => { setPacketPhase('idle'); setPacketMsg(''); setPacketPos(0); }, 2500);
+          }
+        }, 1200);
+      };
+
+      /* 라우터 위치: 화면 중앙 */
+      const ROUTER = { x:300, y:210 };
+      const DEV_POS = { pc:{x:90,y:80}, phone:{x:510,y:80}, tablet:{x:90,y:340}, tv:{x:510,y:340} };
+
+      const senderDev = DEVICES.find(d=>d.id===sender);
+      const inputIP   = inputOctets.map(v=>Number(v)||0);
+
+      return (
+        <div className="space-y-4">
+          {/* ══════════════ 패킷 배달 게임 ══════════════ */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200 shadow-lg">
+              <h2 className="text-xl font-bold text-blue-700 mb-1 flex items-center gap-2">
+                📦 패킷 배달 게임
+              </h2>
+              <p className="text-base text-gray-700 mb-4">
+                보내는 기기를 선택하고, IP 주소를 입력해서 패킷을 보내보세요.
+                <span className="font-bold text-red-600"> IP가 틀리면 패킷이 길을 잃어요!</span>
+              </p>
+
+              {/* ── 네트워크 기기 IP 안내 카드 ── */}
+              <div className="mb-5">
+                <p className="text-sm font-bold text-gray-500 mb-2">📋 이 네트워크의 기기 목록</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {DEVICES.map(d => (
+                    <div key={d.id} style={{borderColor: d.color, background: d.color+'11'}}
+                         className="rounded-xl border-2 p-3 text-center shadow-sm">
+                      <div className="text-3xl mb-1">{d.emoji}</div>
+                      <div className="font-bold text-sm mb-1" style={{color: d.color}}>{d.name}</div>
+                      <div className="bg-gray-900 text-green-400 font-mono text-xs rounded-lg py-1 px-1 tracking-widest">
+                        {ipStr(d.ip)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                  <p className="text-sm text-gray-700">
+                    💡 모든 기기는 <span className="font-mono font-bold text-indigo-600">192.168.1.</span>로 시작하고, 마지막 숫자로 각 기기를 구별해요. IP 주소의 각 숫자는 <span className="font-bold text-purple-700">0~255(8비트 = 2⁸가지)</span> 범위를 가져요.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-5">
+                {/* 왼쪽: 컨트롤 패널 */}
+                <div className="space-y-4">
+                  {/* 발신 기기 선택 */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                    <h4 className="font-bold text-gray-700 mb-3">📤 보내는 기기 선택</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {DEVICES.map(d => (
+                        <button key={d.id} onClick={()=>{ if(packetPhase==='idle') setSender(d.id); }}
+                          disabled={packetPhase!=='idle'}
+                          style={{borderColor: sender===d.id ? d.color:'#e5e7eb', background: sender===d.id ? d.color+'22':'white'}}
+                          className="rounded-lg p-2 border-2 text-center transition-all hover:scale-105 disabled:opacity-50">
+                          <div className="text-2xl">{d.emoji}</div>
+                          <div className="text-sm font-bold" style={{color:sender===d.id?d.color:'#374151'}}>{d.name}</div>
+                          <div className="text-xs font-mono text-gray-400">{ipStr(d.ip)}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* IP 입력 */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                    <h4 className="font-bold text-gray-700 mb-1">🎯 목적지 IP 주소 입력</h4>
+                    <p className="text-sm text-gray-500 mb-3">아래 네트워크 지도를 보고 기기의 IP를 입력하세요</p>
+                    <div className="flex items-center gap-1 mb-3">
+                      {inputOctets.map((v,i) => (
+                        <React.Fragment key={i}>
+                          <input type="text" value={v} onChange={e=>handleOctet(i,e.target.value)}
+                            disabled={packetPhase!=='idle'}
+                            placeholder="0"
+                            className="w-14 text-center font-mono text-base font-bold border-2 border-indigo-300 rounded-lg py-2 focus:border-indigo-500 outline-none disabled:opacity-50"
+                          />
+                          {i<3 && <span className="text-gray-400 font-bold text-lg">.</span>}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                    <div className="bg-gray-900 text-green-400 font-mono text-center py-2 rounded-lg text-base mb-3">
+                      {inputOctets.map(v=>v||'?').join(' . ')}
+                    </div>
+
+                    {/* 기기 IP 힌트 */}
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {DEVICES.filter(d=>d.id!==sender).map(d => (
+                        <button key={d.id}
+                          onClick={()=>{ if(packetPhase==='idle') setInputOctets(d.ip.map(String)); }}
+                          disabled={packetPhase!=='idle'}
+                          style={{borderColor:d.color+'66'}}
+                          className="flex items-center gap-2 border rounded-lg p-2 text-left hover:opacity-80 transition-all disabled:opacity-40">
+                          <span className="text-xl">{d.emoji}</span>
+                          <div>
+                            <div className="text-sm font-bold" style={{color:d.color}}>{d.name}</div>
+                            <div className="text-xs font-mono text-gray-500">{ipStr(d.ip)}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <button onClick={sendPacket} disabled={packetPhase!=='idle'}
+                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-lg text-base transition-all shadow-md">
+                      📦 패킷 전송!
+                    </button>
+                  </div>
+                </div>
+
+                {/* 오른쪽: 네트워크 지도 */}
+                <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                  <h4 className="font-bold text-gray-700 mb-3">🗺️ 네트워크 지도</h4>
+                  <svg viewBox="0 0 600 420" className="w-full">
+                    {/* 라우터-기기 연결선 */}
+                    {DEVICES.map(d => {
+                      const pos = DEV_POS[d.id];
+                      const isInvolved = (packetPhase==='travelling'||packetPhase==='arrived') &&
+                        (d.id===sender || d.id===packetTarget?.id);
+                      return (
+                        <line key={d.id}
+                          x1={ROUTER.x} y1={ROUTER.y} x2={pos.x} y2={pos.y}
+                          stroke={isInvolved?d.color:'#d1d5db'}
+                          strokeWidth={isInvolved?3:2}
+                          strokeDasharray="6,4"
+                          opacity={isInvolved?1:0.5}
+                        >
+                          {!isInvolved && <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>}
+                        </line>
+                      );
+                    })}
+
+                    {/* 패킷 이동 애니메이션 */}
+                    {(packetPhase==='travelling') && packetTarget && (() => {
+                      const sp = DEV_POS[sender];
+                      const ep = DEV_POS[packetTarget.id];
+                      // 발신 → 라우터 → 수신 두 구간
+                      let px, py;
+                      if (packetPos < 0.5) {
+                        const t = packetPos*2;
+                        px = sp.x + (ROUTER.x-sp.x)*t;
+                        py = sp.y + (ROUTER.y-sp.y)*t;
+                      } else {
+                        const t = (packetPos-0.5)*2;
+                        px = ROUTER.x + (ep.x-ROUTER.x)*t;
+                        py = ROUTER.y + (ep.y-ROUTER.y)*t;
+                      }
+                      return (
+                        <g>
+                          <circle cx={px} cy={py} r="10" fill="#F59E0B" stroke="white" strokeWidth="2"/>
+                          <text x={px} y={py+4} textAnchor="middle" fontSize="10">📦</text>
+                        </g>
+                      );
+                    })()}
+
+                    {/* 패킷 유실 표시 */}
+                    {packetPhase==='lost' && (
+                      <g>
+                        <circle cx={ROUTER.x} cy={ROUTER.y-10} r="18" fill="#FEE2E2" stroke="#EF4444" strokeWidth="2"/>
+                        <text x={ROUTER.x} y={ROUTER.y-4} textAnchor="middle" fontSize="16">❌</text>
+                      </g>
+                    )}
+
+                    {/* 라우터 */}
+                    <circle cx={ROUTER.x} cy={ROUTER.y} r="36"
+                      fill={packetPhase==='routing'?'#EDE9FE':'#F3E8FF'}
+                      stroke={packetPhase==='routing'?'#7C3AED':'#A855F7'} strokeWidth="3"/>
+                    <text x={ROUTER.x} y={ROUTER.y-6} textAnchor="middle" fontSize="20">🔀</text>
+                    <text x={ROUTER.x} y={ROUTER.y+12} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#6D28D9">라우터</text>
+                    {packetPhase==='routing' && (
+                      <text x={ROUTER.x} y={ROUTER.y+28} textAnchor="middle" fontSize="12" fill="#7C3AED">조회중...</text>
+                    )}
+
+                    {/* 기기 노드 */}
+                    {DEVICES.map(d => {
+                      const pos = DEV_POS[d.id];
+                      const isSnd  = d.id === sender;
+                      const isRcv  = d.id === packetTarget?.id && packetPhase==='arrived';
+                      const isTyped = ipStr(inputIP) === ipStr(d.ip);
+                      return (
+                        <g key={d.id}>
+                          <circle cx={pos.x} cy={pos.y} r="32"
+                            fill={isSnd?d.color+'33': isRcv?'#D1FAE5':'#F3F4F6'}
+                            stroke={isSnd?d.color: isRcv?'#10B981': isTyped&&packetPhase==='idle'?d.color:'#D1D5DB'}
+                            strokeWidth={isSnd||isRcv||isTyped?3:2}/>
+                          <text x={pos.x} y={pos.y+2} textAnchor="middle" dominantBaseline="middle" fontSize="22">{d.emoji}</text>
+                          <text x={pos.x} y={pos.y+42} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#374151">{d.name}</text>
+                          <text x={pos.x} y={pos.y+58} textAnchor="middle" fontSize="13" fontFamily="monospace" fill={d.color}>{ipStr(d.ip)}</text>
+                          {isRcv && <text x={pos.x} y={pos.y-40} textAnchor="middle" fontSize="18">🎉</text>}
+                          {isSnd && <text x={pos.x} y={pos.y-40} textAnchor="middle" fontSize="14" fontWeight="bold" fill={d.color}>발신</text>}
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* 상태 메시지 */}
+                  {packetMsg && (
+                    <div className={`mt-3 p-3 rounded-lg border-2 text-base font-bold text-center animate-slide-in
+                      ${packetPhase==='arrived'?'bg-green-100 border-green-400 text-green-700':
+                        packetPhase==='lost'?'bg-red-100 border-red-400 text-red-700':
+                        'bg-indigo-100 border-indigo-300 text-indigo-700'}`}>
+                      {packetMsg}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 배달 로그 */}
+              {deliveryLog.length > 0 && (
+                <div className="mt-4 bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                  <h4 className="font-bold text-gray-700 mb-3">📋 배달 기록</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                    {deliveryLog.map((log, i) => (
+                      <div key={i}
+                        className={`rounded-lg p-3 flex items-start gap-2 border text-sm
+                          ${log.type==='ok'?'bg-green-50 border-green-200':'bg-red-50 border-red-200'}`}>
+                        <span className="text-lg">{log.type==='ok'?'✅':'❌'}</span>
+                        <div>
+                          <div className="font-bold text-gray-800">{log.from} → {log.to}</div>
+                          <div className="font-mono text-gray-500 text-xs">{log.ip}</div>
+                          <div className="text-gray-400 text-xs">{log.time}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-4 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                <p className="text-base font-bold text-indigo-700 mb-2">💡 관찰해보세요!</p>
+                <div className="grid sm:grid-cols-2 gap-2 text-base text-gray-700">
+                  <p>🔀 <span className="font-bold text-purple-600">라우터</span>가 IP를 보고 경로를 찾아요</p>
+                  <p>❌ IP가 <span className="font-bold text-red-600">틀리면</span> 패킷이 길을 잃어요</p>
+                  <p>📦 패킷은 <span className="font-bold text-blue-600">라우터를 경유</span>해서 이동해요</p>
+                  <p>🔢 IP 주소가 <span className="font-bold text-green-600">정확해야</span> 연결이 돼요</p>
+                </div>
+              </div>
+            </div>
+        </div>
+      );
+    };
+
     const NetworkAddressEducation = () => {
       const [step, setStep] = useState(0);
       const [answer, setAnswer] = useState('');
@@ -125,6 +805,22 @@
       const [showQuizResult, setShowQuizResult] = useState(false);
 
       const quizData = [
+        {
+          id: 0,
+          type: 'ox',
+          question: '전화기 2대를 선으로 연결하면, 전화번호 없이도 서로 통화할 수 있다.',
+          options: ['O (맞다)', 'X (틀리다)'],
+          correct: 0,
+          explanation: '맞아요! 전화기가 딱 2대뿐이라면 상대방이 이미 정해져 있기 때문에 전화번호 없이도 연결할 수 있어요. 주소(번호)가 필요해지는 건 3대 이상일 때부터입니다!'
+        },
+        {
+          id: -1,
+          type: 'ox',
+          question: '인터넷에 연결된 모든 기기는 같은 IP 주소를 사용해도 된다.',
+          options: ['O (맞다)', 'X (틀리다)'],
+          correct: 1,
+          explanation: '틀렸어요! 각 기기는 반드시 서로 다른(고유한) IP 주소를 가져야 해요. 만약 같은 IP 주소를 쓴다면 라우터가 어느 기기에 데이터를 보낼지 알 수 없게 됩니다!'
+        },
         {
           id: 1,
           question: '2개의 기기(전화기/컴퓨터)를 연결할 때 주소(번호)가 필요한가요?',
@@ -502,12 +1198,38 @@
 
           
 
+          {/* 진행 단계 표시 */}
+          <div className="px-8 pt-6 pb-2">
+            <div className="flex items-center justify-between mb-1">
+              {['물리적 연결', '전화번호의 필요성', '인터넷 IP 주소', '정리 & 퀴즈'].map((label, idx) => (
+                <div key={idx} className="flex flex-col items-center flex-1">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all
+                    ${step === idx ? 'bg-indigo-600 text-white border-indigo-600 scale-110 shadow-lg'
+                    : step > idx ? 'bg-green-500 text-white border-green-500'
+                    : 'bg-white text-gray-400 border-gray-300'}`}>
+                    {step > idx ? '✓' : idx + 1}
+                  </div>
+                  <span className={`text-xs mt-1 text-center hidden sm:block ${step === idx ? 'text-indigo-700 font-bold' : step > idx ? 'text-green-600' : 'text-gray-400'}`}>
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="relative h-2 bg-gray-200 rounded-full mt-1">
+              <div
+                className="absolute h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+                style={{ width: `${(step / 3) * 100}%` }}
+              />
+            </div>
+            <p className="text-right text-xs text-gray-400 mt-1">{step + 1} / 4 단계</p>
+          </div>
+
           <div className="p-8">
             {step === 0 && (
               <div className="space-y-6">
                 <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-300">
                   <p className="text-lg font-semibold text-yellow-900 mb-4">🤔 먼저 생각해볼까요?</p>
-                  <p className="text-gray-700 mb-4">
+                  <p className="text-base text-gray-700 mb-4">
                     지구상에 <span className="font-bold text-blue-600">전화기 2대</span>만 있다고 상상해보세요. 
                     두 전화기가 서로 통신하려면 <span className="font-bold text-orange-600">가장 먼저</span> 무엇이 필요할까요?
                   </p>
@@ -565,7 +1287,7 @@
                           <div className="text-3xl">✅</div>
                           <div>
                             <p className="font-bold text-green-800">정답입니다!</p>
-                            <p className="text-sm text-green-700">
+                            <p className="text-base text-green-700">
                               그렇습니다! 두 전화기를 연결하려면 먼저 <span className="font-bold">선(케이블)</span>이 필요해요!
                             </p>
                           </div>
@@ -575,8 +1297,8 @@
                           <div className="text-3xl">💭</div>
                           <div>
                             <p className="font-bold text-orange-800">다시 생각해보세요!</p>
-                            <p className="text-sm text-orange-700">
-                              물리적으로 연결되지 않으면 신호를 주고받을 수 없어요. 다시 선택해보세요!
+                            <p className="text-base text-orange-700">
+                              직접 보이는 선이 없더라도 <span className="font-bold">Wi-Fi 전파처럼 통신 경로가 반드시 필요해요.</span> 보이지 않는 전파도 연결입니다! 다시 선택해보세요!
                             </p>
                           </div>
                         </div>
@@ -591,10 +1313,10 @@
               <div className="space-y-6">
                 <div className="bg-green-100 p-6 rounded-lg border-2 border-green-400">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="text-4xl">✅</div>
-                    <h2 className="text-2xl font-bold text-green-800">정답! 먼저 선이 필요합니다!</h2>
+                    <div className="text-xl">✅</div>
+                    <h2 className="text-xl font-bold text-green-800">정답! 먼저 선이 필요합니다!</h2>
                   </div>
-                  <p className="text-gray-700 text-lg">
+                  <p className="text-base text-gray-700">
                     전화기 2대가 통신하려면 신호를 주고받을 수 있는 <span className="font-bold text-blue-600">물리적 연결</span>이 필요합니다.
                   </p>
                 </div>
@@ -606,16 +1328,16 @@
                     <div className="text-center">
                       <div className="text-7xl mb-2">📞</div>
                       <p className="font-bold text-gray-700">전화기 1</p>
-                      <p className="text-sm text-gray-500">(민수)</p>
+                      <p className="text-base text-gray-500">(민수)</p>
                     </div>
                     <div className="flex-1 max-w-xs">
                       <div className="h-2 bg-gradient-to-r from-blue-500 to-green-500 rounded animate-pulse-custom"></div>
-                      <p className="text-center text-sm text-gray-600 mt-2">선 (케이블)</p>
+                      <p className="text-center text-base text-gray-600 mt-2">선 (케이블)</p>
                     </div>
                     <div className="text-center">
                       <div className="text-7xl mb-2">📞</div>
                       <p className="font-bold text-gray-700">전화기 2</p>
-                      <p className="text-sm text-gray-500">(지은)</p>
+                      <p className="text-base text-gray-500">(지은)</p>
                     </div>
                   </div>
 
@@ -653,7 +1375,7 @@
                     </span>
                     {' '}그렇다면 다음 질문!
                   </h3>
-                  <p className="text-gray-700">
+                  <p className="text-base text-gray-700">
                     만약 전화기가 <span className="font-bold text-red-600">3대 이상</span>으로 늘어난다면 어떻게 될까요?
                   </p>
                 </div>
@@ -678,8 +1400,8 @@
             {step === 2 && (
               <div className="space-y-6">
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border-2 border-orange-300">
-                  <h2 className="text-2xl font-bold text-orange-800 mb-3">📞 전화기가 3대 이상이면?</h2>
-                  <p className="text-gray-700 text-lg">
+                  <h2 className="text-xl font-bold text-orange-800 mb-3">📞 전화기가 3대 이상이면?</h2>
+                  <p className="text-base text-gray-700">
                     이제는 <span className="font-bold text-red-600">전화번호</span>가 필요합니다!
                   </p>
                 </div>
@@ -731,7 +1453,7 @@
                       <text x="300" y="385" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">010-1004-1004</text>
                     </svg>
                     
-                    <div className="text-center mt-4 text-sm text-gray-600">
+                    <div className="text-center mt-4 text-base text-gray-600">
                       <p className="font-bold text-purple-700">모든 전화기가 중앙 전화망(교환기)에 연결되어 있어요!</p>
                       <p className="mt-1">점선은 각 전화기와 교환기를 연결하는 선을 나타냅니다.</p>
                     </div>
@@ -742,7 +1464,7 @@
                       <span className="text-2xl">⚠️</span>
                       문제 발생!
                     </h4>
-                    <div className="space-y-2 text-gray-700">
+                    <div className="space-y-2 text-base text-gray-700">
                       <p>❌ 민수가 <span className="font-bold text-blue-600">지은</span>에게만 전화하고 싶은데...</p>
                       <p>❌ 전화번호가 없으면 <span className="font-bold text-red-600">누구에게 연결될지 알 수 없어요!</span></p>
                       <p>❌ 3명 모두에게 동시에 연결될 수도 있어요</p>
@@ -754,7 +1476,7 @@
                       <span className="text-2xl">✅</span>
                       해결책: 전화번호!
                     </h4>
-                    <div className="space-y-2 text-gray-700">
+                    <div className="space-y-2 text-base text-gray-700">
                       <p>✓ 각 전화기마다 <span className="font-bold text-green-600">고유한 번호</span>를 부여합니다</p>
                       <p>✓ 민수가 지은에게 전화하려면 <span className="font-mono font-bold text-blue-600">010-9876-5432</span>를 누릅니다</p>
                       <p>✓ 전화망이 이 번호를 보고 <span className="font-bold text-purple-600">정확히 지은에게만 연결</span>해줍니다</p>
@@ -765,151 +1487,10 @@
                   </div>
                 </div>
 
-                <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-                  <p className="text-sm font-semibold text-yellow-900 mb-2">💡 직접 체험해보세요!</p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-bold text-blue-600">아래 버튼을 클릭</span>해서 전화번호로 원하는 사람에게 전화를 걸어보세요!
-                    <br/>
-                    신호가 네트워크를 통해 전송되는 모습을 확인할 수 있어요! 🔵
-                  </p>
-                </div>
-
-                {/* 네트워크 신호 전송 시각화 */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200 shadow-lg mb-6">
-                  <h2 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
-                    📞 네트워크에서 전화 걸기 체험
-                  </h2>
-                  
-                  <div className="bg-white p-6 rounded-lg shadow-md mb-4">
-                    <svg viewBox="0 0 600 430" className="w-full max-w-2xl mx-auto">
-                      {/* 연결선 */}
-                      {renderConnections()}
-                      
-                      {/* 신호 애니메이션 */}
-                      {renderSignals()}
-                      
-                      {/* 전화망 중앙 */}
-                      <circle cx="300" cy="200" r="60" fill="#8B5CF6" opacity="0.2" />
-                      <text x="300" y="195" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#7C3AED">전화망</text>
-                      <text x="300" y="215" textAnchor="middle" fontSize="14" fill="#7C3AED">(교환기)</text>
-                      
-                      {/* 노드 (사람들) */}
-                      {phones.map((phone) => {
-                        const pos = getNodePosition(phone.id);
-                        const isActive = activeNodes.includes(phone.id);
-                        const isCalling = callingFrom === phone.id;
-                        const isReceiving = callingTo === phone.id;
-                        
-                        return (
-                          <g key={phone.id} className={`network-node ${isActive ? 'active' : ''} ${isReceiving ? 'receiving' : ''}`} style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}>
-                            <circle
-                              cx={pos.x}
-                              cy={pos.y}
-                              r="50"
-                              fill={isCalling ? "#DBEAFE" : isReceiving ? "#D1FAE5" : phone.id === 'minsu' ? "#DBEAFE" : phone.id === 'jieun' ? "#D1FAE5" : "#F3E8FF"}
-                              stroke={isCalling ? "#3b82f6" : isReceiving ? "#10b981" : phone.id === 'minsu' ? "#3B82F6" : phone.id === 'jieun' ? "#10B981" : "#A855F7"}
-                              strokeWidth="3"
-                            />
-                            <text
-                              x={pos.x}
-                              y={pos.y - 5}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontSize="35"
-                            >
-                              {phone.emoji}
-                            </text>
-                            <text
-                              x={pos.x}
-                              y={pos.y + 30}
-                              textAnchor="middle"
-                              fontSize="14"
-                              fontWeight="bold"
-                              fill={phone.id === 'minsu' ? "#1E40AF" : phone.id === 'jieun' ? "#065F46" : "#6B21A8"}
-                            >
-                              {phone.name}
-                            </text>
-                            
-                            {/* 전화번호 라벨 */}
-                            <rect 
-                              x={pos.x - 100} 
-                              y={phone.id === 'teacher' ? pos.y + 45 : pos.y + 40} 
-                              width="200" 
-                              height="30" 
-                              rx="5" 
-                              fill={phone.id === 'minsu' ? "#3B82F6" : phone.id === 'jieun' ? "#10B981" : "#A855F7"}
-                            />
-                            <text
-                              x={pos.x}
-                              y={phone.id === 'teacher' ? pos.y + 65 : pos.y + 60}
-                              textAnchor="middle"
-                              fontSize="13"
-                              fontWeight="bold"
-                              fill="white"
-                            >
-                              {phone.number}
-                            </text>
-                          </g>
-                        );
-                      })}
-                    </svg>
-                    <br/>
-                    <br/>
-                  </div>
-
-                  {/* 전화 걸기 버튼들 */}
-                  <div className="space-y-3">
-                    <p className="font-bold text-gray-700 mb-2">📞 전화를 걸어보세요:</p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <button
-                        onClick={() => handlePhoneCall('teacher', 'minsu')}
-                        className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg font-bold transition-all hover:scale-105 shadow-md"
-                      >
-                        👨‍🏫 선생님 → 👦 민수
-                      </button>
-                      
-                      <button
-                        onClick={() => handlePhoneCall('minsu', 'jieun')}
-                        className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-bold transition-all hover:scale-105 shadow-md"
-                      >
-                        👦 민수 → 👧 지은
-                      </button>
-                      
-                      <button
-                        onClick={() => handlePhoneCall('jieun', 'teacher')}
-                        className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg font-bold transition-all hover:scale-105 shadow-md"
-                      >
-                        👧 지은 → 👨‍🏫 선생님
-                      </button>
-                    </div>
-                  </div>
-
-                  {showPhoneConnection && (
-                    <div className="mt-4 bg-blue-100 border-2 border-blue-400 p-4 rounded-lg animate-slide-in">
-                      <div className="flex items-center gap-2">
-                        <div className="text-2xl">📞</div>
-                        <div>
-                          <div className="font-bold text-blue-800">전화 연결 중!</div>
-                          <div className="text-sm text-blue-700">
-                            신호가 교환기를 통해 전송되고 있어요! 
-                            <span className="font-bold"> 파란색과 초록색 점</span>이 이동하는 모습을 확인하세요! 🔵🟢
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-4 bg-indigo-50 p-4 rounded-lg">
-                    <p className="text-sm font-bold text-indigo-700 mb-2">💡 관찰해보세요!</p>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• <span className="font-bold text-blue-600">파란색 점</span>: 발신자에서 교환기로 가는 신호</li>
-                      <li>• <span className="font-bold text-green-600">초록색 점</span>: 교환기에서 수신자로 가는 신호</li>
-                      <li>• <span className="font-bold text-purple-600">교환기</span>: 전화번호를 확인하고 올바른 사람에게 연결</li>
-                      <li>• <span className="font-bold">전화번호</span> 덕분에 정확한 사람에게 연결돼요!</li>
-                    </ul>
-                  </div>
-                </div>
+                {/* ══════════════════════════════════════════════════
+                    📞 실제 전화기 UI — 전자 교환기 시스템 체험
+                    ══════════════════════════════════════════════════ */}
+                <PhoneExchange />
 
                 <div className="text-center flex justify-center gap-4">
                   <button
@@ -931,8 +1512,8 @@
             {step === 3 && (
               <div className="space-y-6">
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-300">
-                  <h2 className="text-2xl font-bold text-green-800 mb-3">🌐 인터넷도 똑같아요!</h2>
-                  <p className="text-gray-700 text-lg">
+                  <h2 className="text-xl font-bold text-green-800 mb-3">🌐 인터넷도 똑같아요!</h2>
+                  <p className="text-base text-gray-700">
                     인터넷도 전화와 같은 원리입니다. 먼저 <span className="font-bold text-blue-600">선(케이블, Wi-Fi)</span>으로 연결하고, 
                     여러 기기를 구별하기 위해 <span className="font-bold text-green-600">IP 주소</span>를 사용해요!
                   </p>
@@ -941,7 +1522,7 @@
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-blue-200">
                     <h3 className="text-xl font-bold text-blue-700 mb-4">📞 전화 통신</h3>
-                    <div className="space-y-3 text-sm text-gray-700">
+                    <div className="space-y-3 text-base text-gray-700">
                       <div className="flex items-start gap-2">
                         <span className="text-lg">1️⃣</span>
                         <p><span className="font-bold text-blue-600">전화선</span>으로 연결</p>
@@ -959,7 +1540,7 @@
 
                   <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-green-200">
                     <h3 className="text-xl font-bold text-green-700 mb-4">🌐 인터넷 통신</h3>
-                    <div className="space-y-3 text-sm text-gray-700">
+                    <div className="space-y-3 text-base text-gray-700">
                       <div className="flex items-start gap-2">
                         <span className="text-lg">1️⃣</span>
                         <p><span className="font-bold text-blue-600">네트워크 선</span>으로 연결 (케이블/Wi-Fi)</p>
@@ -976,152 +1557,10 @@
                   </div>
                 </div>
 
-                <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-                  <p className="text-sm font-semibold text-yellow-900 mb-2">💡 직접 체험해보세요!</p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-bold text-green-600">아래 기기를 클릭</span>해서 IP 주소로 인터넷에 연결해보세요!
-                  </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-200 shadow-lg">
-                  <h2 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
-                    🌐 IP 주소로 연결하기
-                  </h2>
-                  
-                  <div className="mb-4 bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-                    <p className="text-sm font-semibold text-yellow-900 mb-2">💡 어떻게 연결할까요?</p>
-                    <p className="text-sm text-gray-700">
-                      전화처럼, <span className="font-bold text-green-600">송신자 기기를 선택</span>한 후 
-                      <span className="font-bold text-blue-600"> 수신자 기기</span>를 클릭해서 두 기기를 연결해보세요!
-                    </p>
-                  </div>
-                  
-                  {/* 기기 선택 버튼 */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    {devices.map((device) => (
-                      <button
-                        key={device.name}
-                        onClick={() => {
-                          if (!ipFrom) {
-                            setIpFrom(device.name);
-                          } else if (device.name !== ipFrom) {
-                            handleIPConnection(ipFrom, device.name);
-                            setIpFrom('');
-                          }
-                        }}
-                        className={`p-3 rounded-lg border-2 transition-all ${
-                          ipFrom === device.name
-                            ? 'bg-green-100 border-green-500 scale-105'
-                            : 'bg-white border-gray-300 hover:border-green-400 hover:scale-105'
-                        }`}
-                      >
-                        <div className="text-3xl mb-1">{device.emoji}</div>
-                        <div className="text-xs font-bold text-gray-800">{device.name}</div>
-                        <div className="text-xs font-mono text-green-600">{device.ip}</div>
-                        {ipFrom === device.name && (
-                          <div className="mt-1 text-xs font-bold text-green-700">송신자 선택됨 ✓</div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* 네트워크망 시각화 */}
-                  <div className="bg-white rounded-lg p-6 mb-4 border-2 border-green-300">
-                    <svg width="100%" height="400" viewBox="0 0 600 400" className="mx-auto">
-                      {/* 연결선 */}
-                      {renderNetworkConnections()}
-                      
-                      {/* 라우터 (중앙) */}
-                      <g className="network-node">
-                        <circle cx="300" cy="200" r="40" fill="#8b5cf6" stroke="#6d28d9" strokeWidth="3" />
-                        <text x="300" y="200" textAnchor="middle" dominantBaseline="middle" fontSize="30">
-                          🔀
-                        </text>
-                        <text x="300" y="255" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#6d28d9">
-                          라우터
-                        </text>
-                        <text x="300" y="273" textAnchor="middle" fontSize="14" fill="#7c3aed">
-                          (IP 주소 확인)
-                        </text>
-                      </g>
-                      
-                      {/* 기기들 */}
-                      {devices.map((device) => {
-                        const pos = getDevicePosition(device.name);
-                        const deviceId = device.name.replace(/\s/g, '_');
-                        const isActive = activeNodes.includes(deviceId);
-                        const isSender = ipFrom === device.name && !showIPConnection;
-                        const isInConnection = device.name === ipFrom || device.name === ipTo;
-                        
-                        return (
-                          <g 
-                            key={device.name}
-                            className={`network-node ${isActive ? 'active' : ''} ${isInConnection && showIPConnection ? 'receiving' : ''}`}
-                            style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}
-                          >
-                            <circle 
-                              cx={pos.x} 
-                              cy={pos.y} 
-                              r="35" 
-                              fill={isSender ? "#fbbf24" : isActive ? "#10b981" : "#e0e7ff"} 
-                              stroke={isSender ? "#f59e0b" : isActive ? "#059669" : "#6366f1"} 
-                              strokeWidth="3"
-                            />
-                            <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="middle" fontSize="28">
-                              {device.emoji}
-                            </text>
-                            <text x={pos.x} y={pos.y + 50} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#1f2937">
-                              {device.name}
-                            </text>
-                            <text x={pos.x} y={pos.y + 68} textAnchor="middle" fontSize="14" fontFamily="monospace" fill="#059669" fontWeight="bold">
-                              {device.ip}
-                            </text>
-                          </g>
-                        );
-                      })}
-                      
-                      {/* 신호 점들 */}
-                      {renderNetworkSignals()}
-                    </svg>
-                    
-                    <div className="mt-4 text-center text-sm text-gray-600">
-                      {!ipFrom ? (
-                        <span>💡 <span className="font-bold">송신자 기기</span>를 먼저 선택하세요!</span>
-                      ) : (
-                        <span>✅ <span className="font-bold text-green-600">{ipFrom}</span> 선택됨! 이제 <span className="font-bold text-blue-600">수신자 기기</span>를 선택하세요!</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {showIPConnection && (
-                    <div className="bg-green-100 border-2 border-green-400 p-4 rounded-lg animate-slide-in mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="text-2xl">✅</div>
-                        <div>
-                          <div className="font-bold text-green-800">네트워크 연결 중!</div>
-                          <div className="text-sm text-green-700">
-                            <span className="font-bold">{ipFrom}</span>에서 <span className="font-bold">{ipTo}</span>로 데이터가 전송되고 있어요! 
-                            <span className="font-bold"> 초록색 점과 파란색 점</span>이 라우터를 통해 이동하는 모습을 확인하세요! 🟢🔵
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="bg-green-100 p-4 rounded-lg">
-                    <p className="text-sm font-bold text-green-700 mb-2">💡 관찰해보세요!</p>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• <span className="font-bold text-green-600">초록색 점</span>: 송신자 기기에서 라우터로 가는 신호</li>
-                      <li>• <span className="font-bold text-blue-600">파란색 점</span>: 라우터에서 수신자 기기로 가는 신호</li>
-                      <li>• <span className="font-bold text-purple-600">라우터</span>: IP 주소를 확인하고 올바른 기기에 연결</li>
-                      <li>• <span className="font-bold">IP 주소</span> 덕분에 송신자와 수신자가 정확히 연결돼요!</li>
-                      <li>• 전화의 <span className="font-bold text-blue-600">교환기</span>와 인터넷의 <span className="font-bold text-purple-600">라우터</span>는 같은 역할!</li>
-                    </ul>
-                  </div>
-                </div>
+                <IPExperience />
 
                 <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-lg">
-                  <h2 className="text-2xl font-bold text-purple-700 mb-4">📊 전화번호 vs IP 주소</h2>
+                  <h2 className="text-xl font-bold text-purple-700 mb-4">📊 전화번호 vs IP 주소</h2>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -1166,49 +1605,49 @@
                 <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg border border-orange-200 mb-6">
                   <h3 className="text-xl font-bold text-orange-900 mb-4">💡 재미있는 사실</h3>
                   <div className="bg-white p-5 rounded-lg shadow-sm">
-                    <p className="text-gray-700 text-lg leading-relaxed mb-4">
+                    <p className="text-base text-gray-700 leading-relaxed mb-4">
                       전 세계 인터넷에 연결된 기기는 
                       <span className="font-bold text-red-600 text-xl"> 약 500억 개</span>가 넘어요! 
                       이 모든 기기가 각자 고유한 IP 주소를 가지고 있답니다. 🌍
                     </p>
                     <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-base text-gray-600 mb-2">
                         <strong className="text-blue-700">IPv4:</strong> 우리가 배운 192.168.1.10 같은 형식으로, 
                         약 <span className="font-bold text-blue-600">43억 개</span>의 주소를 만들 수 있어요.
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-base text-gray-600">
                         <strong className="text-green-700">IPv6:</strong> 기기가 너무 많아져서 새로운 형식이 나왔어요! 
                         2001:0db8:85a3::8a2e:0370:7334 같은 형식으로, 
                         <span className="font-bold text-green-600"> 340조×1조×1조 개</span>를 만들 수 있답니다! 
-                        지구의 모래알보다 많아요! 🏖️
+                        지구 80억 명이 각자 <span className="font-bold text-green-500">1억 개씩</span> 나눠 가져도 아직 남아요! 🌏
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-300">
-                  <h3 className="text-2xl font-bold text-indigo-800 mb-4 flex items-center gap-2">
-                    <span className="text-3xl">💡</span>
+                  <h3 className="text-xl font-bold text-indigo-800 mb-4 flex items-center gap-2">
+                    <span className="text-xl">💡</span>
                     핵심 정리
                   </h3>
                   <div className="space-y-4">
                     <div className="bg-white p-4 rounded-lg shadow-sm">
                       <p className="font-bold text-blue-700 mb-2">1️⃣ 2개만 있을 때</p>
-                      <p className="text-gray-700">
+                      <p className="text-base text-gray-700">
                         선으로 연결하면 끝! 주소(번호)는 필요 없어요. 
                         <span className="font-bold text-orange-600"> 상대가 이미 정해져 있으니까요.</span>
                       </p>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow-sm">
                       <p className="font-bold text-green-700 mb-2">2️⃣ 3개 이상일 때</p>
-                      <p className="text-gray-700">
+                      <p className="text-base text-gray-700">
                         선으로 연결한 후, 각각에게 <span className="font-bold text-green-600">고유한 주소(전화번호/IP 주소)</span>를 부여해요. 
                         그래야 원하는 대상에게만 정확히 연결할 수 있어요!
                       </p>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow-sm">
                       <p className="font-bold text-purple-700 mb-2">3️⃣ 공통점</p>
-                      <p className="text-gray-700">
+                      <p className="text-base text-gray-700">
                         전화든 인터넷이든 <span className="font-bold text-blue-600">①먼저 물리적으로 연결</span>하고, 
                         <span className="font-bold text-green-600"> ②여러 개면 주소로 구별</span>합니다!
                       </p>
@@ -1216,18 +1655,67 @@
                   </div>
                 </div>
 
+                {/* 내 IP 주소 확인하기 섹션 */}
+                <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border-2 border-indigo-300 mb-6">
+                  <h3 className="text-xl font-bold text-indigo-800 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">💻</span> 실제로 내 IP 주소 확인해보기
+                  </h3>
+                  <p className="text-base text-gray-700 mb-4">
+                    배운 내용을 직접 확인해볼 수 있어요! <span className="font-bold text-indigo-700">Windows 컴퓨터</span>에서 아래 명령어로 내 IP 주소를 볼 수 있답니다.
+                  </p>
+                  <div className="bg-gray-900 text-green-400 font-mono text-sm rounded-lg p-5 mb-4 shadow-inner">
+                    <p className="text-gray-400 mb-2"># 방법 1: 실행창 이용</p>
+                    <p>Windows키 + R  →  <span className="text-yellow-300 font-bold">cmd</span>  입력  →  엔터</p>
+                    <br/>
+                    <p className="text-gray-400 mb-2"># 방법 2: 명령 프롬프트에서</p>
+                    <p><span className="text-yellow-300 font-bold">ipconfig</span></p>
+                    <br/>
+                    <p className="text-gray-400 mb-1"># 결과 예시</p>
+                    <p>IPv4 주소 . . . . : <span className="text-green-300 font-bold">192.168.1.10</span></p>
+                    <p>서브넷 마스크 . . : 255.255.255.0</p>
+                    <p>기본 게이트웨이 . : 192.168.1.1</p>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    <div className="bg-white p-4 rounded-lg border border-indigo-200 text-center shadow-sm">
+                      <div className="text-3xl mb-2">⌨️</div>
+                      <p className="text-base font-bold text-gray-700">Step 1</p>
+                      <p className="text-base text-gray-600">Windows키 + R 누르기</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-indigo-200 text-center shadow-sm">
+                      <div className="text-3xl mb-2">🖊️</div>
+                      <p className="text-base font-bold text-gray-700">Step 2</p>
+                      <p className="text-base text-gray-600">cmd 입력 후 엔터</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-indigo-200 text-center shadow-sm">
+                      <div className="text-3xl mb-2">🔍</div>
+                      <p className="text-base font-bold text-gray-700">Step 3</p>
+                      <p className="text-base text-gray-600">ipconfig 입력 → IPv4 찾기</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                    <p className="text-base text-yellow-800">
+                      <span className="font-bold">📌 참고:</span> 학교 컴퓨터에서는 보안 정책으로 실행이 안 될 수도 있어요. 집에서 꼭 한번 해보세요!
+                    </p>
+                  </div>
+                </div>
+
                 {/* ── 퀴즈 섹션 ── */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-lg border border-purple-200 mt-6">
-                  <h3 className="text-lg font-bold text-purple-900 mb-1">🎯 배운 내용 확인하기</h3>
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 mt-6">
+                  <h3 className="text-xl font-bold text-purple-900 mb-3">🎯 배운 내용 확인하기</h3>
 
                   {!showQuizResult ? (
                     <div className="space-y-6">
                       {quizData.map((quiz, qIdx) => (
                         <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-                          <h4 className="font-bold text-gray-800 mb-4">
-                            Q{qIdx + 1}. {quiz.question}
-                          </h4>
-                          <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-3">
+                            {quiz.type === 'ox' && (
+                              <span className="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded-full border border-orange-300">O / X</span>
+                            )}
+                            <h4 className="font-bold text-base text-gray-800">
+                              Q{qIdx + 1}. {quiz.question}
+                            </h4>
+                          </div>
+                          <div className={`${quiz.type === 'ox' ? 'flex gap-4' : 'space-y-2'}`}>
                             {quiz.options.map((option, oIdx) => {
                               const answered = quizAnswers[quiz.id] !== undefined;
                               const isSelected = quizAnswers[quiz.id] === oIdx;
@@ -1243,14 +1731,20 @@
                                   key={oIdx}
                                   onClick={() => handleQuizAnswer(quiz.id, oIdx)}
                                   disabled={answered}
-                                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                  className={`${quiz.type === 'ox' ? 'flex-1 text-center text-2xl font-bold py-4' : 'w-full text-left p-3'} rounded-lg border-2 transition-all ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
-                                  {oIdx + 1}. {option}
-                                  {answered && isCorrect && (
+                                  {quiz.type === 'ox' ? (oIdx === 0 ? '⭕' : '❌') : `${oIdx + 1}. ${option}`}
+                                  {quiz.type !== 'ox' && answered && isCorrect && (
                                     <span className="ml-2 text-green-600 font-bold">✓ 정답</span>
                                   )}
-                                  {answered && isSelected && !isCorrect && (
+                                  {quiz.type !== 'ox' && answered && isSelected && !isCorrect && (
                                     <span className="ml-2 text-red-600 font-bold">✗</span>
+                                  )}
+                                  {quiz.type === 'ox' && answered && isCorrect && (
+                                    <div className="text-sm text-green-600 font-bold mt-1">정답!</div>
+                                  )}
+                                  {quiz.type === 'ox' && answered && isSelected && !isCorrect && (
+                                    <div className="text-sm text-red-500 font-bold mt-1">오답</div>
                                   )}
                                 </button>
                               );
@@ -1258,9 +1752,9 @@
                           </div>
 
                           {quizAnswers[quiz.id] !== undefined && (
-                            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                              <p className="text-sm text-gray-700">
-                                <span className="font-bold text-blue-600">설명: </span>{quiz.explanation}
+                            <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                              <p className="text-base text-gray-700">
+                                <span className="font-bold text-indigo-600">설명: </span>{quiz.explanation}
                               </p>
                             </div>
                           )}
@@ -1268,17 +1762,19 @@
                       ))}
 
                       {Object.keys(quizAnswers).length === quizData.length && (
-                        <button
-                          onClick={() => setShowQuizResult(true)}
-                          className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
-                        >
-                          🏁 결과 확인하기
-                        </button>
+                        <div className="flex justify-center">
+                          <button
+                            onClick={() => setShowQuizResult(true)}
+                            className="w-48 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                          >
+                            🏁 결과 확인하기
+                          </button>
+                        </div>
                       )}
                     </div>
                   ) : (
                     <div className="text-center">
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg border border-green-200 mb-6">
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200 mb-6">
                         <h3 className="text-3xl font-bold text-green-900 mb-4">🎉 퀴즈 완료!</h3>
                         <div className="text-6xl font-bold text-indigo-600 mb-4">
                           {calculateScore()} / {quizData.length}
@@ -1295,18 +1791,18 @@
                       <div className="text-left space-y-3 mb-6">
                         {quizData.filter(q => quizAnswers[q.id] !== q.correct).map(q => (
                           <div key={q.id} className="bg-red-50 p-4 rounded-lg border border-red-200">
-                            <p className="font-bold text-red-700 text-sm mb-1">❌ 틀린 문제: {q.question}</p>
-                            <p className="text-sm text-gray-700">
+                            <p className="font-bold text-red-700 text-base mb-1">❌ 틀린 문제: {q.question}</p>
+                            <p className="text-base text-gray-700">
                               <span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}
                             </p>
-                            <p className="text-sm text-gray-600 mt-1">{q.explanation}</p>
+                            <p className="text-base text-gray-600 mt-1">{q.explanation}</p>
                           </div>
                         ))}
                       </div>
 
                       <button
                         onClick={resetQuiz}
-                        className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
+                        className="w-48 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
                       >
                         🔄 다시 풀기
                       </button>
