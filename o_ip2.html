@@ -48,7 +48,7 @@
     .dash-move            { animation: dashMove 1s linear infinite; }
 
     /* ── Layout ── */
-    .container  { max-width: 1024px; margin: 0 auto; background: #fff; border-radius: 1rem; box-shadow: 0 25px 50px rgba(0,0,0,.25); overflow: hidden; }
+    .container  { max-width: 1280px; margin: 0 auto; background: #fff; border-radius: 1rem; box-shadow: 0 25px 50px rgba(0,0,0,.25); overflow: hidden; }
     .header     { background: linear-gradient(to right, #4f46e5, #9333ea); padding: 1.5rem 2rem; color: #fff; }
     .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
     .header-sub { font-size: .875rem; color: #c7d2fe; }
@@ -227,8 +227,6 @@ const state = {
   showPhoneConn: false,
   signalPath: [],
   activeNodes: [],
-  ipFrom: '', ipTo: '',
-  showIPConn: false,
   showTooltip: false,
 };
 
@@ -238,6 +236,20 @@ let signalTimer = null;
 const quizState = { answers: {}, showResult: false };
 
 const quizData = [
+  {
+    id: 0,
+    question: '전화기 2대를 선으로 연결하면, 전화번호 없이도 서로 통화할 수 있다.',
+    options: ['O (맞다)', 'X (틀리다)'],
+    correct: 0,
+    explanation: '맞아요! 전화기가 딱 2대뿐이라면 상대방이 이미 정해져 있기 때문에 전화번호 없이도 연결할 수 있어요. 주소(번호)가 필요해지는 건 3대 이상일 때부터입니다!'
+  },
+  {
+    id: -1,
+    question: '인터넷에 연결된 모든 기기는 같은 IP 주소를 사용해도 된다.',
+    options: ['O (맞다)', 'X (틀리다)'],
+    correct: 1,
+    explanation: '틀렸어요! 각 기기는 반드시 서로 다른(고유한) IP 주소를 가져야 해요. 만약 같은 IP 주소를 쓴다면 라우터가 어느 기기에 데이터를 보낼지 알 수 없게 됩니다!'
+  },
   {
     id: 1,
     question: '2개의 기기(전화기/컴퓨터)를 연결할 때 주소(번호)가 필요한가요?',
@@ -394,6 +406,354 @@ function renderQuiz() {
 }
 
 /* ═══════════════════════════════════════════════
+   PHONE EXCHANGE STATE & LOGIC
+═══════════════════════════════════════════════ */
+const PE_USERS = [
+  { id:'minsu',   name:'민수',   emoji:'👦',  number:'010-1234-5678', color:'#3B82F6' },
+  { id:'jieun',   name:'지은',   emoji:'👧',  number:'010-9876-5432', color:'#10B981' },
+  { id:'teacher', name:'선생님', emoji:'👨‍🏫', number:'010-1004-1004', color:'#A855F7' },
+  { id:'junho',   name:'준호',   emoji:'🧑',  number:'010-5555-7777', color:'#F59E0B' },
+];
+const PE_KEYS = ['1','2','3','4','5','6','7','8','9','*','0','#'];
+
+const pe = {
+  caller:     'minsu',
+  dialInput:  '',
+  phase:      'idle',
+  errorMsg:   '',
+  waitSec:    0,
+  highlight:  '',
+  processing: null,
+  queue:      [],
+  callHistory:[],
+};
+let peWaitTimer = null;
+
+function peRender() {
+  const el = document.getElementById('pe-root');
+  if (!el) return;
+  el.innerHTML = renderPhoneExchangeInner();
+}
+
+function peFmt(raw) {
+  const d = raw.replace(/\D/g,'').slice(0,11);
+  if (d.length<=3) return d;
+  if (d.length<=7) return d.slice(0,3)+'-'+d.slice(3);
+  return d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7);
+}
+
+function peKey(k) {
+  if (pe.phase !== 'idle') return;
+  if (k === '#') { peCall(); return; }
+  if (k === '*') { pe.dialInput = ''; peRender(); return; }
+  const digits = pe.dialInput.replace(/\D/g,'');
+  if (digits.length >= 11) return;
+  pe.dialInput = peFmt(digits + k);
+  peRender();
+}
+
+function peSelectCaller(id) {
+  if (pe.phase !== 'idle') return;
+  pe.caller = id;
+  peRender();
+}
+
+function peSetDial(num) {
+  if (pe.phase !== 'idle') return;
+  pe.dialInput = num;
+  peRender();
+}
+
+function peCall() {
+  if (pe.phase !== 'idle' || !pe.dialInput) return;
+  const callerUser = PE_USERS.find(u => u.id === pe.caller);
+  const target     = PE_USERS.find(u => u.number === pe.dialInput);
+  const correct    = !!target && target.id !== callerUser.id;
+  const targetUser = correct ? target : PE_USERS.find(u => u.id !== callerUser.id);
+  pe.phase = 'dialing';
+  peRender();
+  setTimeout(() => peSimulate(callerUser, targetUser, correct), 800);
+}
+
+function peSimulate(callerUser, targetUser, correct) {
+  const busyChance = pe.queue.length > 0 ? 0.5 : 0.15;
+  const isBusy = Math.random() < busyChance;
+  if (isBusy) {
+    const waitId = Date.now();
+    pe.queue.push({ id:waitId, caller:callerUser, target:targetUser, correct });
+    pe.phase   = 'queued';
+    let sec    = 3 + pe.queue.length * 2;
+    pe.waitSec = sec;
+    peRender();
+    peWaitTimer = setInterval(() => {
+      sec--; pe.waitSec = sec; peRender();
+      if (sec <= 0) {
+        clearInterval(peWaitTimer);
+        pe.queue = pe.queue.filter(q => q.id !== waitId);
+        peRoute(callerUser, targetUser, correct);
+      }
+    }, 1000);
+    return;
+  }
+  peRoute(callerUser, targetUser, correct);
+}
+
+function peRoute(callerUser, targetUser, correct) {
+  pe.phase = 'routing'; pe.processing = { caller:callerUser, target:targetUser };
+  pe.highlight = 'exchange'; peRender();
+  setTimeout(() => {
+    pe.highlight = 'target'; peRender();
+    setTimeout(() => {
+      if (!correct) {
+        const others = PE_USERS.filter(u => u.id!==callerUser.id && u.id!==targetUser.id);
+        const wrong  = others[Math.floor(Math.random()*others.length)];
+        pe.phase    = 'error';
+        pe.errorMsg = `전자 교환기: 📋 번호 ${pe.dialInput} 찾는 중... ❌ 등록된 번호가 없어요! 가장 가까운 번호(${wrong.number})로 잘못 연결됩니다!`;
+        pe.callHistory.unshift({ type:'error', from:callerUser, to:wrong, number:pe.dialInput, time:new Date().toLocaleTimeString() });
+      } else {
+        pe.phase = 'connected';
+        pe.callHistory.unshift({ type:'success', from:callerUser, to:targetUser, number:pe.dialInput, time:new Date().toLocaleTimeString() });
+      }
+      if (pe.callHistory.length > 6) pe.callHistory.pop();
+      pe.processing = null; pe.highlight = ''; peRender();
+      setTimeout(() => peReset(), 4000);
+    }, 1200);
+  }, 1500);
+}
+
+function peReset() {
+  pe.phase='idle'; pe.dialInput=''; pe.errorMsg=''; pe.highlight='';
+  peRender();
+}
+
+function renderPhoneExchangeInner() {
+  const callerUser = PE_USERS.find(u => u.id === pe.caller);
+
+  /* 상태 색상 */
+  const ss = {
+    idle:      { bg:'#f3f4f6', border:'#d1d5db', color:'#4b5563' },
+    dialing:   { bg:'#dbeafe', border:'#93c5fd', color:'#1d4ed8' },
+    queued:    { bg:'#fef9c3', border:'#fde047', color:'#854d0e' },
+    routing:   { bg:pe.highlight==='exchange'?'#f3e8ff':'#e0e7ff',
+                 border:pe.highlight==='exchange'?'#c084fc':'#a5b4fc',
+                 color:pe.highlight==='exchange'?'#7e22ce':'#4338ca' },
+    connected: { bg:'#bbf7d0', border:'#4ade80', color:'#166534' },
+    error:     { bg:'#fee2e2', border:'#f87171', color:'#b91c1c' },
+  }[pe.phase] || { bg:'#f3f4f6', border:'#d1d5db', color:'#4b5563' };
+
+  let statusMsg = '';
+  if      (pe.phase==='idle')      statusMsg = '📱 전화번호를 누르고 📞 버튼을 눌러보세요!';
+  else if (pe.phase==='dialing')   statusMsg = '📡 신호를 교환기로 보내는 중...';
+  else if (pe.phase==='queued')    statusMsg = `⏳ 교환기가 처리 중이에요! 대기 중... (${pe.waitSec}초 남음)`;
+  else if (pe.phase==='routing')   statusMsg = pe.highlight==='exchange' ? '🔍 전자 교환기: 번호 조회 중...' : '🔀 전자 교환기: 연결 경로 계산 중...';
+  else if (pe.phase==='connected') { const m=PE_USERS.find(u=>u.number===pe.dialInput); statusMsg=`✅ 연결 성공! ${m?m.name:''}와 통화 중이에요!`; }
+  else if (pe.phase==='error')     statusMsg = pe.errorMsg;
+
+  /* 발신자 선택 버튼 */
+  const callerBtns = PE_USERS.map(u=>`
+    <button onclick="peSelectCaller('${u.id}')" ${pe.phase!=='idle'?'disabled':''}
+      style="border:2px solid ${pe.caller===u.id?u.color:'#e5e7eb'};
+             background:${pe.caller===u.id?u.color+'22':'white'};
+             border-radius:.5rem;padding:.5rem;cursor:${pe.phase!=='idle'?'not-allowed':'pointer'};
+             opacity:${pe.phase!=='idle'?'0.5':'1'};font-family:inherit;transition:all .2s;text-align:center;">
+      <div style="font-size:1.5rem">${u.emoji}</div>
+      <div style="font-size:.8rem;font-weight:700;color:${pe.caller===u.id?u.color:'#374151'}">${u.name}</div>
+    </button>`).join('');
+
+  /* 다이얼 패드 */
+  const dialKeys = PE_KEYS.map(k=>`
+    <button onclick="peKey('${k}')" ${pe.phase!=='idle'?'disabled':''}
+      style="background:#4b5563;color:white;border:none;border-radius:.5rem;
+             padding:.5rem;font-size:1rem;font-weight:700;
+             cursor:${pe.phase!=='idle'?'not-allowed':'pointer'};
+             opacity:${pe.phase!=='idle'?'0.4':'1'};font-family:inherit;"
+      onmouseover="if(!this.disabled)this.style.background='#6b7280'"
+      onmouseout="this.style.background='#4b5563'">${k}</button>`).join('');
+
+  /* 교환기 흐름 — 교환기 노드 스타일 */
+  let exchBorder='#c084fc', exchBg='#faf5ff';
+  if (pe.highlight==='exchange') { exchBorder='#a855f7'; exchBg='#f3e8ff'; }
+  else if (pe.phase==='queued')  { exchBorder='#fde047'; exchBg='#fefce8'; }
+  const exchExtra =
+    pe.phase==='queued'
+      ? `<div style="font-size:.8rem;color:#854d0e;font-weight:700;margin-top:.25rem">⏳ 대기열 ${pe.queue.length}건 처리 중...</div>`
+    : pe.highlight==='exchange'
+      ? `<div style="font-size:.8rem;color:#7e22ce;font-weight:700;margin-top:.25rem;animation:pulse 1s infinite">🔍 번호 조회 중...</div>`
+    : pe.phase==='routing' && pe.highlight!=='exchange'
+      ? `<div style="font-size:.8rem;color:#4338ca;font-weight:700;margin-top:.25rem">📋 경로 계산 중...</div>`
+      : '';
+
+  /* 수신자 노드 */
+  let receiverHtml = '';
+  if (pe.processing) {
+    const t = pe.phase==='error'
+      ? PE_USERS.find(u=>u.id!==pe.processing.caller.id&&u.id!==pe.processing.target.id)||pe.processing.target
+      : pe.processing.target;
+    const scaled = pe.highlight==='target'?'transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15)':'';
+    receiverHtml=`
+      <div style="border:2px solid ${t.color};background:${t.color}18;border-radius:.5rem;
+                  padding:.75rem;text-align:center;transition:all .3s;${scaled}">
+        <div style="font-size:1.5rem">${t.emoji}</div>
+        <div style="font-weight:700;font-size:.9rem;color:${t.color}">${t.name}</div>
+        <div style="font-size:.75rem;color:#6b7280;font-family:monospace">${t.number}</div>
+        ${pe.phase==='connected'?'<div style="font-size:.75rem;color:#16a34a;font-weight:700;margin-top:.25rem">📞 통화 중!</div>':''}
+        ${pe.phase==='error'?'<div style="font-size:.75rem;color:#dc2626;font-weight:700;margin-top:.25rem">❌ 잘못 연결됨!</div>':''}
+      </div>`;
+  } else {
+    receiverHtml=`
+      <div style="border:2px dashed #d1d5db;border-radius:.5rem;padding:.75rem;text-align:center;color:#9ca3af">
+        <div style="font-size:1.5rem">❓</div>
+        <div style="font-size:.9rem">수신자</div>
+        <div style="font-size:.75rem">(번호로 결정됨)</div>
+      </div>`;
+  }
+
+  /* 대기열 */
+  const queueHtml = pe.queue.length>0 ? `
+    <div style="margin-top:.75rem;background:#fefce8;border:1px solid #fde047;border-radius:.5rem;padding:.75rem">
+      <div style="font-size:.8rem;font-weight:700;color:#854d0e;margin-bottom:.25rem">⏳ 대기열</div>
+      ${pe.queue.map((q,i)=>`<div style="font-size:.8rem;color:#854d0e">${q.caller.emoji}→${q.target.emoji} <span style="color:#9ca3af">#${i+1}</span></div>`).join('')}
+    </div>` : '';
+
+  /* 전화번호부 */
+  const phonebook = PE_USERS.map(u=>`
+    <button onclick="peSetDial('${u.number}')"
+      ${pe.phase!=='idle'||u.id===pe.caller?'disabled':''}
+      style="width:100%;display:flex;align-items:center;gap:.5rem;
+             border:1px solid ${u.color}66;border-radius:.5rem;padding:.5rem;
+             background:white;cursor:${pe.phase!=='idle'||u.id===pe.caller?'not-allowed':'pointer'};
+             opacity:${pe.phase!=='idle'||u.id===pe.caller?'0.4':'1'};
+             margin-bottom:.5rem;font-family:inherit;text-align:left;transition:opacity .2s;">
+      <span style="font-size:1.25rem">${u.emoji}</span>
+      <div>
+        <div style="font-weight:700;font-size:.9rem;color:${u.color}">${u.name}</div>
+        <div style="font-size:.75rem;font-family:monospace;color:#6b7280">${u.number}</div>
+      </div>
+      ${u.id===pe.caller?'<span style="margin-left:auto;font-size:.75rem;color:#9ca3af">나</span>':''}
+    </button>`).join('');
+
+  /* 통화 이력 */
+  const histHtml = pe.callHistory.length>0 ? `
+    <div style="margin-top:1.25rem;background:white;border:2px solid #e5e7eb;border-radius:.75rem;padding:1rem;box-shadow:0 4px 16px rgba(0,0,0,.08)">
+      <div style="font-weight:700;color:#4f46e5;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">📋 통화 이력</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem">
+        ${pe.callHistory.map(h=>`
+          <div style="border-radius:.5rem;padding:.75rem;font-size:.8rem;display:flex;align-items:flex-start;gap:.5rem;
+                      background:${h.type==='success'?'#f0fdf4':'#fef2f2'};
+                      border:1px solid ${h.type==='success'?'#bbf7d0':'#fecaca'}">
+            <span>${h.type==='success'?'✅':'❌'}</span>
+            <div>
+              <div style="font-weight:700;color:#1f2937">${h.from.emoji}${h.from.name} → ${h.to.emoji}${h.to.name}</div>
+              <div style="font-family:monospace;color:#6b7280">${h.number}</div>
+              <div style="color:#9ca3af">${h.time}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  /* 학습 포인트 */
+  const tips = [
+    { emoji:'🔢', title:'정확한 번호가 핵심!', desc:'번호를 하나라도 틀리게 누르면 엉뚱한 곳으로 연결돼요.' },
+    { emoji:'🏛️', title:'전자 교환기의 역할', desc:'교환기는 번호를 보고 올바른 수신자를 찾아 연결해줘요.' },
+    { emoji:'⏳', title:'교환기가 바쁘면?',   desc:'여러 통화가 동시에 들어오면 대기 줄이 생겨요!' },
+  ];
+
+  return `
+    <div style="background:linear-gradient(135deg,#eff6ff,#eef2ff);padding:1.5rem;border-radius:.75rem;border:2px solid #bfdbfe;box-shadow:0 4px 16px rgba(0,0,0,.08);margin-bottom:1.5rem">
+      <h2 style="font-size:1.25rem;font-weight:700;color:#1d4ed8;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem">
+        📞 전화 걸기 직접 체험
+      </h2>
+      <p style="font-size:.95rem;color:#374151;margin-bottom:1.25rem">
+        번호를 직접 눌러 전화해보세요! <span style="font-weight:700;color:#7c3aed">전자 교환기</span>가 어떻게 번호를 보고 연결하는지 관찰하세요.
+      </p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem">
+
+        <!-- ① 발신자 + 전화기 -->
+        <div style="background:white;padding:1.25rem;border-radius:.75rem;box-shadow:0 4px 16px rgba(0,0,0,.08);border:2px solid #e5e7eb;display:flex;flex-direction:column;align-items:center">
+          <div style="font-weight:700;color:#4f46e5;margin-bottom:.75rem;display:flex;align-items:center;gap:.25rem">👤 발신자 선택</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;width:100%;margin-bottom:1.25rem">
+            ${callerBtns}
+          </div>
+          <div style="width:100%;max-width:200px;background:#1f2937;border-radius:1rem;padding:1rem;box-shadow:0 8px 24px rgba(0,0,0,.3);border:2px solid #4b5563">
+            <div style="background:#000;border-radius:.5rem;padding:.75rem;margin-bottom:.75rem;border:1px solid #374151">
+              <div style="font-size:.7rem;color:#9ca3af;display:flex;justify-content:space-between;margin-bottom:.25rem">
+                <span>${callerUser.emoji} ${callerUser.name}</span>
+                <span style="color:${pe.phase==='connected'?'#4ade80':pe.phase==='error'?'#f87171':'#94a3b8'}">
+                  ${pe.phase==='idle'?'대기':pe.phase==='connected'?'통화중':pe.phase==='error'?'오류':'처리중'}
+                </span>
+              </div>
+              <div style="color:white;font-family:monospace;font-size:1rem;letter-spacing:.1em;text-align:center;min-height:1.5rem">
+                ${pe.dialInput||'<span style="color:#6b7280;font-size:.8rem">번호를 눌러보세요</span>'}
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;margin-bottom:.5rem">
+              ${dialKeys}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">
+              <button onclick="peCall()" ${pe.phase!=='idle'||!pe.dialInput?'disabled':''}
+                style="background:#22c55e;color:white;border:none;border-radius:.5rem;padding:.5rem;
+                       font-size:1.25rem;cursor:${pe.phase!=='idle'||!pe.dialInput?'not-allowed':'pointer'};
+                       opacity:${pe.phase!=='idle'||!pe.dialInput?'0.4':'1'}">📞</button>
+              <button onclick="peReset()"
+                style="background:#ef4444;color:white;border:none;border-radius:.5rem;padding:.5rem;font-size:1.25rem;cursor:pointer">📵</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 교환기 내부 흐름 -->
+        <div style="background:white;padding:1.25rem;border-radius:.75rem;box-shadow:0 4px 16px rgba(0,0,0,.08);border:2px solid #e5e7eb;display:flex;flex-direction:column">
+          <div style="font-weight:700;color:#4f46e5;margin-bottom:.75rem;display:flex;align-items:center;gap:.25rem">🔀 교환기 내부 흐름</div>
+          <div style="border:2px solid ${callerUser.color};background:${callerUser.color}18;border-radius:.5rem;
+                      padding:.75rem;text-align:center;margin-bottom:.25rem;transition:all .3s;
+                      ${pe.phase!=='idle'?'transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15)':''}">
+            <div style="font-size:1.5rem">${callerUser.emoji}</div>
+            <div style="font-weight:700;font-size:.9rem;color:${callerUser.color}">${callerUser.name}</div>
+            <div style="font-size:.75rem;color:#6b7280;font-family:monospace">${callerUser.number}</div>
+          </div>
+          <div style="text-align:center;font-size:1.25rem;margin:.25rem 0;color:${pe.phase==='dialing'?'#3B82F6':'#9ca3af'}">↓</div>
+          <div style="border:2px solid ${exchBorder};background:${exchBg};border-radius:.5rem;
+                      padding:.75rem;text-align:center;margin-bottom:.25rem;transition:all .3s;
+                      ${pe.highlight==='exchange'?'transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15)':''}">
+            <div style="font-size:1.5rem">🏛️</div>
+            <div style="font-weight:700;font-size:.9rem;color:#6b21a8">전자 교환기 (자동)</div>
+            ${exchExtra}
+          </div>
+          <div style="text-align:center;font-size:1.25rem;margin:.25rem 0;color:${pe.highlight==='target'?'#10B981':'#9ca3af'}">↓</div>
+          ${receiverHtml}
+          ${queueHtml}
+        </div>
+
+        <!-- ③ 전화번호부 + 상태창 -->
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:white;padding:1rem;border-radius:.75rem;box-shadow:0 4px 16px rgba(0,0,0,.08);border:2px solid #e5e7eb">
+            <div style="font-weight:700;color:#4f46e5;margin-bottom:.25rem;display:flex;align-items:center;gap:.25rem">📒 전화번호부</div>
+            <p style="font-size:.75rem;color:#6b7280;margin-bottom:.75rem">번호를 클릭하면 자동 입력!</p>
+            ${phonebook}
+          </div>
+          <div style="background:${ss.bg};border:2px solid ${ss.border};border-radius:.75rem;padding:1rem;transition:all .3s">
+            <p style="color:${ss.color};font-weight:700;font-size:.9rem;line-height:1.6">${statusMsg}</p>
+          </div>
+        </div>
+      </div>
+
+      ${histHtml}
+
+      <div style="margin-top:1.25rem;background:#eef2ff;padding:1rem;border-radius:.5rem;border:1px solid #c7d2fe">
+        <p style="font-size:.95rem;font-weight:700;color:#4f46e5;margin-bottom:.75rem">💡 관찰해보세요!</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem">
+          ${tips.map(t=>`
+            <div style="background:white;border:1px solid #e0e7ff;border-radius:.5rem;padding:.75rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+              <div style="font-size:1.75rem;margin-bottom:.25rem">${t.emoji}</div>
+              <div style="font-weight:700;font-size:.9rem;color:#1f2937;margin-bottom:.25rem">${t.title}</div>
+              <div style="font-size:.8rem;color:#4b5563">${t.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════════ */
 const phones = [
@@ -401,66 +761,6 @@ const phones = [
   { name:'지은',   number:'010-9876-5432', emoji:'👧', id:'jieun'   },
   { name:'선생님', number:'010-1004-1004', emoji:'👨‍🏫', id:'teacher' },
 ];
-const devices = [
-  { name:'학교 컴퓨터', ip:'192.168.1.10', emoji:'💻' },
-  { name:'스마트폰',   ip:'192.168.1.25', emoji:'📱' },
-  { name:'태블릿',     ip:'192.168.1.30', emoji:'📲' },
-];
-
-const phonePos = { minsu:{x:150,y:100}, jieun:{x:450,y:100}, teacher:{x:300,y:330} };
-const devicePos = { '학교 컴퓨터':{x:150,y:100}, '스마트폰':{x:450,y:100}, '태블릿':{x:300,y:330} };
-
-/* ═══════════════════════════════════════════════
-   RENDER HELPERS
-═══════════════════════════════════════════════ */
-function svgConnections(nodes, posMap, fromKey, toKey, showConn) {
-  const center = {x:300, y:200};
-  return nodes.map(n => {
-    const id  = n.id || n.name;
-    const key = n.id || n.name;
-    const pos = posMap[key];
-    const active = (fromKey === key || toKey === key) && showConn;
-    return `<line
-      x1="${center.x}" y1="${center.y}" x2="${pos.x}" y2="${pos.y}"
-      stroke="${active ? '#3b82f6' : '#d1d5db'}"
-      stroke-width="${active ? 4 : 3}"
-      stroke-dasharray="5,5"
-      class="${active ? 'line-flash' : 'dash-move'}"
-      opacity="${active ? 1 : 0.5}" />`;
-  }).join('');
-}
-
-function svgSignals(fromPos, toPos) {
-  const center = {x:300,y:200};
-  let html = '';
-  for (let i=0;i<3;i++) {
-    const t = i/2;
-    html += `<circle cx="${fromPos.x+(center.x-fromPos.x)*t}" cy="${fromPos.y+(center.y-fromPos.y)*t}"
-      r="6" fill="#3b82f6" class="signal-dot" style="animation-delay:${i*0.15}s"/>`;
-  }
-  for (let i=0;i<3;i++) {
-    const t = i/2;
-    html += `<circle cx="${center.x+(toPos.x-center.x)*t}" cy="${center.y+(toPos.y-center.y)*t}"
-      r="6" fill="#10b981" class="signal-dot" style="animation-delay:${0.5+i*0.15}s"/>`;
-  }
-  return html;
-}
-
-function svgNetSignals(fromPos, toPos) {
-  const center = {x:300,y:200};
-  let html = '';
-  for (let i=0;i<3;i++) {
-    const t = i/2;
-    html += `<circle cx="${fromPos.x+(center.x-fromPos.x)*t}" cy="${fromPos.y+(center.y-fromPos.y)*t}"
-      r="6" fill="#10b981" class="signal-dot" style="animation-delay:${i*0.15}s"/>`;
-  }
-  for (let i=0;i<3;i++) {
-    const t = i/2;
-    html += `<circle cx="${center.x+(toPos.x-center.x)*t}" cy="${center.y+(toPos.y-center.y)*t}"
-      r="6" fill="#3b82f6" class="signal-dot" style="animation-delay:${0.5+i*0.15}s"/>`;
-  }
-  return html;
-}
 
 /* ═══════════════════════════════════════════════
    STEP TEMPLATES
@@ -556,39 +856,6 @@ function renderStep1() {
 }
 
 function renderStep2() {
-  // SVG phone network
-  const lines   = svgConnections(phones, phonePos, state.callingFrom, state.callingTo, state.showPhoneConn);
-  const signals = state.signalPath.length===2
-    ? svgSignals(phonePos[state.signalPath[0]], phonePos[state.signalPath[1]])
-    : '';
-
-  const nodesHtml = phones.map(p => {
-    const pos = phonePos[p.id];
-    const isCalling   = state.callingFrom===p.id && state.showPhoneConn;
-    const isReceiving = state.callingTo===p.id   && state.showPhoneConn;
-    const fill   = isCalling ? '#dbeafe' : isReceiving ? '#dcfce7' : p.id==='minsu'?'#dbeafe':p.id==='jieun'?'#dcfce7':'#f3e8ff';
-    const stroke = isCalling ? '#3b82f6' : isReceiving ? '#10b981' : p.id==='minsu'?'#3b82f6':p.id==='jieun'?'#10b981':'#a855f7';
-    const textC  = p.id==='minsu'?'#1e40af':p.id==='jieun'?'#065f46':'#6b21a8';
-    const badgeC = p.id==='minsu'?'#3b82f6':p.id==='jieun'?'#10b981':'#a855f7';
-    const labelY = p.id==='teacher' ? pos.y+45 : pos.y+40;
-    return `
-      <circle cx="${pos.x}" cy="${pos.y}" r="50" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
-      <text x="${pos.x}" y="${pos.y-5}" text-anchor="middle" dominant-baseline="middle" font-size="35">${p.emoji}</text>
-      <text x="${pos.x}" y="${pos.y+30}" text-anchor="middle" font-size="14" font-weight="bold" fill="${textC}">${p.name}</text>
-      <rect x="${pos.x-100}" y="${labelY}" width="200" height="30" rx="5" fill="${badgeC}"/>
-      <text x="${pos.x}" y="${labelY+20}" text-anchor="middle" font-size="13" font-weight="bold" fill="white">${p.number}</text>`;
-  }).join('');
-
-  const banner = state.showPhoneConn ? `
-    <div class="status-banner banner-blue animate-slide-in">
-      <span style="font-size:1.5rem">📞</span>
-      <div>
-        <p class="bold" style="color:#1e40af">전화 연결 중!</p>
-        <p class="text-sm" style="color:#1d4ed8">신호가 교환기를 통해 전송되고 있어요!
-        <strong>파란색과 초록색 점</strong>이 이동하는 모습을 확인하세요! 🔵🟢</p>
-      </div>
-    </div>` : '';
-
   return `
     <div class="box" style="background:linear-gradient(to right,#fff7ed,#fef2f2);border:2px solid #fb923c;border-radius:.5rem;margin-bottom:1.5rem">
       <h2 class="text-lg" style="color:#9a3412">📞 전화기가 3대 이상이면?</h2>
@@ -638,37 +905,8 @@ function renderStep2() {
       </div>
     </div>
 
-    <!-- 전화 걸기 체험 -->
-    <div class="box-gradient-blue mb6">
-      <h2 class="title-lg flex-center" style="color:#1d4ed8">📞 네트워크에서 전화 걸기 체험</h2>
-      <div class="box box-yellow mb4 text-sm">
-        💡 <strong>아래 버튼을 클릭</strong>해서 신호가 전송되는 모습을 확인하세요! 🔵
-      </div>
-      <div class="svg-wrap" style="border-color:#bfdbfe">
-        <svg viewBox="0 0 600 430" style="width:100%;max-width:900px;display:block;margin:0 auto">
-          ${lines}${signals}
-          <circle cx="300" cy="200" r="60" fill="#8b5cf6" opacity=".2"/>
-          <text x="300" y="195" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3aed">전화망</text>
-          <text x="300" y="215" text-anchor="middle" font-size="14" fill="#7c3aed">(교환기)</text>
-          ${nodesHtml}
-        </svg>
-      </div>
-      <div class="call-grid mb4">
-        <button class="call-btn" style="background:#3b82f6" onclick="handlePhoneCall('teacher','minsu')">👨‍🏫 선생님 → 👦 민수</button>
-        <button class="call-btn" style="background:#22c55e" onclick="handlePhoneCall('minsu','jieun')">👦 민수 → 👧 지은</button>
-        <button class="call-btn" style="background:#a855f7" onclick="handlePhoneCall('jieun','teacher')">👧 지은 → 👨‍🏫 선생님</button>
-      </div>
-      ${banner}
-      <div class="box box-indigo mt4">
-        <p class="text-sm bold mb2" style="color:#4338ca">💡 관찰해보세요!</p>
-        <ul class="obs-list">
-          <li>• <span class="bold text-blue">파란색 점</span>: 발신자에서 교환기로 가는 신호</li>
-          <li>• <span class="bold text-green">초록색 점</span>: 교환기에서 수신자로 가는 신호</li>
-          <li>• <span class="bold text-purple">교환기</span>: 전화번호를 확인하고 올바른 사람에게 연결</li>
-          <li>• <span class="bold">전화번호</span> 덕분에 정확한 사람에게 연결돼요!</li>
-        </ul>
-      </div>
-    </div>
+    <div id="pe-root">${renderPhoneExchangeInner()}</div>
+
     <div class="btn-row">
       <button class="btn btn-gray"    onclick="goStep(1)">← 이전 단계로</button>
       <button class="btn btn-primary" onclick="goStep(3)">인터넷도 같은 원리! →</button>
@@ -676,48 +914,6 @@ function renderStep2() {
 }
 
 function renderStep3() {
-  const lines   = svgConnections(devices, devicePos, state.ipFrom, state.ipTo, state.showIPConn);
-  const signals = state.signalPath.length===2
-    ? svgNetSignals(devicePos[state.signalPath[0]], devicePos[state.signalPath[1]])
-    : '';
-
-  const devicesHtml = devices.map(d => {
-    const pos = devicePos[d.name];
-    const isSender  = state.ipFrom===d.name && !state.showIPConn;
-    const isActive  = state.activeNodes.includes(d.name);
-    const fill   = isSender ? '#fbbf24' : isActive ? '#10b981' : '#e0e7ff';
-    const stroke = isSender ? '#f59e0b' : isActive ? '#059669' : '#6366f1';
-    return `
-      <circle cx="${pos.x}" cy="${pos.y}" r="35" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
-      <text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="middle" font-size="28">${d.emoji}</text>
-      <text x="${pos.x}" y="${pos.y+50}" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">${d.name}</text>
-      <text x="${pos.x}" y="${pos.y+68}" text-anchor="middle" font-size="14" font-family="monospace" fill="#059669" font-weight="bold">${d.ip}</text>`;
-  }).join('');
-
-  const deviceBtns = devices.map(d => `
-    <button class="device-btn ${state.ipFrom===d.name?'selected':''}" onclick="handleDeviceClick('${d.name}')">
-      <span class="d-emoji">${d.emoji}</span>
-      <span class="d-name">${d.name}</span>
-      <span class="d-ip">${d.ip}</span>
-      ${state.ipFrom===d.name ? '<span class="d-tag">송신자 선택됨 ✓</span>' : ''}
-    </button>`).join('');
-
-  const ipBanner = state.showIPConn ? `
-    <div class="status-banner banner-green animate-slide-in mb4">
-      <span style="font-size:1.5rem">✅</span>
-      <div>
-        <p class="bold" style="color:#166534">네트워크 연결 중!</p>
-        <p class="text-sm" style="color:#15803d">
-          <strong>${state.ipFrom}</strong>에서 <strong>${state.ipTo}</strong>로 데이터가 전송되고 있어요!
-          <strong>초록색 점과 파란색 점</strong>이 라우터를 통해 이동하는 모습을 확인하세요! 🟢🔵
-        </p>
-      </div>
-    </div>` : '';
-
-  const hint = state.ipFrom
-    ? `<p class="text-sm text-center mt4">✅ <strong class="text-green">${state.ipFrom}</strong> 선택됨! 이제 <strong class="text-blue">수신자 기기</strong>를 선택하세요!</p>`
-    : `<p class="text-sm text-center mt4">💡 <strong>송신자 기기</strong>를 먼저 선택하세요!</p>`;
-
   return `
     <div class="box box-green mb6">
       <h2 class="title-lg" style="color:#166534">🌐 인터넷도 똑같아요!</h2>
@@ -742,35 +938,50 @@ function renderStep3() {
       </div>
     </div>
 
-    <!-- IP 주소 체험 -->
-    <div class="box-gradient-green mb6">
-      <h2 class="title-lg flex-center" style="color:#15803d">🌐 IP 주소로 연결하기</h2>
-      <div class="box box-yellow mb4 text-sm">
-        💡 어떻게 연결할까요? <span class="bold text-green">송신자 기기를 선택</span>한 후
-        <span class="bold text-blue">수신자 기기</span>를 클릭해서 연결해보세요!
+    <!-- 패킷 배달 게임 -->
+    <div id="packet-game-root" class="mb6"></div>
+
+    <!-- 실제로 내 IP 주소 확인해보기 -->
+    <div style="background:linear-gradient(to right,#eef2ff,#eff6ff);padding:1.5rem;border-radius:.75rem;border:2px solid #a5b4fc;margin-bottom:1.5rem">
+      <h3 class="title-md flex-center" style="color:#3730a3">
+        <span style="font-size:1.5rem">💻</span> 실제로 내 IP 주소 확인해보기
+      </h3>
+      <p style="color:#374151;margin-bottom:1rem">
+        배운 내용을 직접 확인해볼 수 있어요! <span class="bold text-indigo">Windows 컴퓨터</span>에서 아래 명령어로 내 IP 주소를 볼 수 있답니다.
+      </p>
+      <div style="background:#111827;color:#4ade80;font-family:monospace;font-size:.875rem;border-radius:.5rem;padding:1.25rem;margin-bottom:1rem;box-shadow:inset 0 2px 8px rgba(0,0,0,.4)">
+        <p style="color:#6b7280;margin-bottom:.5rem"># 방법 1: 실행창 이용</p>
+        <p>Windows키 + R  →  <span style="color:#fde047;font-weight:bold">cmd</span>  입력  →  엔터</p>
+        <br/>
+        <p style="color:#6b7280;margin-bottom:.5rem"># 방법 2: 명령 프롬프트에서</p>
+        <p><span style="color:#fde047;font-weight:bold">ipconfig</span></p>
+        <br/>
+        <p style="color:#6b7280;margin-bottom:.25rem"># 결과 예시</p>
+        <p>IPv4 주소 . . . . : <span style="color:#86efac;font-weight:bold">192.168.1.10</span></p>
+        <p>서브넷 마스크 . . : 255.255.255.0</p>
+        <p>기본 게이트웨이 . : 192.168.1.1</p>
       </div>
-      <div class="device-grid">${deviceBtns}</div>
-      <div class="svg-wrap" style="border-color:#bbf7d0">
-        <svg viewBox="0 0 600 400" style="width:100%;max-width:900px;display:block;margin:0 auto">
-          ${lines}
-          <circle cx="300" cy="200" r="40" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3"/>
-          <text x="300" y="200" text-anchor="middle" dominant-baseline="middle" font-size="30">🔀</text>
-          <text x="300" y="255" text-anchor="middle" font-size="14" font-weight="bold" fill="#6d28d9">라우터</text>
-          <text x="300" y="273" text-anchor="middle" font-size="14" fill="#7c3aed">(IP 주소 확인)</text>
-          ${devicesHtml}${signals}
-        </svg>
-        ${hint}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem">
+        <div style="background:white;padding:1rem;border-radius:.5rem;border:1px solid #c7d2fe;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+          <div style="font-size:1.75rem;margin-bottom:.5rem">⌨️</div>
+          <p style="font-weight:bold;color:#374151">Step 1</p>
+          <p style="font-size:.875rem;color:#6b7280">Windows키 + R 누르기</p>
+        </div>
+        <div style="background:white;padding:1rem;border-radius:.5rem;border:1px solid #c7d2fe;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+          <div style="font-size:1.75rem;margin-bottom:.5rem">🖊️</div>
+          <p style="font-weight:bold;color:#374151">Step 2</p>
+          <p style="font-size:.875rem;color:#6b7280">cmd 입력 후 엔터</p>
+        </div>
+        <div style="background:white;padding:1rem;border-radius:.5rem;border:1px solid #c7d2fe;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+          <div style="font-size:1.75rem;margin-bottom:.5rem">🔍</div>
+          <p style="font-weight:bold;color:#374151">Step 3</p>
+          <p style="font-size:.875rem;color:#6b7280">ipconfig 입력 → IPv4 찾기</p>
+        </div>
       </div>
-      ${ipBanner}
-      <div class="box box-green">
-        <p class="text-sm bold mb2 text-green">💡 관찰해보세요!</p>
-        <ul class="obs-list">
-          <li>• <span class="bold text-green">초록색 점</span>: 송신자 기기에서 라우터로 가는 신호</li>
-          <li>• <span class="bold text-blue">파란색 점</span>: 라우터에서 수신자 기기로 가는 신호</li>
-          <li>• <span class="bold text-purple">라우터</span>: IP 주소를 확인하고 올바른 기기에 연결</li>
-          <li>• <span class="bold">IP 주소</span> 덕분에 송신자와 수신자가 정확히 연결돼요!</li>
-          <li>• 전화의 <span class="bold text-blue">교환기</span>와 인터넷의 <span class="bold text-purple">라우터</span>는 같은 역할!</li>
-        </ul>
+      <div style="background:#fefce8;padding:.75rem 1rem;border-radius:.5rem;border:1px solid #fde047">
+        <p style="font-size:.875rem;color:#713f12">
+          <span class="bold">📌 참고:</span> 학교 컴퓨터에서는 보안 정책으로 실행이 안 될 수도 있어요. 집에서 꼭 한번 해보세요!
+        </p>
       </div>
     </div>
 
@@ -871,7 +1082,7 @@ function render() {
   if      (state.step===0) el.innerHTML = renderStep0();
   else if (state.step===1) el.innerHTML = renderStep1();
   else if (state.step===2) el.innerHTML = renderStep2();
-  else if (state.step===3) { el.innerHTML = renderStep3(); renderQuiz(); }
+  else if (state.step===3) { el.innerHTML = renderStep3(); renderQuiz(); pgRender(); }
 }
 
 /* ═══════════════════════════════════════════════
@@ -881,9 +1092,15 @@ function goStep(n) {
   state.step = n;
   // reset connection state when navigating
   state.showPhoneConn = false; state.callingFrom=''; state.callingTo='';
-  state.showIPConn    = false; state.ipFrom='';      state.ipTo='';
   state.signalPath=[]; state.activeNodes=[];
   if (signalTimer) { clearTimeout(signalTimer); signalTimer=null; }
+  // PhoneExchange 상태 초기화
+  if (peWaitTimer) { clearInterval(peWaitTimer); peWaitTimer=null; }
+  pe.phase='idle'; pe.dialInput=''; pe.errorMsg=''; pe.highlight='';
+  pe.processing=null; pe.queue=[];
+  // 패킷 게임 상태 초기화
+  if (pg.animTimer) { clearInterval(pg.animTimer); pg.animTimer=null; }
+  pg.phase='idle'; pg.msg=''; pg.target=null; pg.packetPos=0;
   render();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -918,24 +1135,295 @@ function handlePhoneCall(fromId, toId) {
   render();
 }
 
-function handleDeviceClick(name) {
-  if (!state.ipFrom) {
-    state.ipFrom = name;
-    render();
-  } else if (name !== state.ipFrom) {
-    if (signalTimer) clearTimeout(signalTimer);
-    const from = state.ipFrom;
-    state.ipTo = name;
-    state.showIPConn = true;
-    state.activeNodes = [from, name];
-    setTimeout(() => { state.signalPath=[from, name]; render(); }, 300);
-    signalTimer = setTimeout(() => {
-      state.showIPConn=false; state.ipFrom=''; state.ipTo='';
-      state.activeNodes=[]; state.signalPath=[];
-      render();
-    }, 3000);
-    render();
+/* ═══════════════════════════════════════════════
+   PACKET GAME STATE & LOGIC
+═══════════════════════════════════════════════ */
+const PG_DEVICES = [
+  { id:'pc',     name:'학교 컴퓨터', emoji:'💻', ip:[192,168,1,10], color:'#3B82F6' },
+  { id:'phone',  name:'스마트폰',    emoji:'📱', ip:[192,168,1,25], color:'#10B981' },
+  { id:'tablet', name:'태블릿',      emoji:'📲', ip:[192,168,1,30], color:'#F59E0B' },
+  { id:'tv',     name:'스마트TV',    emoji:'📺', ip:[192,168,1,50], color:'#EF4444' },
+];
+const PG_ROUTER = { x:300, y:210 };
+const PG_POS    = { pc:{x:90,y:80}, phone:{x:510,y:80}, tablet:{x:90,y:340}, tv:{x:510,y:340} };
+
+function pgIpStr(arr) { return arr.join('.'); }
+
+const pg = {
+  sender:      'pc',
+  octets:      ['','','',''],
+  phase:       'idle',   // idle | routing | travelling | arrived | lost
+  target:      null,
+  packetPos:   0,
+  msg:         '',
+  log:         [],
+  animTimer:   null,
+};
+
+function pgRender() {
+  const el = document.getElementById('packet-game-root');
+  if (!el) return;
+  el.innerHTML = renderPacketGame();
+}
+
+function pgSetSender(id) {
+  if (pg.phase !== 'idle') return;
+  pg.sender = id;
+  pgRender();
+}
+
+function pgSetOctet(idx, val) {
+  const clean = val.replace(/\D/g,'').slice(0,3);
+  const num   = Math.min(255, Number(clean)||0);
+  pg.octets[idx] = clean==='' ? '' : String(num);
+  pgRender();
+}
+
+function pgSetIP(ip) {
+  if (pg.phase !== 'idle') return;
+  pg.octets = ip.map(String);
+  pgRender();
+}
+
+function pgSend() {
+  if (pg.phase !== 'idle') return;
+  const octets  = pg.octets.map(v => Number(v)||0);
+  const typed   = pgIpStr(octets);
+  const senderDev = PG_DEVICES.find(d => d.id === pg.sender);
+  const found     = PG_DEVICES.find(d => pgIpStr(d.ip) === typed && d.id !== pg.sender);
+
+  if (typed === pgIpStr(senderDev.ip)) {
+    pg.msg = '⚠️ 자기 자신의 IP로는 보낼 수 없어요!';
+    pgRender(); return;
   }
+
+  pg.phase = 'routing';
+  pg.msg   = '🔀 라우터: IP 주소 조회 중...';
+  pg.packetPos = 0;
+  pgRender();
+
+  setTimeout(() => {
+    if (found) {
+      pg.target = found;
+      pg.phase  = 'travelling';
+      pg.msg    = `📦 패킷이 ${found.name}(${typed})으로 이동 중!`;
+      pgRender();
+      let p = 0;
+      pg.animTimer = setInterval(() => {
+        p += 0.05; pg.packetPos = p; pgRender();
+        if (p >= 1) {
+          clearInterval(pg.animTimer);
+          pg.phase = 'arrived';
+          pg.msg   = `✅ 도착! ${found.emoji} ${found.name}이 패킷을 받았어요!`;
+          pg.log.unshift({ type:'ok', from:senderDev.name, to:found.name, ip:typed, time:new Date().toLocaleTimeString() });
+          if (pg.log.length > 5) pg.log.pop();
+          pgRender();
+          setTimeout(() => { pg.phase='idle'; pg.msg=''; pg.target=null; pg.packetPos=0; pgRender(); }, 2500);
+        }
+      }, 80);
+    } else {
+      pg.phase = 'lost';
+      pg.msg   = `❌ IP ${typed}를 찾을 수 없어요! 패킷이 길을 잃었습니다.`;
+      pg.log.unshift({ type:'err', from:senderDev.name, to:'???', ip:typed, time:new Date().toLocaleTimeString() });
+      if (pg.log.length > 5) pg.log.pop();
+      pgRender();
+      setTimeout(() => { pg.phase='idle'; pg.msg=''; pg.packetPos=0; pgRender(); }, 2500);
+    }
+  }, 1200);
+}
+
+function renderPacketGame() {
+  const senderDev = PG_DEVICES.find(d => d.id === pg.sender);
+
+  /* ── 기기 목록 카드 ── */
+  const deviceCards = PG_DEVICES.map(d => `
+    <div style="border-radius:.75rem;border:2px solid ${d.color};background:${d.color}11;padding:.75rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div style="font-size:1.75rem;margin-bottom:.25rem">${d.emoji}</div>
+      <div style="font-weight:700;font-size:.875rem;color:${d.color};margin-bottom:.25rem">${d.name}</div>
+      <div style="background:#111827;color:#4ade80;font-family:monospace;font-size:.75rem;border-radius:.5rem;padding:.25rem .5rem">${pgIpStr(d.ip)}</div>
+    </div>`).join('');
+
+  /* ── 발신 기기 선택 버튼 ── */
+  const senderBtns = PG_DEVICES.map(d => `
+    <button onclick="pgSetSender('${d.id}')" ${pg.phase!=='idle'?'disabled':''}
+      style="border:2px solid ${pg.sender===d.id?d.color:'#e5e7eb'};background:${pg.sender===d.id?d.color+'22':'white'};
+             border-radius:.5rem;padding:.5rem;cursor:${pg.phase!=='idle'?'not-allowed':'pointer'};
+             opacity:${pg.phase!=='idle'?'0.5':'1'};font-family:inherit;text-align:center;transition:all .2s">
+      <div style="font-size:1.5rem">${d.emoji}</div>
+      <div style="font-size:.75rem;font-weight:700;color:${pg.sender===d.id?d.color:'#374151'}">${d.name}</div>
+      <div style="font-size:.65rem;font-family:monospace;color:#6b7280">${pgIpStr(d.ip)}</div>
+    </button>`).join('');
+
+  /* ── IP 입력 힌트 버튼 ── */
+  const hintBtns = PG_DEVICES.filter(d => d.id !== pg.sender).map(d => `
+    <button onclick="pgSetIP([${d.ip}])" ${pg.phase!=='idle'?'disabled':''}
+      style="display:flex;align-items:center;gap:.5rem;border:1px solid ${d.color}66;border-radius:.5rem;
+             padding:.5rem;background:white;cursor:${pg.phase!=='idle'?'not-allowed':'pointer'};
+             opacity:${pg.phase!=='idle'?'0.4':'1'};font-family:inherit;text-align:left;width:100%">
+      <span style="font-size:1.25rem">${d.emoji}</span>
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:${d.color}">${d.name}</div>
+        <div style="font-size:.7rem;font-family:monospace;color:#6b7280">${pgIpStr(d.ip)}</div>
+      </div>
+    </button>`).join('');
+
+  /* ── IP 입력 칸 ── */
+  const octetInputs = pg.octets.map((v,i) => `
+    <input type="text" value="${v}" oninput="pgSetOctet(${i},this.value)"
+      ${pg.phase!=='idle'?'disabled':''}
+      placeholder="0"
+      style="width:3.5rem;text-align:center;font-family:monospace;font-size:1rem;font-weight:700;
+             border:2px solid #a5b4fc;border-radius:.5rem;padding:.5rem;outline:none;
+             opacity:${pg.phase!=='idle'?'0.5':'1'}"/>
+    ${i<3?'<span style="color:#9ca3af;font-size:1.25rem;font-weight:bold">.</span>':''}`).join('');
+
+  /* ── 상태 메시지 색상 ── */
+  const msgStyle = {
+    idle:      'background:#f3f4f6;border:1px solid #d1d5db;color:#4b5563',
+    routing:   'background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8',
+    travelling:'background:#fef9c3;border:1px solid #fde047;color:#854d0e',
+    arrived:   'background:#dcfce7;border:2px solid #4ade80;color:#166534',
+    lost:      'background:#fee2e2;border:2px solid #f87171;color:#b91c1c',
+  }[pg.phase] || 'background:#f3f4f6;border:1px solid #d1d5db;color:#4b5563';
+
+  /* ── SVG 네트워크 지도 ── */
+  const svgLines = PG_DEVICES.map(d => {
+    const pos = PG_POS[d.id];
+    const involved = (pg.phase==='travelling'||pg.phase==='arrived') && (d.id===pg.sender||d.id===pg.target?.id);
+    return `<line x1="${PG_ROUTER.x}" y1="${PG_ROUTER.y}" x2="${pos.x}" y2="${pos.y}"
+      stroke="${involved?d.color:'#d1d5db'}" stroke-width="${involved?3:2}"
+      stroke-dasharray="6,4" opacity="${involved?1:0.5}">
+      ${!involved?'<animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>':''}
+    </line>`;
+  }).join('');
+
+  /* ── 패킷 위치 계산 ── */
+  let packetDot = '';
+  if (pg.phase==='travelling' && pg.target) {
+    const sp = PG_POS[pg.sender];
+    const ep = PG_POS[pg.target.id];
+    let px, py;
+    if (pg.packetPos < 0.5) {
+      const t = pg.packetPos * 2;
+      px = sp.x + (PG_ROUTER.x - sp.x) * t;
+      py = sp.y + (PG_ROUTER.y - sp.y) * t;
+    } else {
+      const t = (pg.packetPos - 0.5) * 2;
+      px = PG_ROUTER.x + (ep.x - PG_ROUTER.x) * t;
+      py = PG_ROUTER.y + (ep.y - PG_ROUTER.y) * t;
+    }
+    packetDot = `<circle cx="${px}" cy="${py}" r="14" fill="#F59E0B" stroke="white" stroke-width="2"/>
+                 <text x="${px}" y="${py+5}" text-anchor="middle" font-size="12">📦</text>`;
+  }
+
+  /* ── 패킷 유실 X 표시 ── */
+  const lostMark = pg.phase==='lost'
+    ? `<text x="${PG_ROUTER.x}" y="${PG_ROUTER.y+5}" text-anchor="middle" font-size="28" fill="#ef4444">✗</text>` : '';
+
+  /* ── 기기 노드 ── */
+  const svgNodes = PG_DEVICES.map(d => {
+    const pos = PG_POS[d.id];
+    const isSender  = d.id === pg.sender;
+    const isTarget  = pg.target && d.id === pg.target.id;
+    const fill = isSender ? senderDev.color+'33' : isTarget ? '#dcfce7' : '#e0e7ff';
+    const stroke = isSender ? senderDev.color : isTarget ? '#4ade80' : '#6366f1';
+    return `
+      <circle cx="${pos.x}" cy="${pos.y}" r="34" fill="${fill}" stroke="${stroke}" stroke-width="${isSender||isTarget?3:2}"/>
+      <text x="${pos.x}" y="${pos.y+5}" text-anchor="middle" dominant-baseline="middle" font-size="22">${d.emoji}</text>
+      <text x="${pos.x}" y="${pos.y+48}" text-anchor="middle" font-size="11" font-weight="bold" fill="#1f2937">${d.name}</text>
+      <text x="${pos.x}" y="${pos.y+63}" text-anchor="middle" font-size="11" font-family="monospace" fill="#059669" font-weight="bold">${pgIpStr(d.ip)}</text>
+      ${isSender?`<text x="${pos.x}" y="${pos.y-42}" text-anchor="middle" font-size="10" fill="${senderDev.color}" font-weight="bold">📤 송신자</text>`:''}
+      ${isTarget&&pg.phase==='arrived'?`<text x="${pos.x}" y="${pos.y-42}" text-anchor="middle" font-size="10" fill="#16a34a" font-weight="bold">✅ 수신!</text>`:''}`;
+  }).join('');
+
+  /* ── 배달 로그 ── */
+  const logHtml = pg.log.length > 0 ? `
+    <div style="margin-top:1.25rem;background:white;border:2px solid #e5e7eb;border-radius:.75rem;padding:1rem;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+      <p style="font-weight:700;color:#4f46e5;margin-bottom:.75rem">📋 배달 기록</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem">
+        ${pg.log.map(h=>`
+          <div style="border-radius:.5rem;padding:.75rem;font-size:.8rem;display:flex;align-items:start;gap:.5rem;
+                      background:${h.type==='ok'?'#f0fdf4':'#fef2f2'};border:1px solid ${h.type==='ok'?'#86efac':'#fca5a5'}">
+            <span>${h.type==='ok'?'✅':'❌'}</span>
+            <div>
+              <div style="font-weight:700;color:#1f2937">${h.from} → ${h.to}</div>
+              <div style="font-family:monospace;color:#6b7280">${h.ip}</div>
+              <div style="color:#9ca3af">${h.time}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  return `
+    <div style="background:linear-gradient(135deg,#eff6ff,#eef2ff);padding:1.5rem;border-radius:.75rem;border:2px solid #bfdbfe;box-shadow:0 4px 16px rgba(0,0,0,.08)">
+      <h2 style="font-size:1.25rem;font-weight:700;color:#1d4ed8;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem">
+        📦 패킷 배달 게임
+      </h2>
+      <p style="color:#374151;margin-bottom:1rem;font-size:.95rem">
+        보내는 기기를 선택하고, IP 주소를 입력해서 패킷을 보내보세요.
+        <span style="font-weight:bold;color:#dc2626"> IP가 틀리면 패킷이 길을 잃어요!</span>
+      </p>
+
+      <!-- 기기 목록 -->
+      <div style="margin-bottom:1.25rem">
+        <p style="font-size:.8rem;font-weight:700;color:#6b7280;margin-bottom:.5rem">📋 이 네트워크의 기기 목록</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">${deviceCards}</div>
+        <div style="margin-top:.75rem;background:#eef2ff;padding:.75rem;border-radius:.5rem;border:1px solid #c7d2fe">
+          <p style="font-size:.8rem;color:#374151">
+            💡 모든 기기는 <span style="font-family:monospace;font-weight:bold;color:#4f46e5">192.168.1.</span>로 시작하고, 마지막 숫자로 각 기기를 구별해요.
+            IP 주소의 각 숫자는 <span style="font-weight:bold;color:#7c3aed">0~255(8비트 = 2⁸가지)</span> 범위를 가져요.
+          </p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+        <!-- 왼쪽: 컨트롤 패널 -->
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <!-- 발신 기기 선택 -->
+          <div style="background:white;border-radius:.75rem;padding:1rem;border:2px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+            <h4 style="font-weight:700;color:#374151;margin-bottom:.75rem">📤 보내는 기기 선택</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">${senderBtns}</div>
+          </div>
+
+          <!-- IP 입력 -->
+          <div style="background:white;border-radius:.75rem;padding:1rem;border:2px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+            <h4 style="font-weight:700;color:#374151;margin-bottom:.25rem">🎯 목적지 IP 주소 입력</h4>
+            <p style="font-size:.8rem;color:#6b7280;margin-bottom:.75rem">아래에서 기기를 클릭하면 자동 입력!</p>
+            <div style="display:flex;align-items:center;gap:.25rem;margin-bottom:.75rem;flex-wrap:wrap">
+              ${octetInputs}
+            </div>
+            <div style="background:#111827;color:#4ade80;font-family:monospace;text-align:center;padding:.5rem;border-radius:.5rem;font-size:.95rem;margin-bottom:.75rem">
+              ${pg.octets.map(v=>v||'?').join(' . ')}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
+              ${hintBtns}
+            </div>
+            <button onclick="pgSend()" ${pg.phase!=='idle'?'disabled':''}
+              style="width:100%;padding:.75rem;background:#2563eb;color:white;font-weight:700;border:none;border-radius:.5rem;cursor:${pg.phase!=='idle'?'not-allowed':'pointer'};opacity:${pg.phase!=='idle'?'0.5':'1'};font-size:.95rem;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+              📦 패킷 전송!
+            </button>
+            ${pg.msg ? `<div style="${msgStyle};padding:.75rem;border-radius:.5rem;margin-top:.75rem;font-size:.875rem;font-weight:700">${pg.msg}</div>` : ''}
+          </div>
+        </div>
+
+        <!-- 오른쪽: 네트워크 지도 -->
+        <div style="background:white;border-radius:.75rem;padding:1rem;border:2px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+          <h4 style="font-weight:700;color:#374151;margin-bottom:.75rem">🗺️ 네트워크 지도</h4>
+          <svg viewBox="0 0 600 420" style="width:100%;display:block">
+            ${svgLines}
+            <!-- 라우터 -->
+            <circle cx="${PG_ROUTER.x}" cy="${PG_ROUTER.y}" r="38" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3"/>
+            <text x="${PG_ROUTER.x}" y="${PG_ROUTER.y+5}" text-anchor="middle" dominant-baseline="middle" font-size="24">🔀</text>
+            <text x="${PG_ROUTER.x}" y="${PG_ROUTER.y+58}" text-anchor="middle" font-size="12" font-weight="bold" fill="#6d28d9">라우터</text>
+            <text x="${PG_ROUTER.x}" y="${PG_ROUTER.y+73}" text-anchor="middle" font-size="11" fill="#7c3aed">(IP 주소 확인)</text>
+            ${svgNodes}
+            ${packetDot}
+            ${lostMark}
+          </svg>
+        </div>
+      </div>
+      ${logHtml}
+    </div>`;
 }
 
 /* ═══════════════════════════════════════════════
