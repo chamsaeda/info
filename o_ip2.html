@@ -13,7 +13,11 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 20px;
+      font-size: 1rem;
+      line-height: 1.5;
     }
+    p { margin-bottom: .5rem; }
+    p:last-child { margin-bottom: 0; }
 
     /* ── Animations ── */
     @keyframes pulse {
@@ -60,24 +64,25 @@
 
     /* ── Cards & Boxes ── */
     .card           { background: #fff; border-radius: .75rem; box-shadow: 0 4px 16px rgba(0,0,0,.08); border: 2px solid #e5e7eb; padding: 2rem; margin-bottom: 1.5rem; }
-    .box            { border-radius: .5rem; padding: 1.5rem; margin-bottom: 1rem; }
+    .box            { border-radius: .5rem; padding: 1.25rem; margin-bottom: 1rem; }
     .box-yellow     { background: #fefce8; border: 1px solid #fde047; }
     .box-blue       { background: #eff6ff; border: 1px solid #bfdbfe; }
     .box-green      { background: #dcfce7; border: 2px solid #4ade80; }
     .box-red        { background: #fef2f2; border: 1px solid #fecaca; }
-    .box-indigo     { background: linear-gradient(to right, #eef2ff, #f5f3ff); border: 2px solid #a5b4fc; border-radius: .75rem; padding: 1.5rem; }
-    .box-orange     { background: linear-gradient(to right, #fff7ed, #fefce8); border: 1px solid #fed7aa; border-radius: .5rem; padding: 1.5rem; }
+    .box-indigo     { background: linear-gradient(to right, #eef2ff, #f5f3ff); border: 2px solid #a5b4fc; border-radius: .75rem; padding: 1.25rem; }
+    .box-orange     { background: linear-gradient(to right, #fff7ed, #fefce8); border: 1px solid #fed7aa; border-radius: .5rem; padding: 1.25rem; }
     .box-gradient-blue  { background: linear-gradient(135deg, #eff6ff, #eef2ff); border: 2px solid #bfdbfe; border-radius: .75rem; padding: 1.5rem; }
     .box-gradient-green { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #bbf7d0; border-radius: .75rem; padding: 1.5rem; }
     .inner-white    { background: #fff; border-radius: .5rem; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1rem; }
 
     /* ── Typography ── */
-    .title-lg   { font-size: 1.5rem; font-weight: 700; margin-bottom: .75rem; }
-    .title-md   { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
+    .title-lg   { font-size: 1.25rem; font-weight: 700; margin-bottom: .75rem; }
+    .title-md   { font-size: 1.125rem; font-weight: 700; margin-bottom: .5rem; }
     .title-sm   { font-size: 1rem;    font-weight: 700; margin-bottom: .5rem; }
-    .text-lg    { font-size: 1.125rem; line-height: 1.7; }
-    .text-sm    { font-size: .875rem; }
-    .text-xs    { font-size: .75rem; }
+    .text-lg    { font-size: 1.125rem; line-height: 1.5; }
+    .text-base  { font-size: 1rem; line-height: 1.5; }
+    .text-sm    { font-size: .875rem; line-height: 1.5; }
+    .text-xs    { font-size: .75rem; line-height: 1.5; }
     .text-mono  { font-family: monospace; }
     .bold       { font-weight: 700; }
     .text-center { text-align: center; }
@@ -109,7 +114,7 @@
     @media(max-width: 600px) { .choice-grid { grid-template-columns: 1fr; } }
     .choice-btn  { background: none; border: 2px solid; border-radius: .75rem; padding: 1.5rem; cursor: pointer; font-family: inherit; transition: transform .15s, box-shadow .15s; }
     .choice-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
-    .choice-btn .emoji { font-size: 2.5rem; display: block; margin-bottom: .5rem; }
+    .choice-btn .emoji { font-size: 2.25rem; display: block; margin-bottom: .5rem; }
     .choice-blue   { background: linear-gradient(135deg,#dbeafe,#bfdbfe); border-color: #93c5fd; }
     .choice-green  { background: linear-gradient(135deg,#dcfce7,#bbf7d0); border-color: #86efac; }
     .choice-purple { background: linear-gradient(135deg,#f3e8ff,#e9d5ff); border-color: #c084fc; }
@@ -121,10 +126,10 @@
     /* ── Two phones (step 1) ── */
     .phones-row  { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
     .phone-item  { text-align: center; }
-    .phone-item .big { font-size: 4.5rem; display: block; }
+    .phone-item .big { font-size: 4.5rem; display: block; margin-bottom: 0.125rem; }
     .cable       { flex: 1; max-width: 220px; }
     .cable-line  { height: 8px; background: linear-gradient(to right, #3b82f6, #22c55e); border-radius: 4px; }
-    .cable-label { text-align: center; font-size: .75rem; color: #6b7280; margin-top: .25rem; }
+    .cable-label { text-align: center; font-size: 1rem; color: #6b7280; margin-top: .5rem; }
 
     /* ── Network call buttons (step 2) ── */
     .call-grid   { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
@@ -186,7 +191,7 @@
     .step-circle.done    { background: #22c55e; color: #fff; border-color: #22c55e; }
     .step-circle.active  { background: #4f46e5; color: #fff; border-color: #4f46e5; transform: scale(1.1); box-shadow: 0 4px 12px rgba(79,70,229,.4); }
     .step-circle.pending { background: #fff; color: #9ca3af; border-color: #d1d5db; }
-    .step-label   { font-size: .7rem; margin-top: .25rem; text-align: center; display: none; }
+    .step-label   { font-size: .75rem; margin-top: .25rem; text-align: center; display: none; }
     @media(min-width:480px){ .step-label { display: block; } }
     .step-label.done    { color: #16a34a; }
     .step-label.active  { color: #4f46e5; font-weight: 700; }
@@ -348,7 +353,7 @@ function renderQuiz() {
       <div style="background:#fef2f2;padding:1rem;border-radius:.5rem;border:1px solid #fca5a5;margin-bottom:.75rem">
         <p style="font-weight:bold;color:#b91c1c;font-size:.875rem;margin-bottom:.25rem">❌ 틀린 문제: ${q.question}</p>
         <p style="font-size:.875rem;color:#374151"><span style="font-weight:bold;color:#16a34a">정답: </span>${q.options[q.correct]}</p>
-        <p style="font-size:.875rem;color:#6b7280;margin-top:.25rem">${q.explanation}</p>
+        <p style="font-size:1rem;color:#6b7280;margin-top:.25rem">${q.explanation}</p>
       </div>`).join('');
 
     el.innerHTML = `
@@ -380,14 +385,14 @@ function renderQuiz() {
       return `<button
         onclick="handleQuizAnswer(${quiz.id}, ${oIdx})"
         ${answered ? 'disabled' : ''}
-        style="width:100%;text-align:left;padding:.75rem;border-radius:.5rem;${bg}cursor:${answered?'not-allowed':'pointer'};margin-bottom:.5rem;font-size:.95rem;font-family:inherit">
+        style="width:100%;text-align:left;padding:.75rem;border-radius:.5rem;${bg}cursor:${answered?'not-allowed':'pointer'};margin-bottom:.5rem;font-size:1rem;font-family:inherit">
         ${oIdx+1}. ${opt}${badge}
       </button>`;
     }).join('');
 
     const explanation = answered ? `
-      <div style="margin-top:1rem;padding:.75rem;background:#eff6ff;border-radius:.5rem;border:1px solid #93c5fd">
-        <p style="font-size:.875rem;color:#374151"><span style="font-weight:bold;color:#2563eb">설명: </span>${quiz.explanation}</p>
+      <div style="margin-top:1rem;padding:1rem;background:#eef2ff;border-radius:.5rem;border:1px solid #c7d2fe">
+        <p style="font-size:1rem;color:#374151"><span style="font-weight:bold;color:#4f46e5">설명: </span>${quiz.explanation}</p>
       </div>` : '';
 
     return `
@@ -557,7 +562,7 @@ function renderPhoneExchangeInner() {
              border-radius:.5rem;padding:.5rem;cursor:${pe.phase!=='idle'?'not-allowed':'pointer'};
              opacity:${pe.phase!=='idle'?'0.5':'1'};font-family:inherit;transition:all .2s;text-align:center;">
       <div style="font-size:1.5rem">${u.emoji}</div>
-      <div style="font-size:.8rem;font-weight:700;color:${pe.caller===u.id?u.color:'#374151'}">${u.name}</div>
+      <div style="font-size:.875rem;font-weight:700;color:${pe.caller===u.id?u.color:'#374151'}">${u.name}</div>
     </button>`).join('');
 
   /* 다이얼 패드 */
@@ -576,11 +581,11 @@ function renderPhoneExchangeInner() {
   else if (pe.phase==='queued')  { exchBorder='#fde047'; exchBg='#fefce8'; }
   const exchExtra =
     pe.phase==='queued'
-      ? `<div style="font-size:.8rem;color:#854d0e;font-weight:700;margin-top:.25rem">⏳ 대기열 ${pe.queue.length}건 처리 중...</div>`
+      ? `<div style="font-size:.875rem;color:#854d0e;font-weight:700;margin-top:.25rem">⏳ 대기열 ${pe.queue.length}건 처리 중...</div>`
     : pe.highlight==='exchange'
-      ? `<div style="font-size:.8rem;color:#7e22ce;font-weight:700;margin-top:.25rem;animation:pulse 1s infinite">🔍 번호 조회 중...</div>`
+      ? `<div style="font-size:.875rem;color:#7e22ce;font-weight:700;margin-top:.25rem;animation:pulse 1s infinite">🔍 번호 조회 중...</div>`
     : pe.phase==='routing' && pe.highlight!=='exchange'
-      ? `<div style="font-size:.8rem;color:#4338ca;font-weight:700;margin-top:.25rem">📋 경로 계산 중...</div>`
+      ? `<div style="font-size:.875rem;color:#4338ca;font-weight:700;margin-top:.25rem">📋 경로 계산 중...</div>`
       : '';
 
   /* 수신자 노드 */
@@ -594,7 +599,7 @@ function renderPhoneExchangeInner() {
       <div style="border:2px solid ${t.color};background:${t.color}18;border-radius:.5rem;
                   padding:.75rem;text-align:center;transition:all .3s;${scaled}">
         <div style="font-size:1.5rem">${t.emoji}</div>
-        <div style="font-weight:700;font-size:.9rem;color:${t.color}">${t.name}</div>
+        <div style="font-weight:700;font-size:1rem;color:${t.color}">${t.name}</div>
         <div style="font-size:.75rem;color:#6b7280;font-family:monospace">${t.number}</div>
         ${pe.phase==='connected'?'<div style="font-size:.75rem;color:#16a34a;font-weight:700;margin-top:.25rem">📞 통화 중!</div>':''}
         ${pe.phase==='error'?'<div style="font-size:.75rem;color:#dc2626;font-weight:700;margin-top:.25rem">❌ 잘못 연결됨!</div>':''}
@@ -603,7 +608,7 @@ function renderPhoneExchangeInner() {
     receiverHtml=`
       <div style="border:2px dashed #d1d5db;border-radius:.5rem;padding:.75rem;text-align:center;color:#9ca3af">
         <div style="font-size:1.5rem">❓</div>
-        <div style="font-size:.9rem">수신자</div>
+        <div style="font-size:1rem">수신자</div>
         <div style="font-size:.75rem">(번호로 결정됨)</div>
       </div>`;
   }
@@ -611,8 +616,8 @@ function renderPhoneExchangeInner() {
   /* 대기열 */
   const queueHtml = pe.queue.length>0 ? `
     <div style="margin-top:.75rem;background:#fefce8;border:1px solid #fde047;border-radius:.5rem;padding:.75rem">
-      <div style="font-size:.8rem;font-weight:700;color:#854d0e;margin-bottom:.25rem">⏳ 대기열</div>
-      ${pe.queue.map((q,i)=>`<div style="font-size:.8rem;color:#854d0e">${q.caller.emoji}→${q.target.emoji} <span style="color:#9ca3af">#${i+1}</span></div>`).join('')}
+      <div style="font-size:.875rem;font-weight:700;color:#854d0e;margin-bottom:.25rem">⏳ 대기열</div>
+      ${pe.queue.map((q,i)=>`<div style="font-size:.875rem;color:#854d0e">${q.caller.emoji}→${q.target.emoji} <span style="color:#9ca3af">#${i+1}</span></div>`).join('')}
     </div>` : '';
 
   /* 전화번호부 */
@@ -626,7 +631,7 @@ function renderPhoneExchangeInner() {
              margin-bottom:.5rem;font-family:inherit;text-align:left;transition:opacity .2s;">
       <span style="font-size:1.25rem">${u.emoji}</span>
       <div>
-        <div style="font-weight:700;font-size:.9rem;color:${u.color}">${u.name}</div>
+        <div style="font-weight:700;font-size:1rem;color:${u.color}">${u.name}</div>
         <div style="font-size:.75rem;font-family:monospace;color:#6b7280">${u.number}</div>
       </div>
       ${u.id===pe.caller?'<span style="margin-left:auto;font-size:.75rem;color:#9ca3af">나</span>':''}
@@ -638,7 +643,7 @@ function renderPhoneExchangeInner() {
       <div style="font-weight:700;color:#4f46e5;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">📋 통화 이력</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem">
         ${pe.callHistory.map(h=>`
-          <div style="border-radius:.5rem;padding:.75rem;font-size:.8rem;display:flex;align-items:flex-start;gap:.5rem;
+          <div style="border-radius:.5rem;padding:.75rem;font-size:.875rem;display:flex;align-items:flex-start;gap:.5rem;
                       background:${h.type==='success'?'#f0fdf4':'#fef2f2'};
                       border:1px solid ${h.type==='success'?'#bbf7d0':'#fecaca'}">
             <span>${h.type==='success'?'✅':'❌'}</span>
@@ -663,7 +668,7 @@ function renderPhoneExchangeInner() {
       <h2 style="font-size:1.25rem;font-weight:700;color:#1d4ed8;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem">
         📞 전화 걸기 직접 체험
       </h2>
-      <p style="font-size:.95rem;color:#374151;margin-bottom:1.25rem">
+      <p style="font-size:1rem;color:#374151;margin-bottom:1.25rem">
         번호를 직접 눌러 전화해보세요! <span style="font-weight:700;color:#7c3aed">전자 교환기</span>가 어떻게 번호를 보고 연결하는지 관찰하세요.
       </p>
 
@@ -677,14 +682,14 @@ function renderPhoneExchangeInner() {
           </div>
           <div style="width:100%;max-width:200px;background:#1f2937;border-radius:1rem;padding:1rem;box-shadow:0 8px 24px rgba(0,0,0,.3);border:2px solid #4b5563">
             <div style="background:#000;border-radius:.5rem;padding:.75rem;margin-bottom:.75rem;border:1px solid #374151">
-              <div style="font-size:.7rem;color:#9ca3af;display:flex;justify-content:space-between;margin-bottom:.25rem">
+              <div style="font-size:.75rem;color:#9ca3af;display:flex;justify-content:space-between;margin-bottom:.25rem">
                 <span>${callerUser.emoji} ${callerUser.name}</span>
                 <span style="color:${pe.phase==='connected'?'#4ade80':pe.phase==='error'?'#f87171':'#94a3b8'}">
                   ${pe.phase==='idle'?'대기':pe.phase==='connected'?'통화중':pe.phase==='error'?'오류':'처리중'}
                 </span>
               </div>
               <div style="color:white;font-family:monospace;font-size:1rem;letter-spacing:.1em;text-align:center;min-height:1.5rem">
-                ${pe.dialInput||'<span style="color:#6b7280;font-size:.8rem">번호를 눌러보세요</span>'}
+                ${pe.dialInput||'<span style="color:#6b7280;font-size:.875rem">번호를 눌러보세요</span>'}
               </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;margin-bottom:.5rem">
@@ -708,7 +713,7 @@ function renderPhoneExchangeInner() {
                       padding:.75rem;text-align:center;margin-bottom:.25rem;transition:all .3s;
                       ${pe.phase!=='idle'?'transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15)':''}">
             <div style="font-size:1.5rem">${callerUser.emoji}</div>
-            <div style="font-weight:700;font-size:.9rem;color:${callerUser.color}">${callerUser.name}</div>
+            <div style="font-weight:700;font-size:1rem;color:${callerUser.color}">${callerUser.name}</div>
             <div style="font-size:.75rem;color:#6b7280;font-family:monospace">${callerUser.number}</div>
           </div>
           <div style="text-align:center;font-size:1.25rem;margin:.25rem 0;color:${pe.phase==='dialing'?'#3B82F6':'#9ca3af'}">↓</div>
@@ -716,7 +721,7 @@ function renderPhoneExchangeInner() {
                       padding:.75rem;text-align:center;margin-bottom:.25rem;transition:all .3s;
                       ${pe.highlight==='exchange'?'transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15)':''}">
             <div style="font-size:1.5rem">🏛️</div>
-            <div style="font-weight:700;font-size:.9rem;color:#6b21a8">전자 교환기 (자동)</div>
+            <div style="font-weight:700;font-size:1rem;color:#6b21a8">전자 교환기 (자동)</div>
             ${exchExtra}
           </div>
           <div style="text-align:center;font-size:1.25rem;margin:.25rem 0;color:${pe.highlight==='target'?'#10B981':'#9ca3af'}">↓</div>
@@ -732,7 +737,7 @@ function renderPhoneExchangeInner() {
             ${phonebook}
           </div>
           <div style="background:${ss.bg};border:2px solid ${ss.border};border-radius:.75rem;padding:1rem;transition:all .3s">
-            <p style="color:${ss.color};font-weight:700;font-size:.9rem;line-height:1.6">${statusMsg}</p>
+            <p style="color:${ss.color};font-weight:700;font-size:1rem;line-height:1.6">${statusMsg}</p>
           </div>
         </div>
       </div>
@@ -740,13 +745,13 @@ function renderPhoneExchangeInner() {
       ${histHtml}
 
       <div style="margin-top:1.25rem;background:#eef2ff;padding:1rem;border-radius:.5rem;border:1px solid #c7d2fe">
-        <p style="font-size:.95rem;font-weight:700;color:#4f46e5;margin-bottom:.75rem">💡 관찰해보세요!</p>
+        <p style="font-size:1rem;font-weight:700;color:#4f46e5;margin-bottom:.75rem">💡 관찰해보세요!</p>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem">
           ${tips.map(t=>`
             <div style="background:white;border:1px solid #e0e7ff;border-radius:.5rem;padding:.75rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)">
               <div style="font-size:1.75rem;margin-bottom:.25rem">${t.emoji}</div>
-              <div style="font-weight:700;font-size:.9rem;color:#1f2937;margin-bottom:.25rem">${t.title}</div>
-              <div style="font-size:.8rem;color:#4b5563">${t.desc}</div>
+              <div style="font-weight:700;font-size:1rem;color:#1f2937;margin-bottom:.25rem">${t.title}</div>
+              <div style="font-size:.875rem;color:#4b5563">${t.desc}</div>
             </div>`).join('')}
         </div>
       </div>
@@ -780,29 +785,29 @@ function renderStep0() {
     </div>` : '';
 
   return `
-    <div class="box box-yellow mb6">
+    <div class="box box-yellow mb6" style="padding:1.5rem">
       <p class="bold mb4" style="color:#713f12;font-size:1.125rem">🤔 먼저 생각해볼까요?</p>
-      <p class="text-base" style="color:#374151">
+      <p class="text-base" style="color:#374151;margin-bottom:1rem">
         지구상에 <span class="bold text-blue">전화기 2대</span>만 있다고 상상해보세요.
         두 전화기가 서로 통신하려면 <span class="bold text-orange">가장 먼저</span> 무엇이 필요할까요?
       </p>
     </div>
     <div class="card">
-      <div style="display:flex;justify-content:center;align-items:center;gap:2rem;margin-bottom:2rem;flex-wrap:wrap">
-        <div class="text-center"><span style="font-size:4rem">📞</span><p class="bold" style="color:#374151">전화기 1</p></div>
+      <div style="display:flex;justify-content:center;gap:2rem;margin-bottom:2rem;flex-wrap:wrap">
+        <div class="text-center"><div style="font-size:3.75rem;line-height:1;margin-bottom:.5rem">📞</div><p class="bold" style="color:#374151;margin:0">전화기 1</p></div>
         <span style="font-size:3rem;color:#9ca3af">❓</span>
-        <div class="text-center"><span style="font-size:4rem">📞</span><p class="bold" style="color:#374151">전화기 2</p></div>
+        <div class="text-center"><div style="font-size:3.75rem;line-height:1;margin-bottom:.5rem">📞</div><p class="bold" style="color:#374151;margin:0">전화기 2</p></div>
       </div>
       <p class="text-center text-lg mb6" style="color:#374151">두 전화기를 연결하려면 무엇이 필요할까요?</p>
       <div class="choice-grid">
         <button class="choice-btn choice-blue"  onclick="handleAnswer('선')">
-          <span class="emoji">📡</span><strong style="color:#1e40af">선 (케이블)</strong>
+          <span class="emoji">📡</span><strong style="color:#1e40af;font-size:1rem">선 (케이블)</strong>
         </button>
         <button class="choice-btn choice-green" onclick="handleAnswer('전화번호')">
-          <span class="emoji">🔢</span><strong style="color:#14532d">전화번호</strong>
+          <span class="emoji">🔢</span><strong style="color:#14532d;font-size:1rem">전화번호</strong>
         </button>
         <button class="choice-btn choice-purple" onclick="handleAnswer('인터넷')">
-          <span class="emoji">🌐</span><strong style="color:#581c87">인터넷</strong>
+          <span class="emoji">🌐</span><strong style="color:#581c87;font-size:1rem">인터넷</strong>
         </button>
       </div>
       ${fb}
@@ -811,21 +816,22 @@ function renderStep0() {
 
 function renderStep1() {
   return `
-    <div class="box box-green mb6 animate-slide-in">
-      <div class="flex-center mb4">
-        <span style="font-size:1.125rem">✅</span>
-        <h2 class="text-lg" style="color:#166534;margin:0">정답! 먼저 선이 필요합니다!</h2>
+    <div class="box box-green mb6 animate-slide-in" style="padding:1.5rem">
+      <div class="flex-center mb4" style="gap:.75rem">
+        <span style="font-size:1.25rem">✅</span>
+        <h2 class="title-lg" style="color:#166534;margin:0">정답! 먼저 선이 필요합니다!</h2>
       </div>
       <p class="text-base" style="color:#374151">
         전화기 2대가 통신하려면 신호를 주고받을 수 있는 <span class="bold text-blue">물리적 연결</span>이 필요합니다.
       </p>
     </div>
     <div class="card">
-      <h3 class="title-lg text-indigo text-center">📡 2대의 전화기 연결</h3>
+      <h3 class="text-center" style="font-size:1.5rem;font-weight:700;color:#4f46e5;margin-bottom:1.5rem">📡 2대의 전화기 연결</h3>
       <div class="phones-row">
         <div class="phone-item">
           <span class="big">📞</span>
-          <p class="bold">전화기 1</p><p class="text-sm text-gray">(민수)</p>
+          <p class="bold" style="margin-top:-0.5rem;margin-bottom:0">전화기 1</p>
+          <p class="text-base text-gray" style="margin-top:0">(민수)</p>
         </div>
         <div class="cable">
           <div class="cable-line animate-pulse-custom"></div>
@@ -833,17 +839,18 @@ function renderStep1() {
         </div>
         <div class="phone-item">
           <span class="big">📞</span>
-          <p class="bold">전화기 2</p><p class="text-sm text-gray">(지은)</p>
+          <p class="bold" style="margin-top:-0.5rem;margin-bottom:0">전화기 2</p>
+          <p class="text-base text-gray" style="margin-top:0">(지은)</p>
         </div>
       </div>
-      <div class="box box-blue">
-        <h4 class="flex-center mb4" style="color:#1e40af"><span style="font-size:1.5rem">💡</span>지구상에 전화기가 단 2대만 있다면?</h4>
+      <div class="box box-blue" style="padding:1.5rem">
+        <h4 class="flex-center" style="color:#1e40af;margin-bottom:.75rem"><span style="font-size:1.5rem">💡</span>지구상에 전화기가 단 2대만 있다면?</h4>
         <p style="color:#374151;margin-bottom:.5rem">✓ 선으로 연결되어 있으니 <span class="bold text-green">상대방은 항상 정해져</span> 있어요.</p>
         <p style="color:#374151">✓ 그냥 수화기를 들면 <span class="bold text-purple">자동으로 상대방과 연결</span>됩니다.</p>
       </div>
     </div>
-    <div class="box box-yellow mb6">
-      <h3 class="title-md" style="color:#581c87">
+    <div class="box box-yellow mb6" style="padding:1.5rem">
+      <h3 class="title-lg" style="color:#581c87">
         <span class="tooltip-wrap" onclick="showTooltip()">🤔<span id="tooltip" class="tooltip-box hidden">&#xCC38;&#xC0C8;</span></span>
         그렇다면 다음 질문!
       </h3>
@@ -858,7 +865,7 @@ function renderStep1() {
 function renderStep2() {
   return `
     <div class="box" style="background:linear-gradient(to right,#fff7ed,#fef2f2);border:2px solid #fb923c;border-radius:.5rem;margin-bottom:1.5rem">
-      <h2 class="text-lg" style="color:#9a3412">📞 전화기가 3대 이상이면?</h2>
+      <h2 class="title-lg" style="color:#9a3412">📞 전화기가 3대 이상이면?</h2>
       <p class="text-base" style="color:#374151">이제는 <span class="bold text-red">전화번호</span>가 필요합니다!</p>
     </div>
     <div class="card">
@@ -890,13 +897,13 @@ function renderStep2() {
         <p class="bold text-purple">모든 전화기가 중앙 전화망(교환기)에 연결되어 있어요!</p>
         <p class="text-base mt1" style="color:#374151">점선은 각 전화기와 교환기를 연결하는 선을 나타냅니다.</p>
       </div>
-      <div class="box box-red">
+      <div class="box box-red" style="padding:1.5rem">
         <h4 class="flex-center mb4" style="color:#991b1b"><span style="font-size:1.5rem">⚠️</span>문제 발생!</h4>
         <p style="color:#374151;margin-bottom:.25rem">❌ 민수가 <span class="bold text-blue">지은</span>에게만 전화하고 싶은데...</p>
         <p style="color:#374151;margin-bottom:.25rem">❌ 전화번호가 없으면 <span class="bold text-red">누구에게 연결될지 알 수 없어요!</span></p>
         <p style="color:#374151">❌ 3명 모두에게 동시에 연결될 수도 있어요</p>
       </div>
-      <div class="box box-green">
+      <div class="box box-green" style="padding:1.5rem">
         <h4 class="flex-center mb4" style="color:#166534"><span style="font-size:1.5rem">✅</span>해결책: 전화번호!</h4>
         <p style="color:#374151;margin-bottom:.25rem">✓ 각 전화기마다 <span class="bold text-green">고유한 번호</span>를 부여합니다</p>
         <p style="color:#374151;margin-bottom:.25rem">✓ 민수가 지은에게 전화하려면 <span class="text-mono bold text-blue">010-9876-5432</span>를 누릅니다</p>
@@ -915,7 +922,7 @@ function renderStep2() {
 
 function renderStep3() {
   return `
-    <div class="box box-green mb6">
+    <div class="box box-green mb6" style="padding:1.5rem">
       <h2 class="title-lg" style="color:#166534">🌐 인터넷도 똑같아요!</h2>
       <p class="text-lg" style="color:#374151">
         인터넷도 전화와 같은 원리입니다. 먼저 <span class="bold text-blue">선(케이블, Wi-Fi)</span>으로 연결하고,
@@ -925,13 +932,13 @@ function renderStep3() {
 
     <div class="grid-2 mb6">
       <div class="card" style="border-color:#bfdbfe">
-        <h3 class="title-md text-blue">📞 전화 통신</h3>
+        <h3 class="title-lg text-blue">📞 전화 통신</h3>
         <p style="color:#374151;margin-bottom:.5rem">1️⃣ <span class="bold text-blue">전화선</span>으로 연결</p>
         <p style="color:#374151;margin-bottom:.5rem">2️⃣ <span class="bold text-green">전화번호</span>로 상대 구별</p>
         <p style="color:#374151">3️⃣ 예: <span class="text-mono">010-1234-5678</span></p>
       </div>
       <div class="card" style="border-color:#bbf7d0">
-        <h3 class="title-md text-green">🌐 인터넷 통신</h3>
+        <h3 class="title-lg text-green">🌐 인터넷 통신</h3>
         <p style="color:#374151;margin-bottom:.5rem">1️⃣ <span class="bold text-blue">네트워크 선</span>으로 연결 (케이블/Wi-Fi)</p>
         <p style="color:#374151;margin-bottom:.5rem">2️⃣ <span class="bold text-green">IP 주소</span>로 기기 구별</p>
         <p style="color:#374151">3️⃣ 예: <span class="text-mono">192.168.1.10</span></p>
@@ -943,7 +950,7 @@ function renderStep3() {
 
     <!-- 실제로 내 IP 주소 확인해보기 -->
     <div style="background:linear-gradient(to right,#eef2ff,#eff6ff);padding:1.5rem;border-radius:.75rem;border:2px solid #a5b4fc;margin-bottom:1.5rem">
-      <h3 class="title-md flex-center" style="color:#3730a3">
+      <h3 class="title-lg flex-center" style="color:#3730a3">
         <span style="font-size:1.5rem">💻</span> 실제로 내 IP 주소 확인해보기
       </h3>
       <p style="color:#374151;margin-bottom:1rem">
@@ -1004,16 +1011,16 @@ function renderStep3() {
 
     <!-- 재미있는 사실 -->
     <div class="box-orange mb6">
-      <h3 class="title-md" style="color:#9a3412">💡 재미있는 사실</h3>
+      <h3 class="title-lg" style="color:#9a3412;margin-bottom:1rem">💡 재미있는 사실</h3>
       <div class="inner-white">
-        <p class="text-lg" style="color:#374151;margin-bottom:1rem">
+        <p class="text-base" style="color:#374151;margin-bottom:1rem">
           전 세계 인터넷에 연결된 기기는 <span class="bold text-red" style="font-size:1.25rem">약 500억 개</span>가 넘어요!
           이 모든 기기가 각자 고유한 IP 주소를 가지고 있답니다. 🌍
         </p>
-        <div class="box box-blue">
-          <p class="text-sm mb2"><strong class="text-blue">IPv4:</strong> 우리가 배운 192.168.1.10 같은 형식으로,
+        <div class="box box-blue" style="padding:1rem">
+          <p class="text-base mb2"><strong class="text-blue">IPv4:</strong> 우리가 배운 192.168.1.10 같은 형식으로,
           약 <span class="bold text-blue">43억 개</span>의 주소를 만들 수 있어요.</p>
-          <p class="text-sm"><strong class="text-green">IPv6:</strong> 기기가 너무 많아져서 새로운 형식이 나왔어요!
+          <p class="text-base"><strong class="text-green">IPv6:</strong> 기기가 너무 많아져서 새로운 형식이 나왔어요!
           2001:0db8:85a3::8a2e:0370:7334 같은 형식으로,
           <span class="bold text-green">340조×1조×1조 개</span>를 만들 수 있답니다! 지구의 모래알보다 많아요! 🏖️</p>
         </div>
@@ -1022,7 +1029,7 @@ function renderStep3() {
 
     <!-- 핵심 정리 -->
     <div class="box-indigo mb6">
-      <h3 class="title-lg flex-center" style="color:#3730a3"><span style="font-size:1.75rem">💡</span>핵심 정리</h3>
+      <h3 class="title-lg flex-center" style="color:#3730a3"><span style="font-size:1.25rem">💡</span>핵심 정리</h3>
       <div class="inner-white mb4">
         <p class="bold mb2 text-blue">1️⃣ 2개만 있을 때</p>
         <p style="color:#374151">선으로 연결하면 끝! 주소(번호)는 필요 없어요. <span class="bold text-orange">상대가 이미 정해져 있으니까요.</span></p>
@@ -1262,8 +1269,8 @@ function renderPacketGame() {
              opacity:${pg.phase!=='idle'?'0.4':'1'};font-family:inherit;text-align:left;width:100%">
       <span style="font-size:1.25rem">${d.emoji}</span>
       <div>
-        <div style="font-size:.8rem;font-weight:700;color:${d.color}">${d.name}</div>
-        <div style="font-size:.7rem;font-family:monospace;color:#6b7280">${pgIpStr(d.ip)}</div>
+        <div style="font-size:.875rem;font-weight:700;color:${d.color}">${d.name}</div>
+        <div style="font-size:.75rem;font-family:monospace;color:#6b7280">${pgIpStr(d.ip)}</div>
       </div>
     </button>`).join('');
 
@@ -1342,7 +1349,7 @@ function renderPacketGame() {
       <p style="font-weight:700;color:#4f46e5;margin-bottom:.75rem">📋 배달 기록</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem">
         ${pg.log.map(h=>`
-          <div style="border-radius:.5rem;padding:.75rem;font-size:.8rem;display:flex;align-items:start;gap:.5rem;
+          <div style="border-radius:.5rem;padding:.75rem;font-size:.875rem;display:flex;align-items:start;gap:.5rem;
                       background:${h.type==='ok'?'#f0fdf4':'#fef2f2'};border:1px solid ${h.type==='ok'?'#86efac':'#fca5a5'}">
             <span>${h.type==='ok'?'✅':'❌'}</span>
             <div>
@@ -1359,17 +1366,17 @@ function renderPacketGame() {
       <h2 style="font-size:1.25rem;font-weight:700;color:#1d4ed8;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem">
         📦 패킷 배달 게임
       </h2>
-      <p style="color:#374151;margin-bottom:1rem;font-size:.95rem">
+      <p style="color:#374151;margin-bottom:1rem;font-size:1rem">
         보내는 기기를 선택하고, IP 주소를 입력해서 패킷을 보내보세요.
         <span style="font-weight:bold;color:#dc2626"> IP가 틀리면 패킷이 길을 잃어요!</span>
       </p>
 
       <!-- 기기 목록 -->
       <div style="margin-bottom:1.25rem">
-        <p style="font-size:.8rem;font-weight:700;color:#6b7280;margin-bottom:.5rem">📋 이 네트워크의 기기 목록</p>
+        <p style="font-size:.875rem;font-weight:700;color:#6b7280;margin-bottom:.5rem">📋 이 네트워크의 기기 목록</p>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">${deviceCards}</div>
         <div style="margin-top:.75rem;background:#eef2ff;padding:.75rem;border-radius:.5rem;border:1px solid #c7d2fe">
-          <p style="font-size:.8rem;color:#374151">
+          <p style="font-size:.875rem;color:#374151">
             💡 모든 기기는 <span style="font-family:monospace;font-weight:bold;color:#4f46e5">192.168.1.</span>로 시작하고, 마지막 숫자로 각 기기를 구별해요.
             IP 주소의 각 숫자는 <span style="font-weight:bold;color:#7c3aed">0~255(8비트 = 2⁸가지)</span> 범위를 가져요.
           </p>
@@ -1388,18 +1395,18 @@ function renderPacketGame() {
           <!-- IP 입력 -->
           <div style="background:white;border-radius:.75rem;padding:1rem;border:2px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06)">
             <h4 style="font-weight:700;color:#374151;margin-bottom:.25rem">🎯 목적지 IP 주소 입력</h4>
-            <p style="font-size:.8rem;color:#6b7280;margin-bottom:.75rem">아래에서 기기를 클릭하면 자동 입력!</p>
+            <p style="font-size:.875rem;color:#6b7280;margin-bottom:.75rem">아래에서 기기를 클릭하면 자동 입력!</p>
             <div style="display:flex;align-items:center;gap:.25rem;margin-bottom:.75rem;flex-wrap:wrap">
               ${octetInputs}
             </div>
-            <div style="background:#111827;color:#4ade80;font-family:monospace;text-align:center;padding:.5rem;border-radius:.5rem;font-size:.95rem;margin-bottom:.75rem">
+            <div style="background:#111827;color:#4ade80;font-family:monospace;text-align:center;padding:.5rem;border-radius:.5rem;font-size:1rem;margin-bottom:.75rem">
               ${pg.octets.map(v=>v||'?').join(' . ')}
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
               ${hintBtns}
             </div>
             <button onclick="pgSend()" ${pg.phase!=='idle'?'disabled':''}
-              style="width:100%;padding:.75rem;background:#2563eb;color:white;font-weight:700;border:none;border-radius:.5rem;cursor:${pg.phase!=='idle'?'not-allowed':'pointer'};opacity:${pg.phase!=='idle'?'0.5':'1'};font-size:.95rem;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+              style="width:100%;padding:.75rem;background:#2563eb;color:white;font-weight:700;border:none;border-radius:.5rem;cursor:${pg.phase!=='idle'?'not-allowed':'pointer'};opacity:${pg.phase!=='idle'?'0.5':'1'};font-size:1rem;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.15)">
               📦 패킷 전송!
             </button>
             ${pg.msg ? `<div style="${msgStyle};padding:.75rem;border-radius:.5rem;margin-top:.75rem;font-size:.875rem;font-weight:700">${pg.msg}</div>` : ''}
