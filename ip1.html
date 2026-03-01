@@ -596,8 +596,9 @@
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-blue-200">
                       <p className="font-bold text-blue-700 mb-1">📌 예시</p>
-                      <p className="text-base text-gray-800 font-mono">{publicIP} <span className="text-xs text-green-600 font-bold">(나의 공인 IP)</span></p>
-                      <p className="text-base text-gray-800 font-mono">8.8.8.8 (구글 DNS)</p>
+                      <p className="text-base text-gray-800
+                      ">{publicIP} <span className="text-base text-green-600 font-bold">(나의 공인 IP)</span></p>
+                      <p className="text-base text-gray-800">8.8.8.8 (구글 DNS)</p>
                     </div>
                   </div>
                 </div>
@@ -618,9 +619,9 @@
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-cyan-200">
                       <p className="font-bold text-cyan-700 mb-1">📌 대표적인 범위</p>
-                      <p className="text-base text-gray-800 font-mono">192.168.x.x</p>
-                      <p className="text-base text-gray-800 font-mono">10.x.x.x</p>
-                      <p className="text-base text-gray-800 font-mono">172.16.x.x ~ 172.31.x.x</p>
+                      <p className="text-base text-gray-800">192.168.x.x</p>
+                      <p className="text-base text-gray-800">10.x.x.x</p>
+                      <p className="text-base text-gray-800">172.16.x.x ~ 172.31.x.x</p>
                     </div>
                   </div>
                 </div>
@@ -710,7 +711,7 @@
                       >
                         <div className="text-xl mb-2">{device.name}</div>
                         <div className="font-mono text-base font-bold text-cyan-700">{device.ip}</div>
-                        <div className="text-sm text-gray-500 mt-2">클릭하여 작동 확인</div>
+                        <div className="text-base text-gray-500 mt-2">클릭하여 작동 확인</div>
                       </button>
                     ))}
                   </div>
@@ -747,8 +748,8 @@
                       <div className={`absolute left-8 top-1/2 -translate-y-1/2 transition-all duration-500 ${natStep >= 1 ? 'opacity-100' : 'opacity-50'}`}>
                         <div className="bg-cyan-100 p-4 rounded-lg border-2 border-cyan-500 text-center">
                           <div className="text-3xl mb-2">{selectedDevice.name}</div>
-                          <div className="font-mono text-sm font-bold text-cyan-700">{selectedDevice.ip}</div>
-                          <div className="text-sm text-gray-600 mt-1">사설 IP</div>
+                          <div className="font-mono text-base font-bold text-cyan-700">{selectedDevice.ip}</div>
+                          <div className="text-base text-gray-600 mt-1">사설 IP</div>
                         </div>
                       </div>
 
@@ -756,7 +757,7 @@
                       {natStep === 1 && (
                         <div className="absolute left-1/2 top-1/2 -translate-x-32 -translate-y-1/2 w-24">
                           <div className="text-3xl animate-pulse">→</div>
-                          <div className="text-sm text-gray-600 text-left mt-1">요청</div>
+                          <div className="text-base text-gray-600 text-left mt-1">요청</div>
                         </div>
                       )}
 
@@ -765,9 +766,9 @@
                         <div className="bg-orange-100 p-4 rounded-lg border-2 border-orange-500 text-center">
                           <div className="text-4xl mb-2">📡</div>
                           <div className="font-bold text-orange-700">공유기</div>
-                          <div className="text-sm text-gray-600 mt-1">NAT 변환 중</div>
+                          <div className="text-base text-gray-600 mt-1">NAT 변환 중</div>
                           {natStep >= 2 && (
-                            <div className="mt-2 text-sm space-y-1">
+                            <div className="mt-2 text-base space-y-1">
                               <div className="text-cyan-700 font-mono">{selectedDevice.ip}</div>
                               <div>⬇️</div>
                               <div className="text-purple-700 font-mono">{publicIP}</div>
@@ -780,7 +781,7 @@
                       {natStep === 3 && (
                         <div className="absolute left-1/2 translate-x-32 top-1/2 -translate-y-1/2 w-24">
                           <div className="text-3xl animate-pulse">→</div>
-                          <div className="text-sm text-gray-600 text-left mt-1">변환됨</div>
+                          <div className="text-base text-gray-600 text-left mt-1">변환됨</div>
                         </div>
                       )}
 
@@ -789,8 +790,8 @@
                         <div className="bg-purple-100 p-4 rounded-lg border-2 border-purple-500 text-center">
                           <div className="text-4xl mb-2">🌐</div>
                           <div className="font-bold text-purple-700">인터넷</div>
-                          <div className="font-mono text-sm font-bold text-purple-700 mt-1">{publicIP}</div>
-                          <div className="text-sm text-gray-600 mt-1">공인 IP</div>
+                          <div className="font-mono text-base font-bold text-purple-700 mt-1">{publicIP}</div>
+                          <div className="text-base text-gray-600 mt-1">공인 IP</div>
                         </div>
                       </div>
 
@@ -798,7 +799,7 @@
                       {natStep === 4 && (
                         <div className="absolute left-1/2 translate-x-32 bottom-12 w-24">
                           <div className="text-3xl animate-pulse text-green-600">←</div>
-                          <div className="text-sm text-green-600 text-left mt-1">응답</div>
+                          <div className="text-base text-green-600 text-left mt-1">응답</div>
                         </div>
                       )}
 
@@ -806,7 +807,7 @@
                       {natStep === 5 && (
                         <div className="absolute left-1/2 -translate-x-32 bottom-12 w-24">
                           <div className="text-3xl animate-pulse text-green-600">←</div>
-                          <div className="text-sm text-green-600 text-left mt-1">전달!</div>
+                          <div className="text-base text-green-600 text-left mt-1">전달!</div>
                         </div>
                       )}
                     </div>
@@ -819,7 +820,7 @@
                       >
                         ↩ 처음으로
                       </button>
-                      <span className="text-sm text-gray-500 font-bold">{natStep + 1} / 6 단계</span>
+                      <span className="text-base text-gray-500 font-bold">{natStep + 1} / 6 단계</span>
                       {natStep < 5 ? (
                         <button
                           onClick={() => setNatStep(natStep + 1)}
@@ -954,17 +955,17 @@
                   <div className="bg-white p-3 rounded-lg border border-green-200 text-center">
                     <div className="text-3xl mb-1">📖</div>
                     <p className="text-base font-bold text-green-700">DNS = 전화번호부</p>
-                    <p className="text-sm text-gray-600">이름 → 번호</p>
+                    <p className="text-base text-gray-600">이름 → 번호</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg border border-green-200 text-center">
                     <div className="text-3xl mb-1">🌐</div>
                     <p className="text-base font-bold text-blue-700">도메인 이름</p>
-                    <p className="text-sm text-gray-600 font-mono">www.naver.com</p>
+                    <p className="text-base text-gray-600 font-mono">www.naver.com</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg border border-green-200 text-center">
                     <div className="text-3xl mb-1">🔢</div>
                     <p className="text-base font-bold text-red-700">IP 주소</p>
-                    <p className="text-sm text-gray-600 font-mono">223.130.200.107</p>
+                    <p className="text-base text-gray-600 font-mono">223.130.200.107</p>
                   </div>
                 </div>
               </div>
@@ -1015,39 +1016,39 @@
                       <div className={`text-center transition-all duration-500 ${dnsStep >= 0 ? 'opacity-100' : 'opacity-30'}`}>
                         <div className="bg-blue-100 border-2 border-blue-400 rounded-xl p-4 w-32">
                           <div className="text-3xl mb-1">💻</div>
-                          <div className="text-sm font-bold text-blue-700">내 컴퓨터</div>
-                          {dnsStep >= 0 && <div className="text-sm font-mono text-gray-600 mt-1 break-all">{dnsInput}</div>}
+                          <div className="text-base font-bold text-blue-700">내 컴퓨터</div>
+                          {dnsStep >= 0 && <div className="text-base font-mono text-gray-600 mt-1 break-all">{dnsInput}</div>}
                         </div>
                       </div>
 
                       {/* 화살표1 */}
                       <div className="flex flex-col items-center">
                         <div className={`text-2xl transition-all duration-300 ${dnsStep >= 1 ? 'text-green-600 scale-125' : 'text-gray-300'}`}>→</div>
-                        {dnsStep >= 1 && <div className="text-sm text-green-700 font-bold">①요청</div>}
+                        {dnsStep >= 1 && <div className="text-base text-green-700 font-bold">①요청</div>}
                       </div>
 
                       {/* DNS 서버 */}
                       <div className={`text-center transition-all duration-500 ${dnsStep >= 1 ? 'opacity-100 scale-105' : 'opacity-30'}`}>
                         <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-4 w-32">
                           <div className="text-3xl mb-1">🗄️</div>
-                          <div className="text-sm font-bold text-yellow-700">DNS 서버</div>
-                          <div className="text-sm text-gray-500 mt-1">전화번호부</div>
-                          {dnsStep >= 2 && <div className="text-sm text-orange-600 font-bold mt-1 animate-pulse">🔍 검색 중...</div>}
+                          <div className="text-base font-bold text-yellow-700">DNS 서버</div>
+                          <div className="text-base text-gray-500 mt-1">전화번호부</div>
+                          {dnsStep >= 2 && <div className="text-base text-orange-600 font-bold mt-1 animate-pulse">🔍 검색 중...</div>}
                         </div>
                       </div>
 
                       {/* 화살표2 */}
                       <div className="flex flex-col items-center">
                         <div className={`text-2xl transition-all duration-300 ${dnsStep >= 3 ? 'text-purple-600 scale-125' : 'text-gray-300'}`}>→</div>
-                        {dnsStep >= 3 && <div className="text-sm text-purple-700 font-bold">②응답</div>}
+                        {dnsStep >= 3 && <div className="text-base text-purple-700 font-bold">②응답</div>}
                       </div>
 
                       {/* 결과 */}
                       <div className={`text-center transition-all duration-500 ${dnsResult ? 'opacity-100 scale-110' : 'opacity-30'}`}>
                         <div className="bg-green-100 border-2 border-green-400 rounded-xl p-4 w-36">
                           <div className="text-3xl mb-1">✅</div>
-                          <div className="text-sm font-bold text-green-700">IP 주소 발견!</div>
-                          {dnsResult && <div className="text-sm font-mono text-green-800 font-bold mt-1 break-all">{dnsResult}</div>}
+                          <div className="text-base font-bold text-green-700">IP 주소 발견!</div>
+                          {dnsResult && <div className="text-base font-mono text-green-800 font-bold mt-1 break-all">{dnsResult}</div>}
                         </div>
                       </div>
                     </div>
@@ -1082,7 +1083,7 @@
                       <div className="text-2xl font-bold text-blue-600 mb-1">{item.step}</div>
                       <div className="text-3xl mb-2">{item.icon}</div>
                       <div className="font-bold text-base text-gray-800 mb-1">{item.title}</div>
-                      <div className="text-sm text-gray-600">{item.desc}</div>
+                      <div className="text-base text-gray-600">{item.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -1101,7 +1102,7 @@
                   인터넷 전체를 <strong>거대한 도시</strong>라고 하면, 서브넷은 그 도시 안의 <strong>아파트 단지</strong>예요.
                   하나의 큰 네트워크를 용도나 장소에 따라 <strong>작은 구역으로 나눈 것</strong>이 서브넷이에요.
                 </p>
-                <div className="bg-white rounded-lg p-4 border border-green-200 font-mono text-sm leading-loose text-gray-700">
+                <div className="bg-white rounded-lg p-4 border border-green-200 font-mono text-base leading-loose text-gray-700">
                   🌆 인터넷 (거대한 도시)<br/>
                   &nbsp;├── 🏢 1반 네트워크 &nbsp;(192.168.1.???)<br/>
                   &nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── PC-01 (192.168.1.1)<br/>
@@ -1139,7 +1140,7 @@
                   서로 다른 서브넷 사이에는 반드시 <strong>라우터(Router)</strong>를 거쳐야 하는데,
                   바로 이 라우터에 <strong>"1반 → 2반 통행 금지"</strong> 규칙을 설정하면 차단돼요.
                 </p>
-                <div className="bg-white rounded-lg p-4 border border-red-200 font-mono text-sm leading-loose text-gray-700">
+                <div className="bg-white rounded-lg p-4 border border-red-200 font-mono text-base leading-loose text-gray-700">
                   🖥️ 1반 PC (192.168.1.10)<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ "2반 서버에 접속하고 싶어요!"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▼<br/>
@@ -1148,7 +1149,7 @@
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✖ 차단!<br/>
                   🖥️ 2반 서버 (192.168.2.10) ← 도달 못 함
                 </div>
-                <p className="mt-3 text-sm text-gray-500">
+                <p className="mt-3 text-base text-gray-500">
                   💡 같은 서브넷 안의 컴퓨터끼리는 라우터를 거치지 않고 직접 통신해요.
                   다른 서브넷으로 가려면 무조건 라우터를 통과해야 하기 때문에, 라우터가 <strong>유일한 출입구</strong>가 되는 거예요.
                 </p>
@@ -1162,7 +1163,7 @@
                   숫자가 클수록 네트워크가 작아지고, 연결 가능한 기기 수도 줄어요.
                 </p>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-center border-collapse">
+                  <table className="w-full text-base text-center border-collapse">
                     <thead>
                       <tr className="bg-purple-100 text-purple-800">
                         <th className="p-2 rounded-tl-lg">CIDR</th>
@@ -1173,10 +1174,10 @@
                       </tr>
                     </thead>
                     <tbody className="text-gray-700">
-                      <tr className="border-t border-purple-100"><td className="p-2 font-mono font-bold">/8</td><td className="p-2 font-mono text-sm">255.0.0.0</td><td className="p-2">8비트 고정</td><td className="p-2">24비트 자유</td><td className="p-2 font-bold text-green-700">약 1,600만 대</td></tr>
-                      <tr className="border-t border-purple-100"><td className="p-2 font-mono font-bold">/16</td><td className="p-2 font-mono text-sm">255.255.0.0</td><td className="p-2">16비트 고정</td><td className="p-2">16비트 자유</td><td className="p-2 font-bold text-green-700">약 65,000 대</td></tr>
-                      <tr className="border-t border-purple-100 bg-purple-50"><td className="p-2 font-mono font-bold">/24</td><td className="p-2 font-mono text-sm">255.255.255.0</td><td className="p-2">24비트 고정</td><td className="p-2">8비트 자유</td><td className="p-2 font-bold text-blue-700">254 대 ← 가정용</td></tr>
-                      <tr className="border-t border-purple-100"><td className="p-2 font-mono font-bold">/32</td><td className="p-2 font-mono text-sm">255.255.255.255</td><td className="p-2">32비트 전부 고정</td><td className="p-2">없음</td><td className="p-2 font-bold text-red-600">1 대 (딱 한 컴퓨터)</td></tr>
+                      <tr className="border-t border-purple-100"><td className="p-2 font-mono font-bold">/8</td><td className="p-2 font-mono text-base">255.0.0.0</td><td className="p-2">8비트 고정</td><td className="p-2">24비트 자유</td><td className="p-2 font-bold text-green-700">약 1,600만 대</td></tr>
+                      <tr className="border-t border-purple-100"><td className="p-2 font-mono font-bold">/16</td><td className="p-2 font-mono text-base">255.255.0.0</td><td className="p-2">16비트 고정</td><td className="p-2">16비트 자유</td><td className="p-2 font-bold text-green-700">약 65,000 대</td></tr>
+                      <tr className="border-t border-purple-100 bg-purple-50"><td className="p-2 font-mono font-bold">/24</td><td className="p-2 font-mono text-base">255.255.255.0</td><td className="p-2">24비트 고정</td><td className="p-2">8비트 자유</td><td className="p-2 font-bold text-blue-700">254 대 ← 가정용</td></tr>
+                      <tr className="border-t border-purple-100"><td className="p-2 font-mono font-bold">/32</td><td className="p-2 font-mono text-base">255.255.255.255</td><td className="p-2">32비트 전부 고정</td><td className="p-2">없음</td><td className="p-2 font-bold text-red-600">1 대 (딱 한 컴퓨터)</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -1193,7 +1194,7 @@
                     {[0,1,2,3].map(idx => (
                       <React.Fragment key={idx}>
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-xs text-gray-400">{idx+1}번째</span>
+                          <span className="text-base text-gray-400">{idx+1}번째</span>
                           <input
                             type="number" min="0" max="255"
                             value={subnetOctets[idx]}
@@ -1221,7 +1222,7 @@
                       className="w-16 h-10 text-center text-lg font-bold border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:outline-none font-mono"
                       style={{MozAppearance:'textfield'}}
                     />
-                    <span className="text-sm text-gray-400">← 이 숫자가 클수록 구역이 좁아져요</span>
+                    <span className="text-base text-gray-400">← 이 숫자가 클수록 구역이 좁아져요</span>
                   </div>
                   <input
                     type="range" min="1" max="32" value={subnetCidr}
@@ -1229,14 +1230,14 @@
                     className="w-full mb-1"
                     style={{accentColor:'#7c3aed'}}
                   />
-                  <div className="flex justify-between text-sm text-gray-400">
+                  <div className="flex justify-between text-base text-gray-400">
                     <span>/1 (매우 큰 구역)</span><span>/8</span><span>/16</span><span>/24</span><span>/32 (딱 1대)</span>
                   </div>
                 </div>
 
                 {/* 32비트 비트 시각화 */}
                 <div className="mb-5 bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-sm font-bold text-gray-600 mb-2">🔬 32비트 시각화 — 슬라이더를 움직이면 색이 바뀌어요!</p>
+                  <p className="text-base font-bold text-gray-600 mb-2">🔬 32비트 시각화 — 슬라이더를 움직이면 색이 바뀌어요!</p>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {Array.from({length: 32}, (_, pos) => {
                       const isNet = pos < subnetCidr;
@@ -1255,7 +1256,7 @@
                       return elements;
                     })}
                   </div>
-                  <div className="flex gap-4 text-xs">
+                  <div className="flex gap-4 text-base">
                     <span className="flex items-center gap-1">
                       <span className="inline-block w-4 h-4 rounded bg-purple-200 border border-purple-400"></span>
                       <span className="text-purple-800 font-bold">네트워크 비트 (동 번호 — 고정)</span>
@@ -1278,15 +1279,15 @@
                     { label: '연결 가능한 기기 수', value: subnetInfo.hosts,   color: 'text-green-700',  bg: 'bg-green-50',  border: 'border-green-200', desc: '실제로 사용할 수 있는 IP 개수' },
                   ].map(card => (
                     <div key={card.label} className={`${card.bg} rounded-xl p-3 border ${card.border}`}>
-                      <div className="text-xs text-gray-500 mb-1">{card.label}</div>
+                      <div className="text-base text-gray-500 mb-1">{card.label}</div>
                       <div className={`font-mono font-bold text-base ${card.color}`}>{card.value}</div>
-                      <div className="text-xs text-gray-400 mt-1">{card.desc}</div>
+                      <div className="text-base text-gray-400 mt-1">{card.desc}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* 요약 */}
-                <div className="mt-4 bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-sm text-gray-700 leading-relaxed">
+                <div className="mt-4 bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-base text-gray-700 leading-relaxed">
                   💡 <strong>{subnetOctets.join('.')}/{subnetCidr}</strong> 네트워크에서는 최대{' '}
                   <strong className="text-green-700">{subnetInfo.hosts}</strong>의 기기를 연결할 수 있어요.
                   네트워크 주소 <strong className="text-blue-700">{subnetInfo.network}</strong>와
@@ -1307,8 +1308,8 @@
                     <div key={item.name} className={`${item.color} border-2 rounded-xl p-4 w-44 text-center`}>
                       <div className="text-2xl mb-2">🏫</div>
                       <div className={`font-bold text-base ${item.text}`}>{item.name}</div>
-                      <div className="font-mono text-sm text-gray-600 mt-1">{item.range}</div>
-                      <div className={`font-bold text-sm mt-1 ${item.text}`}>최대 {item.hosts}대</div>
+                      <div className="font-mono text-base text-gray-600 mt-1">{item.range}</div>
+                      <div className={`font-bold text-base mt-1 ${item.text}`}>최대 {item.hosts}대</div>
                     </div>
                   ))}
                 </div>
@@ -1336,17 +1337,17 @@
                     <div className="p-3 bg-indigo-50 rounded border border-indigo-200">
                       <div className="text-3xl mb-1">✈️</div>
                       <div className="font-bold text-indigo-700">공항 = 게이트웨이</div>
-                      <div className="text-gray-600 text-sm">다른 나라(네트워크)로 가는 관문</div>
+                      <div className="text-gray-600 text-base">다른 나라(네트워크)로 가는 관문</div>
                     </div>
                     <div className="p-3 bg-indigo-50 rounded border border-indigo-200">
                       <div className="text-3xl mb-1">🇰🇷</div>
                       <div className="font-bold text-indigo-700">한국 = 내 네트워크</div>
-                      <div className="text-gray-600 text-sm">192.168.1.x</div>
+                      <div className="text-gray-600 text-base">192.168.1.x</div>
                     </div>
                     <div className="p-3 bg-indigo-50 rounded border border-indigo-200">
                       <div className="text-3xl mb-1">🌍</div>
                       <div className="font-bold text-indigo-700">해외 = 다른 네트워크</div>
-                      <div className="text-gray-600 text-sm">인터넷 / 다른 서브넷</div>
+                      <div className="text-gray-600 text-base">인터넷 / 다른 서브넷</div>
                     </div>
                   </div>
                 </div>
@@ -1361,7 +1362,7 @@
                 <div className="grid md:grid-cols-5 gap-2 items-center mb-6">
                   {/* A반 네트워크 */}
                   <div className="md:col-span-2 bg-blue-50 rounded-xl border-2 border-blue-300 p-4">
-                    <div className="text-center font-bold text-blue-700 mb-3">🏫 A반 네트워크<br/><span className="font-mono text-sm">192.168.1.x</span></div>
+                    <div className="text-center font-bold text-blue-700 mb-3">🏫 A반 네트워크<br/><span className="font-mono text-base">192.168.1.x</span></div>
                     <div className="space-y-2">
                       {[
                         { name: '💻 선생님PC', ip: '192.168.1.1' },
@@ -1378,7 +1379,7 @@
                           }`}
                         >
                           <span>{dev.name}</span>
-                          <span className="font-mono text-sm block">{dev.ip}</span>
+                          <span className="font-mono text-base block">{dev.ip}</span>
                         </button>
                       ))}
                     </div>
@@ -1389,29 +1390,29 @@
                     <div className={`transition-all duration-500 ${gwStep >= 2 && gwStep <= 3 ? 'scale-125' : ''}`}>
                       <div className={`rounded-xl border-4 p-3 text-center ${gwStep >= 2 && gwStep <= 3 ? 'bg-yellow-200 border-yellow-500' : 'bg-gray-100 border-gray-300'}`}>
                         <div className="text-3xl">📡</div>
-                        <div className="text-sm font-bold text-gray-800 mt-1">게이트웨이</div>
-                        <div className="text-sm text-gray-500 font-mono">라우터</div>
+                        <div className="text-base font-bold text-gray-800 mt-1">게이트웨이</div>
+                        <div className="text-base text-gray-500 font-mono">라우터</div>
                         {gwStep >= 2 && gwStep <= 3 && (
-                          <div className="text-sm text-yellow-700 font-bold mt-1 animate-pulse">변환 중!</div>
+                          <div className="text-base text-yellow-700 font-bold mt-1 animate-pulse">변환 중!</div>
                         )}
                       </div>
                     </div>
                     {gwPacketFrom && gwPacketTo && !gwAnimating && (
                       <button
                         onClick={() => startGateway(gwPacketFrom, gwPacketTo)}
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm px-3 py-1 rounded-full font-bold hover:shadow-lg transition-all"
+                        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-base px-3 py-1 rounded-full font-bold hover:shadow-lg transition-all"
                       >
                         📤 전송!
                       </button>
                     )}
                     {(!gwPacketFrom || !gwPacketTo) && (
-                      <div className="text-sm text-gray-400 text-center">양쪽에서<br/>기기 선택</div>
+                      <div className="text-base text-gray-400 text-center">양쪽에서<br/>기기 선택</div>
                     )}
                   </div>
 
                   {/* B반 네트워크 */}
                   <div className="md:col-span-2 bg-purple-50 rounded-xl border-2 border-purple-300 p-4">
-                    <div className="text-center font-bold text-purple-700 mb-3">🏫 B반 네트워크<br/><span className="font-mono text-sm">192.168.2.x</span></div>
+                    <div className="text-center font-bold text-purple-700 mb-3">🏫 B반 네트워크<br/><span className="font-mono text-base">192.168.2.x</span></div>
                     <div className="space-y-2">
                       {[
                         { name: '💻 선생님PC', ip: '192.168.2.1' },
@@ -1428,7 +1429,7 @@
                           }`}
                         >
                           <span>{dev.name}</span>
-                          <span className="font-mono text-sm block">{dev.ip}</span>
+                          <span className="font-mono text-base block">{dev.ip}</span>
                         </button>
                       ))}
                     </div>
@@ -1483,21 +1484,21 @@
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <p className="font-bold text-gray-800 mb-3">📋 ipconfig 결과 해석</p>
-                    <div className="space-y-2 text-base">
-                      <div className="flex gap-2">
-                        <span className="text-yellow-600 font-bold w-20 shrink-0">IPv4 주소</span>
+                    <div className="space-y-3 text-base">
+                      <div className="flex gap-2 items-start">
+                        <span className="text-yellow-600 font-bold whitespace-nowrap">IPv4 주소</span>
                         <span className="text-gray-800">= 내 컴퓨터의 IP 주소</span>
                       </div>
-                      <div className="flex gap-2">
-                        <span className="text-yellow-600 font-bold w-20 shrink-0">서브넷 마스크</span>
+                      <div className="flex gap-2 items-start">
+                        <span className="text-yellow-600 font-bold whitespace-nowrap">서브넷 마스크</span>
                         <span className="text-gray-800">= 네트워크 구분 기준</span>
                       </div>
-                      <div className="flex gap-2">
-                        <span className="text-yellow-600 font-bold w-20 shrink-0">기본 게이트웨이</span>
+                      <div className="flex gap-2 items-start">
+                        <span className="text-yellow-600 font-bold whitespace-nowrap">기본 게이트웨이</span>
                         <span className="text-gray-800">= 인터넷으로 나가는 출구 (보통 공유기 주소)</span>
                       </div>
                     </div>
-                    <div className="mt-3 bg-blue-50 p-2 rounded border border-blue-200 text-sm text-blue-700">
+                    <div className="mt-3 bg-blue-50 p-2 rounded border border-blue-200 text-base text-blue-700">
                       💡 보통 게이트웨이 주소는 <strong>192.168.x.1</strong>이에요!
                     </div>
                   </div>
@@ -1521,7 +1522,7 @@
                       <span className="text-4xl">📡</span>
                       <div>
                         <div className="font-bold text-blue-800 text-lg">라우터 (Router)</div>
-                        <div className="text-sm text-blue-500">= 장치 (Hardware)</div>
+                        <div className="text-base text-blue-500">= 장치 (Hardware)</div>
                       </div>
                     </div>
                     <ul className="space-y-2 text-base text-gray-700">
@@ -1536,7 +1537,7 @@
                       <span className="text-4xl">🚪</span>
                       <div>
                         <div className="font-bold text-orange-800 text-lg">게이트웨이 (Gateway)</div>
-                        <div className="text-sm text-orange-500">= 역할 (Role)</div>
+                        <div className="text-base text-orange-500">= 역할 (Role)</div>
                       </div>
                     </div>
                     <ul className="space-y-2 text-base text-gray-700">
@@ -1550,7 +1551,7 @@
                 {/* 비유 설명 */}
                 <div className="bg-white rounded-xl p-5 border border-sky-200 mb-5">
                   <p className="font-bold text-gray-800 mb-3">🏫 학교로 비유해볼게요!</p>
-                  <div className="grid md:grid-cols-3 gap-3 text-center text-sm">
+                  <div className="grid md:grid-cols-3 gap-3 text-center text-base">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
                       <div className="text-3xl mb-2">🧑‍✈️</div>
                       <div className="font-bold text-blue-700 mb-1">경비 아저씨</div>
@@ -1571,7 +1572,7 @@
 
                 {/* 비교표 */}
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-center border-collapse bg-white rounded-xl overflow-hidden">
+                  <table className="w-full text-base text-center border-collapse bg-white rounded-xl overflow-hidden">
                     <thead>
                       <tr className="bg-gradient-to-r from-sky-500 to-indigo-500 text-white">
                         <th className="p-3">구분</th>
@@ -1587,8 +1588,8 @@
                       </tr>
                       <tr className="border-t border-gray-100">
                         <td className="p-3 font-bold text-gray-600 bg-gray-50">주요 기능</td>
-                        <td className="p-3">데이터를 목적지까지<br/>최적 경로로 전달</td>
-                        <td className="p-3">다른 네트워크로<br/>나가는 입구 제공</td>
+                        <td className="p-3">데이터를 목적지까지 최적 경로로 전달</td>
+                        <td className="p-3">다른 네트워크로 나가는 입구 제공</td>
                       </tr>
                       <tr className="border-t border-gray-100">
                         <td className="p-3 font-bold text-gray-600 bg-gray-50">실생활 예</td>
@@ -1603,7 +1604,7 @@
                   </table>
                 </div>
 
-                <div className="mt-4 bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-sm text-gray-700 text-center leading-relaxed">
+                <div className="mt-4 bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-base text-gray-700 leading-relaxed">
                   ⭐ <strong>핵심 정리:</strong> 우리가 일상에서 쓰는 <strong>공유기 = 라우터 = 게이트웨이</strong>!
                   공유기 한 대가 이 세 가지 역할을 모두 하고 있어요. 그래서 실제로는 거의 같은 말처럼 쓰여요.
                 </div>
@@ -1624,7 +1625,7 @@
                   {quizData.map((quiz, qIdx) => (
                     <div key={quiz.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                       {quiz.tag && (
-                        <span className="inline-block bg-cyan-100 text-cyan-700 text-sm font-bold px-2 py-1 rounded mb-3">{quiz.tag}</span>
+                        <span className="inline-block bg-cyan-100 text-cyan-700 text-base font-bold px-2 py-1 rounded mb-3">{quiz.tag}</span>
                       )}
                       <h4 className="font-bold text-base text-gray-800 mb-4">
                         Q{qIdx + 1}. {quiz.question}
@@ -1683,7 +1684,7 @@
                       >
                         🎉
                         {showTooltip && (
-                          <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-3 py-1 rounded-xl text-sm font-bold whitespace-nowrap shadow-2xl z-50">
+                          <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-3 py-1 rounded-xl text-base font-bold whitespace-nowrap shadow-2xl z-50">
                             {"\uCC38\uC0C8"}
                           </span>
                         )}
@@ -1728,7 +1729,7 @@
           <div className="px-8 pb-8 text-center border-t border-gray-100 pt-6 mt-2">
             <a
               href="index.html"
-              className="inline-block bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-3 rounded-lg font-bold text-base hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-block bg-gradient-to-r from-cyan-600 to-blue-600 text-white w-64 py-3 rounded-lg font-bold text-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
             >
               🏠 홈으로 돌아가기
             </a>
