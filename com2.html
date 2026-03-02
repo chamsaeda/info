@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>손실 압축 체험하기 - 부산진여자상업고등학교</title>
+    <title>손실 압축 체험하기</title>
     <style>
         * {
             margin: 0;
@@ -662,13 +662,39 @@
             z-index: 50;
             animation: bounceOnce 0.5s ease-in-out;
         }
+
+        .toggle-btn {
+            background: none;
+            border: 2px solid currentColor;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.85em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            margin: 0;
+            box-shadow: none;
+        }
+        .toggle-btn:hover {
+            transform: translateY(-1px);
+        }
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+        .collapsible-content.open {
+            max-height: 1000px;
+            opacity: 1;
+        }        
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="header-top">
-                <div class="school-name">부산진여자상업고등학교 정보 학습자료</div>
+                <div class="school-name">고등학교 정보 학습자료</div>
                 <a href="index.html" class="home-button">🏠 홈으로</a>
             </div>
             <div class="main-title">🎨 손실 압축 체험하기</div>
@@ -694,6 +720,10 @@
             <div id="imageTab" class="tab-content active">
                 <div class="section fade-in">
                     <h2>📸 실제 이미지 압축 비교하기</h2>
+                    <div style="background: linear-gradient(135deg, #f093fb22, #f5576c22); border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #f5576c44;">
+                        <span style="font-size: 1.8em;">📱</span>
+                        <span style="color: #be185d; font-weight: bold; font-size: 1em;">실생활 연결: 인스타그램, 카카오톡에서 사진을 전송할 때 이미지 압축이 자동으로 일어나요!</span>
+                    </div>
                     <p style="margin-bottom: 20px;">
                         같은 사진을 다양한 색상 수로 압축했을 때 어떻게 변하는지 직접 비교해봐요!
                     </p>
@@ -884,11 +914,61 @@
                         <div class="success" style="margin-top: 20px;">
                             <h4>💡 관찰해보세요!</h4>
                             <p>✅ 색상 수가 줄어들수록 파일 크기도 작아져요</p>
-                            <p>✅ 256색까지는 사진의 품질이 크게 나빠지지 않아요</p>
+                            <p>✅ 색이 단순한 이미지에서는 256색으로 줄여도 품질 저하가 작아요 (사진 종류에 따라 달라져요!)</p>
                             <p>✅ 16색 이하로 줄어들면 사진의 디테일이 많이 손실돼요</p>
                             <p>✅ 2색(흑백)은 원본의 4.2%만 차지해요! (1,820KB → 77KB)</p>
                         </div>
                     </div>
+
+                <!-- JPEG / PNG / GIF 비교 카드 -->
+                <div class="section fade-in">
+                    <h2>🗂️ 이미지 형식 비교 — PNG vs GIF vs JPEG</h2>
+                    <p style="margin-bottom: 20px;">이미지 파일 형식마다 압축 방식이 달라요. 어떤 상황에서 어떤 형식을 쓸지 알아봐요!</p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 10px;">
+
+                        <!-- PNG 카드 -->
+                        <div style="background: white; border-radius: 16px; padding: 22px 18px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 5px solid #3b82f6; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <div style="font-size: 2.4em; margin-bottom: 8px;">🖼️</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: #3b82f6; margin-bottom: 6px;">PNG</div>
+                            <div style="background: #eff6ff; color: #1d4ed8; border-radius: 20px; padding: 4px 12px; font-size: 0.85em; font-weight: bold; display: inline-block; margin-bottom: 12px;">무손실 압축</div>
+                            <p style="color: #4b5563; font-size: 0.92em; line-height: 1.6; margin-bottom: 12px;">색상 정보를 하나도 버리지 않아요. 파일은 크지만 품질이 완벽하게 유지돼요.</p>
+                            <div style="background: #f0f9ff; border-radius: 8px; padding: 8px; font-size: 0.88em; color: #0369a1;">
+                                ✅ 로고, 일러스트, 투명 배경 이미지
+                            </div>
+                        </div>
+
+                        <!-- GIF 카드 -->
+                        <div style="background: white; border-radius: 16px; padding: 22px 18px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 5px solid #8b5cf6; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <div style="font-size: 2.4em; margin-bottom: 8px;">🎞️</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: #8b5cf6; margin-bottom: 6px;">GIF</div>
+                            <div style="background: #f5f3ff; color: #6d28d9; border-radius: 20px; padding: 4px 12px; font-size: 0.85em; font-weight: bold; display: inline-block; margin-bottom: 12px;">색상 수 제한 (최대 256색)</div>
+                            <p style="color: #4b5563; font-size: 0.92em; line-height: 1.6; margin-bottom: 12px;">256가지 색만 사용할 수 있어요. 대신 여러 프레임을 담아 움직이는 이미지를 만들 수 있어요!</p>
+                            <div style="background: #faf5ff; border-radius: 8px; padding: 8px; font-size: 0.88em; color: #7c3aed;">
+                                ✅ 움짤(애니메이션), 단순 아이콘
+                            </div>
+                        </div>
+
+                        <!-- JPEG 카드 -->
+                        <div style="background: white; border-radius: 16px; padding: 22px 18px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 5px solid #f5576c; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <div style="font-size: 2.4em; margin-bottom: 8px;">📷</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: #f5576c; margin-bottom: 6px;">JPEG</div>
+                            <div style="background: #fff0f6; color: #be185d; border-radius: 20px; padding: 4px 12px; font-size: 0.85em; font-weight: bold; display: inline-block; margin-bottom: 12px;">손실 압축</div>
+                            <p style="color: #4b5563; font-size: 0.92em; line-height: 1.6; margin-bottom: 12px;">사람 눈에 덜 민감한 정보를 과감히 버려요. 파일이 매우 작아지지만 원본으로 되돌릴 수 없어요.</p>
+                            <div style="background: #fff5f7; border-radius: 8px; padding: 8px; font-size: 0.88em; color: #e11d48;">
+                                ✅ 풍경·인물 사진, SNS 업로드
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 핵심 비교 요약 한 줄 -->
+                    <div style="background: #f8f9fa; border-radius: 10px; padding: 14px 18px; border-left: 4px solid #f5576c; margin-top: 6px;">
+                        <p style="margin: 0; color: #374151; font-size: 0.95em;">
+                            💡 <strong>한 줄 요약:</strong> 선명함이 중요하면 PNG, 움직임이 필요하면 GIF, 파일 크기를 줄여야 하면 JPEG!
+                        </p>
+                    </div>
+                </div>
 
                 <div class="section fade-in">
                     <h2>🎨 색상 압축 체험하기 (PNG/GIF 방식)</h2>
@@ -1043,17 +1123,33 @@
                     </div>
 
                     <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                        <h4 style="color: #0277bd; margin-bottom: 10px;">🔬 DCT의 비밀</h4>
-                        <p style="line-height: 1.6;">
-                            <strong>1단계:</strong> 이미지를 작은 블록(보통 8x8)으로 나눕니다.<br>
-                            <strong>2단계:</strong> 각 블록을 DCT로 변환하여 주파수 정보를 얻습니다.<br>
-                            <strong>3단계:</strong> 고주파(세밀한 디테일)를 제거합니다 - 사람 눈은 이걸 잘 못봐요!<br>
-                            <strong>4단계:</strong> 역DCT로 이미지로 다시 변환합니다.<br><br>
-                            💡 <strong>왜 효과적일까요?</strong><br>
-                            사람의 눈은 급격한 변화(고주파)보다 완만한 변화(저주파)에 더 민감합니다. 
-                            DCT는 이 특성을 이용해서 중요한 정보만 남기고 나머지를 버려 파일 크기를 줄입니다!
-                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <h4 style="color: #0277bd; margin: 0;">🔬 DCT의 비밀</h4>
+                            <button class="toggle-btn" onclick="toggleSection('dctDetail','dctBtn')" id="dctBtn" style="color:#0277bd;">📖 심화 내용 보기</button>
+                        </div>
+                        <p style="color:#0277bd; font-size:0.92em; margin:6px 0 0 0;">이미지를 블록으로 쪼개 → DCT 변환 → 양자화로 고주파 제거 → 역DCT 복원하는 4단계 과정이에요.</p>
+                        <div id="dctDetail" class="collapsible-content">
+                            <div style="margin-top:14px; line-height:1.6;">
+                                <strong>1단계:</strong> 이미지를 작은 블록(보통 8x8)으로 나눕니다.<br>
+                                <strong>2단계:</strong> 각 블록을 DCT로 변환하여 주파수 정보를 얻습니다.<br>
+                                <strong>3단계:</strong> 양자화(Quantization) 과정에서 고주파(세밀한 디테일)를 크게 줄입니다.<br>
+                                <strong>4단계:</strong> 역DCT로 이미지로 다시 변환합니다.<br><br>
+                                💡 <strong>왜 효과적일까요?</strong><br>
+                                사람의 눈은 급격한 변화(고주파)보다 완만한 변화(저주파)에 더 민감합니다.
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- 이미지 탭 핵심 한 줄 정리 박스 -->
+                <div style="background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 16px; padding: 22px 28px; margin: 10px 0 30px 0; box-shadow: 0 6px 20px rgba(245,87,108,0.4);">
+                    <h3 style="color: white; margin-bottom: 10px; font-size: 1.2em;">🧠 오늘의 핵심 한 문장 – 이미지 압축</h3>
+                    <p style="color: white; font-size: 1.3em; font-weight: bold; line-height: 1.6; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 12px 18px;">
+                        " 사람 눈이 덜 민감한 정보(고주파, 세밀한 색상)를 제거해서 파일을 줄인다! "
+                    </p>
+                    <p style="color: rgba(255,255,255,0.85); margin-top: 10px; font-size: 0.95em;">
+                        📌 PNG/GIF → 색상 수 제한 &nbsp;|&nbsp; JPEG → DCT + 양자화로 고주파 제거
+                    </p>
                 </div>
                 </div>
             </div>
@@ -1062,6 +1158,10 @@
             <div id="audioTab" class="tab-content">
                 <div class="section fade-in">
                     <h2>🎵 MP3 압축의 비밀 - 소리 압축 체험하기</h2>
+                    <div style="background: linear-gradient(135deg, #667eea22, #764ba222); border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #667eea44;">
+                        <span style="font-size: 1.8em;">🎧</span>
+                        <span style="color: #4338ca; font-weight: bold; font-size: 1em;">실생활 연결: 스포티파이, 유튜브 뮤직, 멜론 등 스트리밍 앱이 모두 MP3/AAC 압축 기술을 써요!</span>
+                    </div>
                     <p style="margin-bottom: 20px;">
                         MP3는 어떻게 원본 CD 음질을 10분의 1로 줄이면서도 거의 같은 소리를 낼까요? 사람의 귀로 잘 들리지 않는 소리를 제거하는 방식으로 압축을 해요!
                     </p>
@@ -1069,7 +1169,7 @@
                     <!-- 주파수 범위 체험 -->
                     <div class="example-box">
                         <h3 style="color: #f5576c; margin-bottom: 15px;">👂 소리의 주파수 범위</h3>
-                        <p>사람은 약 20Hz ~ 20,000Hz 사이의 소리를 들을 수 있어요. 직접 들어보며 확인해보세요!</p>
+                        <p>이론적으로 사람은 약 20Hz ~ 20,000Hz 사이의 소리를 들을 수 있어요. 하지만 실제로는 대부분 15,000Hz 이하만 잘 들려요. 직접 들어보며 확인해보세요!</p>
 
                         <canvas id="waveCanvas" width="600" height="200"></canvas>
 
@@ -1124,7 +1224,7 @@
 
                         <div class="success" style="margin-top: 20px;">
                             <h4>💡 첫 번째 비법: 듣기 어려운 주파수 제거!</h4>
-                            <p>사람은 20Hz~20,000Hz 사이의 소리를 들을 수 있지만, 실제로는 100Hz~15,000Hz 정도가 중요해요. 
+                            <p>이론적으로 20Hz~20,000Hz 사이의 소리를 들을 수 있지만, 실제로는 대부분 15,000Hz 이하만 잘 들려요. 
                             너무 낮거나 높은 주파수는 제거해도 차이를 못 느껴요!</p>
                         </div>
                     </div>
@@ -1202,6 +1302,76 @@
                             <p><strong>예상 파일 크기 (3분 곡):</strong> 약 2.8 MB</p>
                         </div>
 
+                        <!-- CD vs MP3 용량 비교 -->
+                        <div style="margin-top: 18px; background: white; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                            <p style="font-weight: bold; color: #374151; margin-bottom: 14px; font-size: 1em;">💿 CD vs MP3 용량 비교 (3분 곡 기준)</p>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+
+                                <!-- CD -->
+                                <div style="flex: 1; min-width: 130px; background: linear-gradient(135deg, #dc2626, #ef4444); border-radius: 12px; padding: 14px 16px; text-align: center; color: white;">
+                                    <div style="font-size: 1.8em; margin-bottom: 4px;">💿</div>
+                                    <div style="font-weight: bold; font-size: 0.95em; margin-bottom: 4px;">CD 음질</div>
+                                    <div style="font-size: 2em; font-weight: bold; line-height: 1.1;">약 30MB</div>
+                                    <div style="font-size: 0.8em; opacity: 0.9; margin-top: 4px;">1,411 kbps (무압축)</div>
+                                </div>
+
+                                <!-- 화살표 + 배수 -->
+                                <div style="text-align: center; min-width: 60px;">
+                                    <div style="font-size: 1.5em; color: #9ca3af;">→</div>
+                                    <div style="background: #fef3c7; color: #92400e; border-radius: 20px; padding: 3px 10px; font-size: 0.82em; font-weight: bold; white-space: nowrap;">약 10배 ↓</div>
+                                </div>
+
+                                <!-- MP3 64kbps -->
+                                <div style="flex: 1; min-width: 100px; background: #f8f9fa; border-radius: 12px; padding: 14px 12px; text-align: center; border: 2px solid #dc2626;">
+                                    <div style="font-size: 1.4em; margin-bottom: 4px;">🎵</div>
+                                    <div style="font-weight: bold; font-size: 0.85em; color: #dc2626; margin-bottom: 4px;">MP3 64kbps</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #374151; line-height: 1.1;">약 1.4MB</div>
+                                    <div style="font-size: 0.78em; color: #9ca3af; margin-top: 4px;">낮은 음질</div>
+                                </div>
+
+                                <!-- MP3 128kbps -->
+                                <div style="flex: 1; min-width: 100px; background: #f8f9fa; border-radius: 12px; padding: 14px 12px; text-align: center; border: 2px solid #f59e0b;">
+                                    <div style="font-size: 1.4em; margin-bottom: 4px;">🎵</div>
+                                    <div style="font-weight: bold; font-size: 0.85em; color: #d97706; margin-bottom: 4px;">MP3 128kbps</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #374151; line-height: 1.1;">약 2.8MB</div>
+                                    <div style="font-size: 0.78em; color: #9ca3af; margin-top: 4px;">일반 음질</div>
+                                </div>
+
+                                <!-- MP3 320kbps -->
+                                <div style="flex: 1; min-width: 100px; background: #f8f9fa; border-radius: 12px; padding: 14px 12px; text-align: center; border: 2px solid #059669;">
+                                    <div style="font-size: 1.4em; margin-bottom: 4px;">🎵</div>
+                                    <div style="font-weight: bold; font-size: 0.85em; color: #059669; margin-bottom: 4px;">MP3 320kbps</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #374151; line-height: 1.1;">약 7MB</div>
+                                    <div style="font-size: 0.78em; color: #9ca3af; margin-top: 4px;">고음질</div>
+                                </div>
+
+                            </div>
+
+                            <!-- 막대 비교 -->
+                            <div style="margin-top: 16px;">
+                                <div style="margin-bottom: 6px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 3px;"><span>💿 CD</span><span>30MB</span></div>
+                                    <div style="height: 18px; background: linear-gradient(to right, #dc2626, #ef4444); border-radius: 4px; width: 100%;"></div>
+                                </div>
+                                <div style="margin-bottom: 6px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 3px;"><span>🎵 MP3 320kbps</span><span>7MB</span></div>
+                                    <div style="height: 18px; background: linear-gradient(to right, #059669, #10b981); border-radius: 4px; width: 23%;"></div>
+                                </div>
+                                <div style="margin-bottom: 6px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 3px;"><span>🎵 MP3 128kbps</span><span>2.8MB</span></div>
+                                    <div style="height: 18px; background: linear-gradient(to right, #f59e0b, #fbbf24); border-radius: 4px; width: 9.3%;"></div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 3px;"><span>🎵 MP3 64kbps</span><span>1.4MB</span></div>
+                                    <div style="height: 18px; background: linear-gradient(to right, #9ca3af, #d1d5db); border-radius: 4px; width: 4.7%;"></div>
+                                </div>
+                            </div>
+
+                            <p style="margin-top: 12px; font-size: 0.88em; color: #6b7280; text-align: center;">
+                                😲 CD 한 장(74분)에 담기는 음악을 MP3 128kbps로 바꾸면 약 <strong style="color: #f5576c;">700MB → 70MB</strong> 로 줄어들어요!
+                            </p>
+                        </div>
+
                         <div class="note" style="margin-top: 15px;">
                             <p>💡 <strong>64 kbps</strong>는 음질이 낮아 뭉개진 느낌이 들고, <strong>320 kbps</strong>는 원음에 가까운 고음질이에요!</p>
                             
@@ -1237,8 +1407,12 @@
                     </div>
 
                     <div class="success">
-                        <h4>🔬 MP3 압축의 3가지 비밀 기술</h4>
-                        <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 15px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h4>🔬 MP3 압축의 3가지 비밀 기술</h4>
+                            <button class="toggle-btn" onclick="toggleSection('mp3Detail','mp3Btn')" id="mp3Btn" style="color:#667eea;">📖 심화 내용 보기</button>
+                        </div>
+                        <p style="color:#555; font-size:0.92em; margin-bottom:0;">① 안 들리는 소리 제거 &nbsp;② 마스킹 효과 &nbsp;③ 대역별 압축 — 세 가지 방법으로 10분의 1로 줄여요!</p>
+                        <div id="mp3Detail" class="collapsible-content" style="background: white; padding: 20px; border-radius: 10px; margin-top: 15px;">
                             <div style="display: flex; align-items: start; gap: 15px; margin-bottom: 20px; padding: 15px; background: #f8f9ff; border-radius: 8px;">
                                 <div style="font-size: 2em; font-weight: bold; color: #667eea; min-width: 40px;">1</div>
                                 <div>
@@ -1273,6 +1447,17 @@
                             💡 이 세 가지 방법으로 MP3는 원본 CD 음질보다 10분의 1로 작아져도 거의 차이를 느낄 수 없답니다!
                         </p>
                     </div>
+
+                    <!-- 핵심 한 줄 정리 박스 -->
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 16px; padding: 22px 28px; margin-top: 30px; box-shadow: 0 6px 20px rgba(102,126,234,0.4);">
+                        <h3 style="color: white; margin-bottom: 10px; font-size: 1.2em;">🧠 오늘의 핵심 한 문장 – 소리 압축</h3>
+                        <p style="color: white; font-size: 1.3em; font-weight: bold; line-height: 1.6; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 12px 18px;">
+                            " 사람 귀가 듣지 못하는 소리를 제거해서 파일을 줄인다! "
+                        </p>
+                        <p style="color: rgba(255,255,255,0.85); margin-top: 10px; font-size: 0.95em;">
+                            💿 CD 음질(약 30MB/3분) → MP3 128kbps(약 2.8MB/3분) &nbsp;|&nbsp; 약 10배 압축!
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -1281,10 +1466,64 @@
             <div id="videoTab" class="tab-content">
                 <div class="section fade-in">
                     <h2>🎬 영상 압축 체험하기 (MPEG 방식)</h2>
+                    <div style="background: linear-gradient(135deg, #10b98122, #06b6d422); border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid #10b98144;">
+                        <span style="font-size: 1.8em;">📺</span>
+                        <span style="color: #065f46; font-weight: bold; font-size: 1em;">실생활 연결: 유튜브, 넷플릭스, 틱톡의 모든 영상이 MPEG/H.264/H.265 압축 기술을 써요!</span>
+                    </div>
                     <p style="margin-bottom: 20px;">
                         연속된 프레임에서 변화가 있는 부분만 저장하는 방식이에요.
                         배경은 그대로이고 사람만 움직이면 사람 부분만 저장하면 되겠죠?
                     </p>
+
+                    <!-- I/P/B 프레임 다이어그램 -->
+                    <div class="example-box" style="margin-bottom: 25px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h3 style="color:#f5576c; margin:0;">🎞️ I/P/B 프레임이란?</h3>
+                            <button class="toggle-btn" onclick="toggleSection('ipbDetail','ipbBtn')" id="ipbBtn" style="color:#f5576c;">📖 심화 내용 보기</button>
+                        </div>
+                        <p style="margin-bottom:0;">I(전체 저장) / P(이전과 차이) / B(앞뒤 비교) — 세 종류를 섞어 저장해서 용량을 줄여요!</p>
+                        <div id="ipbDetail" class="collapsible-content" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                            <div style="background: linear-gradient(135deg, #dc2626, #ef4444); border-radius: 14px; padding: 18px 20px; flex: 1; min-width: 180px; color: white; text-align: center; box-shadow: 0 4px 15px rgba(220,38,38,0.3);">
+                                <div style="font-size: 2.2em; font-weight: bold; margin-bottom: 6px;">I 프레임</div>
+                                <div style="font-size: 1em; font-weight: bold; margin-bottom: 8px;">(Intra Frame)</div>
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; margin-bottom: 8px; font-size: 0.95em;">🖼️ 완전한 그림 전체 저장</div>
+                                <div style="font-size: 0.85em; opacity: 0.9;">기준이 되는 프레임<br>파일 크기: <strong>크다</strong></div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #d97706, #f59e0b); border-radius: 14px; padding: 18px 20px; flex: 1; min-width: 180px; color: white; text-align: center; box-shadow: 0 4px 15px rgba(217,119,6,0.3);">
+                                <div style="font-size: 2.2em; font-weight: bold; margin-bottom: 6px;">P 프레임</div>
+                                <div style="font-size: 1em; font-weight: bold; margin-bottom: 8px;">(Predicted Frame)</div>
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; margin-bottom: 8px; font-size: 0.95em;">↩️ 이전 프레임과 차이만 저장</div>
+                                <div style="font-size: 0.85em; opacity: 0.9;">앞 프레임 기준으로 예측<br>파일 크기: <strong>중간</strong></div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #059669, #10b981); border-radius: 14px; padding: 18px 20px; flex: 1; min-width: 180px; color: white; text-align: center; box-shadow: 0 4px 15px rgba(5,150,105,0.3);">
+                                <div style="font-size: 2.2em; font-weight: bold; margin-bottom: 6px;">B 프레임</div>
+                                <div style="font-size: 1em; font-weight: bold; margin-bottom: 8px;">(Bidirectional Frame)</div>
+                                <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px; margin-bottom: 8px; font-size: 0.95em;">↩️↪️ 앞뒤 프레임 둘 다 비교</div>
+                                <div style="font-size: 0.85em; opacity: 0.9;">가장 효율적인 압축<br>파일 크기: <strong>가장 작다</strong></div>
+                            </div>
+                        </div>
+                        <!-- 프레임 순서 시각화 -->
+                        <div style="margin-top: 20px; background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center;">
+                            <p style="font-weight: bold; color: #374151; margin-bottom: 12px;">📽️ 실제 저장 순서 예시</p>
+                            <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                                <div style="background: #dc2626; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">I</div>
+                                <span style="color: #9ca3af;">→</span>
+                                <div style="background: #f59e0b; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">B</div>
+                                <span style="color: #9ca3af;">→</span>
+                                <div style="background: #f59e0b; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">B</div>
+                                <span style="color: #9ca3af;">→</span>
+                                <div style="background: #d97706; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">P</div>
+                                <span style="color: #9ca3af;">→</span>
+                                <div style="background: #f59e0b; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">B</div>
+                                <span style="color: #9ca3af;">→</span>
+                                <div style="background: #f59e0b; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">B</div>
+                                <span style="color: #9ca3af;">→</span>
+                                <div style="background: #dc2626; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; font-size: 0.95em;">I</div>
+                                <span style="color: #9ca3af; font-size: 1.2em;">⋯</span>
+                            </div>
+                            <p style="color: #6b7280; font-size: 0.9em; margin-top: 10px;">I 프레임은 가끔, P/B 프레임이 대부분 → 파일이 훨씬 작아져요!</p>
+                        </div>
+                    </div>
 
                     <div class="example-box">
                         <h3 style="color: #f5576c; margin-bottom: 15px;">
@@ -1292,9 +1531,9 @@
                                 ⏱️
                                 <span class="tooltip-message" style="display: none;">참새다!</span>
                             </span>
-                             연속된 장면 만들기
+                             연속된 장면 만들기 (변화 감지 체험)
                         </h3>
-                        <p>각 프레임에 그림을 그리고 변화를 감지해보세요!</p>
+                        <p>각 프레임에 그림을 그리고 변화를 감지해보세요! P/B 프레임처럼 차이만 저장하는 원리예요.</p>
 
                         <div class="canvas-container">
                             <div class="canvas-box">
@@ -1320,6 +1559,17 @@
                         <h4>💡 영상 압축의 비밀!</h4>
                         <p>MPEG 같은 영상 압축은 이전 프레임과 비교해서 변한 부분만 저장해요. 
                         그래서 정지된 배경이 많은 영상일수록 압축이 잘 돼요!</p>
+                    </div>
+
+                    <!-- 영상 탭 핵심 한 줄 정리 박스 -->
+                    <div style="background: linear-gradient(135deg, #059669, #0d9488); border-radius: 16px; padding: 22px 28px; margin-top: 25px; box-shadow: 0 6px 20px rgba(5,150,105,0.4);">
+                        <h3 style="color: white; margin-bottom: 10px; font-size: 1.2em;">🧠 오늘의 핵심 한 문장 – 영상 압축</h3>
+                        <p style="color: white; font-size: 1.3em; font-weight: bold; line-height: 1.6; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 12px 18px;">
+                            " 변하지 않는 부분은 저장하지 않는다 – 차이(변화)만 저장해서 파일을 줄인다! "
+                        </p>
+                        <p style="color: rgba(255,255,255,0.85); margin-top: 10px; font-size: 0.95em;">
+                            🎬 I프레임(전체) + P프레임(이전과 차이) + B프레임(앞뒤 비교) = 최대 50배 압축!
+                        </p>
                     </div>
                 </div>
             </div>
@@ -2746,6 +2996,19 @@
                 closeModal();
             }
         });
+
+        function toggleSection(contentId, btnId) {
+            const content = document.getElementById(contentId);
+            const btn = document.getElementById(btnId);
+            const isOpen = content.classList.contains('open');
+            if (isOpen) {
+                content.classList.remove('open');
+                btn.textContent = '📖 심화 내용 보기';
+            } else {
+                content.classList.add('open');
+                btn.textContent = '📕 접기';
+            }
+        }
     </script>
     <!-- 이미지 모달 -->
     <div id="imageModal" class="modal" onclick="closeModal()">
