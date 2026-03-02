@@ -2291,7 +2291,7 @@ function showQ4Tooltip() {
   if (old) old.remove();
   const tip = document.createElement('span');
   tip.className = 'quiz-tooltip';
-  tip.textContent = '참새';
+  tip.textContent = "\uCC38\uC0C8";
   el.appendChild(tip);
   clearTimeout(tooltipTimer);
   tooltipTimer = setTimeout(() => { if (tip.parentNode) tip.remove(); }, 500);
