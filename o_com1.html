@@ -273,7 +273,7 @@
     .result-original p.label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 16px; }
     .result-original p.value { font-family: 'Courier New', monospace; font-size: 18px; color: #111827; word-break: break-all; }
     .result-original p.size  { font-size: 16px; color: #6b7280; margin-top: 4px; }
-    .result-original p.size span { color: #9ca3af; }
+    .result-original p.size span { color: #6b7280; }
 
     .arrow-down { text-align: center; font-size: 30px; color: #2563eb; margin: 4px 0; }
 
@@ -293,7 +293,7 @@
     .result-compressed p.size  { font-size: 16px; margin-top: 4px; }
     .result-compressed.success p.size { color: #16a34a; }
     .result-compressed.fail    p.size { color: #dc2626; }
-    .result-compressed p.size span { color: #9ca3af; }
+    .result-compressed p.size span { color: #6b7280; }
 
     .result-ratio {
       padding: 16px;
@@ -361,7 +361,7 @@
       border: 1px solid #d1d5db;
       font-family: 'Courier New', monospace;
       font-size: 18px;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
     .row-result-item .row-label { color: #0891b2; font-weight: 700; }
     .row-result-item.placeholder { color: #9ca3af; }
@@ -447,7 +447,7 @@
     }
     .stat-card .label { font-size: 16px; color: #6b7280; }
     .stat-card .value { font-size: 20px; font-weight: 700; }
-    .stat-card .sub   { font-size: 16px; color: #9ca3af; margin-top: 4px; }
+    .stat-card .sub   { font-size: 16px; color: #6b7280; margin-top: 4px; }
 
     /* Huffman Decoder */
     .decoder-block { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #bbf7d0; }
@@ -792,7 +792,7 @@
     }
     .dict-stat-card .label { font-size: 16px; color: #6b7280; }
     .dict-stat-card .value { font-size: 20px; font-weight: 700; }
-    .dict-stat-card .sub   { font-size: 14px; color: #9ca3af; margin-top: 4px; }
+    .dict-stat-card .sub   { font-size: 16px; color: #6b7280; margin-top: 4px; }
 
     .dict-calc-box {
       margin-top: 12px;
@@ -2025,7 +2025,7 @@ function compressDict() {
           <p style="font-weight:700;margin-bottom:8px">📐 압축 후 크기 계산 상세:</p>
           <p>• 압축된 텍스트: <span style="font-family:'Courier New',monospace;font-weight:700;color:#15803d">${compressedTextLen}글자</span></p>
           <p>• 사전 저장 공간: <span style="font-family:'Courier New',monospace;font-weight:700;color:#1d4ed8">${dictLen}글자</span>
-            <span style="color:#9ca3af;margin-left:4px">(${dictDetailSpan})</span></p>
+            <span style="color:#6b7280;margin-left:4px">(${dictDetailSpan})</span></p>
           <p class="total-line">합계: (${compressedTextLen} + ${dictLen})글자 × 8비트 = <span style="color:#15803d">${compressedSize}비트</span></p>
         </div>
       </div>
