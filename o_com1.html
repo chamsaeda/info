@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>무손실 압축 - RLE, 허프만, 사전 기반, LZ77</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+      min-height: 100vh;
+      padding: 20px;
+      font-size: 16px;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to   { transform: translateX(0);     opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-in { animation: slideIn 0.5s ease-out; }
+    .fade-in           { animation: fadeIn  0.5s ease-in-out; }
+
+    /* ===== Layout ===== */
+    .app-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+      overflow: hidden;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background: linear-gradient(to right, #0891b2, #2563eb);
+      padding: 24px;
+      color: #fff;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .header-label { font-size: 14px; color: #cffafe; }
+    .home-btn {
+      background: #fff;
+      color: #0891b2;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .2s;
+    }
+    .home-btn:hover { background: #ecfeff; }
+    .header h1 { font-size: 30px; font-weight: 700; margin-bottom: 4px; }
+    .header p  { color: #cffafe; font-size: 16px; }
+
+    /* ===== Lossless Intro Banner ===== */
+    .intro-banner {
+      background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+      padding: 16px 24px;
+      border-bottom: 2px solid #86efac;
+    }
+    .intro-banner h3 {
+      font-weight: 700;
+      color: #14532d;
+      font-size: 18px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .intro-banner p { color: #1f2937; line-height: 1.6; font-size: 16px; }
+
+    /* ===== Tabs ===== */
+    .tab-bar {
+      background: #f3f4f6;
+      padding: 16px 24px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 16px;
+      white-space: nowrap;
+      transition: all .2s;
+      background: #fff;
+      color: #4b5563;
+    }
+    .tab-btn:hover:not(.active) { background: #f9fafb; }
+    .tab-btn.active {
+      background: linear-gradient(to right, #0891b2, #2563eb);
+      color: #fff;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+    }
+
+    /* ===== Tab Panels ===== */
+    .tab-panel { display: none; padding: 32px; }
+    .tab-panel.active { display: block; }
+
+    /* ===== Utility ===== */
+    .space-y-4 > * + * { margin-top: 16px; }
+    .space-y-6 > * + * { margin-top: 24px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-1 > * + * { margin-top: 4px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mt-1 { margin-top: 4px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+
+    /* ===== Cards ===== */
+    .card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+    }
+    .card h3 { font-weight: 700; color: #111827; font-size: 20px; margin-bottom: 16px; }
+
+    .info-box {
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+    .info-box h3 { font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+    .info-box p  { line-height: 1.6; color: #1f2937; font-size: 16px; }
+    .info-sub {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 16px;
+    }
+
+    /* RLE info */
+    .rle-info  { background: linear-gradient(to right, #ecfeff, #eff6ff); border: 1px solid #a5f3fc; }
+    .rle-info h3 { color: #164e63; }
+    .rle-info .info-sub { background: #fff; border: 1px solid #67e8f9; }
+
+    /* Huffman info */
+    .huff-info { background: linear-gradient(to right, #eff6ff, #eef2ff); border: 1px solid #93c5fd; }
+    .huff-info h3 { color: #1e3a8a; }
+    .huff-info .info-sub { background: #fff; border: 1px solid #93c5fd; }
+
+    /* ===== Grid ===== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 768px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ===== Inputs ===== */
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input[type="text"]:focus, textarea:focus { border-color: #60a5fa; }
+    textarea { height: 128px; resize: vertical; }
+
+    /* ===== Buttons ===== */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all .2s;
+      display: inline-block;
+    }
+    .btn-primary-rle {
+      flex: 1;
+      background: linear-gradient(to right, #0891b2, #2563eb);
+      color: #fff;
+    }
+    .btn-primary-rle:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,.15); }
+    .btn-primary-huff {
+      flex: 1;
+      background: linear-gradient(to right, #2563eb, #4338ca);
+      color: #fff;
+    }
+    .btn-primary-huff:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,.15); }
+    .btn-danger {
+      background: linear-gradient(to right, #fb923c, #ef4444);
+      color: #fff;
+    }
+    .btn-danger:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,.15); }
+    .btn-gray {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .btn-gray:hover { background: #d1d5db; }
+    .btn-green {
+      background: linear-gradient(to right, #22c55e, #16a34a);
+      color: #fff;
+    }
+    .btn-emerald {
+      background: linear-gradient(to right, #10b981, #0d9488);
+      color: #fff;
+    }
+    .btn-gray-plain {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .btn-gray-plain:hover { background: #d1d5db; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-img-compress {
+      background: linear-gradient(to right, #0891b2, #2563eb);
+      color: #fff;
+    }
+    .btn-img-compress:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,.15); }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== Result Blocks ===== */
+    .result-original {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+    }
+    .result-original p.label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 16px; }
+    .result-original p.value { font-family: 'Courier New', monospace; font-size: 18px; color: #111827; word-break: break-all; }
+    .result-original p.size  { font-size: 16px; color: #6b7280; margin-top: 4px; }
+    .result-original p.size span { color: #9ca3af; }
+
+    .arrow-down { text-align: center; font-size: 30px; color: #2563eb; margin: 4px 0; }
+
+    .result-compressed {
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid;
+    }
+    .result-compressed.success { background: #f0fdf4; border-color: #86efac; }
+    .result-compressed.fail    { background: #fef2f2; border-color: #fca5a5; }
+    .result-compressed p.label { font-weight: 700; margin-bottom: 8px; font-size: 16px; }
+    .result-compressed.success p.label { color: #15803d; }
+    .result-compressed.fail    p.label { color: #b91c1c; }
+    .result-compressed p.value { font-family: 'Courier New', monospace; font-size: 18px; word-break: break-all; }
+    .result-compressed.success p.value { color: #14532d; }
+    .result-compressed.fail    p.value { color: #7f1d1d; }
+    .result-compressed p.size  { font-size: 16px; margin-top: 4px; }
+    .result-compressed.success p.size { color: #16a34a; }
+    .result-compressed.fail    p.size { color: #dc2626; }
+    .result-compressed p.size span { color: #9ca3af; }
+
+    .result-ratio {
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid;
+      text-align: center;
+    }
+    .result-ratio.success { background: #eff6ff; border-color: #93c5fd; }
+    .result-ratio.fail    { background: #fef2f2; border-color: #fca5a5; }
+    .result-ratio p { font-size: 24px; font-weight: 700; }
+    .result-ratio.success p { color: #1d4ed8; }
+    .result-ratio.fail    p { color: #b91c1c; }
+    .result-ratio .fail-msg { display: block; font-size: 16px; margin-top: 8px; color: #dc2626; }
+
+    /* ===== Features / Pros-Cons ===== */
+    .features-box {
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid #fde68a;
+      background: linear-gradient(to right, #fefce8, #fff7ed);
+    }
+    .features-box h3 { font-weight: 700; color: #7c2d12; font-size: 18px; margin-bottom: 12px; }
+    .pros-cons-item {
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid;
+    }
+    .pros-cons-item.pros { border-color: #86efac; }
+    .pros-cons-item.cons { border-color: #fca5a5; }
+    .pros-cons-item p.title { font-weight: 700; margin-bottom: 8px; font-size: 16px; }
+    .pros-cons-item.pros p.title { color: #15803d; }
+    .pros-cons-item.cons p.title { color: #b91c1c; }
+    .pros-cons-item ul { font-size: 16px; color: #1f2937; }
+    .pros-cons-item li { margin-bottom: 4px; list-style: none; }
+
+    /* ===== Pixel Grid ===== */
+    .pixel-grid-wrapper { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    .color-btns { display: flex; gap: 8px; margin-bottom: 8px; }
+    .color-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid transparent;
+      font-family: inherit;
+      font-size: 16px;
+    }
+    .pixel-grid { display: flex; flex-direction: column; gap: 4px; }
+    .pixel-row   { display: flex; gap: 4px; }
+    .pixel-cell  {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #666;
+      cursor: pointer;
+      transition: transform .1s;
+    }
+    .pixel-cell:hover { transform: scale(1.1); }
+    .img-result-panel { background: #f3f4f6; padding: 16px; border-radius: 8px; flex: 1; min-width: 200px; }
+    .img-result-panel h5 { font-weight: 700; color: #1f2937; margin-bottom: 12px; font-size: 16px; }
+    .row-result-item {
+      background: #fff;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .row-result-item .row-label { color: #0891b2; font-weight: 700; }
+    .row-result-item.placeholder { color: #9ca3af; }
+
+    .rle-info-purple {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd6fe;
+      background: #f5f3ff;
+      font-size: 16px;
+      color: #374151;
+    }
+    .rle-tip {
+      background: #ecfeff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 16px;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .tip-hint { font-size: 16px; color: #6b7280; margin-top: 8px; }
+
+    /* ===== Huffman specific ===== */
+    .steps-list { display: flex; flex-direction: column; gap: 12px; }
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 16px;
+      color: #1f2937;
+    }
+    .step-num { font-weight: 700; color: #2563eb; min-width: 24px; }
+
+    .section-block {
+      border-left: 4px solid;
+      padding: 16px;
+      border-radius: 4px;
+    }
+    .section-block.blue   { background: #eff6ff; border-color: #3b82f6; }
+    .section-block.green  { background: #f0fdf4; border-color: #22c55e; }
+    .section-block h4     { font-weight: 700; margin-bottom: 12px; font-size: 16px; }
+    .section-block.blue  h4 { color: #1e40af; }
+    .section-block.green h4 { color: #166534; }
+
+    .freq-card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      text-align: center;
+    }
+    .freq-card .char  { font-size: 24px; font-weight: 700; color: #2563eb; margin-bottom: 4px; }
+    .freq-card .count { font-size: 16px; color: #6b7280; }
+
+    /* Huffman Tree SVG */
+    .tree-scroll { overflow-x: auto; }
+    .tree-scroll svg { background: #eff6ff; border-radius: 8px; }
+
+    /* Table */
+    .huff-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+    .huff-table thead { background: #2563eb; color: #fff; }
+    .huff-table th { padding: 12px; text-align: left; font-size: 16px; }
+    .huff-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 16px; }
+    .huff-table tr:hover td { background: #eff6ff; }
+    .huff-table td.char-cell { font-family: 'Courier New', monospace; font-weight: 700; font-size: 18px; }
+    .huff-table td.code-cell { font-family: 'Courier New', monospace; color: #2563eb; font-weight: 700; }
+
+    .compressed-bits {
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .compressed-bits p { font-weight: 700; color: #374151; margin-bottom: 4px; font-size: 16px; }
+    .compressed-bits .bits { font-family: 'Courier New', monospace; font-size: 16px; color: #15803d; word-break: break-all; }
+
+    .stat-card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-card .label { font-size: 16px; color: #6b7280; }
+    .stat-card .value { font-size: 20px; font-weight: 700; }
+    .stat-card .sub   { font-size: 16px; color: #9ca3af; margin-top: 4px; }
+
+    /* Huffman Decoder */
+    .decoder-block { background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #bbf7d0; }
+    .decoder-block .label { font-size: 16px; color: #6b7280; font-weight: 700; margin-bottom: 8px; }
+    .bit-chunk {
+      display: inline-block;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin: 2px 4px 2px 0;
+      font-weight: 700;
+      color: #166534;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+    }
+    .bit-remaining { color: #9ca3af; font-family: 'Courier New', monospace; font-size: 16px; }
+    .decoded-text { font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; color: #15803d; letter-spacing: 4px; min-height: 2rem; }
+    .decoded-empty { color: #d1d5db; font-size: 16px; }
+    .complete-banner {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 12px;
+      color: #166534;
+      font-weight: 700;
+      text-align: center;
+      font-size: 16px;
+    }
+    .code-table { display: flex; flex-wrap: wrap; gap: 8px; }
+    .code-chip {
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 16px;
+      font-family: 'Courier New', monospace;
+    }
+    .decoder-meta { background: #f9fafb; padding: 12px; border-radius: 8px; }
+    .decoder-meta p { font-size: 16px; color: #6b7280; font-weight: 700; margin-bottom: 8px; }
+
+    /* ===== Footer ===== */
+    .footer {
+      text-align: center;
+      padding: 32px;
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer a {
+      display: inline-block;
+      background: linear-gradient(to right, #0891b2, #2563eb);
+      color: #fff;
+      width: 256px;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+      transition: all .2s;
+    }
+    .footer a:hover {
+      background: linear-gradient(to right, #0e7490, #1d4ed8);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,.1);
+    }
+
+    /* ===== Quiz Tab ===== */
+    .quiz-outer {
+      background: linear-gradient(to right, #0891b2, #2563eb);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+    }
+    .quiz-main-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .quiz-progress-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .quiz-progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .quiz-progress-label { font-size: 16px; font-weight: 700; color: #4b5563; }
+    .quiz-progress-count { font-size: 16px; font-weight: 700; color: #0e7490; }
+    .quiz-progress-track {
+      width: 100%;
+      background: #e5e7eb;
+      border-radius: 999px;
+      height: 16px;
+      overflow: hidden;
+    }
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, #06b6d4, #3b82f6);
+      border-radius: 999px;
+      transition: width .5s ease;
+    }
+    .quiz-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,.07);
+    }
+    .quiz-question {
+      font-weight: 700;
+      color: #111827;
+      font-size: 16px;
+      margin-bottom: 12px;
+      cursor: default;
+    }
+    .quiz-question .q-num-special {
+      position: relative;
+      cursor: pointer;
+    }
+    .quiz-tooltip {
+      position: absolute;
+      left: 50%;
+      top: -48px;
+      transform: translateX(-50%);
+      background: #fbcfe8;
+      color: #111827;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 8px 16px rgba(0,0,0,.15);
+      z-index: 50;
+      animation: bounceOnce .4s ease-in-out;
+      pointer-events: none;
+    }
+    @keyframes bounceOnce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(-10px); }
+    }
+    .quiz-option {
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s;
+      margin-bottom: 8px;
+      background: #f9fafb;
+      border-color: #e5e7eb;
+    }
+    .quiz-option:not([disabled]):hover { background: #f3f4f6; }
+    .quiz-option[disabled] { cursor: not-allowed; }
+    .quiz-option.correct  { background: #dcfce7 !important; border-color: #4ade80 !important; }
+    .quiz-option.wrong    { background: #fee2e2 !important; border-color: #f87171 !important; }
+    .quiz-option .opt-mark { font-weight: 600; }
+    .quiz-option .opt-right { color: #16a34a; font-weight: 700; margin-left: 8px; }
+    .quiz-option .opt-wrong { color: #dc2626; font-weight: 700; margin-left: 8px; }
+    .quiz-explain {
+      margin-top: 12px;
+      padding: 12px;
+      background: #ecfeff;
+      border-radius: 8px;
+      border: 1px solid #a5f3fc;
+      font-size: 16px;
+      color: #374151;
+    }
+    .quiz-explain strong { color: #0891b2; }
+    /* Result screen */
+    .quiz-result-card {
+      background: #fff;
+      padding: 32px;
+      border-radius: 8px;
+      border: 1px solid #a5f3fc;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px rgba(0,0,0,.05);
+    }
+    .quiz-result-title { font-size: 24px; font-weight: 700; color: #164e63; margin-bottom: 16px; }
+    .quiz-score-big    { font-size: 64px; font-weight: 700; color: #0891b2; margin-bottom: 16px; }
+    .quiz-result-msg   { font-size: 18px; color: #374151; }
+    .quiz-wrong-list   { text-align: left; margin-bottom: 24px; }
+    .quiz-wrong-item {
+      background: #fef2f2;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+      margin-bottom: 12px;
+    }
+    .quiz-wrong-item .wq  { font-weight: 700; color: #b91c1c; font-size: 16px; margin-bottom: 4px; }
+    .quiz-wrong-item .wa  { font-size: 16px; color: #374151; }
+    .quiz-wrong-item .we  { font-size: 16px; color: #6b7280; margin-top: 4px; }
+
+    /* ===== Knowledge Tab ===== */
+    .know-section {
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid;
+    }
+    .know-cyan   { background: linear-gradient(to right, #ecfeff, #eff6ff); border-color: #a5f3fc; }
+    .know-yellow { background: linear-gradient(to right, #fefce8, #fff7ed); border-color: #fde68a; }
+    .know-green  { background: linear-gradient(to right, #f0fdf4, #ecfdf5); border-color: #86efac; }
+    .know-title  { font-size: 22px; font-weight: 700; color: #164e63; margin-bottom: 16px; }
+    .know-table  { width: 100%; border-collapse: collapse; font-size: 16px; }
+    .know-table thead { background: linear-gradient(to right, #0891b2, #2563eb); color: #fff; }
+    .know-table th { padding: 16px; text-align: left; font-size: 16px; }
+    .know-table td { padding: 16px; border-bottom: 1px solid #e5e7eb; font-size: 16px; }
+    .know-file    { font-weight: 700; }
+    .know-file.cyan   { color: #0891b2; }
+    .know-file.blue   { color: #2563eb; }
+    .know-file.indigo { color: #4f46e5; }
+    .know-file.purple { color: #9333ea; }
+    .know-file.gray   { color: #4b5563; }
+    .hover-cyan:hover td   { background: #ecfeff; }
+    .hover-blue:hover td   { background: #eff6ff; }
+    .hover-indigo:hover td { background: #eef2ff; }
+    .hover-purple:hover td { background: #faf5ff; }
+    .hover-gray:hover td   { background: #f9fafb; }
+    .know-tip-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      border-left: 4px solid;
+    }
+    .know-tip-title { font-weight: 700; margin-bottom: 8px; font-size: 16px; }
+    .know-tip-body  { color: #374151; font-size: 16px; }
+    /* match quiz */
+    .match-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #bbf7d0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .match-inner  { display: flex; align-items: flex-start; gap: 12px; }
+    .match-icon   { font-size: 24px; }
+    .match-data   { font-weight: 700; color: #1f2937; font-size: 16px; margin-bottom: 4px; }
+    .match-code   { background: #dcfce7; padding: 2px 8px; border-radius: 4px; font-family: 'Courier New', monospace; }
+    .match-hint   { color: #6b7280; font-size: 16px; margin-bottom: 12px; }
+    .match-answer {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .match-best   { font-weight: 700; color: #15803d; margin-bottom: 4px; font-size: 16px; }
+    .match-best span { color: #14532d; }
+    .match-reason { color: #374151; font-size: 16px; }
+    .match-btn {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .2s;
+    }
+    .match-btn:hover { background: #16a34a; }
+    /* think cards */
+    .think-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      border-top: 4px solid;
+    }
+    .think-title { font-weight: 700; font-size: 20px; margin-bottom: 12px; }
+    .think-body  { font-size: 16px; color: #374151; line-height: 1.6; }
+
+    /* placeholder tabs */
+    .coming-soon {
+      text-align: center;
+      padding: 80px 32px;
+      color: #9ca3af;
+      font-size: 20px;
+    }
+
+    /* ===== Dictionary Tab ===== */
+    .dict-info  { background: linear-gradient(to right, #eef2ff, #fdf4ff); border: 1px solid #a5b4fc; }
+    .dict-info h3 { color: #312e81; }
+
+    .dict-step-block {
+      border-left: 4px solid;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 0;
+    }
+    .dict-step-block.indigo { background: #eef2ff; border-color: #4f46e5; }
+    .dict-step-block.purple { background: #faf5ff; border-color: #7c3aed; }
+    .dict-step-block.green  { background: #f0fdf4; border-color: #22c55e; }
+    .dict-step-block h4 { font-weight: 700; margin-bottom: 12px; font-size: 16px; }
+    .dict-step-block.indigo h4 { color: #3730a3; }
+    .dict-step-block.purple h4 { color: #5b21b6; }
+    .dict-step-block.green  h4 { color: #166534; }
+
+    .word-freq-card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+    .word-freq-card .word  { font-weight: 700; color: #4f46e5; margin-bottom: 4px; font-size: 16px; }
+    .word-freq-card .count { font-size: 16px; color: #6b7280; }
+
+    .dict-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+    .dict-table thead { background: #7c3aed; color: #fff; }
+    .dict-table th { padding: 8px; text-align: left; font-size: 16px; }
+    .dict-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 16px; }
+    .dict-table .symbol-cell { font-weight: 700; color: #7c3aed; font-size: 20px; }
+    .dict-table .total-row { background: #faf5ff; font-weight: 700; }
+    .dict-table .total-row td { color: #5b21b6; }
+
+    .text-before, .text-after {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .text-after { background: #fff; color: #166534; }
+
+    .dict-stat-card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .dict-stat-card .label { font-size: 16px; color: #6b7280; }
+    .dict-stat-card .value { font-size: 20px; font-weight: 700; }
+    .dict-stat-card .sub   { font-size: 14px; color: #9ca3af; margin-top: 4px; }
+
+    .dict-calc-box {
+      margin-top: 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 16px;
+      color: #374151;
+    }
+    .dict-calc-box p { margin-bottom: 4px; }
+    .dict-calc-box .total-line {
+      border-top: 1px solid #d1d5db;
+      padding-top: 8px;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    /* ===== LZ77 Tab ===== */
+    .lz-info  { background: linear-gradient(to right, #faf5ff, #fdf2f8); border: 1px solid #d8b4fe; }
+    .lz-info h3 { color: #581c87; }
+
+    .lz-original {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      margin-bottom: 0;
+    }
+    .lz-original .label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 16px; }
+    .lz-original .value { font-family: 'Courier New', monospace; font-size: 18px; color: #111827; }
+    .lz-original .size  { font-size: 16px; color: #6b7280; margin-top: 4px; }
+
+    .lz-compressed {
+      background: #faf5ff;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #d8b4fe;
+    }
+    .lz-compressed .label { font-weight: 700; color: #7e22ce; margin-bottom: 8px; font-size: 16px; }
+    .lz-compressed .value { font-family: 'Courier New', monospace; font-size: 18px; color: #581c87; }
+    .lz-compressed .size  { font-size: 16px; color: #9333ea; margin-top: 4px; }
+    .lz-compressed .hint  { font-size: 16px; color: #6b7280; margin-top: 8px; }
+    .lz-compressed code   { background: #ede9fe; padding: 2px 8px; border-radius: 4px; font-family: 'Courier New', monospace; }
+
+    .lz-ratio {
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid;
+      text-align: center;
+    }
+    .lz-ratio.success { background: #f0fdf4; border-color: #86efac; }
+    .lz-ratio.fail    { background: #fef2f2; border-color: #fca5a5; }
+    .lz-ratio p { font-size: 24px; font-weight: 700; }
+    .lz-ratio.success p { color: #15803d; }
+    .lz-ratio.fail    p { color: #b91c1c; }
+    .lz-ratio .fail-msg { display: block; font-size: 16px; margin-top: 8px; color: #dc2626; }
+
+    .lz-note {
+      background: #faf5ff;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd6fe;
+      font-size: 16px;
+      color: #374151;
+    }
+
+    /* LZ step visualizer */
+    .lz-step-viz {
+      margin-top: 16px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #ddd6fe;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .lz-step-viz .viz-title {
+      font-weight: 700;
+      color: #7e22ce;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+    }
+    .char-tokens { display: flex; flex-wrap: wrap; gap: 4px; font-family: 'Courier New', monospace; }
+    .char-token {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 700;
+      border: 1px solid;
+      transition: all .2s;
+    }
+    .char-token.done     { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+    .char-token.current  { background: #7c3aed; color: #fff;    border-color: #5b21b6; transform: scale(1.1); box-shadow: 0 4px 6px rgba(0,0,0,.15); }
+    .char-token.pending  { background: #f3f4f6; color: #374151; border-color: #d1d5db; }
+
+    .step-desc {
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      border: 1px solid;
+    }
+    .step-desc.match   { background: #fefce8; border-color: #fde68a; color: #92400e; }
+    .step-desc.literal { background: #f9fafb; border-color: #e5e7eb; color: #374151; }
+
+    .step-so-far {
+      background: #faf5ff;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #ede9fe;
+      margin-bottom: 12px;
+    }
+    .step-so-far p { font-size: 16px; color: #7e22ce; font-weight: 700; margin-bottom: 4px; }
+    .step-token {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      border: 1px solid;
+      margin: 2px;
+    }
+    .step-token.match   { background: #fef9c3; border-color: #fde047; color: #92400e; }
+    .step-token.literal { background: #fff;    border-color: #e5e7eb; color: #374151; }
+
+    .viz-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .viz-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 16px;
+      transition: all .2s;
+    }
+    .viz-btn.prev   { background: #6b7280; color: #fff; }
+    .viz-btn.next   { background: #9333ea; color: #fff; }
+    .viz-btn.reset  { background: #f97316; color: #fff; }
+    .viz-btn:disabled { opacity: .3; cursor: not-allowed; }
+    .viz-btn:not(:disabled):hover { filter: brightness(1.1); }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="header-label">고등학교 정보 학습자료</div>
+        <a href="index.html" class="home-btn">🏠 홈으로</a>
+      </div>
+      <h1>🗜️ 무손실 압축 알고리즘</h1>
+      <p>데이터를 줄여도 원래대로 복구할 수 있는 마법 같은 기술!</p>
+    </div>
+
+    <!-- Intro Banner -->
+    <div class="intro-banner">
+      <h3><span style="font-size:24px">💡</span> 무손실 압축이란?</h3>
+      <p>
+        원본 데이터를 더 작은 용량으로 만들되, 압축을 풀면 <strong style="color:#15803d">원본과 똑같이 복원</strong>되는 압축 방법이에요.
+        마치 접었던 종이를 펴면 원래대로 돌아오는 것처럼, 데이터를 <strong style="color:#2563eb">손실 없이</strong> 압축했다가 완벽하게 복원할 수 있어요!
+      </p>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('rle')">🔄 RLE 압축</button>
+      <button class="tab-btn"        onclick="switchTab('huffman')">🌳 허프만 코딩</button>
+      <button class="tab-btn"        onclick="switchTab('dictionary')">📖 사전 기반</button>
+      <button class="tab-btn"        onclick="switchTab('lz77')">🔍 LZ77 압축</button>
+      <button class="tab-btn"        onclick="switchTab('quiz')">🎯 퀴즈</button>
+      <button class="tab-btn"        onclick="switchTab('knowledge')">💡 지식 확장</button>
+    </div>
+
+    <!-- ==================== RLE 탭 ==================== -->
+    <div id="tab-rle" class="tab-panel active animate-slide-in">
+
+      <!-- 설명 -->
+      <div class="info-box rle-info mb-6">
+        <h3>🔄 RLE (Run-Length Encoding)란?</h3>
+        <p>
+          <strong style="color:#0891b2">RLE</strong>는 같은 데이터가 연속으로 반복될 때
+          <strong style="color:#2563eb"> "문자+개수"</strong>로 표현하는 압축 방법이에요.
+          예를 들어 <strong style="color:#f97316">"aaaaaabbbb"</strong>를
+          <strong style="color:#16a34a"> "a6b4"</strong>로 줄일 수 있어요! 6개의 a와 4개의 b라는 의미죠! 간단하지만 효과적인 압축 방법이에요!
+        </p>
+        <div class="info-sub">
+          <span class="font-bold" style="color:#0891b2">💡 활용:</span> 흑백 이미지, 팩스 문서, 단순한 그림 파일, 같은 값이 많이 반복되는 데이터 등
+        </div>
+      </div>
+
+      <!-- 텍스트 압축 체험 -->
+      <div class="card mb-6">
+        <h3>📝 텍스트 압축 체험</h3>
+        <input type="text" id="rle-input" value="cchaaaammm" placeholder="압축할 텍스트를 입력하세요 (예: aaabbbccc)" />
+        <div class="btn-row">
+          <button class="btn btn-primary-rle" style="flex:1" onclick="compressRLE()">🗜️ RLE 압축하기!</button>
+          <button class="btn btn-danger" onclick="rleRandomFail()" title="반복이 없는 문자열을 생성하여 압축 실패를 체험해보세요!">🎲 압축 실패 실험</button>
+        </div>
+        <p class="tip-hint">💡 반복이 없으면 RLE는 오히려 용량이 커져요!</p>
+        <div id="rle-result" style="margin-top:24px"></div>
+      </div>
+
+      <!-- 이미지 압축 체험 -->
+      <div class="card mb-6">
+        <h3>🎨 이미지 압축 체험 (픽셀 클릭으로 그림 그리기)</h3>
+        <div class="pixel-grid-wrapper">
+          <!-- 왼쪽 -->
+          <div>
+            <div class="color-btns">
+              <button id="btn-black" class="color-btn" style="background:#000;color:#fff;border-color:#000" onclick="setColor('black')">검은색</button>
+              <button id="btn-white" class="color-btn" style="background:#fff;color:#000;border-color:#d1d5db" onclick="setColor('white')">흰색</button>
+            </div>
+            <div class="pixel-grid" id="pixel-grid"></div>
+          </div>
+          <!-- 오른쪽 -->
+          <div class="img-result-panel">
+            <h5>행별 RLE 압축 결과:</h5>
+            <div id="img-result-rows"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-img-compress" onclick="compressImage()">이미지 압축하기!</button>
+          <button class="btn btn-gray" onclick="resetPixels()">초기화</button>
+        </div>
+
+        <div id="img-result-stats" style="margin-top:24px"></div>
+
+        <div class="rle-tip">
+          💡 <strong>RLE 압축 규칙:</strong><br>
+          • 항상 <strong>흰색부터 시작</strong>하여 흰색과 검은색이 번갈아 나타난다고 가정합니다.<br>
+          • 각 숫자는 해당 색상의 연속 개수를 의미합니다.<br>
+          • 예: "0, 3, 1, 1" = 흰색 0개, 검은색 3개, 흰색 1개, 검은색 1개<br>
+          • 예: "5" = 흰색 5개 (검은색 없음)
+        </div>
+      </div>
+
+      <!-- 장단점 -->
+      <div class="features-box">
+        <h3>📌 RLE의 특징</h3>
+        <div class="grid-2">
+          <div class="pros-cons-item pros">
+            <p class="title">👍 장점</p>
+            <ul class="space-y-1">
+              <li>• 알고리즘이 매우 간단해요.</li>
+              <li>• 압축/해제 속도가 빨라요.</li>
+              <li>• 반복이 많으면 압축률이 뛰어나요.</li>
+            </ul>
+          </div>
+          <div class="pros-cons-item cons">
+            <p class="title">👎 단점</p>
+            <ul class="space-y-1">
+              <li>• 반복이 없으면 오히려 커져요.</li>
+              <li>• 다양한 색상에는 비효율적이에요.</li>
+              <li>• 복잡한 데이터에는 부적합해요.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-rle -->
+
+    <!-- ==================== 허프만 탭 ==================== -->
+    <div id="tab-huffman" class="tab-panel animate-slide-in">
+
+      <!-- 설명 -->
+      <div class="info-box huff-info mb-6">
+        <h3>🌳 허프만 코딩(Huffman Coding)이란?</h3>
+        <p>
+          <strong style="color:#2563eb">허프만 코딩</strong>은 자주 나오는 문자에
+          <strong style="color:#16a34a"> 짧은 코드</strong>를, 드물게 나오는 문자에
+          <strong style="color:#ea580c"> 긴 코드</strong>를 부여하는 방법이에요.
+          마치 자주 쓰는 단어는 줄임말로 쓰는 것과 비슷해요! 예를 들어 "aaa...b"처럼 a가 많이 나오면 a에 "0", b에 "10"처럼 짧은 코드를 붙여서 용량을 줄여요.
+        </p>
+        <div class="info-sub">
+          <span style="font-weight:700;color:#1d4ed8">💡 활용:</span> ZIP 파일, JPEG 이미지의 일부, 텍스트 압축, 데이터를 빠르게 전송할 때 등
+        </div>
+      </div>
+
+      <!-- 원리 -->
+      <div class="card mb-6">
+        <h3>🔢 허프만 코딩 원리</h3>
+        <div class="steps-list">
+          <div class="step-item"><span class="step-num">1.</span><span>각 문자의 <strong style="color:#2563eb">빈도수</strong>를 계산합니다.</span></div>
+          <div class="step-item"><span class="step-num">2.</span><span>빈도수가 <strong style="color:#2563eb">낮은 순서</strong>대로 정렬합니다.</span></div>
+          <div class="step-item"><span class="step-num">3.</span><span>가장 낮은 <strong style="color:#2563eb">2개를 합쳐</strong> 노드를 만듭니다.</span></div>
+          <div class="step-item"><span class="step-num">4.</span><span><strong style="color:#2563eb">트리가 완성</strong>될 때까지 반복합니다.</span></div>
+          <div class="step-item"><span class="step-num">5.</span><span>왼쪽은 <strong style="color:#2563eb">0</strong>, 오른쪽은 <strong style="color:#2563eb">1</strong>을 부여합니다.</span></div>
+        </div>
+      </div>
+
+      <!-- 체험 -->
+      <div class="card mb-6">
+        <h3>✨ 허프만 코딩 체험</h3>
+        <input type="text" id="huff-input" value="cchaaaammm" placeholder="텍스트를 입력하세요 (예: AAABBC)" />
+        <div class="btn-row">
+          <button class="btn btn-primary-huff" style="flex:1" onclick="compressHuffman()">🌳 허프만 압축하기!</button>
+          <button class="btn btn-danger" onclick="huffRandomFail()" title="모든 문자가 1번씩만 나오면 허프만 코드 길이가 균일해져 압축 효과가 없어요!">🎲 압축 실패 실험</button>
+        </div>
+        <p class="tip-hint">💡 모든 문자의 빈도가 같으면 허프만 코드 길이가 균일해져 압축 효과가 거의 없어요!</p>
+        <div id="huff-result" style="margin-top:24px"></div>
+      </div>
+
+      <!-- 특징 -->
+      <div class="features-box">
+        <h3>📌 허프만 코딩의 특징</h3>
+        <div class="grid-2">
+          <div class="pros-cons-item pros">
+            <p class="title">👍 장점</p>
+            <ul class="space-y-1">
+              <li>• 빈도 차이가 크면 압축률이 높아요.</li>
+              <li>• 최적의 접두 부호를 만들어요.</li>
+              <li>• 구현이 매우 단순하고 속도가 빨라요.</li>
+            </ul>
+          </div>
+          <div class="pros-cons-item cons">
+            <p class="title">👎 단점</p>
+            <ul class="space-y-1">
+              <li>• 빈도가 비슷하면 효과가 적어요.</li>
+              <li>• 트리 정보도 함께 저장해야 해요.</li>
+              <li>• 2번 스캔이 필요해요. (빈도 계산 + 압축)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-huffman -->
+
+    <!-- ==================== 사전 기반 탭 ==================== -->
+    <div id="tab-dictionary" class="tab-panel animate-slide-in">
+
+      <!-- 설명 -->
+      <div class="info-box dict-info mb-6">
+        <h3>📖 사전 기반 압축(Dictionary-based Compression)이란?</h3>
+        <p>
+          <strong style="color:#4f46e5">사전 기반 압축</strong>은 자주 나오는 단어나 패턴을
+          <strong style="color:#7c3aed"> 사전에 등록</strong>하고,
+          <strong style="color:#db2777"> 짧은 기호</strong>로 바꾸는 방법이에요.
+          마치 "ㅋㅋ"을 웃음으로 약속하는 것처럼요!
+        </p>
+        <div class="info-sub" style="background:#fff;border:1px solid #a5b4fc">
+          <span style="font-weight:700;color:#4338ca">💡 활용:</span> 문서 파일, 프로그램 코드, HTML 웹페이지, 반복되는 문구가 많은 텍스트 등
+        </div>
+      </div>
+
+      <!-- 체험 -->
+      <div class="card mb-6">
+        <h3>✨ 사전 기반 압축 체험</h3>
+
+        <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:12px;margin-bottom:16px;font-size:16px;color:#312e81">
+          📌 <strong>실제 사전 기반 압축(LZW 등)은 압축하면서 동시에 사전을 자동으로 만들어가요.</strong> 여기서는 먼저 반복되는 단어를 찾아서 짧은 기호로 바꾸는 방식으로 원리를 쉽게 체험할 수 있도록 단순하게 만들었어요.
+        </div>
+
+        <textarea id="dict-input" placeholder="반복되는 단어가 많은 텍스트를 입력하세요">Sorry Sorry Sorry Sorry
+내가 내가 내가 먼저
+네게 네게 네게 빠져</textarea>
+
+        <button class="btn" style="width:100%;background:linear-gradient(to right,#4f46e5,#7c3aed);color:#fff;font-size:18px" onclick="compressDict()">📖 사전 기반 압축하기!</button>
+
+        <div id="dict-result" style="margin-top:24px"></div>
+      </div>
+
+      <!-- 특징 -->
+      <div class="features-box">
+        <h3>📌 사전 기반 압축의 특징</h3>
+        <div class="grid-2">
+          <div class="pros-cons-item pros">
+            <p class="title">👍 장점</p>
+            <ul class="space-y-1">
+              <li>• 반복되는 패턴에 효과적이에요</li>
+              <li>• 단어 단위 압축이 가능해요</li>
+              <li>• 문서 파일에 적합해요</li>
+            </ul>
+          </div>
+          <div class="pros-cons-item cons">
+            <p class="title">👎 단점</p>
+            <ul class="space-y-1">
+              <li>• 사전도 함께 저장해야 해요</li>
+              <li>• 반복이 없으면 비효율적이에요</li>
+              <li>• 사전 크기에 따라 효율이 달라요</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-dictionary -->
+
+    <!-- ==================== LZ77 탭 ==================== -->
+    <div id="tab-lz77" class="tab-panel animate-slide-in">
+
+      <!-- 설명 -->
+      <div class="info-box lz-info mb-6">
+        <h3>🔍 LZ77 압축(Lempel-Ziv Compression : 개발자 이름을 딴 압축법)이란?</h3>
+        <p>
+          <strong style="color:#9333ea">LZ77</strong>은 이미 나왔던 데이터를 다시 가져오는 방법이에요.
+          <strong style="color:#db2777"> "7칸 앞으로 가서 4글자 가져와"</strong>처럼
+          <strong style="color:#2563eb"> (거리, 길이)</strong>로 표현합니다.
+          같은 내용이 반복될 때 "아까 그거랑 똑같아!"라고 표시만 해두는 거예요!
+        </p>
+        <div class="info-sub" style="background:#fff;border:1px solid #d8b4fe">
+          <span style="font-weight:700;color:#7e22ce">💡 활용:</span> ZIP, PNG, GZIP 등 - 가장 많이 사용되는 압축 방식!
+        </div>
+      </div>
+
+      <!-- 슬라이딩 윈도우 원리 -->
+      <div class="card mb-6">
+        <h3>🪟 슬라이딩 윈도우 원리</h3>
+        <div class="steps-list">
+          <div class="step-item"><span class="step-num" style="color:#9333ea">1.</span><span>현재 위치 앞쪽의 <strong style="color:#9333ea">일정 범위</strong>를 검색합니다 (슬라이딩 윈도우)</span></div>
+          <div class="step-item"><span class="step-num" style="color:#9333ea">2.</span><span>같은 패턴이 있는지 <strong style="color:#9333ea">찾아봅니다</strong></span></div>
+          <div class="step-item"><span class="step-num" style="color:#9333ea">3.</span><span>발견하면 <strong style="color:#9333ea">(거리, 길이)</strong>로 표현해요</span></div>
+          <div class="step-item"><span class="step-num" style="color:#9333ea">4.</span><span>못 찾으면 <strong style="color:#9333ea">문자 그대로</strong> 출력해요</span></div>
+        </div>
+      </div>
+
+      <!-- 체험 -->
+      <div class="card mb-6">
+        <h3>✨ LZ77 압축 체험</h3>
+        <input type="text" id="lz-input" value="chamsaechamda" placeholder="압축할 텍스트를 입력하세요 (예: chamsaechamda)" />
+        <div class="btn-row">
+          <button class="btn" style="background:linear-gradient(to right,#9333ea,#db2777);color:#fff;font-size:18px" onclick="compressLZ77()">🔍 LZ77 압축하기!</button>
+          <button class="btn btn-danger" onclick="lzRandomFail()" title="반복 없는 문자열은 LZ 압축 효과가 없어요!">🎲 압축 실패 실험</button>
+        </div>
+        <p class="tip-hint">💡 반복 패턴이 없는 문자열은 LZ 압축 시 오히려 커질 수 있어요!</p>
+        <div id="lz-result" style="margin-top:24px"></div>
+      </div>
+
+      <!-- LZ 계열 구분 -->
+      <div style="background:linear-gradient(to right,#faf5ff,#eef2ff);border-radius:16px;padding:24px;margin-bottom:24px;border:1px solid #d8b4fe">
+        <h3 style="font-size:22px;font-weight:700;color:#581c87;margin-bottom:16px">🔍 LZ 계열 압축 두 가지 구분하기</h3>
+        <div class="grid-2">
+          <div style="background:#fff;border-radius:12px;padding:20px;border-left:4px solid #9333ea;box-shadow:0 1px 3px rgba(0,0,0,.1)">
+            <h4 style="font-weight:700;color:#7e22ce;font-size:18px;margin-bottom:8px">LZ77 (슬라이딩 윈도우)</h4>
+            <div class="space-y-3" style="font-size:16px;color:#374151">
+              <p>→ 이미 나온 데이터를 <strong>뒤쪽에서 참조</strong></p>
+              <p>→ <strong>(거리, 길이)</strong> 쌍으로 표현</p>
+              <p style="background:#faf5ff;padding:8px;border-radius:4px;font-size:16px">📁 ZIP, PNG, GIF(일부), DEFLATE에서 사용</p>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:12px;padding:20px;border-left:4px solid #4f46e5;box-shadow:0 1px 3px rgba(0,0,0,.1)">
+            <h4 style="font-weight:700;color:#3730a3;font-size:18px;margin-bottom:8px">LZW (LZ78의 변형)</h4>
+            <div class="space-y-3" style="font-size:16px;color:#374151">
+              <p>→ 압축하면서 <strong>사전을 동적으로 생성</strong></p>
+              <p>→ 사전 번호(①, ②...)만 기록</p>
+              <p style="background:#eef2ff;padding:8px;border-radius:4px;font-size:16px">📁 GIF, TIFF, PDF, 유닉스 compress에서 사용</p>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:16px;color:#6b7280;margin-top:12px;background:#fff;padding:12px;border-radius:8px;border:1px solid #ede9fe">
+          💡 이 페이지의 LZ 압축 체험은 <strong>LZ77 방식</strong>을 기반으로 합니다.
+          요즘은 LZ77 계열(DEFLATE)이 ZIP, gzip, PNG, 웹 압축 등에서 압도적으로 많이 사용됩니다.
+        </p>
+      </div>
+
+      <!-- 특징 -->
+      <div class="features-box">
+        <h3>📌 LZ77의 특징</h3>
+        <div class="grid-2">
+          <div class="pros-cons-item pros">
+            <p class="title">👍 장점</p>
+            <ul class="space-y-1">
+              <li>• 반복 패턴에 매우 효과적이에요.</li>
+              <li>• 사전 저장이 필요 없어요.</li>
+              <li>• 메모리 사용이 적어요.</li>
+            </ul>
+          </div>
+          <div class="pros-cons-item cons">
+            <p class="title">👎 단점</p>
+            <ul class="space-y-1">
+              <li>• 검색 과정이 필요해요.</li>
+              <li>• 반복이 없으면 효과가 적어요.</li>
+              <li>• 윈도우 크기에 따라 성능이 달라요.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-lz77 -->
+
+    <!-- ==================== 퀴즈 탭 ==================== -->
+    <div id="tab-quiz" class="tab-panel animate-slide-in">
+      <div class="quiz-outer">
+        <h2 class="quiz-main-title">🎯 퀴즈로 복습하기!</h2>
+
+        <!-- 퀴즈 진행 화면 -->
+        <div id="quiz-play">
+          <!-- 진행률 바 -->
+          <div class="quiz-progress-box">
+            <div class="quiz-progress-top">
+              <span class="quiz-progress-label">📋 진행 현황</span>
+              <span id="quiz-progress-count" class="quiz-progress-count">0 / 5 완료</span>
+            </div>
+            <div class="quiz-progress-track">
+              <div id="quiz-progress-bar" class="quiz-progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- 문제 카드들 -->
+          <div id="quiz-cards" class="space-y-4"></div>
+
+          <!-- 결과 확인 버튼 (전체 완료 후 표시) -->
+          <button id="quiz-finish-btn" onclick="showQuizResult()" style="display:none;width:100%;padding:16px;background:linear-gradient(to right,#0891b2,#2563eb);color:#fff;font-weight:700;border:none;border-radius:8px;font-size:18px;cursor:pointer;margin-top:16px;font-family:inherit">
+            🏁 결과 확인하기
+          </button>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="quiz-result" style="display:none;text-align:center">
+          <div class="quiz-result-card">
+            <h3 class="quiz-result-title">🎉 퀴즈 완료!</h3>
+            <div id="quiz-score" class="quiz-score-big"></div>
+            <p id="quiz-result-msg" class="quiz-result-msg"></p>
+          </div>
+          <div id="quiz-wrong-list" class="quiz-wrong-list"></div>
+          <button onclick="resetQuiz()" style="padding:16px 32px;background:linear-gradient(to right,#0891b2,#2563eb);color:#fff;font-weight:700;border:none;border-radius:8px;font-size:18px;cursor:pointer;font-family:inherit">
+            🔄 다시 풀기
+          </button>
+        </div>
+      </div>
+    </div><!-- /tab-quiz -->
+
+    <!-- ==================== 지식 확장 탭 ==================== -->
+    <div id="tab-knowledge" class="tab-panel animate-slide-in">
+
+      <!-- 실제 파일 형식 연결 -->
+      <div class="know-section know-cyan mb-6">
+        <h3 class="know-title">📁 실제 파일 형식과 압축 방법 연결</h3>
+        <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+          <table class="know-table">
+            <thead>
+              <tr>
+                <th>파일 형식</th>
+                <th>내부 압축 구조</th>
+                <th>특징</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="hover-cyan"><td class="know-file cyan">ZIP</td><td>LZ77 + 허프만 (DEFLATE)</td><td>두 가지 압축을 조합해 최적화</td></tr>
+              <tr class="hover-blue"><td class="know-file blue">PNG</td><td>LZ77 기반 (DEFLATE)</td><td>이미지 무손실 압축의 표준</td></tr>
+              <tr class="hover-indigo"><td class="know-file indigo">GIF</td><td>LZW (LZ78 계열)</td><td>256색 제한, 애니메이션 지원</td></tr>
+              <tr class="hover-purple"><td class="know-file purple">FLAC</td><td>선형 예측 + RLE/허프만</td><td>무손실 오디오 압축</td></tr>
+              <tr class="hover-gray"><td class="know-file gray">PDF</td><td>LZW 또는 DEFLATE</td><td>내용에 따라 압축 방식 선택</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 자주 헷갈리는 3가지 -->
+      <div class="know-section know-yellow mb-6">
+        <h3 class="know-title" style="color:#7c2d12">🤔 학생들이 자주 헷갈리는 3가지</h3>
+        <div class="space-y-4">
+          <div class="know-tip-card" style="border-left-color:#facc15">
+            <h4 class="know-tip-title" style="color:#a16207">1. RLE는 왜 색이 자주 바뀌면 용량이 오히려 커질까?</h4>
+            <p class="know-tip-body">문자마다 숫자(길이)를 붙여야 하기 때문이에요. 예를 들어 "abcd" → "a1b1c1d1"로 두 배가 됩니다. 반복이 없을수록 불리해요!</p>
+          </div>
+          <div class="know-tip-card" style="border-left-color:#fb923c">
+            <h4 class="know-tip-title" style="color:#c2410c">2. 허프만 코딩은 왜 항상 최적이라고 할까?</h4>
+            <p class="know-tip-body">주어진 문자 빈도에 대해 <strong>최적의 접두 부호(prefix code)</strong>를 만들어줍니다. 단, 빈도가 모두 같으면 코드 길이도 균일해져 압축 효과가 줄어들어요.</p>
+          </div>
+          <div class="know-tip-card" style="border-left-color:#fbbf24">
+            <h4 class="know-tip-title" style="color:#b45309">3. 허프만 트리는 항상 하나만 만들어질까?</h4>
+            <p class="know-tip-body">아니요! 같은 빈도의 문자가 있을 때 트리는 <strong>여러 개 존재할 수 있어요.</strong> 어느 트리를 선택해도 총 비트 수는 동일하게 최적입니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 어떤 압축이 더 효율적일까? -->
+      <div class="know-section know-green mb-6">
+        <h3 class="know-title" style="color:#14532d">🎯 어떤 압축이 더 효율적일까?</h3>
+        <p style="color:#6b7280;margin-bottom:20px;font-size:16px">데이터 특성에 따라 더 잘 맞는 압축 방법이 있어요. 각 데이터에 어떤 압축이 더 유리할지 생각해보세요!</p>
+        <div class="space-y-4">
+          <div class="match-card" id="match-0">
+            <div class="match-inner">
+              <span class="match-icon">📄</span>
+              <div style="flex:1">
+                <p class="match-data">데이터: <code class="match-code">AAAAAAA</code></p>
+                <p class="match-hint">같은 문자가 길게 반복돼요.</p>
+                <div id="match-ans-0" style="display:none" class="match-answer">
+                  <p class="match-best">✅ 더 유리한 압축: <span>RLE</span></p>
+                  <p class="match-reason">연속 반복 패턴 → RLE가 "A7" 하나로 압축! 허프만도 쓸 수 있지만 이 경우엔 RLE가 가장 간단해요.</p>
+                </div>
+                <button class="match-btn" onclick="revealMatch(0)">정답 확인하기</button>
+              </div>
+            </div>
+          </div>
+          <div class="match-card" id="match-1">
+            <div class="match-inner">
+              <span class="match-icon">🔁</span>
+              <div style="flex:1">
+                <p class="match-data">데이터: <code class="match-code">HelloHelloHello</code></p>
+                <p class="match-hint">같은 단어가 3번 반복돼요.</p>
+                <div id="match-ans-1" style="display:none" class="match-answer">
+                  <p class="match-best">✅ 더 유리한 압축: <span>LZ77 / 사전 기반</span></p>
+                  <p class="match-reason">동일 패턴 반복 → LZ77은 (거리,길이)로, 사전 기반은 기호로 치환. 둘 다 효과적이에요!</p>
+                </div>
+                <button class="match-btn" onclick="revealMatch(1)">정답 확인하기</button>
+              </div>
+            </div>
+          </div>
+          <div class="match-card" id="match-2">
+            <div class="match-inner">
+              <span class="match-icon">🎲</span>
+              <div style="flex:1">
+                <p class="match-data">데이터: <code class="match-code">무작위 데이터 (랜덤)</code></p>
+                <p class="match-hint">패턴이나 반복이 전혀 없어요.</p>
+                <div id="match-ans-2" style="display:none" class="match-answer">
+                  <p class="match-best">✅ 더 유리한 압축: <span>효과 없음</span></p>
+                  <p class="match-reason">어떤 압축을 써도 효과가 없거나 오히려 커질 수 있어요. 이미 압축된 파일(ZIP, MP3)도 같은 이유로 재압축이 안 돼요!</p>
+                </div>
+                <button class="match-btn" onclick="revealMatch(2)">정답 확인하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 생각해보기 -->
+      <div class="know-section know-cyan mb-6">
+        <h3 class="know-title">🤔 생각해보기</h3>
+        <div class="grid-2">
+          <div class="think-card" style="border-top-color:#22d3ee">
+            <h4 class="think-title" style="color:#0e7490">Q. 무손실 압축과 손실 압축의 차이는?</h4>
+            <p class="think-body"><strong style="color:#0e7490">무손실 압축</strong>은 원본을 100% 복원할 수 있어요. 문서, 프로그램처럼 정확해야 하는 파일에 사용합니다. <strong style="color:#f97316"> 손실 압축</strong>은 일부 정보를 버려서 더 작게 만들어요. 사진, 음악, 동영상처럼 약간의 손실이 괜찮은 파일에 사용합니다.</p>
+          </div>
+          <div class="think-card" style="border-top-color:#22d3ee">
+            <h4 class="think-title" style="color:#0e7490">Q. ZIP 파일은 어떤 압축을 사용하나요?</h4>
+            <p class="think-body"><strong style="color:#0e7490">ZIP 파일</strong>은 주로 LZ 압축과 허프만 코딩을 함께 사용해요. 먼저 LZ로 반복 패턴을 찾고, 그 다음 허프만 코딩으로 빈도가 높은 데이터를 더 압축합니다!</p>
+          </div>
+          <div class="think-card" style="border-top-color:#60a5fa">
+            <h4 class="think-title" style="color:#1d4ed8">Q. 압축률은 항상 좋을까요?</h4>
+            <p class="think-body">아니요! <strong style="color:#f97316">반복이나 패턴이 적은 데이터</strong>는 압축률이 낮아요. 예를 들어 완전히 랜덤한 데이터나 이미 압축된 파일은 더 이상 압축이 안 될 수 있어요.</p>
+          </div>
+          <div class="think-card" style="border-top-color:#60a5fa">
+            <h4 class="think-title" style="color:#1d4ed8">Q. 실생활에서 무손실 압축을 어디에 쓸까요?</h4>
+            <p class="think-body"><strong style="color:#0e7490">문서 전송</strong>, <strong style="color:#0e7490">프로그램 설치파일</strong>, <strong style="color:#f97316"> 의료 이미지</strong>, <strong style="color:#f97316">법률 문서</strong> 등 원본이 중요한 모든 곳에서 사용됩니다!</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-knowledge -->
+
+    <!-- Footer -->
+    <div class="footer">
+      <a href="index.html">🏠 홈으로 돌아가기</a>
+    </div>
+  </div><!-- /app-container -->
+
+<script>
+// ==================== Tab switching ====================
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ==================== RLE Logic ====================
+function compressRLE() {
+  const input = document.getElementById('rle-input').value;
+  const out   = document.getElementById('rle-result');
+  if (!input.trim()) { out.innerHTML = '<div style="background:#fef2f2;padding:16px;border-radius:8px;border:1px solid #fca5a5"><p style="color:#b91c1c;font-weight:700">문자열을 입력해주세요!</p></div>'; return; }
+
+  let compressed = '';
+  let count = 1;
+  for (let i = 0; i < input.length; i++) {
+    if (input[i] === input[i + 1]) { count++; }
+    else { compressed += input[i] + count; count = 1; }
+  }
+
+  const originalSize    = input.length * 8;
+  const compressedSize  = compressed.length * 8;
+  const ratio           = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+  const isSuccess       = parseFloat(ratio) >= 0;
+
+  out.innerHTML = `
+    <div class="space-y-4">
+      <div class="result-original">
+        <p class="label">원본 문자열:</p>
+        <p class="value">${escHtml(input)}</p>
+        <p class="size">크기: ${originalSize} bits <span>(${input.length}글자 × 8비트)</span></p>
+      </div>
+      <div class="arrow-down">⬇️</div>
+      <div class="result-compressed ${isSuccess?'success':'fail'}">
+        <p class="label">압축된 결과:</p>
+        <p class="value">${escHtml(compressed)}</p>
+        <p class="size">크기: ${compressedSize} bits <span>(${compressed.length}글자 × 8비트)</span></p>
+      </div>
+      <div class="result-ratio ${isSuccess?'success':'fail'}">
+        <p>압축률: ${ratio}%
+          ${!isSuccess ? `<span class="fail-msg">⚠️ 압축 실패! 오히려 ${Math.abs(parseFloat(ratio)).toFixed(1)}% 더 커졌어요!</span>` : ''}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function rleRandomFail() {
+  const chars = 'abcdefghij'.split('').sort(() => Math.random() - .5).join('');
+  document.getElementById('rle-input').value = chars;
+  document.getElementById('rle-result').innerHTML = '';
+}
+
+// ==================== Pixel Grid ====================
+const COLS = 11, ROWS = 6;
+let pixels = Array(COLS * ROWS).fill('white');
+let currentColor = 'black';
+
+function setColor(c) {
+  currentColor = c;
+  document.getElementById('btn-black').style.borderColor = c === 'black' ? '#000' : '#d1d5db';
+  document.getElementById('btn-white').style.borderColor = c === 'white' ? '#000' : '#d1d5db';
+  document.getElementById('btn-black').style.background   = c === 'black' ? '#000' : '#d1d5db';
+  document.getElementById('btn-black').style.color        = c === 'black' ? '#fff' : '#000';
+}
+
+function togglePixel(idx) {
+  pixels[idx] = currentColor;
+  renderPixelGrid();
+  document.getElementById('img-result-stats').innerHTML = '';
+  renderRowPlaceholders();
+}
+
+function renderPixelGrid() {
+  const grid = document.getElementById('pixel-grid');
+  grid.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    const row = document.createElement('div');
+    row.className = 'pixel-row';
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'pixel-cell';
+      cell.style.backgroundColor = pixels[r * COLS + c];
+      cell.onclick = () => togglePixel(r * COLS + c);
+      row.appendChild(cell);
+    }
+    grid.appendChild(row);
+  }
+}
+
+function renderRowPlaceholders() {
+  const panel = document.getElementById('img-result-rows');
+  let html = '';
+  for (let i = 1; i <= ROWS; i++) {
+    html += `<div class="row-result-item placeholder"><span class="row-label">${i}행:</span> (압축 전)</div>`;
+  }
+  panel.innerHTML = html;
+}
+
+function compressImage() {
+  let compressedRows = [];
+  let totalCompressed = 0;
+  for (let r = 0; r < ROWS; r++) {
+    let rowData = [];
+    let isWhite = true;
+    let count = 0;
+    for (let c = 0; c < COLS; c++) {
+      const cellIsWhite = pixels[r * COLS + c] === 'white';
+      if (cellIsWhite === isWhite) { count++; }
+      else { rowData.push(count); totalCompressed++; isWhite = !isWhite; count = 1; }
+    }
+    rowData.push(count); totalCompressed++;
+    compressedRows.push(rowData.join(', '));
+  }
+
+  const originalBits   = pixels.length * 1;
+  const compressedBits = totalCompressed * 4;
+  const ratio          = ((1 - compressedBits / originalBits) * 100).toFixed(1);
+
+  // Render rows
+  const panel = document.getElementById('img-result-rows');
+  let rowsHtml = '';
+  compressedRows.forEach((row, i) => {
+    rowsHtml += `<div class="row-result-item"><span class="row-label">${i+1}행:</span> ${escHtml(row)}</div>`;
+  });
+  panel.innerHTML = rowsHtml;
+
+  // Render stats
+  const isSuccess = parseFloat(ratio) >= 0;
+  let msg = '연속된 같은 색이 많을수록 효과가 좋고, 색이 자주 바뀌면 오히려 데이터가 더 커질 수 있어요. 실제 이미지 RLE는 행별 압축 외에 전체 픽셀 순서(좌→우, 위→아래)로 연속 압축하기도 합니다.';
+  if (parseFloat(ratio) > 0) msg = '잘 압축됐어요! ' + msg;
+  else if (parseFloat(ratio) < 0) msg = '색상이 자주 바뀌어서 오히려 커졌네요. ' + msg;
+  else msg = '압축 효과가 거의 없어요. ' + msg;
+
+  document.getElementById('img-result-stats').innerHTML = `
+    <div class="space-y-4 mt-2">
+      <div class="result-original">
+        <p class="label">원본 이미지:</p>
+        <p class="value" style="font-size:18px">${pixels.length}픽셀 × 1비트</p>
+        <p class="size">크기: ${originalBits} bits <span>(${pixels.length}픽셀 × 1비트)</span></p>
+      </div>
+      <div class="arrow-down">⬇️</div>
+      <div class="result-compressed ${isSuccess?'success':'fail'}">
+        <p class="label">압축된 결과:</p>
+        <p class="value" style="font-size:18px">${compressedBits} bits</p>
+        <p class="size">크기: ${compressedBits} bits <span>(${compressedBits/4}개 × 4비트, 각 숫자 4비트)</span></p>
+      </div>
+      <div class="rle-info-purple">
+        🔢 <strong>왜 4비트?</strong> 한 행이 11칸이므로 각 숫자는 최대 11까지 표현해야 합니다. 11을 이진수로 나타내면 <strong>1011</strong>로 <strong>4비트</strong>가 필요합니다. (3비트는 0~7까지만 표현 가능)
+      </div>
+      <div class="result-ratio ${isSuccess?'success':'fail'}">
+        <p>압축률: ${ratio}%
+          ${!isSuccess ? `<span class="fail-msg">⚠️ 압축 실패! 오히려 ${Math.abs(parseFloat(ratio)).toFixed(1)}% 더 커졌어요!</span>` : ''}
+        </p>
+      </div>
+      <div style="padding:16px;border-radius:8px;border:1px solid #fde68a;background:#fefce8">
+        <p style="font-size:16px;color:#374151">💡 ${escHtml(msg)}</p>
+      </div>
+    </div>
+  `;
+}
+
+function resetPixels() {
+  pixels = Array(COLS * ROWS).fill('white');
+  renderPixelGrid();
+  renderRowPlaceholders();
+  document.getElementById('img-result-stats').innerHTML = '';
+}
+
+// ==================== Huffman Logic ====================
+function buildHuffmanTree(freqMap) {
+  let nodes = Object.entries(freqMap).map(([char, freq]) => ({ char, freq, left: null, right: null }));
+  nodes.sort((a, b) => a.freq - b.freq);
+  while (nodes.length > 1) {
+    const left  = nodes.shift();
+    const right = nodes.shift();
+    const parent = { char: null, freq: left.freq + right.freq, left, right };
+    let inserted = false;
+    for (let i = 0; i < nodes.length; i++) {
+      if (parent.freq <= nodes[i].freq) { nodes.splice(i, 0, parent); inserted = true; break; }
+    }
+    if (!inserted) nodes.push(parent);
+  }
+  return nodes[0];
+}
+
+function generateHuffmanCodes(node, code, codes) {
+  code  = code  || '';
+  codes = codes || {};
+  if (!node) return codes;
+  if (node.char !== null) { codes[node.char] = code || '0'; return codes; }
+  generateHuffmanCodes(node.left,  code + '0', codes);
+  generateHuffmanCodes(node.right, code + '1', codes);
+  return codes;
+}
+
+function compressHuffman() {
+  const input = document.getElementById('huff-input').value;
+  const out   = document.getElementById('huff-result');
+  if (!input.trim()) { out.innerHTML = '<div style="background:#fef2f2;padding:16px;border-radius:8px;border:1px solid #fca5a5"><p style="color:#b91c1c;font-weight:700">텍스트를 입력해주세요!</p></div>'; return; }
+
+  const freqMap = {};
+  for (const ch of input) freqMap[ch] = (freqMap[ch] || 0) + 1;
+  const sorted = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+  const tree   = buildHuffmanTree(freqMap);
+  const codes  = generateHuffmanCodes(tree);
+
+  let compressed = '';
+  for (const ch of input) compressed += codes[ch];
+
+  const originalSize   = input.length * 8;
+  const compressedSize = compressed.length;
+  const ratio          = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+
+  // 1단계: 빈도수
+  let freqCardsHtml = sorted.map(([ch, cnt]) => `
+    <div class="freq-card">
+      <div class="char">'${escHtml(ch)}'</div>
+      <div class="count">빈도: ${cnt}번</div>
+    </div>
+  `).join('');
+
+  // 2단계: 트리 SVG
+  const treeSvg = renderHuffmanTreeSVG(tree);
+
+  // 3단계: 코드표
+  let tableRowsHtml = sorted.map(([ch, cnt]) => `
+    <tr>
+      <td class="char-cell">'${escHtml(ch)}'</td>
+      <td>${cnt}회</td>
+      <td class="code-cell">${codes[ch]}</td>
+      <td>${codes[ch].length} bits</td>
+    </tr>
+  `).join('');
+
+  // 4단계: 결과
+  const statCards = `
+    <div class="stat-card"><p class="label">원본 크기</p><p class="value" style="color:#1f2937">${originalSize} bits</p><p class="sub">(${input.length}글자 × 8비트 = ${originalSize}비트)</p></div>
+    <div class="stat-card"><p class="label">압축 후 크기</p><p class="value" style="color:#15803d">${compressedSize} bits</p></div>
+    <div class="stat-card"><p class="label">압축률</p><p class="value" style="color:#1d4ed8">${ratio}%</p></div>
+  `;
+
+  // 5단계: 복호화
+  const decoderHtml = renderDecoderUI(compressed, codes, input);
+
+  out.innerHTML = `
+    <div class="space-y-6">
+      <div class="section-block blue">
+        <h4>📊 1단계: 각 문자의 빈도수</h4>
+        <div class="grid-4">${freqCardsHtml}</div>
+      </div>
+      <div class="section-block blue">
+        <h4>🌳 2단계: 허프만 트리</h4>
+        <div class="tree-scroll">${treeSvg}</div>
+        <p style="font-size:16px;color:#6b7280;margin-top:8px">💡 왼쪽 가지는 0, 오른쪽 가지는 1입니다</p>
+        <p style="font-size:16px">💡 <span style="font-weight:700;color:#16a34a">초록색 원</span>은 실제 문자(리프 노드), <span style="font-weight:700;color:#2563eb">파란색 원</span>은 빈도수 합(내부 노드)</p>
+      </div>
+      <div class="section-block blue">
+        <h4>🔢 3단계: 각 문자의 허프만 코드</h4>
+        <div style="overflow-x:auto">
+          <table class="huff-table">
+            <thead><tr><th>문자</th><th>빈도</th><th>허프만 코드</th><th>비트 수</th></tr></thead>
+            <tbody>${tableRowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section-block green">
+        <h4>✅ 4단계: 압축 결과</h4>
+        <div class="compressed-bits"><p>압축된 비트열:</p><div class="bits">${escHtml(compressed)}</div></div>
+        <div class="grid-3">${statCards}</div>
+      </div>
+      <div class="section-block green">
+        <h4>🔓 5단계: 복호화 체험 (압축 → 원본 복원)</h4>
+        <p style="color:#374151;margin-bottom:12px;font-size:16px">압축된 비트열을 코드표로 한 글자씩 해석해서 원본을 복원해 봐요!</p>
+        ${decoderHtml}
+      </div>
+    </div>
+  `;
+
+  // After injecting, setup decoder interactivity
+  setupDecoder(compressed, codes, input);
+}
+
+function huffRandomFail() {
+  const chars = 'abcdefghij'.split('').sort(() => Math.random() - .5).join('');
+  document.getElementById('huff-input').value = chars;
+  document.getElementById('huff-result').innerHTML = '';
+}
+
+// ==================== Huffman Tree SVG ====================
+function getTreeDepth(node) {
+  if (!node) return 0;
+  return 1 + Math.max(getTreeDepth(node.left), getTreeDepth(node.right));
+}
+
+function renderHuffmanTreeSVG(tree) {
+  const depth    = getTreeDepth(tree);
+  const svgH     = Math.max(300, depth * 80 + 60);
+  const svgW     = Math.max(500, Math.pow(2, depth - 1) * 60);
+  const startX   = svgW / 2;
+  let svgContent = '';
+
+  function renderNode(node, x, y, level, direction, parentSpacing) {
+    if (!node) return;
+    const isLeaf  = node.char !== null;
+    const spacing = parentSpacing / 2;
+
+    if (node.left) {
+      svgContent += `<line x1="${x}" y1="${y}" x2="${x - spacing}" y2="${y + 75}" stroke="#64748b" stroke-width="2"/>`;
+      renderNode(node.left, x - spacing, y + 75, level + 1, 'left', spacing);
+    }
+    if (node.right) {
+      svgContent += `<line x1="${x}" y1="${y}" x2="${x + spacing}" y2="${y + 75}" stroke="#64748b" stroke-width="2"/>`;
+      renderNode(node.right, x + spacing, y + 75, level + 1, 'right', spacing);
+    }
+    svgContent += `<circle cx="${x}" cy="${y}" r="22" fill="${isLeaf ? '#10b981' : '#3b82f6'}" stroke="#1e40af" stroke-width="2"/>`;
+    svgContent += `<text x="${x}" y="${y + 5}" text-anchor="middle" fill="white" font-size="13" font-weight="bold">${isLeaf ? `'${escHtml(node.char)}'` : node.freq}</text>`;
+    if (direction) {
+      svgContent += `<text x="${x}" y="${y - 30}" text-anchor="middle" fill="#1e293b" font-size="15" font-weight="bold">${direction === 'left' ? '0' : '1'}</text>`;
+    }
+  }
+
+  renderNode(tree, startX, 40, 0, null, svgW / 2);
+  return `<svg width="${svgW}" height="${svgH}" style="min-width:100%">${svgContent}</svg>`;
+}
+
+// ==================== Huffman Decoder UI ====================
+let decoderState = { compressed: '', codes: {}, original: '', step: 0, decoded: [], allDecoded: [] };
+
+function getAllDecoded(compressed, codes) {
+  const reverseCodes = {};
+  Object.entries(codes).forEach(([ch, code]) => { reverseCodes[code] = ch; });
+  let result = [], buf = '';
+  for (let c of compressed) {
+    buf += c;
+    if (reverseCodes[buf] !== undefined) { result.push({ bits: buf, char: reverseCodes[buf] }); buf = ''; }
+  }
+  return result;
+}
+
+function renderDecoderUI(compressed, codes, original) {
+  return `
+    <div id="decoder-container" class="space-y-4">
+      <div class="decoder-block">
+        <p class="label" style="font-weight:700;font-size:16px;color:#6b7280;margin-bottom:8px">압축된 비트열 (분리하며 읽기):</p>
+        <div id="decoder-bits" style="font-family:'Courier New',monospace;font-size:16px;word-break:break-all;line-height:2">
+          <span class="bit-remaining">${escHtml(compressed)}</span>
+        </div>
+      </div>
+      <div class="decoder-block">
+        <p class="label" style="font-weight:700;font-size:16px;color:#6b7280;margin-bottom:8px">복원된 문자:</p>
+        <div id="decoder-text" class="decoded-text"><span class="decoded-empty">아직 없음</span></div>
+      </div>
+      <div id="decoder-complete"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="decoderStepOne()">▶ 한 글자씩 복호화</button>
+        <button class="btn btn-emerald" onclick="decoderAll()">⏩ 전체 복호화</button>
+        <button class="btn btn-gray-plain" onclick="decoderReset()">🔄 초기화</button>
+      </div>
+      <div class="decoder-meta">
+        <p style="font-size:16px;color:#6b7280;font-weight:700;margin-bottom:8px">📋 코드표 (이걸 보고 비트열을 해석해요):</p>
+        <div class="code-table" id="decoder-code-table"></div>
+      </div>
+    </div>
+  `;
+}
+
+function setupDecoder(compressed, codes, original) {
+  decoderState = {
+    compressed,
+    codes,
+    original,
+    step: 0,
+    decoded: [],
+    allDecoded: getAllDecoded(compressed, codes)
+  };
+  // Render code table
+  const ct = document.getElementById('decoder-code-table');
+  if (ct) {
+    const sorted = Object.entries(codes).sort((a,b) => a[1].length - b[1].length);
+    ct.innerHTML = sorted.map(([ch, code]) => `<span class="code-chip">'${escHtml(ch)}' → ${code}</span>`).join('');
+  }
+  updateDecoderDisplay();
+}
+
+function updateDecoderDisplay() {
+  const { compressed, decoded, allDecoded } = decoderState;
+  const bitsUsed = decoded.reduce((acc, d) => acc + d.bits.length, 0);
+
+  const bitsEl = document.getElementById('decoder-bits');
+  if (bitsEl) {
+    let html = '';
+    decoded.forEach((d, i) => {
+      html += `<span class="bit-chunk" title="→ '${escHtml(d.char)}'">${d.bits}</span>`;
+    });
+    html += `<span class="bit-remaining">${escHtml(compressed.slice(bitsUsed))}</span>`;
+    bitsEl.innerHTML = html;
+  }
+
+  const textEl = document.getElementById('decoder-text');
+  if (textEl) {
+    const txt = decoded.map(d => d.char).join('');
+    textEl.innerHTML = txt ? escHtml(txt) : '<span class="decoded-empty">아직 없음</span>';
+  }
+
+  const completeEl = document.getElementById('decoder-complete');
+  if (completeEl) {
+    const txt = decoded.map(d => d.char).join('');
+    if (txt === decoderState.original && txt.length > 0) {
+      completeEl.innerHTML = `<div class="complete-banner">🎉 완벽하게 복원됐어요! 원본 "${escHtml(decoderState.original)}"과 100% 일치합니다!</div>`;
+    } else {
+      completeEl.innerHTML = '';
+    }
+  }
+}
+
+function decoderStepOne() {
+  const { allDecoded, step } = decoderState;
+  if (step < allDecoded.length) {
+    decoderState.decoded = allDecoded.slice(0, step + 1);
+    decoderState.step++;
+    updateDecoderDisplay();
+  }
+}
+
+function decoderAll() {
+  decoderState.decoded = [...decoderState.allDecoded];
+  decoderState.step    = decoderState.allDecoded.length;
+  updateDecoderDisplay();
+}
+
+function decoderReset() {
+  decoderState.decoded = [];
+  decoderState.step    = 0;
+  updateDecoderDisplay();
+}
+
+// ==================== Dictionary Compression ====================
+function compressDict() {
+  const input = document.getElementById('dict-input').value;
+  const out   = document.getElementById('dict-result');
+  if (!input.trim()) {
+    out.innerHTML = '<div style="background:#fef2f2;padding:16px;border-radius:8px;border:1px solid #fca5a5"><p style="color:#b91c1c;font-weight:700">텍스트를 입력해주세요!</p></div>';
+    return;
+  }
+
+  const words = input.split(/\s+/);
+  const wordCount = {};
+  words.forEach(w => { wordCount[w] = (wordCount[w] || 0) + 1; });
+
+  const repeatedWords = Object.entries(wordCount)
+    .filter(([_, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1]);
+
+  const symbols = '①②③④⑤⑥⑦⑧⑨⑩';
+  const dictionary = {};
+  repeatedWords.forEach(([word, _], i) => {
+    dictionary[word] = symbols[i] || `(${i+1})`;
+  });
+
+  let compressed = input;
+  Object.entries(dictionary).forEach(([word, symbol]) => {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?<=[\\s]|^)${escaped}(?=[\\s]|$)`, 'gm');
+    compressed = compressed.replace(regex, symbol);
+  });
+
+  const originalSize      = input.length * 8;
+  const compressedTextLen = compressed.length;
+  const dictDetail = Object.entries(dictionary).map(([word, symbol]) => ({
+    word, symbol, len: word.length + symbol.length
+  }));
+  const dictLen      = dictDetail.reduce((sum, d) => sum + d.len, 0);
+  const compressedSize = (compressedTextLen + dictLen) * 8;
+  const ratio          = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+
+  // 1단계: 반복 단어 카드
+  let freqCardsHtml = '';
+  if (repeatedWords.length === 0) {
+    freqCardsHtml = '<p style="color:#6b7280;font-size:16px">반복되는 단어가 없어요.</p>';
+  } else {
+    freqCardsHtml = `<div class="grid-4">` + repeatedWords.map(([word, count]) => `
+      <div class="word-freq-card">
+        <div class="word">"${escHtml(word)}"</div>
+        <div class="count">${count}회 반복</div>
+      </div>
+    `).join('') + `</div>`;
+  }
+
+  // 2단계: 사전 테이블
+  let dictTableRows = dictDetail.map(({ word, symbol, len }) => `
+    <tr>
+      <td style="padding:8px;font-family:'Courier New',monospace">"${escHtml(word)}"</td>
+      <td style="padding:8px;text-align:center;color:#6b7280">${word.length}글자</td>
+      <td style="padding:8px;text-align:center">→</td>
+      <td class="symbol-cell" style="padding:8px">${symbol}</td>
+      <td style="padding:8px;text-align:center;color:#6b7280">${symbol.length}글자</td>
+      <td style="padding:8px;text-align:center;font-weight:700;color:#7c3aed">${len}글자</td>
+    </tr>
+  `).join('');
+
+  // 압축 후 크기 상세 계산 span
+  const dictDetailSpan = dictDetail.map((d, i) =>
+    `${i > 0 ? ' + ' : ''}${escHtml(d.word)}→${d.symbol}(${d.len})`
+  ).join('');
+
+  out.innerHTML = `
+    <div class="space-y-6">
+      <div class="dict-step-block indigo">
+        <h4>📊 1단계: 반복되는 단어 찾기</h4>
+        ${freqCardsHtml}
+      </div>
+
+      <div class="dict-step-block purple">
+        <h4>📕 2단계: 사전 만들기</h4>
+        ${repeatedWords.length === 0
+          ? '<p style="color:#6b7280;font-size:16px">사전에 등록할 단어가 없어요.</p>'
+          : `<div style="overflow-x:auto">
+              <table class="dict-table">
+                <thead>
+                  <tr>
+                    <th style="padding:8px;text-align:left">단어</th>
+                    <th style="padding:8px;text-align:center">단어 글자 수</th>
+                    <th style="padding:8px">→</th>
+                    <th style="padding:8px;text-align:left">기호</th>
+                    <th style="padding:8px;text-align:center">기호 글자 수</th>
+                    <th style="padding:8px;text-align:center">합계 글자 수</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${dictTableRows}
+                  <tr class="total-row">
+                    <td colspan="5" style="padding:8px">사전 전체 글자 수 합계</td>
+                    <td style="padding:8px;text-align:center;color:#5b21b6">${dictLen}글자</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>`
+        }
+      </div>
+
+      <div class="dict-step-block green">
+        <h4>✅ 3단계: 압축 결과</h4>
+
+        <div style="background:#f9fafb;padding:16px;border-radius:8px;margin-bottom:12px">
+          <p style="font-weight:700;color:#374151;margin-bottom:8px;font-size:16px">원본:</p>
+          <p class="text-before">${escHtml(input)}</p>
+        </div>
+
+        <div class="arrow-down">⬇️</div>
+
+        <div style="background:#fff;padding:16px;border-radius:8px;margin-bottom:12px">
+          <p style="font-weight:700;color:#15803d;margin-bottom:8px;font-size:16px">압축 후:</p>
+          <p class="text-after">${escHtml(compressed)}</p>
+        </div>
+
+        <div class="grid-3" style="margin-bottom:12px">
+          <div class="dict-stat-card">
+            <p class="label">원본 크기</p>
+            <p class="value" style="color:#1f2937">${originalSize} bits</p>
+            <p class="sub">(${input.length}글자 × 8비트 = ${originalSize}비트)</p>
+          </div>
+          <div class="dict-stat-card">
+            <p class="label">압축 후 크기</p>
+            <p class="value" style="color:#15803d">${compressedSize} bits</p>
+            <p class="sub">(압축문자 ${compressedTextLen}글자 + 사전 ${dictLen}글자) × 8비트</p>
+          </div>
+          <div class="dict-stat-card">
+            <p class="label">압축률</p>
+            <p class="value" style="color:#1d4ed8">${ratio}%</p>
+          </div>
+        </div>
+
+        <div class="dict-calc-box">
+          <p style="font-weight:700;margin-bottom:8px">📐 압축 후 크기 계산 상세:</p>
+          <p>• 압축된 텍스트: <span style="font-family:'Courier New',monospace;font-weight:700;color:#15803d">${compressedTextLen}글자</span></p>
+          <p>• 사전 저장 공간: <span style="font-family:'Courier New',monospace;font-weight:700;color:#1d4ed8">${dictLen}글자</span>
+            <span style="color:#9ca3af;margin-left:4px">(${dictDetailSpan})</span></p>
+          <p class="total-line">합계: (${compressedTextLen} + ${dictLen})글자 × 8비트 = <span style="color:#15803d">${compressedSize}비트</span></p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== LZ77 Compression ====================
+let lzStepsData = [];
+let lzCurrentStep = -1;
+let lzInputCache = '';
+
+function compressLZ77() {
+  const input = document.getElementById('lz-input').value;
+  const out   = document.getElementById('lz-result');
+  if (!input.trim()) {
+    out.innerHTML = '<div style="background:#fef2f2;padding:16px;border-radius:8px;border:1px solid #fca5a5"><p style="color:#b91c1c;font-weight:700">텍스트를 입력해주세요!</p></div>';
+    return;
+  }
+
+  lzInputCache = input;
+  lzCurrentStep = -1;
+
+  const windowSize = 20;
+  let compressed = [];
+  let steps = [];
+  let i = 0;
+
+  while (i < input.length) {
+    let matchLength = 0, matchDistance = 0;
+    const searchStart = Math.max(0, i - windowSize);
+
+    for (let j = searchStart; j < i; j++) {
+      let length = 0;
+      while (i + length < input.length && input[j + length] === input[i + length] && length < 15) {
+        length++;
+      }
+      if (length > matchLength) { matchLength = length; matchDistance = i - j; }
+    }
+
+    if (matchLength >= 3) {
+      compressed.push(`(${matchDistance},${matchLength})`);
+      steps.push({ type: 'match', position: i, distance: matchDistance, length: matchLength,
+        original: input.substring(i, i + matchLength), compressed: `(${matchDistance},${matchLength})` });
+      i += matchLength;
+    } else {
+      compressed.push(input[i]);
+      steps.push({ type: 'literal', position: i, char: input[i] });
+      i++;
+    }
+  }
+
+  const compressedStr = compressed.join('');
+  let compressedBytes = 0;
+  for (let item of compressed) {
+    compressedBytes += item.startsWith('(') ? 2 : 1;
+  }
+  const originalBytes = input.length;
+  const ratio = ((1 - compressedBytes / originalBytes) * 100).toFixed(1);
+  const isSuccess = parseFloat(ratio) >= 0;
+
+  lzStepsData = steps;
+
+  out.innerHTML = `
+    <div class="space-y-6">
+      <div class="lz-original">
+        <p class="label">원본:</p>
+        <p class="value">${escHtml(input)}</p>
+        <p class="size">크기: ${originalBytes}바이트 (${input.length}글자)</p>
+      </div>
+
+      <div class="arrow-down">⬇️</div>
+
+      <div class="lz-compressed">
+        <p class="label">압축 결과:</p>
+        <p class="value">${escHtml(compressedStr)}</p>
+        <p class="size">크기: ${compressedBytes}바이트</p>
+        <p class="hint">💡 <code>(거리,길이)</code>는 "현재 위치에서 왼쪽으로 '거리'만큼 이동한 곳부터 '길이'만큼 가져와라"는 뜻이에요!</p>
+        <p class="hint">예: <code>(7,4)</code>는 7칸 왼쪽부터 4글자를 복사한다는 의미입니다.</p>
+      </div>
+
+      <div class="lz-ratio ${isSuccess ? 'success' : 'fail'}">
+        <p>압축률: ${ratio}% ${isSuccess ? '절약!' : '증가'}
+          ${!isSuccess ? `<span class="fail-msg">⚠️ 오히려 ${Math.abs(parseFloat(ratio)).toFixed(1)}% 더 커졌어요!</span>` : ''}
+        </p>
+      </div>
+
+      <div class="lz-note">
+        📌 <strong>계산 기준:</strong> 학습 단순화 모델에서 (거리,길이) 쌍은 하나의 기호로 보아 2바이트로 계산했습니다.
+      </div>
+
+      <div class="lz-step-viz" id="lz-viz">
+        <p class="viz-title"><span style="font-size:18px">🪟</span> 슬라이딩 윈도우 단계별 보기</p>
+        <div style="margin-bottom:16px">
+          <p style="font-size:16px;color:#9ca3af;margin-bottom:8px;font-weight:500">원본 문자열:</p>
+          <div class="char-tokens" id="lz-char-tokens"></div>
+        </div>
+        <div id="lz-step-desc"></div>
+        <div id="lz-step-so-far"></div>
+        <div class="viz-controls">
+          <button class="viz-btn prev"  id="lz-btn-prev"  onclick="lzStepPrev()">← 이전</button>
+          <button class="viz-btn next"  id="lz-btn-next"  onclick="lzStepNext()">다음 →</button>
+          <button class="viz-btn reset" onclick="lzStepReset()">🔄 초기화</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  lzRenderViz();
+}
+
+function lzRenderViz() {
+  const input = lzInputCache;
+  const step  = lzCurrentStep >= 0 ? lzStepsData[lzCurrentStep] : null;
+
+  // Char tokens
+  const tokensEl = document.getElementById('lz-char-tokens');
+  if (!tokensEl) return;
+  let tokensHtml = '';
+  for (let i = 0; i < input.length; i++) {
+    let cls = 'pending';
+    if (step) {
+      const pos = step.position;
+      const len = step.type === 'match' ? step.length : 1;
+      if (i >= pos && i < pos + len) cls = 'current';
+      else if (i < pos) cls = 'done';
+    }
+    tokensHtml += `<span class="char-token ${cls}">${escHtml(input[i])}</span>`;
+  }
+  tokensEl.innerHTML = tokensHtml;
+
+  // Step description
+  const descEl = document.getElementById('lz-step-desc');
+  if (descEl) {
+    if (step) {
+      if (step.type === 'match') {
+        descEl.innerHTML = `<div class="step-desc match">
+          ✅ 위치 ${step.position}: <code style="background:#fff;padding:2px 4px;border-radius:4px;border:1px solid #fde68a">"${escHtml(step.original)}"</code> 발견!
+          → <code style="background:#ede9fe;padding:2px 4px;border-radius:4px;border:1px solid #c4b5fd">${escHtml(step.compressed)}</code> 으로 압축
+          <span style="margin-left:8px;color:#92400e">(이전에 나온 패턴 재사용)</span>
+        </div>`;
+      } else {
+        descEl.innerHTML = `<div class="step-desc literal">
+          📝 위치 ${step.position}: 문자 <code style="background:#fff;padding:2px 4px;border-radius:4px;border:1px solid #d1d5db">'${escHtml(step.char)}'</code> 그대로 출력
+          <span style="margin-left:8px;color:#9ca3af">(매칭 없음)</span>
+        </div>`;
+      }
+    } else {
+      descEl.innerHTML = '';
+    }
+  }
+
+  // Steps so far
+  const soFarEl = document.getElementById('lz-step-so-far');
+  if (soFarEl && lzCurrentStep >= 0) {
+    const visible = lzStepsData.slice(0, lzCurrentStep + 1);
+    const tokensStr = visible.map(s =>
+      s.type === 'match'
+        ? `<span class="step-token match">${escHtml(s.compressed)}</span>`
+        : `<span class="step-token literal">${escHtml(s.char)}</span>`
+    ).join('');
+    soFarEl.innerHTML = `<div class="step-so-far"><p>지금까지 압축 결과:</p><div style="display:flex;flex-wrap:wrap;gap:2px">${tokensStr}</div></div>`;
+  } else if (soFarEl) {
+    soFarEl.innerHTML = '';
+  }
+
+  // Buttons
+  const prevBtn = document.getElementById('lz-btn-prev');
+  const nextBtn = document.getElementById('lz-btn-next');
+  if (prevBtn) prevBtn.disabled = lzCurrentStep <= -1;
+  if (nextBtn) nextBtn.disabled = lzCurrentStep >= lzStepsData.length - 1;
+}
+
+function lzStepNext()  { if (lzCurrentStep < lzStepsData.length - 1) { lzCurrentStep++; lzRenderViz(); } }
+function lzStepPrev()  { if (lzCurrentStep > -1) { lzCurrentStep--; lzRenderViz(); } }
+function lzStepReset() { lzCurrentStep = -1; lzRenderViz(); }
+
+function lzRandomFail() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('').sort(() => Math.random() - .5);
+  document.getElementById('lz-input').value = chars.slice(0, 18).join('');
+  document.getElementById('lz-result').innerHTML = '';
+  lzStepsData = []; lzCurrentStep = -1; lzInputCache = '';
+}
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ==================== Quiz Logic ====================
+const quizData = [
+  {
+    id: 1,
+    question: 'RLE 압축에 대한 설명으로 올바른 것은?',
+    options: ['자주 나오는 문자에 짧은 코드를 부여한다', '같은 데이터가 연속으로 반복될 때 횟수로 표현한다', '이전에 나온 패턴을 참조한다', '단어를 사전에 등록하여 압축한다'],
+    correct: 1,
+    explanation: 'RLE는 Run-Length Encoding의 약자로, 같은 데이터가 연속으로 반복될 때 "문자+횟수"로 표현하는 압축 방법입니다.'
+  },
+  {
+    id: 2,
+    question: '허프만 코딩에서 자주 나오는 문자의 코드 길이는?',
+    options: ['항상 8비트', '짧다', '길다', '랜덤'],
+    correct: 1,
+    explanation: '허프만 코딩은 자주 나오는 문자에 짧은 코드를, 드물게 나오는 문자에 긴 코드를 부여하여 전체 크기를 줄입니다.'
+  },
+  {
+    id: 3,
+    question: 'LZ77 압축에서 사용하는 표현 방식은?',
+    options: ['문자+횟수', '빈도수+코드', '(거리, 길이)', '사전번호'],
+    correct: 2,
+    explanation: 'LZ77은 이전에 나온 데이터를 "몇 칸 뒤로 가서 몇 글자 가져와"라는 식의 (거리, 길이) 쌍으로 표현합니다.'
+  },
+  {
+    id: 4,
+    question: '다음 중 무손실 압축이 아닌 것은?',
+    options: ['RLE', '허프만 코딩', 'JPEG 압축', 'LZ77'],
+    correct: 2,
+    explanation: 'JPEG은 손실 압축 방식입니다. RLE, 허프만, LZ77은 모두 원본을 100% 복원할 수 있는 무손실 압축입니다.',
+    special: true
+  },
+  {
+    id: 5,
+    question: 'ZIP 파일에서 주로 사용하는 압축 방법은?',
+    options: ['RLE만', '허프만만', 'LZ77 + 허프만 (DEFLATE)', '사전 기반만'],
+    correct: 2,
+    explanation: 'ZIP 파일은 LZ77과 허프만 코딩을 결합한 DEFLATE 알고리즘을 주로 사용합니다.'
+  }
+];
+
+let quizAnswers  = {};
+let tooltipTimer = null;
+
+function initQuizCards() {
+  const container = document.getElementById('quiz-cards');
+  if (!container) return;
+  container.innerHTML = quizData.map((quiz, qIdx) => {
+    const numHtml = quiz.special
+      ? `<span class="q-num-special" id="q4-num" onclick="showQ4Tooltip()">Q${qIdx+1}</span>. ${escHtml(quiz.question)}`
+      : `Q${qIdx+1}. ${escHtml(quiz.question)}`;
+    const optionsHtml = quiz.options.map((opt, oIdx) =>
+      `<button class="quiz-option" id="qopt-${quiz.id}-${oIdx}" onclick="answerQuiz(${quiz.id},${oIdx})">
+        <span class="opt-mark">${'①②③④'[oIdx]}</span> ${escHtml(opt)}
+      </button>`
+    ).join('');
+    return `
+      <div class="quiz-card" id="qcard-${quiz.id}">
+        <p class="quiz-question">${numHtml}</p>
+        <div>${optionsHtml}</div>
+        <div id="qexplain-${quiz.id}" style="display:none" class="quiz-explain">
+          <strong>설명: </strong><span id="qexplain-text-${quiz.id}"></span>
+        </div>
+      </div>`;
+  }).join('');
+  updateQuizProgress();
+}
+
+function showQ4Tooltip() {
+  const el = document.getElementById('q4-num');
+  if (!el) return;
+  const old = el.querySelector('.quiz-tooltip');
+  if (old) old.remove();
+  const tip = document.createElement('span');
+  tip.className = 'quiz-tooltip';
+  tip.textContent = '참새';
+  el.appendChild(tip);
+  clearTimeout(tooltipTimer);
+  tooltipTimer = setTimeout(() => { if (tip.parentNode) tip.remove(); }, 500);
+}
+
+function answerQuiz(qid, selectedIdx) {
+  if (quizAnswers[qid] !== undefined) return;
+  quizAnswers[qid] = selectedIdx;
+  const quiz = quizData.find(q => q.id === qid);
+  quiz.options.forEach((_, oIdx) => {
+    const btn = document.getElementById(`qopt-${qid}-${oIdx}`);
+    if (!btn) return;
+    btn.disabled = true;
+    if (oIdx === quiz.correct) {
+      btn.classList.add('correct');
+      btn.innerHTML += ' <span class="opt-right">✓ 정답</span>';
+    } else if (oIdx === selectedIdx) {
+      btn.classList.add('wrong');
+      btn.innerHTML += ' <span class="opt-wrong">✗</span>';
+    }
+  });
+  const expEl   = document.getElementById(`qexplain-${qid}`);
+  const expText = document.getElementById(`qexplain-text-${qid}`);
+  if (expEl && expText) { expText.textContent = quiz.explanation; expEl.style.display = 'block'; }
+  updateQuizProgress();
+  if (Object.keys(quizAnswers).length === quizData.length) {
+    const finBtn = document.getElementById('quiz-finish-btn');
+    if (finBtn) finBtn.style.display = 'block';
+  }
+}
+
+function updateQuizProgress() {
+  const done  = Object.keys(quizAnswers).length;
+  const total = quizData.length;
+  const countEl = document.getElementById('quiz-progress-count');
+  const barEl   = document.getElementById('quiz-progress-bar');
+  if (countEl) countEl.textContent = `${done} / ${total} 완료`;
+  if (barEl)   barEl.style.width   = `${(done / total) * 100}%`;
+}
+
+function showQuizResult() {
+  document.getElementById('quiz-play').style.display   = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  const score = quizData.filter(q => quizAnswers[q.id] === q.correct).length;
+  const total = quizData.length;
+  document.getElementById('quiz-score').textContent = `${score} / ${total}`;
+  document.getElementById('quiz-result-msg').textContent =
+    score === total ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+    : score >= total * 0.7 ? '잘하셨어요! 조금만 더 복습하면 완벽할 거예요! 👍'
+    : '다시 한 번 복습해보세요! 💪';
+  const wrongList = document.getElementById('quiz-wrong-list');
+  const wrongs = quizData.filter(q => quizAnswers[q.id] !== q.correct);
+  wrongList.innerHTML = wrongs.length > 0
+    ? wrongs.map(q => `
+        <div class="quiz-wrong-item">
+          <p class="wq">❌ 틀린 문제: ${escHtml(q.question)}</p>
+          <p class="wa"><strong style="color:#16a34a">정답: </strong>${escHtml(q.options[q.correct])}</p>
+          <p class="we">${escHtml(q.explanation)}</p>
+        </div>`).join('')
+    : '';
+}
+
+function resetQuiz() {
+  quizAnswers = {};
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-play').style.display   = 'block';
+  document.getElementById('quiz-finish-btn').style.display = 'none';
+  initQuizCards();
+}
+
+// ==================== Knowledge: Match Quiz ====================
+function revealMatch(idx) {
+  const ansEl = document.getElementById(`match-ans-${idx}`);
+  const btn   = event.target;
+  if (ansEl) ansEl.style.display = 'block';
+  if (btn)   btn.style.display   = 'none';
+}
+
+// ==================== Init ====================
+(function init() {
+  renderPixelGrid();
+  renderRowPlaceholders();
+  initQuizCards();
+})();
+</script>
+</body>
+</html>
