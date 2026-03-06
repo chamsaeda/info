@@ -1,1610 +1,1054 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이미지는 어떻게 작아질까? - JPEG 압축의 비밀</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            line-height: 1.9;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-        }
-        
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .school-name {
-            font-size: 0.9em;
-            opacity: 0.95;
-            text-align: left;
-        }
-        
-        .home-button {
-            background: white;
-            color: #667eea;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9em;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .home-button:hover {
-            background: #f0f4ff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transform: translateY(-2px);
-        }
-        
-        .main-title {
-            font-size: 2.3em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .subtitle {
-            font-size: 1.2em;
-            opacity: 0.95;
-        }
-        
-        .content {
-            padding: 35px;
-        }
-        
-        .intro-box {
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .intro-box h2 {
-            color: #5a67d8;
-            margin-bottom: 15px;
-            font-size: 1.9em;
-        }
-        
-        .intro-box p {
-            font-size: 1.15em;
-            line-height: 2;
-            color: #2d3748;
-        }
-        
-        .section {
-            margin-bottom: 40px;
-            padding: 30px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .section h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.9em;
-        }
-        
-        .section h3 {
-            color: #5a67d8;
-            margin: 0px 0 15px 0;
-            font-size: 1.5em;
-        }
-        
-        .concept-box {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .concept-box p {
-            font-size: 1.1em;
-            line-height: 2;
-        }
-        
-        .concept-box strong {
-            color: #667eea;
-            font-size: 1.15em;
-        }
-        
-        .example-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-        
-        .example-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .example-card h4 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-        
-        .example-card p {
-            font-size: 1.05em;
-            line-height: 1.8;
-        }
-        
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 35px;
-            border-radius: 8px;
-            font-size: 1.15em;
-            cursor: pointer;
-            margin: 10px 5px;
-            transition: all 0.3s;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .upload-button {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            padding: 14px 35px;
-            border-radius: 8px;
-            font-size: 1.15em;
-            cursor: pointer;
-            margin: 10px 5px;
-            transition: all 0.3s;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-            display: inline-block;
-        }
-
-        .upload-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-        }
-
-        .upload-button:active {
-            transform: translateY(0);
-        }
-
-        .interactive-box {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin: 25px 0;
-        }
-        
-        .interactive-box h3 {
-            color: #c05621;
-            margin-bottom: 20px;
-            font-size: 1.6em;
-        }
-        
-        .canvas-container {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 25px 0;
-        }
-        
-        .canvas-box {
-            text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .canvas-box h4 {
-            margin-bottom: 15px;
-            color: #667eea;
-            font-size: 1.2em;
-        }
-        
-        canvas {
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            max-width: 100%;
-            height: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        
-        .slider-container {
-            margin: 25px 0;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-        }
-        
-        .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .slider::-moz-range-thumb {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .value-display {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
-            text-align: center;
-        }
-        
-        .result-box {
-            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .result-box p {
-            font-size: 1.15em;
-            line-height: 2;
-        }
-        
-        .info-badge {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 1em;
-            margin: 5px;
-            font-weight: bold;
-        }
-        
-        .highlight {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            padding: 4px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #92400e;
-        }
-        
-        .step-number {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 35px;
-            font-weight: bold;
-            margin-right: 12px;
-            font-size: 1.1em;
-        }
-        
-        .block-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 2px;
-            width: 240px;
-            height: 240px;
-            margin: 20px auto;
-            border: 3px solid #667eea;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .block-cell {
-            background: #e5e7eb;
-            border: 1px solid #d1d5db;
-            transition: all 0.3s;
-        }
-        
-        .block-cell:hover {
-            background: #fbbf24;
-            transform: scale(1.1);
-        }
-        
-        .frequency-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 40px);
-            grid-template-rows: repeat(8, 40px);
-            gap: 0;
-            width: 320px;
-            height: 320px;
-            margin: 20px auto;
-            border: 3px solid #667eea;
-            border-radius: 8px;
-            overflow: visible;
-            padding: 0;
-            box-sizing: content-box;  /* 이 줄 추가 */
-        }
-        
-        .freq-cell {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65em;
-            font-weight: bold;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            width: 40px;
-            height: 40px;
-            box-sizing: border-box;
-        }
-        
-        .freq-cell .freq-value {
-            font-size: 0.9em;
-            margin-top: 2px;
-            opacity: 0.9;
-        }
-        
-        .warning-box {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #ef4444;
-            margin: 20px 0;
-        }
-        
-        .warning-box h4 {
-            color: #dc2626;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .result {
-            background: linear-gradient(135deg, #fff0f6 0%, #ffe4ec 100%);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            border-left: 4px solid #667eea;
-        }
-        
-        @media (max-width: 768px) {
-            .main-title {
-                font-size: 1.8em;
-            }
-            
-            .canvas-container {
-                flex-direction: column;
-            }
-            
-            .block-grid, .frequency-grid {
-                width: 200px;
-                height: 200px;
-            }
-        }
-
-        @keyframes bounceOnce {
-            0%, 100% { transform: translateY(0) translateX(-50%); }
-            50% { transform: translateY(-10px) translateX(-50%); }
-        }
-
-        .tooltip-trigger {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-        }
-
-        .tooltip-message {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: -60px;
-            background: #fbcfe8;
-            color: #1f2937;
-            padding: 8px 15px;
-            border-radius: 12px;
-            font-size: 0.9em;
-            font-weight: bold;
-            white-space: nowrap;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            z-index: 50;
-            animation: bounceOnce 0.5s ease-in-out;
-        }
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>이미지는 어떻게 작아질까? - JPEG 압축의 비밀</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Malgun Gothic', sans-serif; background: linear-gradient(135deg,#f093fb 0%,#f5576c 50%,#f093fb 100%); margin:0; padding:20px; }
+    @keyframes slideIn { from{transform:translateX(-20px);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes fadeIn  { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+    .animate-slide-in { animation: slideIn 0.5s ease-out; }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    canvas { max-width:100%; height:auto; }
+    /* 참새 툴팁 */
+    .sparrow-trigger { position:relative; display:inline-block; cursor:pointer; }
+    .sparrow-tooltip { position:absolute; left:50%; transform:translateX(-50%); top:-50px; background:#fbcfe8; color:#1f2937; padding:2px 15px; border-radius:12px; font-size:1rem; font-weight:bold; white-space:nowrap; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:50; pointer-events:none; }
+    @keyframes sparrowPop { 0%{opacity:0;transform:translateX(-50%) scale(0.5)} 60%{transform:translateX(-50%) scale(1.15)} 100%{opacity:1;transform:translateX(-50%) scale(1)} }
+    .sparrow-tooltip { animation: sparrowPop 0.4s ease-out; }
+    /* 슬라이더 */
+    .slider-pink { -webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:5px; background:#fce7f3; outline:none; }
+    .slider-pink::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:24px; height:24px; border-radius:50%; background:#f5576c; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,.2); }
+    /* 주파수 그리드 */
+    .freq-grid { display:grid; grid-template-columns:repeat(8,clamp(28px,5.5vw,40px)); grid-template-rows:repeat(8,clamp(28px,5.5vw,40px)); gap:0; width:fit-content; margin:20px auto; border:3px solid #f5576c; border-radius:8px; overflow:hidden; }
+    .freq-cell { display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:clamp(0.45em,1.1vw,0.65em); font-weight:bold; border:1px solid rgba(255,255,255,.2); width:clamp(28px,5.5vw,40px); height:clamp(28px,5.5vw,40px); box-sizing:border-box; }
+    .highlight { background:linear-gradient(135deg,#fef3c7,#fde68a); padding:2px 8px; border-radius:4px; font-weight:bold; color:#92400e; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-top">
-                <div class="school-name">부산진여자상업고등학교 정보 학습자료</div>
-                <a href="index.html" class="home-button">🏠 홈으로</a>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ═══════════════════════════════════════════
+       공통 데이터
+    ═══════════════════════════════════════════ */
+    const DCT_VALUES = [
+      [415,-33,-12,8,4,-3,1,0],[-28,-24,6,5,-2,1,0,0],[-19,13,-7,3,1,0,0,0],
+      [11,-8,4,-2,1,0,0,0],[7,-5,2,-1,0,0,0,0],[-4,3,-1,0,0,0,0,0],[2,-1,0,0,0,0,0,0],[-1,0,0,0,0,0,0,0]
+    ];
+    const DEMO_MATRIX = [
+      [415,-33,-28,12,0,0,0,0],[-33,24,10,-5,0,0,0,0],[-28,10,8,0,0,0,0,0],[12,-5,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]
+    ];
+    const buildZigzag = () => {
+      const order = [];
+      for (let s=0;s<15;s++) {
+        const sc=Math.max(0,s-7), ec=Math.min(s,7);
+        if (s%2===0) { for(let c=sc;c<=ec;c++) order.push([s-c,c]); }
+        else { for(let c=ec;c>=sc;c--) order.push([s-c,c]); }
+      }
+      return order;
+    };
+    const ZIGZAG_ORDER = buildZigzag();
+
+    const QUIZ_DATA = [
+      { id:1, question:'JPEG 압축에서 이미지를 나누는 기본 블록 크기는?', options:['4×4 픽셀','8×8 픽셀','16×16 픽셀','32×32 픽셀'], correct:1, explanation:'JPEG는 이미지를 8×8 픽셀 블록으로 나눠요. 이 크기가 압축 효율과 품질의 균형이 가장 좋아서 표준으로 채택됐어요!' },
+      { id:2, question:'DCT(이산 코사인 변환)는 무엇을 분석하는 도구인가요?', options:['이미지의 파일 크기를 계산해요','이미지 블록에 어떤 주파수(파도)가 얼마나 있는지 분석해요','이미지의 해상도를 높여줘요','이미지 색상을 흑백으로 바꿔줘요'], correct:1, explanation:'DCT는 이미지 블록을 저주파/고주파 성분으로 분해해요. 복잡한 음악을 낮은 음·높은 음으로 나누는 것과 비슷해요!' },
+      { id:3, question:'양자화(Quantization) 단계에서 주로 제거하는 것은?', options:['저주파 성분 (전체적인 색상)','이미지 파일 이름','고주파 성분 (세밀한 디테일)','이미지 해상도'], correct:2, explanation:'양자화에서는 고주파(세밀한 무늬, 날카로운 경계선)를 0으로 만들어요. 사람 눈은 고주파에 둔감해서 없어져도 잘 모른답니다!' },
+      { id:4, question:'JPEG 압축을 너무 많이 하면 나타나는 현상은?', options:['이미지가 더 선명해져요','블록 무늬(JPEG 아티팩트)가 생겨요','파일 크기가 오히려 커져요','색상이 무지개색으로 바뀌어요'], correct:1, explanation:'압축률을 너무 높이면(품질 30% 이하) 8×8 블록 경계가 눈에 보이는 네모 무늬, 즉 JPEG 아티팩트가 생겨요!' },
+      { id:5, question:'DCT 주파수 지도에서 왼쪽 위 구석 값이 나타내는 것은?', options:['고주파 — 이미지의 세밀한 경계선','이미지의 저장 날짜','DC 계수 — 이미지 블록의 평균 밝기','파일 압축 비율'], correct:2, explanation:'왼쪽 위 DC 계수는 8×8 블록 전체의 평균 밝기(색상)를 나타내요. 가장 중요한 저주파 성분이라 압축해도 절대 버리지 않아요!' },
+      { id:6, question:'JPEG처럼 한 번 버린 정보를 다시 복구할 수 없는 방식을 무엇이라고 할까요?', options:['무손실 압축 (ZIP, PNG처럼 완벽 복구 가능)','손실 압축 (고주파를 버려서 완벽 복구 불가)','역변환 압축 (언제든지 원본으로 돌아갈 수 있음)','블록 압축 (블록 단위로만 저장하는 방식)'], correct:1, explanation:'JPEG는 손실 압축이에요. 양자화 단계에서 0으로 버린 고주파 정보는 다시 되살릴 수 없어요. 반면 ZIP이나 PNG는 무손실 압축이라 원본 데이터를 100% 복구할 수 있답니다!' },
+    ];
+
+    /* ═══════════════════════════════════════════
+       퀴즈 컴포넌트
+    ═══════════════════════════════════════════ */
+    const QuizSection = () => {
+      const [answers, setAnswers] = useState({});
+      const [showResult, setShowResult] = useState(false);
+      const score = QUIZ_DATA.filter(q => answers[q.id] === q.correct).length;
+
+      const handleAnswer = (qid, oIdx) => {
+        if (answers[qid] !== undefined) return;
+        setAnswers(prev => ({ ...prev, [qid]: oIdx }));
+      };
+
+      return (
+        <div className="p-6 animate-slide-in">
+          <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-5 mb-5 border border-pink-200">
+            <h3 className="text-xl font-bold text-pink-900 mb-2 flex items-center gap-2">🎯 퀴즈로 복습하기!</h3>
+            <p className="text-base text-gray-700">오늘 배운 DCT와 JPEG 압축에 관한 퀴즈예요. 정답을 클릭하면 바로 확인할 수 있어요!</p>
+          </div>
+
+          {/* 진행 현황 */}
+          <div className="bg-white rounded-xl p-4 mb-5 shadow-sm border border-pink-100">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-bold text-gray-600 text-base">📋 진행 현황</span>
+              <span className="font-bold text-pink-600 text-base">{Object.keys(answers).length} / {QUIZ_DATA.length} 완료</span>
             </div>
-            <div class="main-title">📸 이미지는 어떻게 작아질까?</div>
-            <div class="subtitle">JPEG 압축과 DCT의 비밀을 쉽게 알아보자!</div>
-        </div>
-        
-        <div class="content">
-            <!-- 도입부 -->
-            <div class="intro-box">
-                <h2>🤔 왜 이미지 파일이 작아져야 할까?</h2>
-                <p>
-                    여러분이 스마트폰으로 찍은 사진 한 장은 보통 <strong>1~3MB</strong> 정도예요. 
-                    만약 압축을 안 하면 이 크기가 <strong>10배~20배</strong>나 커질 거예요! 
-                    그럼 카카오톡으로 사진 보내는데 엄청 오래 걸리고, 휴대폰 용량도 금방 차겠죠?
-                    <br><br>
-                    그래서 <strong>'압축'</strong>이라는 기술로 사진을 작게 만들어요. 
-                    오늘은 JPEG이라는 사진 형식에서 사용하는 <strong>DCT(이산 코사인 변환)</strong>라는 
-                    압축 방법을 아주 쉽게 배워볼 거예요!
+            <div className="bg-pink-100 rounded-full h-3 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-500"
+                style={{ width: `${(Object.keys(answers).length / QUIZ_DATA.length) * 100}%` }} />
+            </div>
+          </div>
+
+          {!showResult ? (
+            <div className="space-y-4">
+              {QUIZ_DATA.map((quiz, qIdx) => (
+                <div key={quiz.id} className="bg-white p-5 rounded-xl shadow-sm border border-pink-100">
+                  <p className="font-bold text-gray-900 mb-3 text-base">Q{qIdx+1}. {quiz.question}</p>
+                  <div className="space-y-2">
+                    {quiz.options.map((opt, oIdx) => {
+                      const answered = answers[quiz.id] !== undefined;
+                      const isSelected = answers[quiz.id] === oIdx;
+                      const isCorrect = quiz.correct === oIdx;
+                      let cls = 'bg-gray-50 border-gray-200 hover:bg-pink-50';
+                      if (answered) {
+                        if (isCorrect) cls = 'bg-green-100 border-green-400';
+                        else if (isSelected) cls = 'bg-red-100 border-red-400';
+                        else cls = 'bg-gray-50 border-gray-200';
+                      }
+                      return (
+                        <button key={oIdx} onClick={() => handleAnswer(quiz.id, oIdx)} disabled={answered}
+                          className={`w-full text-left p-3 rounded-lg border-2 transition-all text-base font-normal ${cls} ${answered ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                          style={{ fontFamily: "'Malgun Gothic', sans-serif" }}>
+                          <span className="font-semibold">{'①②③④'[oIdx]}</span> {opt}
+                          {answered && isCorrect && <span className="ml-2 text-green-600 font-bold">✓ 정답</span>}
+                          {answered && isSelected && !isCorrect && <span className="ml-2 text-red-600 font-bold">✗</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {answers[quiz.id] !== undefined && (
+                    <div className="mt-3 p-3 bg-pink-50 rounded-lg border border-pink-200 fade-in">
+                      <p className="text-base text-gray-700"><span className="font-bold text-pink-600">💡 해설: </span>{quiz.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {Object.keys(answers).length === QUIZ_DATA.length && (
+                <button onClick={() => setShowResult(true)}
+                  className="w-full py-4 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold rounded-xl hover:shadow-lg transition-all text-lg">
+                  🏁 결과 확인하기
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="text-center fade-in">
+              <div className="bg-white p-8 rounded-xl border border-pink-200 mb-5 shadow-md">
+                <h3 className="text-2xl font-bold text-pink-900 mb-3">🎉 퀴즈 완료!</h3>
+                <div className="text-6xl font-bold text-pink-600 mb-3">{score} / {QUIZ_DATA.length}</div>
+                <p className="text-lg text-gray-700">
+                  {score === QUIZ_DATA.length ? '완벽해요! 모든 문제를 맞히셨네요! 🎊'
+                    : score >= 3 ? '잘하셨어요! 조금만 더 복습하면 완벽해요! 👍'
+                    : '다시 한 번 복습해봐요! 💪'}
                 </p>
+              </div>
+              {QUIZ_DATA.filter(q => answers[q.id] !== q.correct).length > 0 && (
+                <div className="text-left space-y-3 mb-5">
+                  <p className="font-bold text-pink-700 text-base mb-2">📌 틀린 문제 다시 보기</p>
+                  {QUIZ_DATA.filter(q => answers[q.id] !== q.correct).map(q => (
+                    <div key={q.id} className="bg-red-50 p-4 rounded-xl border border-red-200">
+                      <p className="font-bold text-red-700 text-base mb-1">❌ {q.question}</p>
+                      <p className="text-base text-gray-700"><span className="font-bold text-green-600">정답: </span>{q.options[q.correct]}</p>
+                      <p className="text-base text-gray-600 mt-1">{q.explanation}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button onClick={() => { setAnswers({}); setShowResult(false); }}
+                className="px-8 py-4 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold rounded-xl hover:shadow-lg transition-all text-base">
+                🔄 다시 풀기
+              </button>
             </div>
-
-            <!-- 1단계: 주파수 이해 -->
-            <div class="section">
-                <h2><span class="step-number">1</span>먼저 '파도'를 이해해 봐요</h2>
-                
-                <div class="concept-box">
-                    <p>
-                        이미지 압축을 이해하려면 먼저 <strong>'파도'</strong> 개념을 알아야 해요. 
-                        바다의 파도를 생각해보세요. 파도에는 <span class="highlight">큰 파도</span>도 있고 <span class="highlight">작은 파도</span>도 있죠?
-                    </p>
-                </div>
-
-                <div class="example-grid">
-                    <div class="example-card">
-                        <h4>🌊 큰 파도 (저주파)</h4>
-                        <canvas id="lowFreqWave" width="250" height="150"></canvas>
-                        <p><strong>색이 천천히 변해요</strong><br><br>
-                        예) 하늘처럼 넓은 영역에서 색이 비슷하거나 서서히 바뀌는 부분<br><br>
-                        → 이미지의 <span class="highlight">전체적인 모양</span>을 만들어요</p>
-                    </div>
-                    <div class="example-card">
-                        <h4>〰️ 작은 파도 (고주파)</h4>
-                        <canvas id="highFreqWave" width="250" height="150"></canvas>
-                        <p><strong>색이 빠르게 변해요</strong><br><br>
-                        예) 머리카락, 잎사귀의 가는 선처럼 날카로운 경계선<br><br>
-                        → 이미지의 <span class="highlight">세밀한 디테일</span>을 만들어요</p>
-                    </div>
-                </div>
-
-                <div class="concept-box">
-                    <p style="font-size: 1.2em; text-align: center;">
-                        💡 <strong>핵심!</strong> 사람 눈은 저주파(전체 모양)는 잘 보지만, 
-                        고주파(세밀한 디테일)는 조금 없어져도 잘 모른답니다!
-                    </p>
-                </div>
-
-                <h3>🔍 실제 이미지 예시로 이해하기</h3>
-                
-                <div class="interactive-box">
-                    <h3>✏️ 간단한 이미지 그리기</h3>
-                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
-                        아래 캔버스를 클릭하여 픽셀을 검은색으로 칠해보세요!
-                    </p>
-                    <div class="button-group">
-                        <button onclick="clearCanvas()">🗑️ 지우기</button>
-                        <button onclick="drawLowFrequency()">저주파 예시</button>
-                        <button onclick="drawHighFrequency()">고주파 예시</button>
-                    </div>
-                    <div class="canvas-container">
-                        <div class="canvas-box">
-                            <h4>그림 그리기 (클릭하세요)</h4>
-                            <canvas id="drawCanvas" width="320" height="320"></canvas>
-                        </div>
-                    </div>
-                    <div id="drawResult" class="result" style="display: none;"></div>
-                </div>
-            </div>
-
-            <!-- 2단계: 블록으로 나누기 -->
-            <div class="section">
-                <h2><span class="step-number">2</span>이미지를 작은 블록으로 나눠요</h2>
-                
-                <div class="concept-box">
-                    <p>
-                        JPEG 압축의 첫 번째 단계는 이미지를 <strong>8×8 픽셀</strong> 크기의 작은 네모 조각으로 나누는 거예요. 
-                        왜 그럴까요? 큰 이미지를 한 번에 처리하기 힘드니까 작은 조각으로 쪼개서 하나씩 압축하는 거죠!
-                    </p>
-                </div>
-
-                <div class="interactive-box">
-                    <h3>📸 실제 이미지가 블록으로 나뉘는 과정</h3>
-                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
-                        아래 버튼을 눌러서 이미지가 어떻게 8×8 블록으로 나뉘는지 확인해보세요!
-                    </p>
-                    <div class="canvas-container" style="justify-content: center; align-items: center; gap: 30px;">
-                        <div class="canvas-box">
-                            <h4>원본 이미지</h4>
-                            <canvas id="blockDemoCanvas" width="320" height="320"></canvas>
-                            <p style="margin-top: 10px; font-size: 0.95em; color: #666;">
-                                전체 이미지 (320×320 픽셀)
-                            </p>
-                        </div>
-                        <div style="text-align: center; font-size: 2em; color: #667eea;">
-                            ➜
-                        </div>
-                        <div class="canvas-box">
-                            <h4>선택된 8×8 블록</h4>
-                            <canvas id="singleBlockCanvas" width="160" height="160"></canvas>
-                            <p style="margin-top: 10px; font-size: 0.95em; color: #666;">
-                                확대된 8×8 픽셀 블록
-                            </p>
-                        </div>
-                    </div>
-                    <div class="button-group" style="margin-top: 20px;">
-                        <button onclick="toggleBlockGrid()">격자 보기/숨기기</button>
-                        <button onclick="highlightRandomBlock()">다른 블록 보기</button>
-                    </div>
-                    <p style="text-align: center; margin-top: 15px; color: #666; font-size: 1.05em;">
-                        💡 <strong>원본 이미지를 클릭</strong>하면 해당 위치의 8×8 블록을 볼 수 있어요!<br>
-                        각 블록은 64개(8×8)의 픽셀로 이루어져 있답니다.
-                    </p>
-                </div>
-
-                <div class="concept-box">
-                    <p>
-                        예를 들어, 800×600 픽셀 이미지라면:<br>
-                        → 가로로 100개 블록, 세로로 75개 블록<br>
-                        → 이 <strong>7,500개의 블록</strong>으로 나뉘어요!<br>
-                        → 각 블록을 하나씩 압축합니다
-                    </p>
-                </div>
-            </div>
-
-            <!-- 3단계: DCT 변환 -->
-            <div class="section">
-                <h2><span class="step-number">3</span>DCT로 주파수를 찾아요</h2>
-                
-                <div class="concept-box">
-                    <p>
-                        이제 각 블록에 <strong>DCT(이산 코사인 변환)</strong>를 적용해요. 
-                        DCT는 블록 안에 <strong>어떤 주파수(파도)가 얼마나 들어있는지</strong> 계산하는 수학 도구예요.
-                        <br><br>
-                        복잡한 음악을 "높은 음", "중간 음", "낮은 음"으로 나누는 것처럼, 
-                        DCT는 이미지를 여러 주파수로 나눠요!
-                    </p>
-                </div>
-
-                <div class="interactive-box">
-                    <h3>🎯 DCT 결과: 주파수 지도</h3>
-                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
-                        DCT를 하면 이런 주파수 지도가 나와요. 각 칸의 숫자는 해당 주파수가 얼마나 많이 들어있는지를 나타냅니다!
-                    </p>
-                    <div class="frequency-grid" id="frequencyGrid"></div>
-                    <div style="text-align: center; margin-top: 15px;">
-                        <p style="font-size: 1.05em; line-height: 1.8;">
-                            <span class="highlight">왼쪽 위 (빨간 테두리)</span> = 저주파 영역<br>
-                            DC 계수 <strong>415</strong>는 이미지의 평균 밝기를 나타내요 (가장 중요!)<br>
-                            주변 값들(<strong>-33, -28, -24</strong> 등)은 전체적인 색 변화예요<br><br>
-                            <span class="highlight">오른쪽 아래</span> = 고주파 영역<br>
-                            값이 점점 작아지고 <strong>대부분 0</strong>이에요! (세밀한 디테일, 버려도 됨)
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4단계: 양자화 -->
-            <div class="section">
-                <h2><span class="step-number">4</span>양자화: 고주파를 버려요!</h2>
-                
-                <div class="concept-box">
-                    <p>
-                        이제 압축의 핵심 단계예요! <strong>양자화(Quantization)</strong>라는 과정에서 
-                        고주파 부분의 숫자를 <strong>작게 만들거나 0으로</strong> 바꿔요.
-                        <br><br>
-                        왜 그럴까요? 사람 눈이 고주파(세밀한 디테일)는 잘 못 느끼니까, 
-                        버려도 이미지 품질이 크게 나빠지지 않아요!
-                    </p>
-                </div>
-
-                <div class="example-grid">
-                    <div class="example-card">
-                        <h4>압축 전</h4>
-                        <p style="font-size: 0.9em;">
-                            모든 주파수 값 보관<br>
-                            150, 120, 80, 45, 30, 15, 8, 3<br>
-                            100, 90, 60, 25, 12, 6, 2, 1<br>
-                            70, 55, 35, 18, 8, 3, 1, 0<br>
-                            ...<br>
-                            <br>
-                            파일 크기: <strong>큼</strong>
-                        </p>
-                    </div>
-                    <div class="example-card">
-                        <h4>압축 후 (양자화)</h4>
-                        <p style="font-size: 0.9em;">
-                            고주파 부분을 0으로!<br>
-                            150, 120, 80, 45, 0, 0, 0, 0<br>
-                            100, 90, 60, 0, 0, 0, 0, 0<br>
-                            70, 55, 0, 0, 0, 0, 0, 0<br>
-                            ...<br>
-                            <br>
-                            파일 크기: <strong>작음!</strong>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="concept-box">
-                    <p style="text-align: center; font-size: 1.2em;">
-                        <span class="tooltip-trigger" onclick="showTooltip(this)">
-                            💾
-                            <span class="tooltip-message" style="display: none;">참새다!</span>
-                        </span>
-                         0이 많으면 압축이 잘 돼요! 
-                        파일 크기가 <span class="highlight">1/10 ~ 1/20</span>로 줄어들어요!
-                    </p>
-                </div>
-            </div>
-
-            <!-- 5단계: 실제 압축 체험 -->
-            <div class="section">
-                <h2><span class="step-number">5</span>직접 압축해보기</h2>
-                
-                <div class="interactive-box">
-                    <h3>🎮 이미지를 선택하고 압축해보세요!</h3>
-                    <div style="text-align: center; margin: 20px 0;">
-                        <button onclick="loadSampleImage('sky')">🌅 하늘 (저주파 많음)</button>
-                        <button onclick="loadSampleImage('portrait')">😊 얼굴 (중간)</button>
-                        <button onclick="loadSampleImage('building')">🏢 건물 (고주파 많음)</button>
-                        <label for="imageUpload" class="upload-button">📁 내 이미지 선택</label>
-                        <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="loadUserImage(event)">
-                    </div>
-                    <p style="text-align: center; color: #666; font-size: 0.95em; margin-top: 10px;">
-                        💡 <strong>안내:</strong> 용량이 큰 이미지(5MB 이상)는 처리 시간이 다소 걸릴 수 있어요.
-                    </p>
-
-                    <div class="slider-container">
-                        <label style="font-weight: bold; display: block; margin-bottom: 15px; font-size: 1.2em;">
-                            압축 품질: <span id="qualityValue" class="value-display">80</span>%
-                        </label>
-                        <input type="range" min="10" max="100" value="80" class="slider" 
-                               id="qualitySlider" oninput="updateQuality(this.value)">
-                        <div style="display: flex; justify-content: space-between; margin-top: 10px; color: #666; font-size: 1.05em;">
-                            <span>← 많이 압축<br>(고주파 많이 버림)</span>
-                            <span>적게 압축 →<br>(고주파 조금 버림)</span>
-                        </div>
-                    </div>
-
-                    <div class="canvas-container">
-                        <div class="canvas-box">
-                            <h4>원본 (<span id="originalSize">100</span> KB)</h4>
-                            <canvas id="originalCanvas" width="320" height="320"></canvas>
-                        </div>
-                        <div class="canvas-box">
-                            <h4>압축 후 (<span id="compressedSize">80</span> KB)</h4>
-                            <canvas id="compressedCanvas" width="320" height="320"></canvas>
-                            <div style="margin-top: 15px;">
-                                <div class="info-badge">
-                                    <span id="savedSize">20</span> KB 절약!
-                                </div>
-                                <div class="info-badge" style="background: #10b981;">
-                                    <span id="savedPercent">20</span>% 줄어듦
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="result-box" id="resultExplanation">
-                        <p><strong>결과:</strong> 품질 80% - 좋은 균형이에요! 파일은 작아지고 품질은 거의 그대로입니다.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 6단계: JPEG 아티팩트 -->
-            <div class="section">
-                <h2><span class="step-number">6</span>너무 많이 압축하면 어떻게 될까?</h2>
-                
-                <div class="warning-box">
-                    <h4>⚠️ JPEG 아티팩트 (압축 부작용)</h4>
-                    <p style="font-size: 1.05em; line-height: 1.8;">
-                        압축을 너무 많이 하면 (품질 30% 이하) 이미지에 <strong>네모 무늬</strong>가 생기고 
-                        세밀한 부분이 <strong>뭉개져요</strong>. 이걸 'JPEG 아티팩트'라고 불러요.
-                        <br><br>
-                        왜 그럴까요? 8×8 블록 단위로 압축하다 보니, 너무 많이 압축하면 
-                        블록 경계가 눈에 보이게 되는 거예요!
-                    </p>
-                </div>
-
-                <div class="interactive-box">
-                    <h3>🔍 아티팩트 확인하기</h3>
-                    <p style="text-align: center; font-size: 1.1em; margin-bottom: 20px;">
-                        위의 슬라이더를 10~20%로 내려보세요. 블록 무늬가 보이나요?
-                    </p>
-                </div>
-            </div>
-
-            <!-- 7단계: 실생활 응용 -->
-            <div class="section">
-                <h2><span class="step-number">7</span>우리 생활에서는 어떻게 쓰일까?</h2>
-                
-                <div class="example-grid">
-                    <div class="example-card">
-                        <h4>📱 카카오톡 / 인스타그램</h4>
-                        <p>이미지를 보낼 때 자동으로 JPEG 압축을 해서 빠르게 전송해요</p>
-                    </div>
-                    <div class="example-card">
-                        <h4>📷 디지털 카메라</h4>
-                        <p>사진을 JPEG로 저장하면 메모리 카드 용량을 10배 이상 아낄 수 있어요</p>
-                    </div>
-                    <div class="example-card">
-                        <h4>🌐 웹사이트</h4>
-                        <p>웹페이지의 이미지를 압축하면 페이지가 빠르게 열려요</p>
-                    </div>
-                    <div class="example-card">
-                        <h4>🎬 유튜브 / 넷플릭스</h4>
-                        <p>동영상도 비슷한 방법으로 압축해서 스트리밍해요 (H.264, H.265)</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 정리 -->
-            <div class="section" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);">
-                <h2>📝 오늘 배운 내용 정리!</h2>
-                
-                <div class="concept-box">
-                    <p style="font-size: 1.2em; line-height: 2.2;">
-                        <strong>1.</strong> 이미지는 <span class="highlight">저주파</span>(큰 변화)와 <span class="highlight">고주파</span>(작은 변화)로 이루어져 있어요<br>
-                        
-                        <strong>2.</strong> JPEG은 이미지를 <span class="highlight">8×8 블록</span>으로 나눠요<br>
-                        
-                        <strong>3.</strong> <span class="highlight">DCT</span>로 각 블록의 주파수를 계산해요<br>
-                        
-                        <strong>4.</strong> <span class="highlight">양자화</span>로 고주파를 0으로 만들어 압축해요<br>
-                        
-                        <strong>5.</strong> 결과: 파일 크기는 <span class="highlight">1/10~1/20</span>로 줄고, 품질은 거의 그대로!<br>
-                        
-                        <strong>6.</strong> 너무 많이 압축하면 <span class="highlight">블록 무늬</span>가 생겨요 (JPEG 아티팩트)
-                    </p>
-                </div>
-
-                <div class="concept-box" style="margin-top: 15px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
-                    <h3 style="color: #92400e; margin-top: 0px; margin-bottom: 15px;">💡 더 알아두면 좋아요!</h3>
-                    <p style="font-size: 1.05em; line-height: 2;">
-                        • 사람 눈은 저주파에 민감하고 고주파에 둔감해요<br>
-                        • 그래서 고주파를 버려도 티가 안 나요!<br>
-                        • JPEG 품질은 보통 80~90%가 적당해요<br>
-                        • PNG는 다른 방식(무손실)으로 압축해요<br>
-                        • 동영상도 비슷한 원리로 압축해요 (MPEG, H.264 등)
-                    </p>
-                </div>
-            </div>
-            
-            <!-- 홈으로 버튼 -->
-            <div style="text-align: center; padding: 30px 0;">
-                <a href="index.html" class="home-button" style="font-size: 1.1em; padding: 12px 30px;">
-                    🏠 홈으로 돌아가기
-                </a>
-            </div>
+          )}
         </div>
-    </div>
+      );
+    };
 
-    <script>
-        // 전역 변수
-        let currentImageData = null;
-        let blockGridVisible = true;
-        let currentBlockX = 0;
-        let currentBlockY = 0;
-        let originalFileSize = 100; // 원본 파일 크기 (KB) - 기본값 100KB
-        
-        // 툴팁 표시 함수
-        function showTooltip(element) {
-            const tooltip = element.querySelector('.tooltip-message');
-            tooltip.style.display = 'block';
-            
-            setTimeout(() => {
-                tooltip.style.display = 'none';
-            }, 500);
+    /* ═══════════════════════════════════════════
+       파도 섹션
+    ═══════════════════════════════════════════ */
+    const WaveSection = () => {
+      const lowRef  = useRef(null);
+      const highRef = useRef(null);
+      const drawRef = useRef(null);
+      const [drawResult, setDrawResult] = useState(null);
+
+      useEffect(() => {
+        // 저주파
+        const lc = lowRef.current; if (!lc) return;
+        const lx = lc.getContext('2d');
+        lx.fillStyle = '#f0f9ff'; lx.fillRect(0,0,lc.width,lc.height);
+        lx.strokeStyle='#3b82f6'; lx.lineWidth=4; lx.beginPath();
+        for(let x=0;x<lc.width;x++){const y=lc.height/2+Math.sin(x*0.015)*45; x===0?lx.moveTo(x,y):lx.lineTo(x,y);} lx.stroke();
+        lx.fillStyle='#1e40af'; lx.font='bold 14px Malgun Gothic'; lx.fillText('천천히 변함',10,25);
+        // 고주파
+        const hc = highRef.current; if (!hc) return;
+        const hx = hc.getContext('2d');
+        hx.fillStyle='#fef2f2'; hx.fillRect(0,0,hc.width,hc.height);
+        hx.strokeStyle='#ef4444'; hx.lineWidth=3; hx.beginPath();
+        for(let x=0;x<hc.width;x++){const y=hc.height/2+Math.sin(x*0.15)*25; x===0?hx.moveTo(x,y):hx.lineTo(x,y);} hx.stroke();
+        hx.fillStyle='#991b1b'; hx.font='bold 14px Malgun Gothic'; hx.fillText('빠르게 변함',10,25);
+        // 드로우 캔버스 초기화
+        initDraw();
+      }, []);
+
+      const initDraw = () => {
+        const c = drawRef.current; if (!c) return;
+        const ctx = c.getContext('2d'); const ps = 20;
+        ctx.fillStyle='white'; ctx.fillRect(0,0,c.width,c.height);
+        ctx.strokeStyle='#ddd'; ctx.lineWidth=1;
+        for(let i=0;i<=c.width;i+=ps){
+          ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,c.height);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(c.width,i);ctx.stroke();
         }
+      };
 
-        // 페이지 로드 시 초기화
-        window.onload = function() {
-            initializeFrequencyGrid();
-            drawWaves();
-            initDrawCanvas();
-            loadSampleImage('sky');
-            initBlockDemo();
+      useEffect(() => {
+        const c = drawRef.current; if (!c) return;
+        const ps = 20;
+        const handler = (e) => {
+          const rect = c.getBoundingClientRect();
+          const x = Math.floor((e.clientX-rect.left)/ps)*ps;
+          const y = Math.floor((e.clientY-rect.top)/ps)*ps;
+          c.getContext('2d').fillStyle='black';
+          c.getContext('2d').fillRect(x,y,ps,ps);
         };
+        c.addEventListener('click', handler);
+        return () => c.removeEventListener('click', handler);
+      }, []);
 
-        // 8x8 블록 그리드 초기화
-        function initializeBlockGrid() {
-            const grid = document.getElementById('blockGrid');
-            for (let i = 0; i < 64; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'block-cell';
-                grid.appendChild(cell);
-            }
+      const clearDraw = () => { initDraw(); setDrawResult(null); };
+
+      const drawLow = () => {
+        const c = drawRef.current; const ctx = c.getContext('2d'); const ps=20;
+        clearDraw();
+        ctx.fillStyle='black';
+        for(let y=0;y<16;y++) for(let x=0;x<16;x++){
+          const d=Math.sqrt((x-8)**2+(y-8)**2);
+          const a=Math.max(0,1-d/8); ctx.globalAlpha=a;
+          ctx.fillRect(x*ps,y*ps,ps,ps);
         }
+        ctx.globalAlpha=1;
+        setDrawResult({ type:'low', text:'저주파 이미지: 천천히, 부드럽게 변합니다. 가운데가 진하고 주변으로 갈수록 옅어집니다.' });
+      };
 
-        // 블록 데모 초기화
-        function initBlockDemo() {
-            const canvas = document.getElementById('blockDemoCanvas');
-            
-            // 클릭 이벤트 추가 (한 번만)
-            canvas.addEventListener('click', function(e) {
-                const rect = canvas.getBoundingClientRect();
-                const x = Math.floor((e.clientX - rect.left) / 40) * 40;
-                const y = Math.floor((e.clientY - rect.top) / 40) * 40;
-                currentBlockX = x;
-                currentBlockY = y;
-                updateBlockDemo();
-            });
-            
-            // 초기 블록 표시
-            currentBlockX = 200;
-            currentBlockY = 200;
-            drawDemoImage();
-            updateBlockDemo();
+      const drawHigh = () => {
+        const c = drawRef.current; const ctx = c.getContext('2d'); const ps=20;
+        clearDraw();
+        ctx.fillStyle='black';
+        for(let y=0;y<16;y++) for(let x=0;x<16;x++){
+          if((x+y)%2===0) ctx.fillRect(x*ps,y*ps,ps,ps);
         }
+        setDrawResult({ type:'high', text:'고주파 이미지: 빠르게, 급격하게 변합니다. 픽셀마다 색이 바뀌어 경계선이 많습니다.' });
+      };
 
-        // 데모 이미지 그리기 (분리된 함수)
-        function drawDemoImage() {
-            const canvas = document.getElementById('blockDemoCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // 샘플 이미지 그리기 (간단한 풍경)
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#87CEEB');
-            gradient.addColorStop(0.5, '#98D8E8');
-            gradient.addColorStop(0.7, '#90EE90');
-            gradient.addColorStop(1, '#228B22');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 태양
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.arc(80, 60, 30, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // 집
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(200, 220, 80, 60);
-            ctx.fillStyle = '#DC143C';
-            ctx.beginPath();
-            ctx.moveTo(190, 220);
-            ctx.lineTo(240, 180);
-            ctx.lineTo(290, 220);
-            ctx.closePath();
-            ctx.fill();
-            
-            // 창문
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(215, 240, 20, 20);
-            ctx.fillRect(255, 240, 20, 20);
-            
-            // 나무
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(100, 240, 20, 60);
-            ctx.fillStyle = '#228B22';
-            ctx.beginPath();
-            ctx.arc(110, 230, 35, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // 구름들
-            drawCloud(ctx, 180, 50, 0.8);
-            drawCloud(ctx, 280, 70, 0.6);
+      return (
+        <div className="p-6 animate-slide-in space-y-6">
+          {/* 파도 설명 */}
+          <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-5 border border-pink-200">
+            <h3 className="text-xl font-bold text-pink-900 mb-3">🌊 큰 파도(저주파) vs 작은 파도(고주파)</h3>
+            <p className="text-base text-gray-700 leading-relaxed">이미지 압축을 이해하려면 먼저 <strong>'파도'</strong> 개념을 알아야 해요. 바다의 파도를 생각해보세요. 파도에는 <span className="highlight">큰 파도</span>도 있고 <span className="highlight">작은 파도</span>도 있죠?</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-pink-100">
+              <h4 className="font-bold text-pink-700 text-base mb-2">🌊 큰 파도 (저주파)</h4>
+              <canvas ref={lowRef} width="250" height="150" className="rounded-lg border border-gray-200 mb-3" />
+              <p className="text-base text-gray-700 leading-relaxed"><strong>색이 천천히 변해요</strong><br/>예) 하늘처럼 넓은 영역에서 색이 비슷하거나 서서히 바뀌는 부분<br/>→ 이미지의 <span className="highlight">전체적인 모양</span>을 만들어요</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-pink-100">
+              <h4 className="font-bold text-pink-700 text-base mb-2">〰️ 작은 파도 (고주파)</h4>
+              <canvas ref={highRef} width="250" height="150" className="rounded-lg border border-gray-200 mb-3" />
+              <p className="text-base text-gray-700 leading-relaxed"><strong>색이 빠르게 변해요</strong><br/>예) 머리카락, 잎사귀의 가는 선처럼 날카로운 경계선<br/>→ 이미지의 <span className="highlight">세밀한 디테일</span>을 만들어요</p>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 rounded-2xl p-5 border border-yellow-200 text-center">
+            <p className="text-base font-bold text-yellow-800">💡 핵심! 사람 눈은 저주파(전체 모양)는 잘 보지만, 고주파(세밀한 디테일)는 조금 없어져도 잘 모른답니다!</p>
+          </div>
+
+          {/* 드로우 캔버스 */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <h3 className="font-bold text-gray-900 text-xl mb-3">✏️ 직접 픽셀 그림 그리기</h3>
+            <p className="text-base text-gray-600 mb-4 text-center">아래 캔버스를 클릭하여 픽셀을 검은색으로 칠해보세요!</p>
+            <div className="flex gap-2 flex-wrap justify-center mb-4">
+              {[['🗑️ 지우기', clearDraw, 'from-gray-500 to-gray-600'],['저주파 예시', drawLow, 'from-blue-500 to-blue-600'],['고주파 예시', drawHigh, 'from-red-500 to-red-600']].map(([label,fn,cls])=>(
+                <button key={label} onClick={fn} className={`px-4 py-2 bg-gradient-to-r ${cls} text-white font-bold rounded-lg text-base hover:shadow-lg transition-all`}>{label}</button>
+              ))}
+            </div>
+            <div className="flex justify-center">
+              <canvas ref={drawRef} width="320" height="320" className="border-2 border-gray-200 rounded-xl shadow-sm" />
+            </div>
+            {drawResult && (
+              <div className="mt-4 p-4 bg-pink-50 rounded-xl border-l-4 border-pink-500 fade-in">
+                <p className="text-base text-gray-700"><strong>{drawResult.text.split(':')[0]}:</strong>{drawResult.text.split(':')[1]}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    /* ═══════════════════════════════════════════
+       블록 섹션
+    ═══════════════════════════════════════════ */
+    const BlockSection = () => {
+      const mainRef  = useRef(null);
+      const blockRef = useRef(null);
+      const [blockSize, setBS] = useState(8);
+      const [gridVisible, setGrid] = useState(true);
+      const bsRef = useRef(8);
+      const gvRef = useRef(true);
+      const bxRef = useRef(200), byRef = useRef(200);
+
+      const drawDemoImage = (ctx, w, h) => {
+        const g = ctx.createLinearGradient(0,0,0,h);
+        g.addColorStop(0,'#87CEEB'); g.addColorStop(0.5,'#98D8E8');
+        g.addColorStop(0.7,'#90EE90'); g.addColorStop(1,'#228B22');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(80,60,30,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#8B4513'; ctx.fillRect(200,220,80,60);
+        ctx.fillStyle='#DC143C'; ctx.beginPath(); ctx.moveTo(190,220); ctx.lineTo(240,180); ctx.lineTo(290,220); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#87CEEB'; ctx.fillRect(215,240,20,20); ctx.fillRect(255,240,20,20);
+        ctx.fillStyle='#8B4513'; ctx.fillRect(100,240,20,60);
+        ctx.fillStyle='#228B22'; ctx.beginPath(); ctx.arc(110,230,35,0,Math.PI*2); ctx.fill();
+        [[180,50,0.8],[280,70,0.6]].forEach(([x,y,s])=>{
+          ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.beginPath();
+          ctx.arc(x,y,15*s,0,Math.PI*2); ctx.arc(x+15*s,y,20*s,0,Math.PI*2); ctx.arc(x+30*s,y,15*s,0,Math.PI*2); ctx.fill();
+        });
+      };
+
+      const updateDemo = useCallback(() => {
+        const mc = mainRef.current; const bc = blockRef.current;
+        if (!mc||!bc) return;
+        const mx = mc.getContext('2d'); const bx = bc.getContext('2d');
+        const sz = bsRef.current; const cellPx = sz*5;
+        drawDemoImage(mx, mc.width, mc.height);
+        if (gvRef.current) {
+          mx.strokeStyle='rgba(255,0,0,0.5)'; mx.lineWidth=1;
+          for(let i=0;i<=mc.width;i+=cellPx){
+            mx.beginPath();mx.moveTo(i,0);mx.lineTo(i,mc.height);mx.stroke();
+            mx.beginPath();mx.moveTo(0,i);mx.lineTo(mc.width,i);mx.stroke();
+          }
         }
-
-        // 구름 그리기 헬퍼 함수
-        function drawCloud(ctx, x, y, scale) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.beginPath();
-            ctx.arc(x, y, 15 * scale, 0, Math.PI * 2);
-            ctx.arc(x + 15 * scale, y, 20 * scale, 0, Math.PI * 2);
-            ctx.arc(x + 30 * scale, y, 15 * scale, 0, Math.PI * 2);
-            ctx.fill();
+        mx.strokeStyle='#FF0000'; mx.lineWidth=3;
+        mx.strokeRect(bxRef.current+1, byRef.current+1, cellPx-2, cellPx-2);
+        const imgData = mx.getImageData(bxRef.current, byRef.current, cellPx, cellPx);
+        bx.clearRect(0,0,bc.width,bc.height);
+        const ps = Math.floor(bc.width/sz); const sp=5;
+        for(let py=0;py<sz;py++) for(let px=0;px<sz;px++){
+          let r=0,g=0,b=0,cnt=0;
+          for(let dy=0;dy<sp;dy++) for(let dx=0;dx<sp;dx++){
+            const sx=px*sp+dx, sy=py*sp+dy;
+            if(sx<cellPx&&sy<cellPx){const i=(sy*cellPx+sx)*4;r+=imgData.data[i];g+=imgData.data[i+1];b+=imgData.data[i+2];cnt++;}
+          }
+          bx.fillStyle=`rgb(${Math.round(r/cnt)},${Math.round(g/cnt)},${Math.round(b/cnt)})`;
+          bx.fillRect(px*ps,py*ps,ps,ps);
         }
-
-        // 블록 데모 업데이트
-        function updateBlockDemo() {
-            const mainCanvas = document.getElementById('blockDemoCanvas');
-            const mainCtx = mainCanvas.getContext('2d');
-            const blockCanvas = document.getElementById('singleBlockCanvas');
-            const blockCtx = blockCanvas.getContext('2d');
-            
-            // 메인 캔버스 다시 그리기
-            drawDemoImage();
-            
-            // 격자 그리기 (토글 상태에 따라)
-            if (blockGridVisible) {
-                mainCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-                mainCtx.lineWidth = 2;
-                for (let i = 0; i <= mainCanvas.width; i += 40) {
-                    mainCtx.beginPath();
-                    mainCtx.moveTo(i, 0);
-                    mainCtx.lineTo(i, mainCanvas.height);
-                    mainCtx.stroke();
-                    
-                    mainCtx.beginPath();
-                    mainCtx.moveTo(0, i);
-                    mainCtx.lineTo(mainCanvas.width, i);
-                    mainCtx.stroke();
-                }
-            }
-            
-            // 선택된 블록 강조
-            mainCtx.strokeStyle = '#FF0000';
-            mainCtx.lineWidth = 4;
-            mainCtx.strokeRect(currentBlockX + 1, currentBlockY + 1, 38, 38);
-            
-            // 선택된 블록 복사
-            const imageData = mainCtx.getImageData(currentBlockX, currentBlockY, 40, 40);
-            
-            // 확대하여 표시 (40x40 -> 160x160, 즉 8x8 픽셀 블록)
-            blockCtx.clearRect(0, 0, blockCanvas.width, blockCanvas.height);
-            
-            // 각 픽셀을 5x5 크기로 확대
-            const pixelSize = 20;
-            for (let y = 0; y < 8; y++) {
-                for (let x = 0; x < 8; x++) {
-                    // 5x5 영역의 평균 색상 계산
-                    let r = 0, g = 0, b = 0, count = 0;
-                    for (let dy = 0; dy < 5; dy++) {
-                        for (let dx = 0; dx < 5; dx++) {
-                            const srcX = x * 5 + dx;
-                            const srcY = y * 5 + dy;
-                            if (srcX < 40 && srcY < 40) {
-                                const idx = (srcY * 40 + srcX) * 4;
-                                r += imageData.data[idx];
-                                g += imageData.data[idx + 1];
-                                b += imageData.data[idx + 2];
-                                count++;
-                            }
-                        }
-                    }
-                    r = Math.round(r / count);
-                    g = Math.round(g / count);
-                    b = Math.round(b / count);
-                    
-                    blockCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                    blockCtx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-                }
-            }
-            
-            // 8x8 격자 그리기
-            blockCtx.strokeStyle = '#666';
-            blockCtx.lineWidth = 2;
-            for (let i = 0; i <= 8; i++) {
-                blockCtx.beginPath();
-                blockCtx.moveTo(i * pixelSize, 0);
-                blockCtx.lineTo(i * pixelSize, blockCanvas.height);
-                blockCtx.stroke();
-                
-                blockCtx.beginPath();
-                blockCtx.moveTo(0, i * pixelSize);
-                blockCtx.lineTo(blockCanvas.width, i * pixelSize);
-                blockCtx.stroke();
-            }
-            
-            // 픽셀 번호 표시
-            blockCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            blockCtx.font = 'bold 11px Arial';
-            blockCtx.textAlign = 'center';
-            blockCtx.textBaseline = 'middle';
-            for (let y = 0; y < 8; y++) {
-                for (let x = 0; x < 8; x++) {
-                    const num = y * 8 + x + 1;
-                    blockCtx.fillText(num.toString(), x * pixelSize + pixelSize/2, y * pixelSize + pixelSize/2);
-                }
-            }
+        bx.strokeStyle='#666'; bx.lineWidth=1;
+        for(let i=0;i<=sz;i++){bx.beginPath();bx.moveTo(i*ps,0);bx.lineTo(i*ps,bc.height);bx.stroke();bx.beginPath();bx.moveTo(0,i*ps);bx.lineTo(bc.width,i*ps);bx.stroke();}
+        if(sz<=8){
+          bx.font=`bold ${Math.max(9,ps/2)}px Arial`; bx.textAlign='center'; bx.textBaseline='middle';
+          for(let py=0;py<sz;py++) for(let px=0;px<sz;px++){
+            bx.fillStyle='rgba(255,255,255,0.75)'; bx.fillText(py*sz+px+1, px*ps+ps/2, py*ps+ps/2);
+          }
         }
+      }, []);
 
-        // 격자 토글
-        function toggleBlockGrid() {
-            blockGridVisible = !blockGridVisible;
-            updateBlockDemo();
+      useEffect(() => {
+        updateDemo();
+        const mc = mainRef.current; if (!mc) return;
+        const handler = (e) => {
+          const rect = mc.getBoundingClientRect();
+          const sz = bsRef.current; const cellPx=sz*5;
+          bxRef.current = Math.min(Math.floor((e.clientX-rect.left)/cellPx)*cellPx, mc.width-cellPx);
+          byRef.current = Math.min(Math.floor((e.clientY-rect.top)/cellPx)*cellPx, mc.height-cellPx);
+          updateDemo();
+        };
+        mc.addEventListener('click', handler);
+        return () => mc.removeEventListener('click', handler);
+      }, []);
+
+      const changeBS = (sz) => {
+        bsRef.current = sz; setBS(sz);
+        bxRef.current = Math.floor(bxRef.current/(sz*5))*(sz*5);
+        byRef.current = Math.floor(byRef.current/(sz*5))*(sz*5);
+        updateDemo();
+      };
+      const toggleGrid = () => { gvRef.current = !gvRef.current; setGrid(g=>!g); updateDemo(); };
+      const randomBlock = () => {
+        const sz=bsRef.current; const cellPx=sz*5; const cnt=Math.floor(320/cellPx);
+        bxRef.current=Math.floor(Math.random()*cnt)*cellPx;
+        byRef.current=Math.floor(Math.random()*cnt)*cellPx;
+        updateDemo();
+      };
+
+      const infoMap = {
+        4: <span><strong>4×4 블록</strong> — 블록이 작아서 <span className="highlight">품질이 좋아요</span>. 하지만 처리할 블록 수가 4배 많아져서 압축 효율이 낮아요.</span>,
+        8: <span><strong>8×8 블록 (JPEG 기본)</strong> — 품질과 압축률의 균형이 가장 좋아요. 그래서 JPEG이 이 크기를 표준으로 사용해요!</span>,
+        16:<span><strong>16×16 블록</strong> — 블록이 커서 <span className="highlight">압축률은 높지만</span>, 블록 경계의 "네모 무늬"가 더 뚜렷하게 보여요.</span>,
+      };
+
+      return (
+        <div className="p-6 animate-slide-in space-y-5">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+            <p className="text-base text-gray-700 leading-relaxed">JPEG 압축의 첫 번째 단계는 이미지를 <strong>8×8 픽셀</strong> 크기의 작은 네모 조각으로 나누는 거예요. 왜 그럴까요? 큰 이미지를 한 번에 처리하기 힘드니까 작은 조각으로 쪼개서 하나씩 압축하는 거죠!</p>
+          </div>
+
+          {/* 왜 8×8? */}
+          <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl p-5 border border-amber-200 border-l-4 border-l-amber-400">
+            <p className="text-base font-bold text-amber-800 mb-4">🤔 근데 왜 하필 8×8일까요?</p>
+            <div className="grid md:grid-cols-3 gap-3 mb-4">
+              {[{sz:'4×4 블록',ok:false,desc:'블록이 4배 많아져서\n처리해야 할 일이\n4배 늘어나요',lbl:'너무 작아요 ❌',col:'border-red-300 bg-white'},
+                {sz:'8×8 블록',ok:true, desc:'품질 + 압축률 + 계산량,\n세 가지의\n가장 달콤한 지점!',lbl:'딱 좋아요! ✅',col:'border-pink-400 bg-pink-50 border-2'},
+                {sz:'16×16 블록',ok:false,desc:'네모 무늬가\n더 심하게 보이고\n압축률도 별로예요',lbl:'너무 커요 ❌',col:'border-red-300 bg-white'},
+              ].map(item=>(
+                <div key={item.sz} className={`rounded-xl p-4 text-center border ${item.col}`}>
+                  <div className="text-2xl mb-2">{item.sz}</div>
+                  <p className={`font-bold mb-2 text-base ${item.ok?'text-pink-700':'text-red-600'}`}>{item.lbl}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+            <div className="bg-white rounded-xl p-4 border-l-4 border-amber-400">
+              <p className="text-base text-gray-700 leading-relaxed">📰 <strong>신문 비유:</strong> 신문 사진을 가까이서 보면 작은 점(망점)들로 이루어져 있어요. 점이 너무 <strong>작으면</strong> 점이 그대로 보이고, 너무 <strong>크면</strong> 사진이 흐릿해 보여요. 8×8은 눈을 가장 잘 속이는 <strong>딱 적당한 크기</strong>예요!</p>
+            </div>
+          </div>
+
+          {/* 블록 데모 */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <h3 className="font-bold text-gray-900 text-xl mb-3">📸 블록으로 나뉘는 과정 체험</h3>
+            <p className="text-base text-gray-600 mb-4 text-center">아래 버튼을 눌러서 <strong>블록 크기를 바꿔가며</strong> 비교해보세요!</p>
+            <div className="flex gap-2 flex-wrap justify-center mb-4">
+              {[[4,'4×4 블록','from-pink-400 to-pink-600'],[8,'8×8 (JPEG 기본)','from-pink-600 to-rose-600'],[16,'16×16 블록','from-amber-500 to-amber-600']].map(([sz,lbl,cls])=>(
+                <button key={sz} onClick={()=>changeBS(sz)}
+                  className={`px-4 py-2 bg-gradient-to-r ${cls} text-white font-bold rounded-lg text-base transition-all ${blockSize===sz?'ring-4 ring-offset-1 ring-pink-300':'opacity-70'}`}>{lbl}</button>
+              ))}
+            </div>
+            <div className="bg-pink-50 rounded-xl p-4 border-l-4 border-pink-400 mb-4 text-base">{infoMap[blockSize]}</div>
+            <div className="flex flex-wrap gap-6 justify-center items-center">
+              <div className="text-center">
+                <p className="font-bold text-gray-700 mb-2 text-base">원본 이미지</p>
+                <canvas ref={mainRef} width="320" height="320" className="border-2 border-gray-200 rounded-xl shadow-sm cursor-pointer" />
+                <p className="mt-2 text-sm text-gray-500">전체 이미지 (320×320 픽셀)</p>
+              </div>
+              <div className="text-2xl text-pink-500 font-bold">➜</div>
+              <div className="text-center">
+                <p className="font-bold text-gray-700 mb-2 text-base">선택된 {blockSize}×{blockSize} 블록</p>
+                <canvas ref={blockRef} width="160" height="160" className="border-2 border-gray-200 rounded-xl shadow-sm" />
+                <p className="mt-2 text-sm text-gray-500">확대된 블록 (픽셀 수: {blockSize*blockSize}개)</p>
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap justify-center mt-4">
+              <button onClick={toggleGrid} className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-lg text-base hover:shadow-lg transition-all">격자 {gridVisible?'숨기기':'보기'}</button>
+              <button onClick={randomBlock} className="px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold rounded-lg text-base hover:shadow-lg transition-all">다른 블록 보기</button>
+            </div>
+            <p className="text-center mt-3 text-sm text-gray-500">💡 <strong>원본 이미지를 클릭</strong>하면 해당 위치의 블록을 확대해서 볼 수 있어요!</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+            <p className="text-base text-gray-700 leading-relaxed">예를 들어, 800×600 픽셀 이미지라면:<br/>→ 가로로 100개 블록, 세로로 75개 블록<br/>→ 이 <strong>7,500개의 블록</strong>으로 나뉘어요!<br/>→ 각 블록을 하나씩 압축합니다</p>
+          </div>
+        </div>
+      );
+    };
+
+    /* ═══════════════════════════════════════════
+       DCT 섹션
+    ═══════════════════════════════════════════ */
+    const DCTSection = () => {
+      const gridRef = useRef(null);
+
+      useEffect(() => {
+        const grid = gridRef.current; if (!grid) return;
+        grid.innerHTML = '';
+        for(let y=0;y<8;y++) for(let x=0;x<8;x++){
+          const cell = document.createElement('div');
+          cell.className = 'freq-cell';
+          const dist=Math.sqrt(x*x+y*y), maxD=Math.sqrt(98), ratio=dist/maxD;
+          let r,g,b;
+          if(ratio<0.5){const t=ratio*2;r=g=b=Math.round(255-t*55);}
+          else{const t=(ratio-0.5)*2;r=g=b=Math.round(200-t*80);}
+          cell.style.background=`rgb(${r},${g},${b})`;
+          const bright=(r+g+b)/3;
+          cell.style.color=bright>128?'#333':'#fff';
+          const val=DCT_VALUES[y][x];
+          if(x===0&&y===0){const l=document.createElement('div');l.style.fontSize='0.55em';l.style.marginBottom='2px';l.textContent='저주파';cell.appendChild(l);}
+          else if(x===7&&y===7){const l=document.createElement('div');l.style.fontSize='0.5em';l.style.marginBottom='2px';l.textContent='고주파';cell.appendChild(l);}
+          if(x<=2&&y<=2) cell.style.border='2px solid rgba(255,0,0,0.6)';
+          const sp=document.createElement('span');sp.style.fontSize='0.9em';sp.textContent=val;cell.appendChild(sp);
+          grid.appendChild(cell);
         }
+      }, []);
 
-        // 랜덤 블록 강조
-        function highlightRandomBlock() {
-            currentBlockX = Math.floor(Math.random() * 8) * 40;
-            currentBlockY = Math.floor(Math.random() * 8) * 40;
-            updateBlockDemo();
+      return (
+        <div className="p-6 animate-slide-in space-y-5">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+            <p className="text-base text-gray-700 leading-relaxed">이제 각 블록에 <strong>DCT(이산 코사인 변환)</strong>를 적용해요. DCT는 블록 안에 <strong>어떤 주파수(파도)가 얼마나 들어있는지</strong> 계산하는 수학 도구예요.<br/><br/>복잡한 음악을 "높은 음", "중간 음", "낮은 음"으로 나누는 것처럼, DCT는 이미지를 여러 주파수로 나눠요!</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <h3 className="font-bold text-gray-900 text-xl mb-3 text-center">🎯 DCT 결과: 주파수 지도</h3>
+            <p className="text-base text-gray-600 text-center mb-4">DCT를 하면 이런 주파수 지도가 나와요. 각 칸의 숫자는 해당 주파수가 얼마나 많이 들어있는지를 나타냅니다!</p>
+            <div ref={gridRef} className="freq-grid" />
+            <div className="mt-4 text-center">
+              <p className="text-base leading-relaxed">
+                <span className="highlight">왼쪽 위 (빨간 테두리)</span> = 저주파 영역<br/>
+                DC 계수 <strong>415</strong>는 이미지의 평균 밝기를 나타내요 (가장 중요!)<br/>
+                <span className="highlight">오른쪽 아래</span> = 고주파 영역 — 값이 점점 작아지고 <strong>대부분 0</strong>이에요!
+              </p>
+            </div>
+          </div>
+
+          {/* DC vs AC */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-pink-200">
+            <p className="text-xl font-bold text-pink-800 mb-4 text-center">🔑 DCT 결과값, 딱 두 종류만 기억하면 돼요!</p>
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="rounded-xl p-5 bg-gradient-to-br from-pink-50 to-rose-50 border-l-4 border-pink-500">
+                <p className="font-bold text-pink-700 mb-3 text-base">📌 DC 계수 (1개)</p>
+                <p className="text-base text-gray-700 leading-relaxed">주파수 지도의 <strong>왼쪽 위 맨 첫 번째 값</strong>이에요.<br/>이 8×8 블록 전체의 <strong>평균 밝기(색상)</strong>를 나타내요.<br/><br/>🎨 비유: "이 조각의 전체적인 색깔이 뭐야?"<br/>→ 가장 중요해서 압축해도 <strong>절대 버리지 않아요!</strong></p>
+              </div>
+              <div className="rounded-xl p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-l-4 border-green-500">
+                <p className="font-bold text-green-700 mb-3 text-base">📌 AC 계수 (나머지 63개)</p>
+                <p className="text-base text-gray-700 leading-relaxed">DC 계수를 제외한 <strong>나머지 63개</strong> 값이에요.<br/>밝기가 얼마나 <strong>빠르게·느리게 변하는지</strong>(주파수)를 나타내요.<br/><br/>🎨 비유: "이 조각 안에서 색이 얼마나 복잡하게 바뀌어?"<br/>→ 고주파 AC 계수는 <strong>버려도 눈이 잘 몰라요!</strong></p>
+              </div>
+            </div>
+            <div className="bg-yellow-50 rounded-xl p-4 text-center border border-yellow-200">
+              <p className="text-base font-bold text-yellow-800">💡 정리: DC = 평균 밝기 1개 (절대 버리면 안 됨) / AC = 주파수 변화 63개 (고주파는 버려도 OK!)</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    /* ═══════════════════════════════════════════
+       양자화 + 압축 데모 섹션
+    ═══════════════════════════════════════════ */
+    const QuantSection = () => {
+      const origRef = useRef(null);
+      const compRef = useRef(null);
+      const zigRef  = useRef(null);
+      const [quality, setQuality]   = useState(80);
+      const [imgType, setImgType]   = useState('sky');
+      const [origKB, setOrigKB]     = useState(100);
+      const [compKB, setCompKB]     = useState(12);
+      const [savedKB, setSavedKB]   = useState(88);
+      const [sizeMsg, setSizeMsg]   = useState('카카오톡으로 빠르게 전송할 수 있어요!');
+      const imgDataRef = useRef(null);
+      const origSizeRef = useRef(100);
+      const zigTimerRef = useRef(null);
+      const zigStepRef  = useRef(0);
+
+      const drawSample = useCallback((type, canvas) => {
+        const ctx = canvas.getContext('2d');
+        const sz = canvas.width;
+        ctx.clearRect(0,0,sz,sz);
+        if (type==='sky') {
+          const g=ctx.createLinearGradient(0,0,0,sz);
+          g.addColorStop(0,'#93c5fd');g.addColorStop(0.35,'#60a5fa');g.addColorStop(0.65,'#fbbf24');g.addColorStop(1,'#fb923c');
+          ctx.fillStyle=g; ctx.fillRect(0,0,sz,sz);
+          ctx.fillStyle='#fef08a'; ctx.shadowColor='#fbbf24'; ctx.shadowBlur=20;
+          ctx.beginPath(); ctx.arc(sz*0.75,sz*0.25,45,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+          ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.beginPath();
+          ctx.arc(90,70,35,0,Math.PI*2); ctx.arc(125,70,40,0,Math.PI*2); ctx.arc(160,70,35,0,Math.PI*2); ctx.fill();
+        } else if (type==='portrait') {
+          ctx.fillStyle='#fef3c7'; ctx.fillRect(0,0,sz,sz);
+          ctx.fillStyle='#fde047'; ctx.beginPath(); ctx.arc(sz/2,sz/2,110,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='#1f2937';
+          ctx.beginPath(); ctx.arc(sz/2-40,sz/2-30,14,0,Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(sz/2+40,sz/2-30,14,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='white';
+          ctx.beginPath(); ctx.arc(sz/2-37,sz/2-33,5,0,Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(sz/2+43,sz/2-33,5,0,Math.PI*2); ctx.fill();
+          ctx.strokeStyle='#1f2937'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(sz/2,sz/2+25,45,0,Math.PI); ctx.stroke();
+        } else {
+          ctx.fillStyle='#bae6fd'; ctx.fillRect(0,0,sz,sz);
+          [[35,130,70,190],[115,100,80,220],[205,150,60,170]].forEach(([x,y,w,h])=>{
+            ctx.fillStyle='#475569'; ctx.fillRect(x,y,w,h);
+            ctx.strokeStyle='#1e293b'; ctx.lineWidth=2; ctx.strokeRect(x,y,w,h);
+            const cols=Math.floor(w/20), rows=Math.floor(h/28);
+            for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+              const wx=x+10+c*20, wy=y+15+r*28;
+              ctx.fillStyle='#fef3c7'; ctx.fillRect(wx,wy,12,18);
+            }
+          });
         }
+      }, []);
 
-        // 주파수 그리드 초기화
-        function initializeFrequencyGrid() {
-            const grid = document.getElementById('frequencyGrid');
-            
-            // 현실적인 DCT 계수 값 (8x8 행렬)
-            // 특징: 왼쪽 위는 큰 값, 오른쪽 아래로 갈수록 작아지고 0이 많아짐
-            const dctValues = [
-                [415, -33, -12, 8, 4, -3, 1, 0],
-                [-28, -24, 6, 5, -2, 1, 0, 0],
-                [-19, 13, -7, 3, 1, 0, 0, 0],
-                [11, -8, 4, -2, 1, 0, 0, 0],
-                [7, -5, 2, -1, 0, 0, 0, 0],
-                [-4, 3, -1, 0, 0, 0, 0, 0],
-                [2, -1, 0, 0, 0, 0, 0, 0],
-                [-1, 0, 0, 0, 0, 0, 0, 0]
-            ];
-            
-            for (let y = 0; y < 8; y++) {
-                for (let x = 0; x < 8; x++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'freq-cell';
-                    
-                    // 거리에 따라 색상 변경 (저주파는 밝은 베이지, 고주파는 어두운 갈색/검정)
-                    const dist = Math.sqrt(x * x + y * y);
-                    const maxDist = Math.sqrt(7 * 7 + 7 * 7); // 대각선 최대 거리
-                    const ratio = dist / maxDist; // 0 (저주파) ~ 1 (고주파)
-                    
-                    // 베이지(255,220,180) → 갈색(100,70,40) → 검정(30,20,10)
-                    let r, g, b;
-                    if (ratio < 0.5) {
-                        // 저주파 → 중간: 밝은 베이지 → 갈색
-                        const t = ratio * 2;
-                        r = Math.round(255 - t * 55);
-                        g = Math.round(255 - t * 55);
-                        b = Math.round(255 - t * 55);
-                    } else {
-                        // 중간 → 고주파: 갈색 → 어두운 검정
-                        const t = (ratio - 0.5) * 2;
-                        r = Math.round(200 - t * 80);
-                        g = Math.round(200 - t * 80);
-                        b = Math.round(200 - t * 80);
-                    }
-                    
-                    cell.style.background = `rgb(${r}, ${g}, ${b})`;
-                    
-                    // 텍스트 색상 결정 (밝은 배경이면 어두운 텍스트, 어두운 배경이면 밝은 텍스트)
-                    const brightness = (r + g + b) / 3;
-                    cell.style.color = brightness > 128 ? '#333' : '#fff';
-                    
-                    // DCT 계수 값 표시
-                    const value = dctValues[y][x];
-                    const valueSpan = document.createElement('span');
-                    valueSpan.className = 'freq-value';
-                    valueSpan.textContent = value;
-                    cell.appendChild(valueSpan);
-                    
-                    // 특별한 위치 표시 (왼쪽 위에 빨간 테두리)
-                    if (x <= 2 && y <= 2) {
-                        cell.style.border = '2px solid rgba(255, 0, 0, 0.6)';
-                    }
-                    
-                    // 저주파/고주파 레이블 추가 (작게)
-                    if (x === 0 && y === 0) {
-                        const label = document.createElement('div');
-                        label.style.fontSize = '0.55em';
-                        label.style.marginBottom = '2px';
-                        label.textContent = '저주파';
-                        cell.insertBefore(label, valueSpan);
-                    } else if (x === 7 && y === 7) {
-                        const label = document.createElement('div');
-                        label.style.fontSize = '0.5em';
-                        label.style.marginBottom = '2px';
-                        label.textContent = '고주파';
-                        cell.insertBefore(label, valueSpan);
-                    }
-                    
-                    grid.appendChild(cell);
-                }
-            }
+      const applyBlur = (ctx, w, h, radius) => {
+        const id=ctx.getImageData(0,0,w,h); const d=id.data; const tmp=new Uint8ClampedArray(d);
+        for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+          let r=0,g=0,b=0,cnt=0;
+          for(let dy=-radius;dy<=radius;dy++) for(let dx=-radius;dx<=radius;dx++){
+            const nx=x+dx, ny=y+dy;
+            if(nx>=0&&nx<w&&ny>=0&&ny<h){const i=(ny*w+nx)*4;r+=tmp[i];g+=tmp[i+1];b+=tmp[i+2];cnt++;}
+          }
+          const i=(y*w+x)*4; d[i]=r/cnt; d[i+1]=g/cnt; d[i+2]=b/cnt;
         }
+        ctx.putImageData(id,0,0);
+      };
 
-        // 파도 그리기
-        function drawWaves() {
-            // 저주파 파도
-            const lowCanvas = document.getElementById('lowFreqWave');
-            const lowCtx = lowCanvas.getContext('2d');
-            lowCtx.clearRect(0, 0, lowCanvas.width, lowCanvas.height);
-            
-            // 배경
-            lowCtx.fillStyle = '#f0f9ff';
-            lowCtx.fillRect(0, 0, lowCanvas.width, lowCanvas.height);
-            
-            // 저주파 파도 그리기
-            lowCtx.strokeStyle = '#3b82f6';
-            lowCtx.lineWidth = 4;
-            lowCtx.beginPath();
-            for (let x = 0; x < lowCanvas.width; x++) {
-                const y = lowCanvas.height/2 + Math.sin(x * 0.015) * 45;
-                if (x === 0) lowCtx.moveTo(x, y);
-                else lowCtx.lineTo(x, y);
-            }
-            lowCtx.stroke();
-            
-            // 텍스트
-            lowCtx.fillStyle = '#1e40af';
-            lowCtx.font = 'bold 14px Malgun Gothic';
-            lowCtx.fillText('천천히 변함', 10, 25);
-
-            // 고주파 파도
-            const highCanvas = document.getElementById('highFreqWave');
-            const highCtx = highCanvas.getContext('2d');
-            highCtx.clearRect(0, 0, highCanvas.width, highCanvas.height);
-            
-            // 배경
-            highCtx.fillStyle = '#fef2f2';
-            highCtx.fillRect(0, 0, highCanvas.width, highCanvas.height);
-            
-            // 고주파 파도 그리기
-            highCtx.strokeStyle = '#ef4444';
-            highCtx.lineWidth = 3;
-            highCtx.beginPath();
-            for (let x = 0; x < highCanvas.width; x++) {
-                const y = highCanvas.height/2 + Math.sin(x * 0.15) * 25;
-                if (x === 0) highCtx.moveTo(x, y);
-                else highCtx.lineTo(x, y);
-            }
-            highCtx.stroke();
-            
-            // 텍스트
-            highCtx.fillStyle = '#991b1b';
-            highCtx.font = 'bold 14px Malgun Gothic';
-            highCtx.fillText('빠르게 변함', 10, 25);
+      const applyBlock = (ctx, w, h, q) => {
+        const id=ctx.getImageData(0,0,w,h); const d=id.data;
+        const str=(40-q)/40; const bs=8;
+        for(let y=0;y<h;y+=bs) for(let x=0;x<w;x+=bs){
+          if(x>0&&y>0){
+            for(let i=0;i<bs&&y+i<h;i++){const idx=((y+i)*w+x)*4;const off=str*15;d[idx]=Math.min(255,d[idx]+off);d[idx+1]=Math.min(255,d[idx+1]+off);d[idx+2]=Math.min(255,d[idx+2]+off);}
+            for(let i=0;i<bs&&x+i<w;i++){const idx=(y*w+(x+i))*4;const off=str*15;d[idx]=Math.min(255,d[idx]+off);d[idx+1]=Math.min(255,d[idx+1]+off);d[idx+2]=Math.min(255,d[idx+2]+off);}
+          }
         }
+        ctx.putImageData(id,0,0);
+      };
 
-        // 그리기 캔버스 초기화
-        function initDrawCanvas() {
-            const canvas = document.getElementById('drawCanvas');
-            const ctx = canvas.getContext('2d');
-            const pixelSize = 20;
-            
-            // 흰색 배경
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 그리드 그리기
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= canvas.width; i += pixelSize) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, canvas.height);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i);
-                ctx.stroke();
-            }
-            
-            // 클릭 이벤트
-            canvas.addEventListener('click', function(e) {
-                const rect = canvas.getBoundingClientRect();
-                const x = Math.floor((e.clientX - rect.left) / pixelSize) * pixelSize;
-                const y = Math.floor((e.clientY - rect.top) / pixelSize) * pixelSize;
-                
-                ctx.fillStyle = 'black';
-                ctx.fillRect(x, y, pixelSize, pixelSize);
-            });
-        }
+      const calcSize = (q) => {
+        const orig = origSizeRef.current;
+        let ratio;
+        if(q>=95) ratio=0.85;
+        else if(q>=85) ratio=0.55+(q-85)/10*0.30;
+        else if(q>=70) ratio=0.20+(q-70)/15*0.35;
+        else if(q>=50) ratio=0.10+(q-50)/20*0.10;
+        else if(q>=30) ratio=0.04+(q-30)/20*0.06;
+        else ratio=0.01+(q-10)/20*0.03;
+        return Math.max(1, Math.round(orig*ratio));
+      };
 
-        // 캔버스 지우기
-        function clearCanvas() {
-            initDrawCanvas();
-            document.getElementById('drawResult').style.display = 'none';
-        }
+      const applyQuality = useCallback((q) => {
+        const cc = compRef.current; if (!cc||!imgDataRef.current) return;
+        const ctx = cc.getContext('2d');
+        ctx.putImageData(imgDataRef.current,0,0);
+        const blur=Math.round((100-q)/12);
+        if(blur>0) applyBlur(ctx, cc.width, cc.height, blur);
+        if(q<40) applyBlock(ctx, cc.width, cc.height, q);
+        const comp=calcSize(q);
+        const saved=origSizeRef.current-comp;
+        setCompKB(comp); setSavedKB(saved); setOrigKB(origSizeRef.current);
+        setSizeMsg(q>=80?'📱 셀카를 찍을 때마다 이 계산이 수조 번씩 일어나고 있어요!':
+          q>=50?'카카오톡으로 빠르게 전송할 수 있어요!':
+          q>=30?'⚠️ 용량은 작지만 화질이 떨어지기 시작해요.':'😱 깍두기 무늬(블로킹 현상)가 눈에 보일 거예요!');
+      }, []);
 
-        // 저주파 예시 그리기
-        function drawLowFrequency() {
-            const canvas = document.getElementById('drawCanvas');
-            const ctx = canvas.getContext('2d');
-            const pixelSize = 20;
-            
-            clearCanvas();
-            
-            // 부드러운 그라데이션 (저주파)
-            ctx.fillStyle = 'black';
-            for (let y = 0; y < 16; y++) {
-                for (let x = 0; x < 16; x++) {
-                    const distance = Math.sqrt((x - 8) ** 2 + (y - 8) ** 2);
-                    const alpha = Math.max(0, 1 - distance / 8);
-                    ctx.globalAlpha = alpha;
-                    ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-                }
-            }
-            ctx.globalAlpha = 1;
-            
-            document.getElementById('drawResult').innerHTML = 
-                '<strong>저주파 이미지:</strong> 천천히, 부드럽게 변합니다. 가운데가 진하고 주변으로 갈수록 옅어집니다.';
-            document.getElementById('drawResult').style.display = 'block';
-        }
+      const loadImage = useCallback((type) => {
+        origSizeRef.current = 100;
+        const oc = origRef.current; if (!oc) return;
+        drawSample(type, oc);
+        imgDataRef.current = oc.getContext('2d').getImageData(0,0,oc.width,oc.height);
+        applyQuality(quality);
+      }, [quality, drawSample, applyQuality]);
 
-        // 고주파 예시 그리기
-        function drawHighFrequency() {
-            const canvas = document.getElementById('drawCanvas');
-            const ctx = canvas.getContext('2d');
-            const pixelSize = 20;
-            
-            clearCanvas();
-            
-            // 체스판 패턴 (고주파)
-            ctx.fillStyle = 'black';
-            for (let y = 0; y < 16; y++) {
-                for (let x = 0; x < 16; x++) {
-                    if ((x + y) % 2 === 0) {
-                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-                    }
-                }
-            }
-            
-            document.getElementById('drawResult').innerHTML = 
-                '<strong>고주파 이미지:</strong> 빠르게, 급격하게 변합니다. 픽셀마다 색이 바뀌어 경계선이 많습니다.';
-            document.getElementById('drawResult').style.display = 'block';
-        }
+      useEffect(() => { loadImage(imgType); }, []);
 
-        // 샘플 이미지 로드
-        function loadSampleImage(type) {
-            // 샘플 이미지는 기본 크기로 설정
-            originalFileSize = 100;
-            
-            const canvas = document.getElementById('originalCanvas');
-            const ctx = canvas.getContext('2d');
-            const size = canvas.width;
-            
-            ctx.clearRect(0, 0, size, size);
-            
-            if (type === 'sky') {
-                // 하늘 - 저주파 많음
-                const gradient = ctx.createLinearGradient(0, 0, 0, size);
-                gradient.addColorStop(0, '#93c5fd');
-                gradient.addColorStop(0.35, '#60a5fa');
-                gradient.addColorStop(0.65, '#fbbf24');
-                gradient.addColorStop(1, '#fb923c');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, size, size);
-                
-                // 태양
-                ctx.fillStyle = '#fef08a';
-                ctx.shadowColor = '#fbbf24';
-                ctx.shadowBlur = 20;
-                ctx.beginPath();
-                ctx.arc(size * 0.75, size * 0.25, 45, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                
-                // 구름
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.beginPath();
-                ctx.arc(90, 70, 35, 0, Math.PI * 2);
-                ctx.arc(125, 70, 40, 0, Math.PI * 2);
-                ctx.arc(160, 70, 35, 0, Math.PI * 2);
-                ctx.fill();
-                
-            } else if (type === 'portrait') {
-                // 얼굴 - 중간
-                ctx.fillStyle = '#fef3c7';
-                ctx.fillRect(0, 0, size, size);
-                
-                // 얼굴
-                ctx.fillStyle = '#fde047';
-                ctx.beginPath();
-                ctx.arc(size/2, size/2, 110, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // 눈
-                ctx.fillStyle = '#1f2937';
-                ctx.beginPath();
-                ctx.arc(size/2 - 40, size/2 - 30, 14, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(size/2 + 40, size/2 - 30, 14, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // 눈동자
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(size/2 - 37, size/2 - 33, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(size/2 + 43, size/2 - 33, 5, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // 입
-                ctx.strokeStyle = '#1f2937';
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.arc(size/2, size/2 + 25, 45, 0, Math.PI);
-                ctx.stroke();
-                
-            } else if (type === 'building') {
-                // 건물 - 고주파 많음
-                ctx.fillStyle = '#bae6fd';
-                ctx.fillRect(0, 0, size, size);
-                
-                // 건물들
-                const buildings = [
-                    {x: 35, y: 130, w: 70, h: 190},
-                    {x: 115, y: 100, w: 80, h: 220},
-                    {x: 205, y: 150, w: 60, h: 170},
-                ];
-                
-                buildings.forEach(b => {
-                    // 건물 본체
-                    ctx.fillStyle = '#475569';
-                    ctx.fillRect(b.x, b.y, b.w, b.h);
-                    
-                    // 건물 테두리
-                    ctx.strokeStyle = '#1e293b';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(b.x, b.y, b.w, b.h);
-                    
-                    // 창문들 (고주파!)
-                    ctx.fillStyle = '#fef3c7';
-                    const cols = Math.floor(b.w / 20);
-                    const rows = Math.floor(b.h / 28);
-                    for (let r = 0; r < rows; r++) {
-                        for (let c = 0; c < cols; c++) {
-                            const winX = b.x + 10 + c * 20;
-                            const winY = b.y + 15 + r * 28;
-                            ctx.fillRect(winX, winY, 12, 18);
-                            // 창문 테두리
-                            ctx.strokeStyle = '#92400e';
-                            ctx.lineWidth = 1;
-                            ctx.strokeRect(winX, winY, 12, 18);
-                        }
-                    }
-                });
-            }
-            
-            // 이미지 데이터 저장
-            currentImageData = ctx.getImageData(0, 0, size, size);
-            
-            // 초기 압축 적용
-            updateQuality(80);
+      /* 지그재그 */
+      const drawZigBase = useCallback(() => {
+        const c = zigRef.current; if (!c) return;
+        const ctx=c.getContext('2d'); const W=c.width; const cell=W/8;
+        ctx.clearRect(0,0,W,W);
+        for(let r=0;r<8;r++) for(let cc2=0;cc2<8;cc2++){
+          const val=DEMO_MATRIX[r][cc2];
+          const isZero=val===0;
+          const int=isZero?240:Math.max(80,220-Math.abs(val)/2);
+          ctx.fillStyle=isZero?'#e0f2fe':`rgb(255,${Math.round(int*0.6)},${Math.round(int*0.6)})`;
+          ctx.fillRect(cc2*cell,r*cell,cell-1,cell-1);
+          ctx.fillStyle=isZero?'#93c5fd':'#7f1d1d';
+          ctx.font=`bold ${cell*0.28}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(val, cc2*cell+cell/2, r*cell+cell/2);
         }
+      }, []);
 
-        // 사용자 이미지 로드
-        function loadUserImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            // 이미지 파일인지 확인
-            if (!file.type.startsWith('image/')) {
-                alert('이미지 파일만 선택할 수 있습니다!');
-                return;
-            }
-            
-            // 원본 파일 크기 저장 (KB 단위로 변환)
-            originalFileSize = Math.round(file.size / 1024);
-            
-            // 파일 크기 확인 및 경고
-            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            if (file.size > 5 * 1024 * 1024) { // 5MB 이상
-                if (!confirm(`선택한 이미지 크기가 ${fileSizeMB}MB로 큽니다.\n처리에 시간이 걸릴 수 있습니다. 계속하시겠습니까?`)) {
-                    event.target.value = ''; // 파일 선택 취소
-                    return;
-                }
-            }
-            
-            // 로딩 표시
-            const canvas = document.getElementById('originalCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#f3f4f6';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#667eea';
-            ctx.font = 'bold 20px Malgun Gothic';
-            ctx.textAlign = 'center';
-            ctx.fillText('이미지 처리 중...', canvas.width/2, canvas.height/2);
-            
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const img = new Image();
-                
-                img.onload = function() {
-                    const canvas = document.getElementById('originalCanvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = canvas.width;
-                    
-                    // 캔버스 초기화
-                    ctx.clearRect(0, 0, size, size);
-                    
-                    // 이미지 비율 유지하면서 캔버스에 맞게 그리기
-                    const scale = Math.min(size / img.width, size / img.height);
-                    const x = (size - img.width * scale) / 2;
-                    const y = (size - img.height * scale) / 2;
-                    
-                    // 배경을 흰색으로
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, size, size);
-                    
-                    // 이미지 그리기
-                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-                    
-                    // 이미지 데이터 저장
-                    currentImageData = ctx.getImageData(0, 0, size, size);
-                    
-                    // 초기 압축 적용
-                    updateQuality(80);
-                };
-                
-                img.src = e.target.result;
-            };
-            
-            reader.readAsDataURL(file);
-        }
+      useEffect(() => { drawZigBase(); }, []);
 
-        // 품질 업데이트 및 압축 적용
-        function updateQuality(value) {
-            document.getElementById('qualityValue').textContent = value;
-            
-            if (!currentImageData) return;
-            
-            // 파일 크기 계산 (실제 원본 크기 기반)
-            const compressedSize = Math.round(originalFileSize * (value / 100));
-            const savedSize = originalFileSize - compressedSize;
-            const savedPercent = Math.round((savedSize / originalFileSize) * 100);
-            
-            // 화면에 표시
-            document.getElementById('originalSize').textContent = originalFileSize; // 원본 크기 표시 추가
-            document.getElementById('compressedSize').textContent = compressedSize;
-            document.getElementById('savedSize').textContent = savedSize;
-            document.getElementById('savedPercent').textContent = savedPercent
-            
-            // 압축 캔버스에 복사 및 효과 적용
-            const canvas = document.getElementById('compressedCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.putImageData(currentImageData, 0, 0);
-            
-            // 블러 효과로 고주파 제거 시뮬레이션
-            const blurAmount = Math.round((100 - value) / 12);
-            if (blurAmount > 0) {
-                applyBoxBlur(ctx, canvas.width, canvas.height, blurAmount);
-            }
-            
-            // 블록 아티팩트 효과 (낮은 품질일 때)
-            if (value < 40) {
-                addBlockArtifact(ctx, canvas.width, canvas.height, value);
-            }
-            
-            // 결과 설명
-            let explanation = '';
-            if (value >= 80) {
-                explanation = '<p><strong>높은 품질 (80~100%):</strong> 고주파를 거의 버리지 않아요. 원본과 거의 똑같지만 압축률은 낮아요. (' + savedPercent + '% 절약)</p>';
-            } else if (value >= 50) {
-                explanation = '<p><strong>적절한 품질 (50~79%):</strong> 저주파는 그대로 두고 고주파를 조금만 버려요. 품질과 크기의 좋은 균형! 대부분 이 정도로 저장해요. (' + savedPercent + '% 절약)</p>';
-            } else if (value >= 30) {
-                explanation = '<p><strong>낮은 품질 (30~49%):</strong> 고주파를 많이 버려서 세밀한 부분이 흐려져요. 파일은 많이 작아지지만 품질이 떨어져요. (' + savedPercent + '% 절약)</p>';
-            } else {
-                explanation = '<p><strong>⚠️ 매우 낮은 품질 (10~29%):</strong> 고주파를 거의 다 버려서 <span class="highlight">블록 무늬(JPEG 아티팩트)</span>가 생겨요! 파일은 아주 작지만 품질이 많이 나빠요. (' + savedPercent + '% 절약)</p>';
-            }
-            
-            document.getElementById('resultExplanation').innerHTML = explanation;
-        }
+      const startZigzag = () => {
+        if (zigTimerRef.current) clearInterval(zigTimerRef.current);
+        zigStepRef.current = 0; drawZigBase();
+        const c=zigRef.current; if(!c) return;
+        const ctx=c.getContext('2d'); const W=c.width; const cell=W/8;
+        const path = [];
+        zigTimerRef.current = setInterval(()=>{
+          if(zigStepRef.current>=ZIGZAG_ORDER.length){clearInterval(zigTimerRef.current);return;}
+          drawZigBase();
+          path.push(ZIGZAG_ORDER[zigStepRef.current]);
+          ctx.strokeStyle='#f5576c'; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.beginPath();
+          path.forEach(([r,cc2],i)=>{ const x=cc2*cell+cell/2,y=r*cell+cell/2; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+          ctx.stroke();
+          const [cr,cc2]=ZIGZAG_ORDER[zigStepRef.current];
+          ctx.fillStyle='rgba(245,87,108,0.25)'; ctx.fillRect(cc2*cell,cr*cell,cell-1,cell-1);
+          ctx.strokeStyle='#f5576c'; ctx.lineWidth=2; ctx.strokeRect(cc2*cell+1,cr*cell+1,cell-3,cell-3);
+          ctx.fillStyle='#be185d'; ctx.font=`bold ${cell*0.22}px sans-serif`; ctx.textAlign='left'; ctx.textBaseline='top';
+          ctx.fillText(zigStepRef.current+1, cc2*cell+2, cr*cell+2);
+          zigStepRef.current++;
+        }, 80);
+      };
 
-        // 박스 블러 적용 (고주파 제거 시뮬레이션)
-        function applyBoxBlur(ctx, width, height, radius) {
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            const tempData = new Uint8ClampedArray(data);
-            
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let r = 0, g = 0, b = 0, count = 0;
-                    
-                    for (let dy = -radius; dy <= radius; dy++) {
-                        for (let dx = -radius; dx <= radius; dx++) {
-                            const nx = x + dx;
-                            const ny = y + dy;
-                            
-                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                                const idx = (ny * width + nx) * 4;
-                                r += tempData[idx];
-                                g += tempData[idx + 1];
-                                b += tempData[idx + 2];
-                                count++;
-                            }
-                        }
-                    }
-                    
-                    const idx = (y * width + x) * 4;
-                    data[idx] = r / count;
-                    data[idx + 1] = g / count;
-                    data[idx + 2] = b / count;
-                }
-            }
-            
-            ctx.putImageData(imageData, 0, 0);
-        }
+      const resetZigzag = () => { if(zigTimerRef.current){clearInterval(zigTimerRef.current);zigTimerRef.current=null;} zigStepRef.current=0; drawZigBase(); };
 
-        // 블록 아티팩트 추가 (낮은 품질 시뮬레이션)
-        function addBlockArtifact(ctx, width, height, quality) {
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            const blockSize = 8;
-            const strength = (40 - quality) / 40; // 0~1
-            
-            // 8x8 블록 경계에 약간의 불연속성 추가
-            for (let y = 0; y < height; y += blockSize) {
-                for (let x = 0; x < width; x += blockSize) {
-                    // 블록 경계 강조
-                    if (x > 0 && y > 0) {
-                        for (let i = 0; i < blockSize && y + i < height; i++) {
-                            const idx = ((y + i) * width + x) * 4;
-                            const offset = strength * 15;
-                            data[idx] = Math.min(255, data[idx] + offset);
-                            data[idx + 1] = Math.min(255, data[idx + 1] + offset);
-                            data[idx + 2] = Math.min(255, data[idx + 2] + offset);
-                        }
-                        for (let i = 0; i < blockSize && x + i < width; i++) {
-                            const idx = (y * width + (x + i)) * 4;
-                            const offset = strength * 15;
-                            data[idx] = Math.min(255, data[idx] + offset);
-                            data[idx + 1] = Math.min(255, data[idx + 1] + offset);
-                            data[idx + 2] = Math.min(255, data[idx + 2] + offset);
-                        }
-                    }
-                }
-            }
-            
-            ctx.putImageData(imageData, 0, 0);
-        }
-    </script>
+      const handleQ = (v) => { setQuality(Number(v)); applyQuality(Number(v)); };
+
+      const qualRows = [
+        ['100%','약 1:1 (거의 원본)','원본과 동일 수준','전문 사진 작업, 의료 이미지','bg-green-50 text-green-800'],
+        ['85~95%','약 1:2~3','매우 우수 (차이 거의 없음)','인스타그램 고화질 저장','bg-green-50 text-green-700'],
+        ['60~80%','약 1:5~10','좋음 (실용적 균형)','카카오톡 일반 전송, 웹 이미지','bg-yellow-50 text-yellow-800'],
+        ['30~50%','약 1:15~20','보통 (뭉개짐 시작)','썸네일, 미리보기 이미지','bg-orange-50 text-orange-700'],
+        ['≤20%','약 1:30 이상','불량 (블록 무늬 뚜렷)','아이콘, 극초소형 이미지','bg-red-50 text-red-700'],
+      ];
+
+      const qResult = quality>=80?`높은 품질 (80~100%): 고주파를 거의 버리지 않아요. 원본과 거의 똑같지만 압축률은 낮아요.`
+        :quality>=50?`적절한 품질 (50~79%): 저주파는 그대로 두고 고주파를 조금만 버려요. 품질과 크기의 좋은 균형!`
+        :quality>=30?`낮은 품질 (30~49%): 고주파를 많이 버려서 세밀한 부분이 흐려져요. 파일은 많이 작아지지만 품질이 떨어져요.`
+        :`⚠️ 매우 낮은 품질 (10~29%): 고주파를 거의 다 버려서 블록 무늬(JPEG 아티팩트)가 생겨요!`;
+
+      return (
+        <div className="p-6 animate-slide-in space-y-5">
+          {/* 양자화 설명 */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+            <p className="text-base text-gray-700 leading-relaxed">이제 압축의 핵심 단계예요! <strong>양자화(Quantization)</strong>라는 과정에서 고주파 부분의 숫자를 <strong>작게 만들거나 0으로</strong> 바꿔요.<br/><br/>왜 그럴까요? 사람 눈이 고주파(세밀한 디테일)는 잘 못 느끼니까, 버려도 이미지 품질이 크게 나빠지지 않아요!</p>
+          </div>
+
+          {/* 손실 vs 무손실 */}
+          <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-2xl p-5 border border-l-4 border-l-red-500 border-red-200">
+            <p className="font-bold text-red-800 mb-4 text-base">⚠️ 중요! JPEG은 '손실 압축'이에요</p>
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="bg-white rounded-xl p-4 border-t-4 border-red-400">
+                <p className="font-bold text-red-700 mb-2 text-base">😢 손실 압축 (JPEG)</p>
+                <p className="text-base text-gray-700 leading-relaxed">0으로 버린 고주파 정보는<br/><strong>다시는 되살릴 수 없어요!</strong><br/>마치 지운 연필 글씨처럼요.<br/>→ 파일 크기 매우 작음 ✅<br/>→ 원본 완벽 복구 불가 ❌</p>
+              </div>
+              <div className="bg-white rounded-xl p-4 border-t-4 border-green-400">
+                <p className="font-bold text-green-700 mb-2 text-base">😊 무손실 압축 (ZIP, PNG)</p>
+                <p className="text-base text-gray-700 leading-relaxed">정보를 하나도 버리지 않아요!<br/><strong>원본을 100% 복구 가능해요.</strong><br/>마치 압축한 스프링처럼요.<br/>→ 원본 완벽 복구 ✅<br/>→ 파일 크기 덜 줄어듦 ⚠️</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-4 text-center">
+              <p className="text-base text-gray-700">📸 <strong>그래서 중요한 사진 원본은 RAW나 PNG로 보관하고,</strong><br/>카카오톡·인스타에 올릴 땐 JPEG로 변환하는 거예요!</p>
+            </div>
+          </div>
+
+          {/* 압축 전/후 비교 */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {[['압축 전','모든 주파수 값 보관\n150, 120, 80, 45, 30, 15, 8, 3\n100, 90, 60, 25, 12, 6, 2, 1\n70, 55, 35, 18, 8, 3, 1, 0\n...\n\n파일 크기: 큼'],['압축 후 (양자화)','고주파 부분을 0으로!\n150, 120, 80, 45, 0, 0, 0, 0\n100, 90, 60, 0, 0, 0, 0, 0\n70, 55, 0, 0, 0, 0, 0, 0\n...\n\n파일 크기: 훨씬 작음!']].map(([title,text])=>(
+              <div key={title} className="bg-white rounded-xl p-5 shadow-sm border border-pink-100">
+                <h4 className="font-bold text-pink-700 mb-3 text-base">{title}</h4>
+                <pre className="text-sm text-gray-700 leading-relaxed font-mono whitespace-pre-wrap">{text}</pre>
+              </div>
+            ))}
+          </div>
+
+          {/* 압축 체험 */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <h3 className="font-bold text-gray-900 text-xl mb-3">🎮 직접 압축해보기</h3>
+            <div className="flex gap-2 flex-wrap justify-center mb-4">
+              {[['sky','🌅 하늘'],['portrait','😊 얼굴'],['building','🏙️ 건물']].map(([t,l])=>(
+                <button key={t} onClick={()=>{ setImgType(t); loadImage(t); }}
+                  className={`px-4 py-2 font-bold rounded-lg text-base transition-all ${imgType===t?'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg':'bg-gray-100 text-gray-700 hover:bg-pink-50'}`}>{l}</button>
+              ))}
+            </div>
+
+            {/* 슬라이더 */}
+            <div className="bg-gray-50 rounded-xl p-5 mb-4">
+              <label className="font-bold text-base block mb-3">압축 품질: <span className="text-pink-600 text-xl">{quality}</span>%</label>
+              <input type="range" min="10" max="100" value={quality} onChange={e=>handleQ(e.target.value)}
+                className="slider-pink w-full mb-3" />
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>← 많이 압축 (고주파 많이 버림)</span>
+                <span>적게 압축 →</span>
+              </div>
+              {/* 파일 크기 계산기 */}
+              <div className="mt-4 bg-green-50 rounded-xl p-4 border border-green-200 text-center">
+                <p className="text-base font-bold text-gray-700 mb-3">📦 예상 파일 크기 변화</p>
+                <div className="flex items-center justify-center gap-4 flex-wrap">
+                  <div className="bg-white rounded-lg p-3 shadow-sm"><p className="text-sm text-gray-400">원본</p><p className="text-xl font-bold text-gray-700">{origKB} KB</p></div>
+                  <div className="text-2xl text-pink-500">→</div>
+                  <div className="bg-white rounded-lg p-3 shadow-sm"><p className="text-sm text-gray-400">압축 후 (약)</p><p className="text-xl font-bold text-pink-600">{compKB} KB</p></div>
+                  <div className="bg-green-100 rounded-lg p-3"><p className="text-sm text-green-600">절약</p><p className="text-xl font-bold text-green-600">{savedKB} KB 🎉</p></div>
+                </div>
+                <p className="text-sm text-gray-500 mt-3">{sizeMsg}</p>
+              </div>
+            </div>
+
+            {/* 캔버스 */}
+            <div className="flex flex-wrap gap-5 justify-center">
+              <div className="text-center bg-gray-50 rounded-xl p-4">
+                <p className="font-bold text-gray-700 mb-2">원본 ({origKB} KB)</p>
+                <canvas ref={origRef} width="280" height="280" className="rounded-xl border-2 border-gray-200 shadow-sm" />
+              </div>
+              <div className="text-center bg-gray-50 rounded-xl p-4">
+                <p className="font-bold text-gray-700 mb-2">압축 후 ({compKB} KB)</p>
+                <canvas ref={compRef} width="280" height="280" className="rounded-xl border-2 border-gray-200 shadow-sm" />
+                <div className="flex gap-2 justify-center mt-2 flex-wrap">
+                  <span className="bg-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full">{savedKB} KB 절약!</span>
+                  <span className="bg-purple-500 text-white text-sm font-bold px-3 py-1 rounded-full">{Math.round((savedKB/origKB)*100)}% 줄어듦</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 p-4 bg-pink-50 rounded-xl border-l-4 border-pink-500">
+              <p className="text-base text-gray-700">{qResult}</p>
+            </div>
+
+            {/* 품질 비교표 */}
+            <div className="mt-5 bg-white rounded-xl p-5 border border-gray-200">
+              <p className="font-bold text-pink-700 mb-3 text-base text-center">📊 품질 단계별 비교표</p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-base border-collapse">
+                  <thead><tr className="bg-gradient-to-r from-pink-600 to-rose-600 text-white">
+                    {['품질','압축률','화질 수준','주요 용도'].map(h=><th key={h} className="p-3 text-left">{h}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {qualRows.map(([q,r,v,u,cls],i)=>(
+                      <tr key={i} className={`border-b ${cls}`}>
+                        <td className="p-3 font-bold">{q}</td><td className="p-3">{r}</td><td className="p-3">{v}</td><td className="p-3">{u}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-sm text-gray-400 text-center mt-2">💡 위 슬라이더를 움직이면서 직접 비교해보세요!</p>
+            </div>
+          </div>
+
+          {/* 지그재그 + 허프만 */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border-l-4 border-blue-500">
+            <p className="font-bold text-blue-800 mb-4 text-base">✅ 양자화 이후에는 어떻게 더 줄일까요?</p>
+            <div className="flex flex-wrap gap-3 items-center justify-center mb-5">
+              {[['🗑️','양자화 완료','0이 잔뜩 생긴 숫자 행렬','text-pink-600'],['🔀','지그재그 스캔','저주파→고주파 순서로 읽기','text-blue-600'],['🗜️','허프만 코딩','연속된 0을 효율적으로 압축','text-purple-600'],['📄','최종 JPEG','엄청 작아진 파일 완성!','text-green-600']].map(([ic,tit,desc,c],i,arr)=>(
+                <React.Fragment key={tit}>
+                  <div className="bg-white rounded-xl p-4 text-center min-w-32 shadow-sm">
+                    <div className="text-2xl mb-2">{ic}</div>
+                    <p className={`font-bold text-sm ${c}`}>{tit}</p>
+                    <p className="text-xs text-gray-500 mt-1">{desc}</p>
+                  </div>
+                  {i<arr.length-1 && <div className="text-xl text-blue-400">→</div>}
+                </React.Fragment>
+              ))}
+            </div>
+
+            {/* 지그재그 애니메이션 */}
+            <div className="bg-white rounded-xl p-5">
+              <p className="font-bold text-blue-800 mb-3 text-base text-center">🔀 지그재그 스캔이 뭐예요? — 직접 눈으로 보기!</p>
+              <div className="flex flex-wrap gap-5 justify-center items-start">
+                <div className="text-center">
+                  <canvas ref={zigRef} width="220" height="220" className="rounded-lg border-2 border-blue-200" />
+                  <div className="flex gap-2 justify-center mt-2 flex-wrap">
+                    <button onClick={startZigzag} className="px-3 py-1 text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg">▶ 시작</button>
+                    <button onClick={resetZigzag} className="px-3 py-1 text-sm bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-lg">↺ 다시</button>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-48 text-base text-gray-700 leading-relaxed">
+                  <p className="mb-2">8×8 행렬을 <strong>대각선 방향으로 지그재그</strong>로 읽어요.</p>
+                  <p className="mb-2">📌 <strong className="text-pink-600">왼쪽 위</strong> = 저주파 (중요한 값)</p>
+                  <p className="mb-2">📌 <strong className="text-blue-600">오른쪽 아래</strong> = 고주파 (0이 많다)</p>
+                  <p className="mb-3">이렇게 읽으면 뒤쪽에 <strong>0이 줄줄이</strong> 나와요!</p>
+                  <div className="bg-green-50 rounded-xl p-3 border-l-3 border-green-400">
+                    <p className="text-sm text-green-700"><strong>결과 예시:</strong><br/>415, -33, -28, 12, 0, 0, 0, 0, 0 ...<br/>→ "0이 54개" 로 저장! → 파일 확 줄어요!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 border-l-4 border-blue-400 mt-4">
+              <p className="text-base text-gray-700">📚 <strong>쉬운 비유:</strong> 0, 0, 0, 0, 0 을 저장할 때 숫자 5개를 다 쓰는 것보다 <strong>"0이 5개"</strong>라고 저장하면 훨씬 짧아지죠? 허프만 코딩이 바로 이런 원리예요!</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    /* ═══════════════════════════════════════════
+       참새 툴팁 컴포넌트
+    ═══════════════════════════════════════════ */
+    const SparrowEmoji = () => {
+      const [show, setShow] = useState(false);
+      const handleClick = () => {
+        setShow(true);
+        setTimeout(() => setShow(false), 400);
+      };
+      return (
+        <span className="sparrow-trigger" onClick={handleClick}>
+          😱
+          {show && <span className="sparrow-tooltip">{"\uCC38\uC0C8"}</span>}
+        </span>
+      );
+    };
+
+    /* ═══════════════════════════════════════════
+       아티팩트 섹션
+    ═══════════════════════════════════════════ */
+    const ArtifactSection = () => (
+      <div className="p-6 animate-slide-in space-y-4">
+        <div className="bg-red-50 rounded-2xl p-5 border-l-4 border-red-500">
+          <h4 className="font-bold text-red-700 mb-3 text-base">⚠️ JPEG 아티팩트 (압축 부작용)</h4>
+          <p className="text-base text-gray-700 leading-relaxed">압축을 너무 많이 하면 (품질 30% 이하) 이미지에 <strong>네모 무늬</strong>가 생기고 세밀한 부분이 <strong>뭉개져요</strong>. 이걸 'JPEG 아티팩트'라고 불러요.</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border-2 border-pink-200">
+          <p className="font-bold text-pink-700 mb-4 text-base text-center">🔗 연결해서 이해하기: 왜 '깍두기 무늬'가 생길까?</p>
+          <div className="space-y-3">
+            {[['✂️','2단계에서 이미지를 8×8 블록으로 잘랐어요','bg-pink-50'],['🗑️','4단계 양자화에서 각 블록의 고주파를 마구 버려요','bg-pink-50'],[null,'블록 안의 색이 뭉개지고, 블록 경계선이 눈에 보여요!\n→ 우리가 보는 그 \'깍두기 무늬(블로킹 현상)\'가 바로 이것!','bg-red-50']].map(([ic,txt,bg],i,arr)=>(
+              <React.Fragment key={i}>
+                <div className={`flex items-start gap-3 ${bg} rounded-xl p-3`}>
+                  <span className="text-2xl">{ic === null ? <SparrowEmoji /> : ic}</span>
+                  <p className="text-base text-gray-700 leading-relaxed whitespace-pre-line">{txt}</p>
+                </div>
+                {i<arr.length-1 && <div className="text-center text-pink-500 text-xl font-bold">↓</div>}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="mt-4 bg-yellow-50 rounded-xl p-4 text-center border border-yellow-200">
+            <p className="text-base text-yellow-800">💡 인스타나 카카오톡에서 화질 나쁜 사진을 보면 이제 이렇게 생각해봐요!<br/><strong>"아, 8×8 블록 경계가 보이는 거구나!"</strong></p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+          <h3 className="font-bold text-gray-900 text-base mb-2">🔍 아티팩트 직접 확인하기</h3>
+          <p className="text-base text-gray-600">압축 체험 섹션의 슬라이더를 <strong>10~20%</strong>로 내려보세요. 블록 무늬가 보이나요?</p>
+        </div>
+      </div>
+    );
+
+    /* ═══════════════════════════════════════════
+       실생활 섹션
+    ═══════════════════════════════════════════ */
+    const RealWorldSection = () => (
+      <div className="p-6 animate-slide-in">
+        <div className="grid md:grid-cols-2 gap-4">
+          {[['📱 카카오톡 / 인스타그램','이미지를 보낼 때 자동으로 JPEG 압축을 해서 빠르게 전송해요'],['📷 디지털 카메라','사진을 JPEG로 저장하면 메모리 카드 용량을 10배 이상 아낄 수 있어요'],['🌐 웹사이트','웹페이지의 이미지를 압축하면 페이지가 빠르게 열려요'],['🎬 유튜브 / 넷플릭스','동영상도 비슷한 방법으로 압축해서 스트리밍해요 (H.264, H.265)']].map(([title,desc])=>(
+            <div key={title} className="bg-white rounded-2xl p-5 shadow-sm border border-pink-100 hover:-translate-y-1 transition-all">
+              <h4 className="font-bold text-pink-700 mb-2 text-base">{title}</h4>
+              <p className="text-base text-gray-700">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    /* ═══════════════════════════════════════════
+       메인 앱
+    ═══════════════════════════════════════════ */
+    const DCTApp = () => {
+      const [activeTab, setActiveTab] = useState('wave');
+
+      const tabs = [
+        { id:'wave',     label:'🌊 1. 주파수 이해' },
+        { id:'block',    label:'✂️ 2. 블록 분할' },
+        { id:'dct',      label:'📊 3. DCT 변환' },
+        { id:'quant',    label:'🗑️ 4. 양자화·압축' },
+        { id:'artifact', label:'⚠️ 5. 아티팩트' },
+        { id:'realworld',label:'📱 6. 실생활 응용' },
+        { id:'quiz',     label:'🎯 퀴즈' },
+        { id:'summary',  label:'📝 오늘의 정리' },
+        { id:'discuss',  label:'🤔 생각해보기' },
+      ];
+
+      return (
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* 헤더 */}
+          <div className="bg-gradient-to-r from-pink-500 to-rose-500 p-6 text-white">
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-sm text-pink-100">고등학교 정보 학습자료</div>
+              <a href="index.html" className="bg-white text-pink-600 px-4 py-2 rounded-lg font-bold text-base hover:bg-pink-50 transition-all shadow-md hover:shadow-lg flex items-center gap-2">🏠 홈으로</a>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">📸 이미지는 어떻게 작아질까?</h1>
+            <p className="text-pink-100">JPEG 압축과 DCT의 비밀을 쉽게 알아보자!</p>
+          </div>
+
+          {/* 도입부 */}
+          <div className="bg-gradient-to-r from-pink-50 to-rose-50 px-6 py-5 border-b-2 border-pink-200">
+            <h3 className="font-bold text-pink-900 text-xl mb-2">🤔 왜 이미지 파일이 작아져야 할까?</h3>
+            <p className="text-base text-gray-800 leading-relaxed">
+              여러분이 스마트폰으로 찍은 사진 한 장은 보통 <span className="font-bold text-pink-700">1~3MB</span> 정도예요. 만약 압축을 안 하면 이 크기가 <span className="font-bold text-rose-600">10배~20배</span>나 커질 거예요! 그래서 <strong>'압축'</strong>이라는 기술로 사진을 작게 만들어요. 오늘은 JPEG에서 사용하는 <span className="font-bold text-pink-700">DCT(이산 코사인 변환)</span>를 아주 쉽게 배워봐요!
+            </p>
+          </div>
+
+          {/* JPEG 4단계 흐름도 */}
+          <div className="px-6 py-5 bg-white border-b border-gray-100">
+            <h2 className="text-xl font-bold text-pink-700 mb-4 text-center">🗺️ JPEG 압축, 4단계로 끝내기!</h2>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {[['✂️','① 블록 분할','이미지를\n8×8 조각으로','from-pink-500 to-rose-500'],['🌊','② DCT 변환','주파수 성분으로\n분석','from-pink-400 to-pink-600'],['🗑️','③ 양자화','고주파를\n0으로 버리기','from-amber-500 to-amber-600'],['💾','④ 압축 저장','파일 크기\n1/10로 줄어요!','from-red-500 to-red-600']].map(([ic,tit,desc,cls],i,arr)=>(
+                <React.Fragment key={tit}>
+                  <div className={`bg-gradient-to-r ${cls} text-white rounded-2xl p-4 text-center min-w-32 shadow-md`}>
+                    <div className="text-3xl mb-2">{ic}</div>
+                    <div className="font-bold text-base">{tit}</div>
+                    <div className="text-xs mt-1 opacity-90 whitespace-pre-line">{desc}</div>
+                  </div>
+                  {i<arr.length-1 && <div className="text-2xl text-pink-400 font-bold">→</div>}
+                </React.Fragment>
+              ))}
+            </div>
+            <p className="text-center mt-4 text-pink-600 font-bold text-base">💡 아래 탭에서 각 단계를 하나씩 직접 체험해봐요!</p>
+          </div>
+
+          {/* 탭 */}
+          <div className="bg-gray-100 px-6 py-3 border-b border-gray-200 flex gap-2 overflow-x-auto">
+            {tabs.map(tab=>(
+              <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-lg font-bold transition-all whitespace-nowrap text-base ${
+                  activeTab===tab.id ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg' : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}>{tab.label}</button>
+            ))}
+          </div>
+
+          {/* 탭 콘텐츠 */}
+          {activeTab==='wave'      && <WaveSection />}
+          {activeTab==='block'     && <BlockSection />}
+          {activeTab==='dct'       && <DCTSection />}
+          {activeTab==='quant'     && <QuantSection />}
+          {activeTab==='artifact'  && <ArtifactSection />}
+          {activeTab==='realworld' && <RealWorldSection />}
+          {activeTab==='quiz'      && <QuizSection />}
+          {activeTab==='summary'   && (
+            <div className="px-6 py-5 bg-gradient-to-r from-pink-50 to-rose-50 animate-slide-in">
+              <h2 className="text-xl font-bold text-pink-900 mb-4">📝 오늘 배운 내용 정리!</h2>
+              <div className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-pink-100">
+                <p className="text-base text-gray-700 leading-relaxed">
+                  <strong>1.</strong> 이미지는 <span className="highlight">저주파</span>(큰 변화)와 <span className="highlight">고주파</span>(작은 변화)로 이루어져 있어요<br/>
+                  <strong>2.</strong> JPEG은 이미지를 <span className="highlight">8×8 블록</span>으로 나눠요<br/>
+                  <strong>3.</strong> <span className="highlight">DCT</span>로 각 블록의 주파수를 계산해요<br/>
+                  <strong>4.</strong> <span className="highlight">양자화</span>로 고주파를 0으로 만들어 압축해요 (손실 압축!)<br/>
+                  <strong>5.</strong> 결과: 파일 크기는 <span className="highlight">1/10~1/20</span>로 줄고, 품질은 거의 그대로!<br/>
+                  <strong>6.</strong> 너무 많이 압축하면 <span className="highlight">블록 무늬</span>가 생겨요 (JPEG 아티팩트)
+                </p>
+              </div>
+              <div className="bg-yellow-50 rounded-2xl p-5 border border-yellow-200">
+                <h3 className="font-bold text-yellow-800 mb-3">💡 더 알아두면 좋아요!</h3>
+                <p className="text-base text-gray-700 leading-relaxed">• 사람 눈은 저주파에 민감하고 고주파에 둔감해요<br/>• 그래서 고주파를 버려도 티가 안 나요!<br/>• JPEG 품질은 보통 80~90%가 적당해요<br/>• PNG는 다른 방식(무손실)으로 압축해요<br/>• 동영상도 비슷한 원리로 압축해요 (MPEG, H.264 등)</p>
+              </div>
+            </div>
+          )}
+          {activeTab==='discuss'   && (
+            <div className="px-6 py-5 bg-gradient-to-r from-yellow-50 to-amber-50 animate-slide-in">
+              <h2 className="text-xl font-bold text-amber-800 mb-3">🤔 생각해보기 (토론 질문)</h2>
+              <p className="text-base text-amber-700 mb-4">아래 질문들을 친구와 이야기해보거나 스스로 생각해봐요. 정답이 없어도 괜찮아요!</p>
+              <div className="grid md:grid-cols-2 gap-4">
+                {[['❓ 질문 1','왜 JPEG는 4×4나 16×16이 아닌 8×8 블록을 표준으로 사용할까요?','힌트: 위에서 블록 크기 비교 체험을 해봤나요?','border-pink-400'],
+                  ['❓ 질문 2','높은 주파수(고주파)를 제거하면 이미지에 어떤 변화가 생길까요?','힌트: 4번 탭에서 슬라이더를 낮춰보세요!','border-rose-400'],
+                  ['❓ 질문 3','사진은 압축해도 괜찮은데, 글자나 로고 이미지는 왜 JPEG로 저장하면 품질이 나빠질까요?','힌트: 저주파/고주파 비율을 생각해보세요!','border-amber-400'],
+                  ['❓ 질문 4','유튜브, 넷플릭스 동영상도 비슷한 원리로 압축한다면, 어떤 방식으로 적용할 수 있을까요?','힌트: 동영상은 이미지가 연속으로 나열된 것이에요!','border-red-400'],
+                ].map(([q,p,hint,bc])=>(
+                  <div key={q} className={`bg-white rounded-xl p-4 shadow-sm border-t-4 ${bc}`}>
+                    <h4 className="font-bold text-gray-800 mb-2 text-base">{q}</h4>
+                    <p className="text-base text-gray-700 mb-2">{p}</p>
+                    <p className="text-sm text-pink-500">{hint}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 하단 홈 버튼 */}
+          <div className="text-center py-8 bg-gray-50 border-t border-gray-200">
+            <a href="index.html" className="inline-block bg-gradient-to-r from-pink-500 to-rose-500 text-white w-64 py-3 rounded-xl font-bold text-lg hover:shadow-xl transition-all shadow-lg">
+              🏠 홈으로 돌아가기
+            </a>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<DCTApp />);
+  </script>
 </body>
 </html>
