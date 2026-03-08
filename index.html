@@ -106,6 +106,9 @@
     .text-violet-50   { color: #f5f3ff; }
     .text-violet-600  { color: #7c3aed; }
     .text-violet-800  { color: #5b21b6; }
+    .text-sky-50      { color: #f0f9ff; }
+    .text-sky-600     { color: #0284c7; }
+    .text-sky-800     { color: #075985; }
 
     /* BG colors */
     .bg-white         { background-color: #fff; }
@@ -134,6 +137,9 @@
     .bg-fuchsia-50    { background-color: #fdf4ff; }
     .bg-violet-100    { background-color: #ede9fe; }
     .bg-violet-50     { background-color: #f5f3ff; }
+    .bg-sky-100       { background-color: #e0f2fe; }
+    .bg-sky-50        { background-color: #f0f9ff; }
+    .border-sky-200   { border-color: #bae6fd; }
 
     /* Gradients */
     .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to)); }
@@ -161,6 +167,8 @@
     .to-pink-500      { --tw-gradient-to: #ec4899; }
     .from-violet-400  { --tw-gradient-from: #a78bfa; }
     .to-purple-500    { --tw-gradient-to: #a855f7; }
+    .from-sky-500     { --tw-gradient-from: #0ea5e9; }
+    .to-blue-700      { --tw-gradient-to: #1d4ed8; }
 
     /* Borders */
     .border   { border-width: 1px; border-style: solid; }
@@ -261,8 +269,9 @@
           <h3 class="font-bold text-indigo-900 text-lg mb-2">🎯 학습 목표</h3>
           <p class="leading-relaxed">
             이 학습 자료를 통해 <span class="font-bold text-blue-600">컴퓨터가 데이터를 표현하는 원리(비트·바이트·경우의 수)</span>부터
-            <span class="font-bold text-purple-600">인터넷 통신의 기초(IP 주소·네트워크 장비·무선 통신)</span>, 그리고
-            <span class="font-bold text-indigo-600">데이터 압축 기술(무손실·손실·JPEG)</span>까지 폭넓게 이해할 수 있습니다.
+            <span class="font-bold text-purple-600">인터넷 통신의 기초(IP 주소·네트워크 장비·무선 통신)</span>,
+            <span class="font-bold text-indigo-600">데이터 압축 기술(무손실·손실·JPEG)</span>, 그리고
+            <span class="font-bold text-sky-600">암호화 기술(시저 암호·대칭키·공개키·해시 함수)</span>까지 폭넓게 이해할 수 있습니다.
             각 주제를 직접 체험하며 컴퓨터와 인터넷의 작동 원리를 배워봅시다!
           </p>
         </div>
@@ -689,6 +698,44 @@
           </div>
         </div>
       </div>
+      <!-- 카드 10: 암호화 -->
+      <div class="card">
+        <a href="encry.html" class="card-header-link bg-gradient-to-r from-sky-500 to-blue-700 p-6 text-white">
+          <div class="text-5xl mb-3 icon-animate">🔐</div>
+          <h2 class="text-2xl font-bold mb-2">암호화</h2>
+          <p class="text-sky-50">내 정보를 안전하게 지키는 방법</p>
+        </a>
+        <div class="card-body">
+          <div class="space-y-3 text-gray-700 mb-4">
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
+                <span class="text-sky-600 font-bold text-sm">1</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">시저 암호</span> → 글자를 일정 수만큼 밀어서 숨기기</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
+                <span class="text-blue-600 font-bold text-sm">2</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">대칭키 · 공개키 암호화</span> → 같은 열쇠 vs 다른 열쇠</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0_5">
+                <span class="text-indigo-600 font-bold text-sm">3</span>
+              </div>
+              <p class="text-sm"><span class="font-bold">해시 함수</span> → 비밀번호를 안전하게 저장하는 원리</p>
+            </div>
+          </div>
+          <div class="bg-sky-50 p-3 rounded-lg border border-sky-200">
+            <p class="text-sm text-sky-800"><span class="font-bold">💡 핵심 개념:</span> 시저 암호, 대칭키, 공개키, 해시 함수, HTTPS</p>
+          </div>
+          <div class="card-buttons">
+            <a href="encry.html" class="btn-primary text-sky-600">체험하러 가기 →</a>
+            <a href="o_encry.html" class="btn-fast">⚡ 빠른 버전</a>
+          </div>
+        </div>
+      </div>
+
        <!-- 임시 게임 -->
       <div class="card">
         <a href="dct.html" class="card-header-link bg-gradient-to-r from-violet-400 to-purple-500 p-6 text-white">
@@ -733,6 +780,9 @@
           <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q8.</span><span>같은 내용의 파일인데 압축하면 왜 용량이 줄어들까요?</span></li>
           <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q9.</span><span>사진이나 음악 파일에는 무손실 압축과 손실 압축 중 어느 방식이 더 많이 쓰일까요? 그 이유는 무엇일까요?</span></li>
           <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q10.</span><span>JPEG 파일을 반복해서 저장하면 왜 화질이 점점 떨어질까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q11.</span><span>암호화는 왜 필요할까요? 암호화가 없다면 인터넷에서 어떤 위험이 생길까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q12.</span><span>대칭키 암호화와 공개키 암호화의 차이는 무엇이고, 각각 어떤 상황에서 더 적합할까요?</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-600 font-bold">Q13.</span><span>해시 함수는 복호화가 불가능한데, 비밀번호 확인은 어떻게 이루어질까요?</span></li>
         </ul>
       </div>
     </div>
