@@ -532,6 +532,9 @@
       // 암호 체계 구조 지도 상태
       const [mapActive, setMapActive] = useState(null);
 
+      // 🛡️ 툴팁 상태
+      const [showShieldTooltip, setShowShieldTooltip] = useState(false);
+
       // 시저 공격 체험 상태
       const [attackInput, setAttackInput] = useState('KHOOR ZRUOG');
       const [attackHighlighted, setAttackHighlighted] = useState(null);
@@ -5286,7 +5289,23 @@
 
                 {/* 안전한 비밀번호 만들기 팁 */}
                 <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-2xl border border-red-200">
-                  <h3 className="text-xl font-bold text-red-900 mb-4">🛡️ 안전한 비밀번호 만들기 팁</h3>
+                  <h3 className="text-xl font-bold text-red-900 mb-4">
+                    <span
+                      className="relative inline-block cursor-pointer hover:scale-110 transition-transform"
+                      onClick={() => {
+                        setShowShieldTooltip(true);
+                        setTimeout(() => setShowShieldTooltip(false), 400);
+                      }}
+                    >
+                      🛡️
+                      {showShieldTooltip && (
+                        <span className="absolute left-1/2 -translate-x-1/2 -top-10 bg-red-400 text-white px-3 py-1 rounded-lg text-sm font-bold whitespace-nowrap shadow-lg animate-bounce">
+                          {"\uCC38\uC0C8"}
+                        </span>
+                      )}
+                    </span>
+                    {' '}안전한 비밀번호 만들기 팁
+                  </h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-bold text-green-600 mb-3">✅ 좋은 예시</h4>
