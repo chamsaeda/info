@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>사물 인터넷(IoT) 시스템 - 구성과 동작</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4H856WTEED"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4H856WTEED');
+  </script>
+  <style>
+    /* ── 기본 리셋 & 바디 ── */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:linear-gradient(135deg,#0f766e 0%,#0e7490 100%);min-height:100vh;padding:20px;font-size:16px}
+
+    /* ── 애니메이션 ── */
+    @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .slide-in{animation:slideIn .4s ease-out}
+    @keyframes arrowMove{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+    .arrow-move{animation:arrowMove 1.2s ease-in-out infinite}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+    .shake{animation:shake .4s ease}
+    @keyframes bounceOnce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+
+    /* ── 레이아웃 ── */
+    .max-w-7xl{max-width:80rem;margin:0 auto}
+    .bg-white{background:#fff}
+    .rounded-2xl{border-radius:1rem}
+    .shadow-2xl{box-shadow:0 25px 50px -12px rgba(0,0,0,.25)}
+    .overflow-hidden{overflow:hidden}
+
+    /* ── 헤더 ── */
+    .header{background:linear-gradient(to right,#0f766e,#0e7490);padding:1.5rem;color:#fff}
+    .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+    .header-badge{font-size:.9rem;color:#99f6e4}
+    .header-home{background:#fff;color:#0f766e;padding:.4rem 1rem;border-radius:.5rem;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,.2);display:flex;align-items:center;gap:.4rem}
+    .header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+    .header-sub{color:#99f6e4}
+
+    /* ── 탭 ── */
+    .tab-bar{display:flex;gap:.5rem;padding:1rem;background:#f9fafb;border-bottom:1px solid #e5e7eb;overflow-x:auto}
+    .tab-btn{padding:.5rem 1.25rem;border-radius:.5rem;font-weight:700;font-size:1rem;cursor:pointer;white-space:nowrap;border:1px solid #e5e7eb;background:#fff;color:#4b5563;transition:all .2s;font-family:inherit}
+    .tab-btn.active{background:linear-gradient(to right,#0d9488,#0891b2);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+    .tab-btn:hover:not(.active){background:#f3f4f6}
+
+    /* ── 탭 패널 ── */
+    .tab-content{padding:1.5rem}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+
+    /* ── 스페이싱 유틸 ── */
+    .space-y-6>*+*{margin-top:1.5rem}
+    .space-y-5>*+*{margin-top:1.25rem}
+    .space-y-4>*+*{margin-top:1rem}
+    .space-y-3>*+*{margin-top:.75rem}
+    .space-y-2>*+*{margin-top:.5rem}
+    .mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}
+
+    /* ── 그리드 ── */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+    .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem}
+    @media(max-width:768px){.grid-3{grid-template-columns:1fr 1fr}.grid-4{grid-template-columns:1fr 1fr}.grid-5{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
+    @media(max-width:480px){.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}}
+
+    /* ── 공통 카드/박스 ── */
+    .rounded-xl{border-radius:.75rem}.rounded-lg{border-radius:.5rem}.rounded-full{border-radius:9999px}
+    .shadow-sm{box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .shadow-md{box-shadow:0 4px 6px -1px rgba(0,0,0,.1)}
+    .p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}
+    .px-3{padding-left:.75rem;padding-right:.75rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}
+    .px-4{padding-left:1rem;padding-right:1rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}
+
+    /* ── 텍스트 ── */
+    .text-xs{font-size:.75rem}.text-sm{font-size:.875rem}.text-base{font-size:1rem}.text-lg{font-size:1.125rem}.text-xl{font-size:1.25rem}.text-2xl{font-size:1.5rem}.text-3xl{font-size:1.875rem}.text-4xl{font-size:2.25rem}.text-5xl{font-size:3rem}
+    .font-bold{font-weight:700}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}
+    .text-center{text-align:center}.text-left{text-align:left}
+    .whitespace-nowrap{white-space:nowrap}
+
+    /* ── 색상 팔레트 ── */
+    /* 배경 */
+    .bg-yellow-50{background:#fefce8}.bg-teal-50{background:#f0fdfa}.bg-cyan-50{background:#ecfeff}.bg-blue-50{background:#eff6ff}.bg-green-50{background:#f0fdf4}.bg-orange-50{background:#fff7ed}.bg-purple-50{background:#faf5ff}.bg-pink-50{background:#fdf2f8}.bg-red-50{background:#fef2f2}.bg-gray-50{background:#f9fafb}.bg-gray-100{background:#f3f4f6}.bg-white{background:#fff}.bg-teal-100{background:#ccfbf1}.bg-orange-100{background:#ffedd5}.bg-blue-100{background:#dbeafe}.bg-green-100{background:#dcfce7}.bg-purple-100{background:#f3e8ff}.bg-slate-50{background:#f8fafc}
+    .bg-grad-teal{background:linear-gradient(to right,#f0fdfa,#ecfeff)}
+    .bg-grad-blue{background:linear-gradient(to right,#eff6ff,#ecfeff)}
+    .bg-grad-green{background:linear-gradient(to right,#f0fdf4,#ecfdf5)}
+    .bg-grad-orange{background:linear-gradient(to right,#fff7ed,#fefce8)}
+    .bg-grad-purple{background:linear-gradient(to right,#faf5ff,#fdf2f8)}
+    .bg-grad-slate{background:linear-gradient(to right,#f8fafc,#eff6ff)}
+    .bg-grad-gray-blue{background:linear-gradient(to right,#f9fafb,#eff6ff)}
+    .bg-grad-yellow{background:linear-gradient(to right,#fefce8,#fffbeb)}
+    /* 테두리 */
+    .border{border-width:1px;border-style:solid}.border-2{border-width:2px;border-style:solid}.border-l-4{border-left-width:4px;border-left-style:solid}
+    .border-yellow-300{border-color:#fde047}.border-teal-200{border-color:#99f6e4}.border-blue-200{border-color:#bfdbfe}.border-green-200{border-color:#bbf7d0}.border-orange-200{border-color:#fed7aa}.border-purple-200{border-color:#e9d5ff}.border-red-200{border-color:#fecaca}.border-gray-200{border-color:#e5e7eb}.border-gray-100{border-color:#f3f4f6}.border-gray-300{border-color:#d1d5db}.border-teal-300{border-color:#5eead4}.border-orange-300{border-color:#fdba74}.border-yellow-300{border-color:#fde047}.border-teal-400{border-color:#2dd4bf}.border-green-400{border-color:#4ade80}.border-red-400{border-color:#f87171}.border-teal-500{border-color:#14b8a6}
+    /* 텍스트 색상 */
+    .text-yellow-900{color:#713f12}.text-teal-600{color:#0d9488}.text-teal-700{color:#0f766e}.text-teal-900{color:#134e4a}.text-gray-700{color:#374151}.text-gray-600{color:#4b5563}.text-gray-500{color:#6b7280}.text-gray-800{color:#1f2937}.text-gray-400{color:#9ca3af}.text-gray-300{color:#d1d5db}.text-teal-800{color:#115e59}.text-blue-900{color:#1e3a8a}.text-blue-600{color:#2563eb}.text-blue-700{color:#1d4ed8}.text-blue-800{color:#1e40af}.text-green-900{color:#14532d}.text-green-600{color:#16a34a}.text-green-700{color:#15803d}.text-green-800{color:#166534}.text-orange-900{color:#7c2d12}.text-orange-600{color:#ea580c}.text-orange-700{color:#c2410c}.text-orange-800{color:#9a3412}.text-purple-900{color:#3b0764}.text-purple-600{color:#9333ea}.text-purple-700{color:#7e22ce}.text-red-700{color:#b91c1c}.text-red-800{color:#991b1b}.text-teal-100{color:#ccfbf1}.text-teal-500{color:#14b8a6}
+    /* 버튼 배경 */
+    .bg-teal-600{background:#0d9488}.bg-green-600{background:#16a34a}
+
+    /* ── flex 유틸 ── */
+    .flex{display:flex}.items-start{align-items:flex-start}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.flex-wrap{flex-wrap:wrap}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.inline-block{display:inline-block}
+
+    /* ── 기타 ── */
+    .cursor-pointer{cursor:pointer}
+    .overflow-x-auto{overflow-x:auto}
+    .w-full{width:100%}
+    .w-8{width:2rem}.h-8{height:2rem}
+    .transition-all{transition:all .3s}
+    .hover-scale:hover{transform:scale(1.05)}
+    .ring-4{box-shadow:0 0 0 4px #2dd4bf}
+    .ring-none{box-shadow:none}
+    .opacity-40{opacity:.4}
+    .select-none{user-select:none}
+    .relative{position:relative}
+    .absolute{position:absolute}
+
+    /* ── 퀴즈 버튼 ── */
+    .quiz-opt{width:100%;text-align:left;padding:.75rem 1rem;border-radius:.5rem;border:2px solid #e5e7eb;font-size:1rem;background:#f9fafb;color:#374151;cursor:pointer;transition:all .2s;font-family:inherit;line-height:1.4}
+    .quiz-opt:hover:not(:disabled){background:#f0fdfa;border-color:#5eead4}
+    .quiz-opt.correct{background:#f0fdf4;border-color:#4ade80;color:#166534;font-weight:700}
+    .quiz-opt.wrong{background:#fef2f2;border-color:#f87171;color:#b91c1c}
+    .quiz-opt.dimmed{background:#f9fafb;border-color:#e5e7eb;color:#9ca3af}
+    .quiz-opt:disabled{cursor:default}
+
+    /* ── 퀴즈 진행바 ── */
+    .quiz-bar-wrap{display:flex;gap:.5rem}
+    .quiz-bar{height:.5rem;flex:1;border-radius:9999px;background:#e5e7eb;transition:background .5s}
+    .quiz-bar.correct{background:#22c55e}
+    .quiz-bar.wrong{background:#f87171}
+
+    /* ── 진행 표시 ── */
+    .scenario-card{padding:1rem;border-radius:.5rem;border:2px solid #e5e7eb;text-align:center;transition:all .5s;background:#fff;opacity:.4}
+    .scenario-card.active-blue{background:#eff6ff;border-color:#bfdbfe;box-shadow:0 4px 6px rgba(0,0,0,.1);opacity:1}
+    .scenario-card.active-orange{background:#fff7ed;border-color:#fed7aa;box-shadow:0 4px 6px rgba(0,0,0,.1);opacity:1}
+    .scenario-card.active-purple{background:#faf5ff;border-color:#e9d5ff;box-shadow:0 4px 6px rgba(0,0,0,.1);opacity:1}
+    .scenario-card.active-green{background:#f0fdf4;border-color:#bbf7d0;box-shadow:0 4px 6px rgba(0,0,0,.1);opacity:1}
+
+    /* ── SVG 버튼 ── */
+    .run-btn{background:linear-gradient(to right,#0d9488,#0891b2);color:#fff;padding:.5rem 1rem;border-radius:.5rem;font-weight:700;font-size:1rem;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;transition:all .2s}
+    .run-btn:hover{box-shadow:0 4px 6px rgba(0,0,0,.2)}
+    .reset-btn{background:linear-gradient(to right,#0d9488,#0891b2);color:#fff;padding:.5rem 1rem;border-radius:.5rem;font-weight:700;font-size:1rem;cursor:pointer;border:none;font-family:inherit}
+
+    /* ── 마이크로비트 파트 카드 ── */
+    .part-card{cursor:pointer;transition:all .3s;border-radius:.75rem}
+    .part-card:hover{transform:scale(1.05)}
+    .part-card.selected{box-shadow:0 0 0 4px #2dd4bf}
+
+    /* ── 번호 뱃지 ── */
+    .num-badge{width:2rem;height:2rem;border-radius:9999px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;margin-bottom:.25rem}
+    .num-blue{background:#2563eb}.num-green{background:#16a34a}.num-orange{background:#f97316}.num-purple{background:#9333ea}
+
+    /* ── 테이블 ── */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.75rem;text-align:left}
+    thead tr{background:linear-gradient(to right,#0d9488,#0891b2);color:#fff}
+    tbody tr:nth-child(even){background:#f9fafb}
+    tbody tr:hover{background:#f0fdfa}
+    td:not(:first-child){text-align:center}
+    .td-teal{color:#0f766e;font-weight:700}
+    .td-gray{color:#374151}
+
+    /* ── 비교표 행 ── */
+    .comp-grid{display:grid;grid-template-columns:1fr 2fr 2fr;gap:.5rem;cursor:pointer}
+    .comp-grid:hover{opacity:.9}
+    .comp-cell{padding:.75rem;border-radius:.5rem;border:1px solid;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1rem;line-height:1.4}
+
+    /* ── 홈버튼 ── */
+    .home-btn-wrap{margin-top:1.5rem;text-align:center;padding:1.5rem}
+    .home-btn{display:inline-block;background:linear-gradient(to right,#0f766e,#0e7490);color:#fff;width:16rem;padding:.75rem;border-radius:.5rem;font-weight:700;font-size:1.125rem;text-decoration:none;transition:all .2s;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+    .home-btn:hover{background:linear-gradient(to right,#0c6b61,#0a6a85);box-shadow:0 10px 15px rgba(0,0,0,.2)}
+
+    /* ── 툴팁 ── */
+    .wrench-tip{position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#0f766e;color:#fff;padding:4px 12px;border-radius:8px;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none;animation:bounceOnce .4s ease;z-index:50}
+    .wrench-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f766e}
+  </style>
+</head>
+<body>
+<div class="max-w-7xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-badge">고등학교 정보 학습자료</div>
+      <a href="index.html" class="header-home">🏠 홈으로</a>
+    </div>
+    <h1>📡 사물 인터넷(IoT) 시스템</h1>
+    <p class="header-sub">구성과 동작 원리를 함께 배워봐요!</p>
+  </div>
+
+  <!-- 탭 바 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('intro')">📖 IoT란?</button>
+    <button class="tab-btn" onclick="switchTab('system')">⚙️ 시스템 구성</button>
+    <button class="tab-btn" onclick="switchTab('examples')">🌍 실생활 사례</button>
+    <button class="tab-btn" onclick="switchTab('microbit')">🔧 마이크로비트</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">🎯 퀴즈</button>
+  </div>
+
+  <div class="tab-content">
+
+    <!-- ══ 탭1: IoT란? ══ -->
+    <div id="pane-intro" class="tab-pane active slide-in space-y-6">
+
+      <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+        <p class="font-bold text-yellow-900 mb-1">💡 학습 방법</p>
+        <p class="text-base text-gray-700">각 탭을 클릭해서 IoT 시스템을 차근차근 배워봐요. 그림과 예시를 통해 쉽게 이해할 수 있어요!</p>
+      </div>
+
+      <!-- IoT 정의 -->
+      <div class="bg-grad-teal p-6 rounded-xl border border-teal-200">
+        <h2 class="text-xl font-bold text-teal-900 mb-3">🤔 사물 인터넷(IoT)이 뭔가요?</h2>
+        <div class="bg-white p-5 rounded-lg shadow-sm mb-4">
+          <p class="text-lg font-bold text-gray-800 leading-relaxed text-center">
+            사물에 <span class="text-blue-600">센서</span>를 장착하고
+            <span style="color:#f97316"> 인터넷</span>으로 연결하여<br/>
+            데이터를 주고받고 <span class="text-teal-600">자동으로 동작</span>하는 기술이에요!
+          </p>
+          <p class="text-center text-gray-400 text-base mt-2 font-bold">IoT = Internet of Things (사물들의 인터넷)</p>
+        </div>
+        <div class="grid-2 mb-4">
+          <div class="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl">
+            <p class="text-base font-bold text-blue-800 mb-1">👁️ 센서 (Sensor)</p>
+            <p class="text-base text-gray-700 leading-relaxed">주변 환경을 <span class="font-bold">감지·수집</span>해요.</p>
+            <p class="text-base text-gray-500 mt-1">예) 온도 센서, 움직임 감지, 카메라</p>
+          </div>
+          <div class="bg-orange-50 border-2 border-orange-200 p-4 rounded-xl">
+            <p class="text-base font-bold text-orange-800 mb-1">🦾 액추에이터 (Actuator)</p>
+            <p class="text-base text-gray-700 leading-relaxed">데이터를 바탕으로 실제 <span class="font-bold">동작</span>을 수행해요.</p>
+            <p class="text-base text-gray-500 mt-1">예) 전등 켜기, 에어컨 작동, 문 열기</p>
+          </div>
+        </div>
+        <div class="bg-teal-100 p-4 rounded-lg border-l-4 border-teal-500">
+          <p class="font-bold text-teal-900 mb-1">💬 쉽게 말하면?</p>
+          <p class="text-base text-gray-700 leading-relaxed">
+            예전에는 사람이 직접 스위치를 눌러야 전등이 켜졌어요.<br/>
+            IoT가 적용되면 센서가 내가 들어오는 걸 감지해서 자동으로 켜지고,<br/>
+            스마트폰으로 멀리서도 집 안 기기를 제어할 수 있어요!
+          </p>
+        </div>
+      </div>
+
+      <!-- IoT vs 기존 시스템 비교 -->
+      <div class="bg-grad-slate p-5 rounded-xl border border-blue-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-1">⚖️ IoT vs 기존 시스템 비교</h3>
+        <p class="text-base text-gray-500 mb-3">각 행을 클릭하면 구체적인 예시를 볼 수 있어요!</p>
+        <div class="space-y-2">
+          <div style="display:grid;grid-template-columns:1fr 2fr 2fr;gap:.5rem;margin-bottom:.25rem">
+            <div></div>
+            <div style="background:#d1d5db;color:#374151;font-weight:700;font-size:1rem;padding:.5rem;border-radius:.5rem;text-align:center">🏚️ 기존 시스템</div>
+            <div style="background:#0d9488;color:#fff;font-weight:700;font-size:1rem;padding:.5rem;border-radius:.5rem;text-align:center">📡 IoT 시스템</div>
+          </div>
+          <div id="comp-rows"></div>
+        </div>
+      </div>
+
+      <!-- IoT 3가지 특징 -->
+      <div>
+        <h3 class="text-lg font-bold text-gray-800 mb-1">📌 IoT의 3가지 특징</h3>
+        <p class="text-base text-gray-500 mb-4">교과서에 꼭 나오는 핵심 특징이에요. 잘 기억해 두세요!</p>
+        <div class="grid-3 gap-4">
+          <div class="bg-blue-50 p-5 rounded-xl border-2 border-blue-200">
+            <div class="text-3xl mb-1 text-center">1️⃣</div>
+            <div class="text-4xl mb-2 text-center">🔗</div>
+            <h4 class="font-bold text-base text-blue-900 mb-2 text-center">연결성 (Connectivity)</h4>
+            <div class="bg-white p-3 rounded-lg mb-2 shadow-sm"><p class="text-base font-bold text-blue-600 text-center">사물들이 인터넷으로 서로 연결돼요.</p></div>
+            <p class="text-base text-gray-600 leading-relaxed">집 안의 TV·냉장고·에어컨이 모두 인터넷으로 연결되어 서로 정보를 주고받아요.</p>
+          </div>
+          <div class="bg-orange-50 p-5 rounded-xl border-2 border-orange-200">
+            <div class="text-3xl mb-1 text-center">2️⃣</div>
+            <div class="text-4xl mb-2 text-center">📊</div>
+            <h4 class="font-bold text-base text-orange-900 mb-2 text-center">데이터 기반 동작 (Data-driven)</h4>
+            <div class="bg-white p-3 rounded-lg mb-2 shadow-sm"><p class="text-base font-bold text-orange-600 text-center">센서가 데이터를 수집하고 이를 기반으로 동작해요.</p></div>
+            <p class="text-base text-gray-600 leading-relaxed">온도 센서가 32°C를 측정하면, 그 데이터를 바탕으로 에어컨이 자동으로 켜져요.</p>
+          </div>
+          <div class="bg-green-50 p-5 rounded-xl border-2 border-green-200">
+            <div class="text-3xl mb-1 text-center">3️⃣</div>
+            <div class="text-4xl mb-2 text-center">🤖</div>
+            <h4 class="font-bold text-base text-green-900 mb-2 text-center">자동화 (Automation)</h4>
+            <div class="bg-white p-3 rounded-lg mb-2 shadow-sm"><p class="text-base font-bold text-green-600 text-center">사람이 직접 조작하지 않아도 자동으로 동작해요.</p></div>
+            <p class="text-base text-gray-600 leading-relaxed">내가 아무것도 안 해도 센서가 감지하고, 시스템이 스스로 판단해서 동작해요.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pane-intro -->
+
+    <!-- ══ 탭2: 시스템 구성 ══ -->
+    <div id="pane-system" class="tab-pane space-y-6">
+
+      <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+        <p class="font-bold text-yellow-900 mb-1">💡 학습 방법</p>
+        <p class="text-base text-gray-700">
+          <span class="font-bold text-teal-600">아래 구조 그림의 각 단계를 클릭해보세요! </span>
+          각 단계의 역할과 예시를 자세히 알 수 있어요.
+        </p>
+      </div>
+
+      <!-- IoT 다이어그램 SVG -->
+      <div class="bg-grad-slate p-6 rounded-xl border border-blue-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">🗺️ IoT 시스템 전체 구조</h3>
+        <p class="text-base text-gray-500 text-center mb-4">각 단계를 클릭하면 자세한 설명이 나와요!</p>
+        <div class="overflow-x-auto">
+          <svg id="flow-svg" viewBox="0 0 760 160" style="width:100%;min-width:500px;max-height:190px">
+            <!-- 연결선 -->
+            <line x1="155" y1="80" x2="212" y2="80" stroke="#0d9488" stroke-width="3" stroke-dasharray="6,3"/>
+            <line x1="345" y1="80" x2="402" y2="80" stroke="#0d9488" stroke-width="3" stroke-dasharray="6,3"/>
+            <line x1="535" y1="80" x2="592" y2="80" stroke="#0d9488" stroke-width="3" stroke-dasharray="6,3"/>
+            <polygon points="212,74 227,80 212,86" fill="#0d9488"/>
+            <polygon points="402,74 417,80 402,86" fill="#0d9488"/>
+            <polygon points="592,74 607,80 592,86" fill="#0d9488"/>
+            <!-- 박스 0: 디바이스 -->
+            <g id="flow-0" onclick="toggleFlow(0)" style="cursor:pointer">
+              <rect id="flow-0-glow" x="1" y="16" width="158" height="128" rx="15" fill="none" stroke="#1d4ed8" stroke-width="3" opacity="0" />
+              <rect id="flow-0-rect" x="5" y="20" width="150" height="120" rx="12" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" opacity="0.85"/>
+              <text x="80" y="42" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="bold">STEP 01</text>
+              <text x="80" y="74" text-anchor="middle" font-size="28">📡</text>
+              <text id="flow-0-name" x="80" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">디바이스</text>
+              <text x="80" y="120" text-anchor="middle" font-size="12" fill="#6b7280">데이터 수집</text>
+              <text id="flow-0-hint" x="80" y="148" text-anchor="middle" font-size="10" fill="#0d9488">▼ 클릭</text>
+            </g>
+            <!-- 박스 1: 네트워크 -->
+            <g id="flow-1" onclick="toggleFlow(1)" style="cursor:pointer">
+              <rect id="flow-1-glow" x="221" y="16" width="158" height="128" rx="15" fill="none" stroke="#c2410c" stroke-width="3" opacity="0"/>
+              <rect id="flow-1-rect" x="225" y="20" width="150" height="120" rx="12" fill="#ffedd5" stroke="#f97316" stroke-width="2" opacity="0.85"/>
+              <text x="300" y="42" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="bold">STEP 02</text>
+              <text x="300" y="74" text-anchor="middle" font-size="28">🌐</text>
+              <text id="flow-1-name" x="300" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">네트워크</text>
+              <text x="300" y="120" text-anchor="middle" font-size="12" fill="#6b7280">데이터 전달</text>
+              <text id="flow-1-hint" x="300" y="148" text-anchor="middle" font-size="10" fill="#0d9488">▼ 클릭</text>
+            </g>
+            <!-- 박스 2: 플랫폼 -->
+            <g id="flow-2" onclick="toggleFlow(2)" style="cursor:pointer">
+              <rect id="flow-2-glow" x="411" y="16" width="158" height="128" rx="15" fill="none" stroke="#7e22ce" stroke-width="3" opacity="0"/>
+              <rect id="flow-2-rect" x="415" y="20" width="150" height="120" rx="12" fill="#f3e8ff" stroke="#a855f7" stroke-width="2" opacity="0.85"/>
+              <text x="490" y="42" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="bold">STEP 03</text>
+              <text x="490" y="74" text-anchor="middle" font-size="28">☁️</text>
+              <text id="flow-2-name" x="490" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">플랫폼</text>
+              <text x="490" y="120" text-anchor="middle" font-size="12" fill="#6b7280">분석·처리</text>
+              <text id="flow-2-hint" x="490" y="148" text-anchor="middle" font-size="10" fill="#0d9488">▼ 클릭</text>
+            </g>
+            <!-- 박스 3: 서비스 -->
+            <g id="flow-3" onclick="toggleFlow(3)" style="cursor:pointer">
+              <rect id="flow-3-glow" x="601" y="16" width="158" height="128" rx="15" fill="none" stroke="#15803d" stroke-width="3" opacity="0"/>
+              <rect id="flow-3-rect" x="605" y="20" width="150" height="120" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="2" opacity="0.85"/>
+              <text x="680" y="42" text-anchor="middle" font-size="11" fill="#6b7280" font-weight="bold">STEP 04</text>
+              <text x="680" y="74" text-anchor="middle" font-size="28">📱</text>
+              <text id="flow-3-name" x="680" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">서비스</text>
+              <text x="680" y="120" text-anchor="middle" font-size="12" fill="#6b7280">결과 제공</text>
+              <text id="flow-3-hint" x="680" y="148" text-anchor="middle" font-size="10" fill="#0d9488">▼ 클릭</text>
+            </g>
+          </svg>
+        </div>
+        <div class="mt-2 flex flex-wrap justify-center gap-3 text-base text-gray-600">
+          <span>센서로 데이터 수집</span>
+          <span class="text-teal-500 font-bold">→</span>
+          <span>인터넷으로 전송</span>
+          <span class="text-teal-500 font-bold">→</span>
+          <span>서버에서 분석</span>
+          <span class="text-teal-500 font-bold">→</span>
+          <span>사용자에게 결과 제공</span>
+        </div>
+      </div>
+
+      <!-- 선택된 단계 상세 -->
+      <div id="flow-detail" style="display:none"></div>
+
+      <!-- 시나리오 -->
+      <div class="bg-grad-gray-blue p-5 rounded-xl border border-blue-200">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800">🏠 스마트홈 에어컨 시나리오</h3>
+            <p class="text-base text-gray-500">4단계를 배웠으니, 실제 흐름을 확인해봐요!</p>
+          </div>
+          <button class="run-btn" onclick="runScenario()">▶ 실행해 보기</button>
+        </div>
+        <div class="grid-4" id="scenario-cards">
+          <div class="scenario-card" id="sc-0"><div class="text-3xl mb-2">🌡️</div><div class="text-base font-bold mb-1 text-gray-400" id="sc-0-label">디바이스</div><div class="text-base leading-tight text-gray-300">온도 센서가 실내 32°C를 감지해요!</div></div>
+          <div class="scenario-card" id="sc-1"><div class="text-3xl mb-2">📶</div><div class="text-base font-bold mb-1 text-gray-400" id="sc-1-label">네트워크</div><div class="text-base leading-tight text-gray-300">Wi-Fi로 온도 데이터를 서버로 전송해요!</div></div>
+          <div class="scenario-card" id="sc-2"><div class="text-3xl mb-2">☁️</div><div class="text-base font-bold mb-1 text-gray-400" id="sc-2-label">플랫폼</div><div class="text-base leading-tight text-gray-300">"32°C → 에어컨 켜기"를 결정해요!</div></div>
+          <div class="scenario-card" id="sc-3"><div class="text-3xl mb-2">❄️</div><div class="text-base font-bold mb-1 text-gray-400" id="sc-3-label">서비스</div><div class="text-base leading-tight text-gray-300">에어컨 자동 가동! 앱 알림도 날아와요!</div></div>
+        </div>
+      </div>
+
+      <!-- 왜 이 순서? -->
+      <div class="bg-grad-yellow p-5 rounded-xl border border-yellow-300">
+        <h3 class="text-lg font-bold text-yellow-900 mb-3">🤔 왜 이 순서일까요?</h3>
+        <div class="grid-4">
+          <div class="bg-blue-50 border-2 border-blue-200 p-3 rounded-xl text-center"><div class="text-2xl mb-1">📡</div><p class="text-base font-bold text-blue-600 mb-1">1️⃣</p><p class="text-base font-bold text-blue-900 leading-snug mb-1">먼저 데이터를 수집해야 해요</p><p class="text-xs text-gray-500 leading-snug">수집 없이는 아무것도 시작할 수 없어요!</p></div>
+          <div class="bg-orange-50 border-2 border-orange-200 p-3 rounded-xl text-center"><div class="text-2xl mb-1">🌐</div><p class="text-base font-bold text-orange-600 mb-1">2️⃣</p><p class="text-base font-bold text-orange-900 leading-snug mb-1">그 다음 데이터를 전달해야 해요</p><p class="text-xs text-gray-500 leading-snug">서버까지 보내지 않으면 분석이 불가능해요!</p></div>
+          <div class="bg-purple-50 border-2 border-purple-200 p-3 rounded-xl text-center"><div class="text-2xl mb-1">☁️</div><p class="text-base font-bold text-purple-600 mb-1">3️⃣</p><p class="text-base font-bold text-purple-900 leading-snug mb-1">분석 후 판단을 내려요</p><p class="text-xs text-gray-500 leading-snug">어떤 동작을 할지 결정하는 단계예요!</p></div>
+          <div class="bg-green-50 border-2 border-green-200 p-3 rounded-xl text-center"><div class="text-2xl mb-1">📱</div><p class="text-base font-bold text-green-600 mb-1">4️⃣</p><p class="text-base font-bold text-green-900 leading-snug mb-1">마지막으로 결과를 제공해요</p><p class="text-xs text-gray-500 leading-snug">분석 결과가 있어야 사용자에게 전달할 수 있어요!</p></div>
+        </div>
+        <div class="mt-3 bg-white border border-yellow-300 p-3 rounded-lg text-center">
+          <p class="text-base font-bold text-yellow-800">💡 핵심: 앞 단계가 없으면 다음 단계는 절대 불가능해요! 순서는 필연적이에요.</p>
+        </div>
+      </div>
+
+      <!-- 비교표 -->
+      <div class="bg-grad-blue p-5 rounded-xl border border-blue-200">
+        <h3 class="text-lg font-bold text-blue-900 mb-4">📊 4가지 구성 요소 비교</h3>
+        <div class="overflow-x-auto">
+          <table class="bg-white rounded-lg overflow-hidden shadow-sm text-base" style="border-radius:.5rem">
+            <thead><tr><th class="p-3 text-left">구성 요소</th><th class="p-3">역할</th><th class="p-3">비유</th><th class="p-3">스마트홈 예시</th></tr></thead>
+            <tbody>
+              <tr class="border-b" style="border-color:#f3f4f6"><td class="p-3 td-teal">디바이스</td><td class="p-3 text-center td-gray">데이터 수집</td><td class="p-3 text-center font-bold td-gray">눈·귀</td><td class="p-3 text-center td-gray">온도 센서</td></tr>
+              <tr class="border-b" style="border-color:#f3f4f6;background:#f9fafb"><td class="p-3 td-teal">네트워크</td><td class="p-3 text-center td-gray">데이터 전달</td><td class="p-3 text-center font-bold td-gray">도로·통신망</td><td class="p-3 text-center td-gray">Wi-Fi</td></tr>
+              <tr class="border-b" style="border-color:#f3f4f6"><td class="p-3 td-teal">플랫폼</td><td class="p-3 text-center td-gray">분석·처리</td><td class="p-3 text-center font-bold td-gray">두뇌</td><td class="p-3 text-center td-gray">클라우드 서버</td></tr>
+              <tr><td class="p-3 td-teal">서비스</td><td class="p-3 text-center td-gray">결과 제공</td><td class="p-3 text-center font-bold td-gray">손·결과물</td><td class="p-3 text-center td-gray">앱 알림·에어컨 제어</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /pane-system -->
+
+    <!-- ══ 탭3: 실생활 사례 ══ -->
+    <div id="pane-examples" class="tab-pane space-y-6">
+
+      <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+        <p class="font-bold text-yellow-900 mb-1">💡 학습 방법</p>
+        <p class="text-base text-gray-700"><span class="font-bold text-teal-600">사례 카드를 클릭해보세요! </span>IoT가 실생활에서 어떻게 쓰이는지 자세히 알 수 있어요.</p>
+      </div>
+
+      <div class="grid-3 gap-5" id="example-cards"></div>
+      <div id="example-detail" style="display:none"></div>
+
+      <!-- 장점/문제점 -->
+      <div class="grid-2 gap-5">
+        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-5">
+          <h3 class="text-lg font-bold text-green-800 mb-4">👍 IoT의 장점</h3>
+          <div class="space-y-3">
+            <div class="bg-white p-3 rounded-lg flex items-start gap-3 shadow-sm"><span class="text-2xl">😊</span><div><p class="font-bold text-green-700 text-base">생활이 편리해져요</p><p class="text-base text-gray-600">귀찮은 일을 자동으로 처리해줘서 더 편안한 생활이 가능해요.</p></div></div>
+            <div class="bg-white p-3 rounded-lg flex items-start gap-3 shadow-sm"><span class="text-2xl">⚡</span><div><p class="font-bold text-green-700 text-base">에너지를 절약할 수 있어요</p><p class="text-base text-gray-600">필요할 때만 전기를 사용해서 낭비를 줄일 수 있어요.</p></div></div>
+            <div class="bg-white p-3 rounded-lg flex items-start gap-3 shadow-sm"><span class="text-2xl">🛡️</span><div><p class="font-bold text-green-700 text-base">안전 관리가 가능해요</p><p class="text-base text-gray-600">화재·침입·응급상황을 빠르게 감지해서 대처할 수 있어요.</p></div></div>
+          </div>
+        </div>
+        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-5">
+          <h3 class="text-lg font-bold text-red-800 mb-4">⚠️ IoT의 문제점</h3>
+          <div class="space-y-3">
+            <div class="bg-white p-3 rounded-lg flex items-start gap-3 shadow-sm"><span class="text-2xl">🔓</span><div><p class="font-bold text-red-700 text-base">해킹 위험이 있어요</p><p class="text-base text-gray-600">인터넷에 연결된 기기는 악의적인 해킹 공격을 받을 수 있어요.</p></div></div>
+            <div class="bg-white p-3 rounded-lg flex items-start gap-3 shadow-sm"><span class="text-2xl">👁️</span><div><p class="font-bold text-red-700 text-base">개인정보 유출 가능성</p><p class="text-base text-gray-600">집 안의 데이터(위치·생활 패턴)가 외부로 유출될 수 있어요.</p></div></div>
+            <div class="bg-white p-3 rounded-lg flex items-start gap-3 shadow-sm"><span class="text-2xl">💥</span><div><p class="font-bold text-red-700 text-base">기기 고장 시 위험해요</p><p class="text-base text-gray-600">스마트 기기가 오작동하면 예상치 못한 사고가 생길 수 있어요.</p></div></div>
+          </div>
+          <div class="mt-3 bg-orange-100 border border-orange-300 p-3 rounded-lg">
+            <p class="text-base font-bold text-orange-800 mb-2">💡 따라서 정보 보안이 매우 중요해요!</p>
+            <div class="space-y-2">
+              <div class="bg-white p-2 rounded-lg flex items-start gap-2"><span class="text-xl">📷</span><div><span class="font-bold text-red-700 text-base">CCTV 해킹 → </span><span class="text-base text-gray-700">집 안 CCTV가 해킹되면 사생활이 고스란히 노출돼요.</span></div></div>
+              <div class="bg-white p-2 rounded-lg flex items-start gap-2"><span class="text-xl">🔒</span><div><span class="font-bold text-red-700 text-base">스마트 도어락 해킹 → </span><span class="text-base text-gray-700">비밀번호가 유출되면 범죄자가 집에 침입할 수 있어요.</span></div></div>
+              <div class="bg-white p-2 rounded-lg flex items-start gap-2"><span class="text-xl">🚗</span><div><span class="font-bold text-red-700 text-base">스마트카 해킹 → </span><span class="text-base text-gray-700">자동차 제어 시스템이 해킹되면 주행 중 사고가 날 수 있어요.</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pane-examples -->
+
+    <!-- ══ 탭4: 마이크로비트 ══ -->
+    <div id="pane-microbit" class="tab-pane space-y-5">
+
+      <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-300">
+        <p class="font-bold text-yellow-900 mb-1">💡 학습 방법</p>
+        <p class="text-base text-gray-700"><span class="font-bold text-teal-600">부품 카드를 클릭해보세요! </span>각 부품이 IoT에서 어떤 역할을 하는지 알 수 있어요.</p>
+      </div>
+
+      <div class="bg-grad-teal p-5 rounded-xl border border-teal-200">
+        <h3 class="text-lg font-bold text-teal-900 mb-2">
+          <span class="relative inline-block" style="position:relative">
+            <span id="wrench-icon" class="cursor-pointer select-none" onclick="showWrenchTip()">🔧</span>
+            <span id="wrench-tip" class="wrench-tip" style="display:none">&#xCC38&#xC0C8<span style="position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f766e"></span></span>
+          </span>
+          마이크로비트(micro:bit)란?
+        </h3>
+        <p class="text-base text-gray-700 leading-relaxed">
+          마이크로비트는 영국 BBC가 만든 <span class="font-bold text-teal-700">소형 컴퓨터</span>예요.
+          손바닥보다 작지만 온도 센서·가속도 센서·블루투스 등 다양한 기능이 내장되어 있어요.
+          IoT 시스템을 직접 만들어볼 수 있어요!
+        </p>
+      </div>
+
+      <div class="grid-5" id="part-cards"></div>
+      <div id="part-detail" style="display:none"></div>
+
+    </div><!-- /pane-microbit -->
+
+    <!-- ══ 탭5: 퀴즈 ══ -->
+    <div id="pane-quiz" class="tab-pane space-y-5">
+
+      <div class="bg-grad-teal p-4 rounded-lg border border-teal-200 flex items-center justify-between">
+        <div>
+          <p class="font-bold text-teal-900">🎯 오늘 배운 내용을 확인해봐요!</p>
+          <p class="text-base text-gray-600">보기를 클릭하면 바로 정답을 알 수 있어요.</p>
+        </div>
+        <button class="reset-btn" id="quiz-reset-btn" onclick="resetQuiz()" style="display:none">🔄 다시 풀기</button>
+      </div>
+
+      <div class="quiz-bar-wrap" id="quiz-bars"></div>
+      <div id="quiz-questions"></div>
+      <div id="quiz-result" style="display:none"></div>
+
+    </div><!-- /pane-quiz -->
+
+  </div><!-- /tab-content -->
+
+  <!-- 홈으로 -->
+  <div class="home-btn-wrap">
+    <a href="index.html" class="home-btn">🏠 홈으로 돌아가기</a>
+  </div>
+
+</div><!-- /card -->
+
+<script>
+/* ════════════════════════════════
+   데이터
+════════════════════════════════ */
+const iotExamples=[
+  {emoji:'🏠',name:'스마트홈',color:'blue',desc:'집 안의 조명·에어컨·냉장고가 모두 인터넷으로 연결돼요. 스마트폰으로 멀리서도 집 안 전등을 끄고 켤 수 있어요!',sensor:'온도 센서 / 움직임 감지 센서',network:'Wi-Fi',service:'스마트폰 앱으로 제어'},
+  {emoji:'🌱',name:'스마트팜',color:'green',desc:'농장에 온도·습도 센서를 달아 24시간 농작물 상태를 확인해요. 물이 부족하면 자동으로 물을 주고, 농부는 집에서 편하게 농사를 지어요!',sensor:'온도·습도·토양 센서',network:'LoRa(장거리 무선)',service:'자동 물 공급 + 앱 알림'},
+  {emoji:'🏙️',name:'스마트시티',color:'purple',desc:'도시의 신호등·쓰레기통·주차장을 인터넷으로 연결해요. 쓰레기통이 꽉 차면 알림을 보내고, 교통 상황에 따라 신호등 시간이 자동으로 바뀌어요!',sensor:'교통량 센서 / 쓰레기 감지 센서',network:'5G / 유선',service:'도시 관리 시스템'},
+  {emoji:'⌚',name:'스마트워치',color:'orange',desc:'손목에 차는 작은 컴퓨터예요. 심박수·걸음 수·수면 패턴을 측정해요. 이상이 생기면 스마트폰으로 알림을 보내줘요!',sensor:'심박수 센서 / 가속도 센서',network:'블루투스',service:'건강 데이터 앱'},
+  {emoji:'🔒',name:'스마트 도어락',color:'blue',desc:'열쇠 없이 비밀번호·지문·스마트폰으로 문을 열 수 있어요. 누가 언제 문을 열었는지 기록되고, 외출 중에도 앱으로 잠금 상태를 확인할 수 있어요!',sensor:'지문 센서 / 근거리 통신(NFC)',network:'Wi-Fi / 블루투스',service:'앱 알림 + 원격 잠금 제어'},
+  {emoji:'🏭',name:'스마트공장',color:'green',desc:'공장 기계에 센서를 달아 고장 나기 전에 미리 알 수 있어요. 불량품을 자동으로 걸러내고, 공장 전체를 원격으로 관리해요!',sensor:'진동 센서 / 온도 센서',network:'산업용 유선',service:'예측 정비 시스템'},
+];
+
+const flowSteps=[
+  {num:'01',emoji:'📡',name:'디바이스',color:'blue',desc:'IoT 시스템의 "눈"과 "귀" 역할을 해요. 센서가 주변 환경(온도·빛·소리·움직임 등)을 측정하고, 액추에이터는 전등·모터처럼 실제 동작을 만들어내요.',examples:['온도 센서','습도 센서','카메라','마이크로비트','스마트 전구'],tip:'스마트홈 예시 → 방 안의 온도 센서가 32°C를 감지해요!'},
+  {num:'02',emoji:'🌐',name:'네트워크',color:'orange',desc:'디바이스가 수집한 데이터를 플랫폼(서버)으로 전달하는 "도로" 역할이에요. 거리와 용도에 따라 다양한 통신 방법을 써요.',examples:['Wi-Fi','블루투스','4G/5G','LoRa(장거리)','유선 LAN'],tip:'스마트홈 예시 → Wi-Fi로 온도 데이터를 클라우드로 전송해요!'},
+  {num:'03',emoji:'☁️',name:'플랫폼',color:'purple',desc:'전달받은 데이터를 저장하고, AI나 프로그램이 분석해서 "어떤 동작을 할지" 결정하는 두뇌 역할이에요. 대부분 클라우드(인터넷 서버)에서 동작해요.',examples:['AWS IoT','구글 클라우드','삼성 SmartThings','LG ThinQ'],tip:'스마트홈 예시 → "32°C면 에어컨을 켜야 해!"라고 판단해요!'},
+  {num:'04',emoji:'📱',name:'서비스',color:'green',desc:'분석 결과를 사람이 쓸 수 있는 형태로 제공해요. 스마트폰 앱 알림, 기기 자동 제어, 데이터 화면 등이 모두 서비스예요.',examples:['스마트폰 앱','자동 기기 제어','이메일/문자 알림','대시보드 화면'],tip:'스마트홈 예시 → 에어컨이 자동으로 켜지고, 앱 알림이 와요!'},
+];
+
+const microbitParts=[
+  {num:'1',emoji:'💡',name:'LED 디스플레이 (5×5)',color:'blue',desc:'25개의 LED가 5×5 격자로 배열되어 있어요. 숫자, 문자, 그림을 표시할 수 있어요.',iotRole:'온도·습도 같은 센서 데이터를 화면에 바로 표시할 수 있어요. 예) "32°C"를 LED로 보여줘요!'},
+  {num:'2',emoji:'🔘',name:'버튼 A / B',color:'green',desc:'앞면에 두 개의 버튼이 있어요. 각각 누르거나, 동시에 눌러서 3가지 입력을 만들 수 있어요.',iotRole:'사용자 입력 역할! 버튼 A를 누르면 조명 켜기, B를 누르면 끄기처럼 제어 장치로 쓰여요.'},
+  {num:'3',emoji:'🌡️',name:'온도 센서',color:'orange',desc:'칩 안에 내장된 센서로 -5°C~50°C 범위의 온도를 측정해요.',iotRole:'스마트홈·스마트팜에서 핵심! 온도 데이터를 수집해 에어컨이나 히터를 자동으로 제어해요.'},
+  {num:'4',emoji:'📐',name:'가속도 센서',color:'purple',desc:'기기가 기울어지거나 흔들리는 정도를 X·Y·Z 3방향으로 감지해요.',iotRole:'스마트워치처럼 걸음 수를 세거나 낙상을 감지해요. 흔들림을 이용해 게임도 만들 수 있어요!'},
+  {num:'5',emoji:'📶',name:'블루투스 & 라디오',color:'green',desc:'블루투스로 스마트폰과 통신하고, 2.4GHz 라디오로 마이크로비트끼리 직접 통신해요.',iotRole:'IoT의 네트워크 역할! 마이크로비트끼리 메시지를 주고받거나, 앱으로 원격 제어가 가능해요.'},
+];
+
+const quizData=[
+  {id:1,q:'IoT의 올바른 영어 이름은 무엇인가요?',opts:['Internet of Technology','Internet of Things','Integrated Object Technology','Information of Things'],ans:1,expl:'IoT는 "Internet of Things(사물 인터넷)"의 약자예요. 사물들이 인터넷으로 연결된다는 뜻이에요!'},
+  {id:2,q:'IoT 시스템에서 온도·습도 등 데이터를 직접 수집하는 구성 요소는?',opts:['서비스','플랫폼','네트워크','디바이스'],ans:3,expl:'디바이스(Device)! 센서가 포함된 기기가 주변 환경의 데이터를 직접 수집해요.'},
+  {id:3,q:'수집된 데이터를 서버(플랫폼)로 전달하는 역할은?',opts:['서비스','디바이스','네트워크','액추에이터'],ans:2,expl:'네트워크! Wi-Fi, 블루투스, 5G 같은 통신 방법으로 데이터를 플랫폼으로 전달해요.'},
+  {id:4,q:'IoT의 3가지 특징 중 "사람이 직접 조작하지 않아도 스스로 동작"하는 특징은?',opts:['연결성','데이터 기반 동작','자동화','보안성'],ans:2,expl:'자동화(Automation)! IoT는 수집한 데이터를 분석해서 사람 없이도 스스로 동작해요.'},
+  {id:5,q:'IoT 시스템의 올바른 데이터 흐름 순서는?',opts:['플랫폼→디바이스→네트워크→서비스','디바이스→네트워크→플랫폼→서비스','네트워크→디바이스→서비스→플랫폼','서비스→플랫폼→네트워크→디바이스'],ans:1,expl:'디바이스(수집) → 네트워크(전달) → 플랫폼(처리) → 서비스(제공) 순서예요!'},
+  {id:6,q:'IoT의 문제점으로 가장 거리가 먼 것은?',opts:['개인정보 유출 위험','해킹 위험','생활이 편리해짐','기기 고장 시 위험'],ans:2,expl:'"생활이 편리해짐"은 IoT의 장점이에요! 나머지 3가지(해킹·개인정보 유출·기기 고장)는 모두 IoT의 문제점이에요.'},
+];
+
+/* ════════════════════════════════
+   색상 헬퍼
+════════════════════════════════ */
+const COLOR={
+  blue:  {bg:'bg-blue-50',  border:'border-blue-200',  text:'text-blue-900',  accent:'text-blue-600',  badge:'bg-blue-100 text-blue-700',  head:'bg-grad-blue',   btn:'#2563eb', selStroke:'#1d4ed8'},
+  green: {bg:'bg-green-50', border:'border-green-200', text:'text-green-900', accent:'text-green-600', badge:'bg-green-100 text-green-700', head:'bg-grad-green',  btn:'#16a34a', selStroke:'#15803d'},
+  orange:{bg:'bg-orange-50',border:'border-orange-200',text:'text-orange-900',accent:'text-orange-600',badge:'bg-orange-100 text-orange-700',head:'bg-grad-orange', btn:'#f97316', selStroke:'#c2410c'},
+  purple:{bg:'bg-purple-50',border:'border-purple-200',text:'text-purple-900',accent:'text-purple-600',badge:'bg-purple-100 text-purple-700',head:'bg-grad-purple', btn:'#9333ea', selStroke:'#7e22ce'},
+};
+const BG={
+  'bg-blue-50':'#eff6ff','bg-green-50':'#f0fdf4','bg-orange-50':'#fff7ed','bg-purple-50':'#faf5ff',
+  'bg-blue-100':'#dbeafe','bg-green-100':'#dcfce7','bg-orange-100':'#ffedd5','bg-purple-100':'#f3e8ff',
+  'bg-grad-blue':'linear-gradient(to right,#eff6ff,#ecfeff)',
+  'bg-grad-green':'linear-gradient(to right,#f0fdf4,#ecfdf5)',
+  'bg-grad-orange':'linear-gradient(to right,#fff7ed,#fefce8)',
+  'bg-grad-purple':'linear-gradient(to right,#faf5ff,#fdf2f8)',
+};
+const BORDER={
+  'border-blue-200':'#bfdbfe','border-green-200':'#bbf7d0','border-orange-200':'#fed7aa','border-purple-200':'#e9d5ff',
+};
+const TEXT={
+  'text-blue-900':'#1e3a8a','text-green-900':'#14532d','text-orange-900':'#7c2d12','text-purple-900':'#3b0764',
+  'text-blue-600':'#2563eb','text-green-600':'#16a34a','text-orange-600':'#ea580c','text-purple-600':'#9333ea',
+  'text-blue-700':'#1d4ed8','text-green-700':'#15803d','text-orange-700':'#c2410c','text-purple-700':'#7e22ce',
+};
+function bgVal(cls){return BG[cls]||''}
+function borderVal(cls){return BORDER[cls]||''}
+function textVal(cls){return TEXT[cls]||'inherit'}
+
+/* ════════════════════════════════
+   탭 전환
+════════════════════════════════ */
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
+    const ids=['intro','system','examples','microbit','quiz'];
+    btn.classList.toggle('active', ids[i]===id);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  const pane=document.getElementById('pane-'+id);
+  pane.classList.add('active');
+  pane.classList.remove('slide-in');
+  void pane.offsetWidth;
+  pane.classList.add('slide-in');
+}
+
+/* ════════════════════════════════
+   IoT vs 기존 비교 표
+════════════════════════════════ */
+const compRows=[
+  {label:'동작 방식',old:'사람이 직접 조작해요',iot:'센서가 감지해 자동 동작해요',oldEx:'전등 스위치를 손으로 눌러야 켜져요',iotEx:'방에 들어오면 움직임 감지 후 자동으로 켜져요'},
+  {label:'연결 여부',old:'각 기기가 독립적이에요',iot:'모든 기기가 인터넷으로 연결돼요',oldEx:'에어컨·조명·TV가 서로 몰라요',iotEx:'에어컨이 켜지면 커튼도 자동으로 내려가요'},
+  {label:'데이터 활용',old:'데이터가 거의 없어요',iot:'데이터 분석으로 더 똑똑하게 동작해요',oldEx:'어제 몇 시에 전등을 켰는지 알 수 없어요',iotEx:'생활 패턴을 분석해 최적 시간에 자동 조절해요'},
+  {label:'원격 제어',old:'현장에 직접 가야 해요',iot:'스마트폰으로 어디서든 제어해요',oldEx:'집 전등을 끄러 집으로 돌아가야 해요',iotEx:'회사에서 앱으로 집 전등을 끌 수 있어요'},
+];
+let selComp=null;
+(function buildComp(){
+  const wrap=document.getElementById('comp-rows');
+  compRows.forEach((row,i)=>{
+    const div=document.createElement('div');
+    div.innerHTML=`
+      <div class="comp-grid" onclick="toggleComp(${i})" style="margin-bottom:.25rem">
+        <div class="comp-cell" style="background:#fff;border-color:#e5e7eb;font-weight:700;color:#374151">${row.label}</div>
+        <div class="comp-cell" style="background:#f9fafb;border-color:#e5e7eb;color:#4b5563">${row.old}</div>
+        <div class="comp-cell" style="background:#f0fdfa;border-color:#99f6e4;color:#134e4a;font-weight:700">${row.iot}</div>
+      </div>
+      <div id="comp-ex-${i}" style="display:none;margin-bottom:.25rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+          <div class="bg-gray-100 p-3 rounded-lg border border-gray-300"><p class="text-xs font-bold text-gray-500 mb-1">📌 기존 예시</p><p class="text-base text-gray-700">${row.oldEx}</p></div>
+          <div class="bg-teal-50 p-3 rounded-lg border border-teal-300"><p class="text-xs font-bold text-teal-600 mb-1">✨ IoT 예시</p><p class="text-base text-teal-800 font-bold">${row.iotEx}</p></div>
+        </div>
+      </div>`;
+    wrap.appendChild(div);
+  });
+})();
+function toggleComp(i){
+  const ex=document.getElementById('comp-ex-'+i);
+  if(selComp===i){ex.style.display='none';selComp=null;}
+  else{
+    if(selComp!==null)document.getElementById('comp-ex-'+selComp).style.display='none';
+    ex.style.display='block'; ex.classList.remove('slide-in'); void ex.offsetWidth; ex.classList.add('slide-in');
+    selComp=i;
+  }
+}
+
+/* ════════════════════════════════
+   IoT 구조 다이어그램 (SVG 클릭)
+════════════════════════════════ */
+const svgColors=[
+  {fill:'#dbeafe',stroke:'#3b82f6',selStroke:'#1d4ed8'},
+  {fill:'#ffedd5',stroke:'#f97316',selStroke:'#c2410c'},
+  {fill:'#f3e8ff',stroke:'#a855f7',selStroke:'#7e22ce'},
+  {fill:'#dcfce7',stroke:'#22c55e',selStroke:'#15803d'},
+];
+let selFlow=null;
+function toggleFlow(i){
+  const prev=selFlow;
+  if(selFlow===i){deactivateSvgBox(i);selFlow=null;}
+  else{
+    if(selFlow!==null)deactivateSvgBox(selFlow);
+    activateSvgBox(i);selFlow=i;
+  }
+  renderFlowDetail();
+}
+function activateSvgBox(i){
+  const c=svgColors[i];
+  document.getElementById('flow-'+i+'-glow').setAttribute('opacity','0.5');
+  document.getElementById('flow-'+i+'-rect').setAttribute('stroke',c.selStroke);
+  document.getElementById('flow-'+i+'-rect').setAttribute('stroke-width','3');
+  document.getElementById('flow-'+i+'-rect').setAttribute('opacity','1');
+  document.getElementById('flow-'+i+'-name').setAttribute('fill',c.selStroke);
+  document.getElementById('flow-'+i+'-hint').style.display='none';
+}
+function deactivateSvgBox(i){
+  const c=svgColors[i];
+  document.getElementById('flow-'+i+'-glow').setAttribute('opacity','0');
+  document.getElementById('flow-'+i+'-rect').setAttribute('stroke',c.stroke);
+  document.getElementById('flow-'+i+'-rect').setAttribute('stroke-width','2');
+  document.getElementById('flow-'+i+'-rect').setAttribute('opacity','0.85');
+  document.getElementById('flow-'+i+'-name').setAttribute('fill','#1f2937');
+  document.getElementById('flow-'+i+'-hint').style.display='';
+}
+function renderFlowDetail(){
+  const el=document.getElementById('flow-detail');
+  if(selFlow===null){el.style.display='none';return;}
+  const step=flowSteps[selFlow];
+  const c=COLOR[step.color];
+  const bg=bgVal(c.head);
+  const bdr=borderVal(c.border);
+  const txt=textVal(c.text);
+  const acc=textVal(c.accent);
+  const badgeBg=bgVal(c.badge.split(' ')[0]);
+  const badgeTxt=textVal(c.badge.split(' ')[1]);
+  const innerBg=bgVal(c.bg);
+  el.innerHTML=`
+    <div class="slide-in p-6 rounded-xl border-2" style="background:${bg};border-color:${bdr}">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-4xl">${step.emoji}</span>
+        <div>
+          <div class="text-base font-bold text-gray-400">STEP ${step.num}</div>
+          <h3 class="text-xl font-bold" style="color:${txt}">${step.name}</h3>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-lg mb-4 shadow-sm">
+        <p class="text-base text-gray-700 leading-relaxed">${step.desc}</p>
+      </div>
+      <div class="grid-2 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <p class="text-base font-bold mb-2" style="color:${acc}">📌 예시 기기 / 서비스</p>
+          <div class="flex flex-wrap gap-2">${step.examples.map(e=>`<span class="text-base px-3 py-1 rounded-full font-bold" style="background:${badgeBg};color:${badgeTxt}">${e}</span>`).join('')}</div>
+        </div>
+        <div class="p-4 rounded-lg border" style="background:${innerBg};border-color:${bdr}">
+          <p class="text-base font-bold mb-1" style="color:${acc}">🏠 스마트홈 예시</p>
+          <p class="text-base text-gray-700">${step.tip}</p>
+        </div>
+      </div>
+    </div>`;
+  el.style.display='block';
+}
+
+/* ════════════════════════════════
+   시나리오
+════════════════════════════════ */
+const scColors=['active-blue','active-orange','active-purple','active-green'];
+const scAccents=['text-blue-600','text-orange-600','text-purple-600','text-green-600'];
+function runScenario(){
+  for(let i=0;i<4;i++){
+    const card=document.getElementById('sc-'+i);
+    card.className='scenario-card';
+    card.querySelectorAll('div')[1].className='text-base font-bold mb-1 text-gray-400';
+    card.querySelectorAll('div')[2].className='text-base leading-tight text-gray-300';
+  }
+  let i=0;
+  const run=()=>{
+    const card=document.getElementById('sc-'+i);
+    card.className='scenario-card '+scColors[i];
+    card.querySelectorAll('div')[1].className='text-base font-bold mb-1 '+scAccents[i];
+    card.querySelectorAll('div')[2].className='text-base leading-tight text-gray-700';
+    i++;
+    if(i<4)setTimeout(run,1100);
+  };
+  setTimeout(run,200);
+}
+
+/* ════════════════════════════════
+   실생활 사례 카드
+════════════════════════════════ */
+let selExample=null;
+(function buildExamples(){
+  const wrap=document.getElementById('example-cards');
+  iotExamples.forEach(ex=>{
+    const c=COLOR[ex.color];
+    const bg=bgVal(c.head);
+    const bdr=borderVal(c.border);
+    const txt=textVal(c.text);
+    const div=document.createElement('div');
+    div.className='cursor-pointer transition-all';
+    div.style.cssText='border-radius:.75rem';
+    div.dataset.name=ex.name;
+    div.innerHTML=`
+      <div style="background:${bg};padding:1.25rem;border-radius:.75rem;border:1px solid ${bdr};box-shadow:0 4px 6px rgba(0,0,0,.1);height:100%">
+        <div class="text-5xl mb-3 text-center">${ex.emoji}</div>
+        <h3 class="text-lg font-bold mb-1 text-center" style="color:${txt}">${ex.name}</h3>
+        <p class="text-base text-gray-500 text-center">${ex.desc.slice(0,38)}...</p>
+        <p class="text-center text-teal-600 text-base mt-3 font-bold">👆 클릭해서 자세히 보기</p>
+      </div>`;
+    div.addEventListener('click',()=>toggleExample(ex.name));
+    wrap.appendChild(div);
+  });
+})();
+function toggleExample(name){
+  const cards=document.querySelectorAll('#example-cards>div');
+  if(selExample===name){
+    cards.forEach(c=>c.style.boxShadow='');
+    selExample=null;
+    document.getElementById('example-detail').style.display='none';
+    return;
+  }
+  cards.forEach(c=>{c.style.boxShadow=c.dataset.name===name?'0 0 0 4px #2dd4bf':'';});
+  selExample=name;
+  const ex=iotExamples.find(e=>e.name===name);
+  const c=COLOR[ex.color];
+  const bg=bgVal(c.head);
+  const bdr=borderVal(c.border);
+  const txt=textVal(c.text);
+  const el=document.getElementById('example-detail');
+  el.innerHTML=`
+    <div class="slide-in p-6 rounded-xl border-2" style="background:${bg};border-color:${bdr}">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-5xl">${ex.emoji}</span>
+        <h3 class="text-2xl font-bold" style="color:${txt}">${ex.name}</h3>
+      </div>
+      <div class="bg-white p-4 rounded-lg mb-4 shadow-sm">
+        <p class="text-base text-gray-700 leading-relaxed">${ex.desc}</p>
+      </div>
+      <div class="grid-3 gap-3">
+        <div class="bg-white p-4 rounded-lg shadow-sm"><p class="text-base font-bold text-teal-700 mb-1">📡 디바이스(센서)</p><p class="text-base text-gray-700">${ex.sensor}</p></div>
+        <div class="bg-white p-4 rounded-lg shadow-sm"><p class="text-base font-bold text-teal-700 mb-1">🌐 네트워크</p><p class="text-base text-gray-700">${ex.network}</p></div>
+        <div class="bg-white p-4 rounded-lg shadow-sm"><p class="text-base font-bold text-teal-700 mb-1">📱 서비스</p><p class="text-base text-gray-700">${ex.service}</p></div>
+      </div>
+    </div>`;
+  el.style.display='block';
+}
+
+/* ════════════════════════════════
+   마이크로비트 파트 카드
+════════════════════════════════ */
+let selPart=null;
+const numBtnColor={blue:'#2563eb',green:'#16a34a',orange:'#f97316',purple:'#9333ea'};
+(function buildParts(){
+  const wrap=document.getElementById('part-cards');
+  microbitParts.forEach((part,i)=>{
+    const c=COLOR[part.color];
+    const bg=bgVal(c.bg);
+    const bdr=borderVal(c.border);
+    const txt=textVal(c.text);
+    const btnColor=numBtnColor[part.color];
+    const div=document.createElement('div');
+    div.id='part-card-'+i;
+    div.className='part-card';
+    div.innerHTML=`
+      <div style="background:${bg};border:2px solid ${bdr};padding:1rem;border-radius:.75rem;height:100%;box-shadow:0 1px 2px rgba(0,0,0,.05)">
+        <div class="flex flex-col items-center mb-2">
+          <div class="num-badge" style="background:${btnColor}">${part.num}</div>
+          <span class="text-3xl mb-1">${part.emoji}</span>
+          <span class="text-base font-bold text-center" style="color:${txt}">${part.name}</span>
+        </div>
+        <p class="text-base text-teal-600 font-bold text-center mt-1" id="part-hint-${i}">👆 클릭!</p>
+      </div>`;
+    div.addEventListener('click',()=>togglePart(i));
+    wrap.appendChild(div);
+  });
+})();
+function togglePart(i){
+  const prev=selPart;
+  if(selPart===i){
+    document.getElementById('part-card-'+i).classList.remove('selected');
+    document.getElementById('part-hint-'+i).style.display='';
+    selPart=null;
+    document.getElementById('part-detail').style.display='none';
+    return;
+  }
+  if(selPart!==null){
+    document.getElementById('part-card-'+selPart).classList.remove('selected');
+    document.getElementById('part-hint-'+selPart).style.display='';
+  }
+  document.getElementById('part-card-'+i).classList.add('selected');
+  document.getElementById('part-hint-'+i).style.display='none';
+  selPart=i;
+  const part=microbitParts[i];
+  const c=COLOR[part.color];
+  const bg=bgVal(c.head);
+  const bdr=borderVal(c.border);
+  const txt=textVal(c.text);
+  const innerBg=bgVal(c.bg);
+  const acc=textVal(c.accent);
+  const el=document.getElementById('part-detail');
+  el.innerHTML=`
+    <div class="slide-in p-6 rounded-xl border-2" style="background:${bg};border-color:${bdr}">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-5xl">${part.emoji}</span>
+        <h3 class="text-xl font-bold" style="color:${txt}">${part.name}</h3>
+      </div>
+      <div class="grid-2 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <p class="font-bold text-gray-700 mb-2">🔍 기능 설명</p>
+          <p class="text-base text-gray-700 leading-relaxed">${part.desc}</p>
+        </div>
+        <div class="p-4 rounded-lg border-l-4" style="background:${innerBg};border-color:${bdr}">
+          <p class="text-base font-bold mb-2" style="color:${acc}">🔗 IoT에서의 역할</p>
+          <p class="text-base text-gray-700 leading-relaxed">${part.iotRole}</p>
+        </div>
+      </div>
+    </div>`;
+  el.style.display='block';
+}
+
+/* ════════════════════════════════
+   퀴즈
+════════════════════════════════ */
+let quizAnswers={};
+let shakeTimeout=null;
+function buildQuiz(){
+  // 진행 바
+  const barsEl=document.getElementById('quiz-bars');
+  barsEl.innerHTML=quizData.map(q=>`<div class="quiz-bar" id="qbar-${q.id}"></div>`).join('');
+  // 문제
+  const qEl=document.getElementById('quiz-questions');
+  qEl.innerHTML=quizData.map(q=>`
+    <div class="bg-white border-2 border-gray-200 rounded-xl p-5 shadow-sm space-y-2" id="qblock-${q.id}">
+      <p class="text-base font-bold text-teal-600 mb-2">Q${q.id} / ${quizData.length}</p>
+      <p class="text-base font-bold text-gray-800 mb-4">${q.q}</p>
+      <div class="space-y-2 mb-3" id="qopts-${q.id}">
+        ${q.opts.map((opt,idx)=>`
+          <button class="quiz-opt" id="qopt-${q.id}-${idx}" onclick="handleQuiz(${q.id},${idx})">
+            <span class="font-bold mr-2">${['①','②','③','④'][idx]}</span>${opt}
+          </button>`).join('')}
+      </div>
+      <div id="qfeedback-${q.id}" style="display:none"></div>
+    </div>`).join('');
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-reset-btn').style.display='none';
+}
+buildQuiz();
+
+function handleQuiz(qid,idx){
+  if(quizAnswers[qid]!==undefined)return;
+  const q=quizData.find(q=>q.id===qid);
+  quizAnswers[qid]=idx;
+  // 선택지 스타일
+  q.opts.forEach((_,i)=>{
+    const btn=document.getElementById('qopt-'+qid+'-'+i);
+    btn.disabled=true;
+    if(i===q.ans){btn.classList.add('correct');btn.innerHTML+=' <span>✅</span>';}
+    else if(i===idx){btn.classList.add('wrong');btn.innerHTML+=' <span>❌</span>';}
+    else{btn.classList.add('dimmed');}
+  });
+  // 흔들기 (오답)
+  if(idx!==q.ans){
+    const block=document.getElementById('qblock-'+qid);
+    block.classList.add('shake');
+    setTimeout(()=>block.classList.remove('shake'),400);
+  }
+  // 진행 바
+  const bar=document.getElementById('qbar-'+qid);
+  bar.classList.add(idx===q.ans?'correct':'wrong');
+  // 피드백
+  const fb=document.getElementById('qfeedback-'+qid);
+  const ok=idx===q.ans;
+  fb.innerHTML=`<div class="p-3 rounded-lg text-base leading-relaxed ${ok?'bg-green-50 border border-green-300 text-green-800':'bg-orange-50 border border-orange-300 text-orange-800'}">${ok?'🎉 정답이에요! ':'💡 정답 설명: '}${q.expl}</div>`;
+  fb.style.display='block';
+  // 리셋 버튼 표시
+  document.getElementById('quiz-reset-btn').style.display='inline-block';
+  // 완료
+  if(Object.keys(quizAnswers).length===quizData.length)showQuizResult();
+}
+function calcScore(){return quizData.filter(q=>quizAnswers[q.id]===q.ans).length;}
+function showQuizResult(){
+  const score=calcScore();
+  const total=quizData.length;
+  const icon=score===total?'🏆':score>=4?'🌟':score>=2?'👍':'📚';
+  const msg=score===total?'완벽해요! IoT 마스터예요! 🏆':score>=4?'잘했어요! 거의 다 맞혔네요 👍':score>=2?'조금만 더 복습해봐요! 💪':'다시 한번 처음부터 배워봐요! 📖';
+  const el=document.getElementById('quiz-result');
+  el.innerHTML=`
+    <div class="slide-in bg-grad-teal p-6 rounded-xl border-2 border-teal-300 text-center">
+      <div class="text-5xl mb-3">${icon}</div>
+      <p class="text-2xl font-bold text-teal-800 mb-2">${score} / ${total} 점</p>
+      <p class="text-base text-gray-600">${msg}</p>
+    </div>`;
+  el.style.display='block';
+  el.classList.remove('slide-in'); void el.offsetWidth; el.classList.add('slide-in');
+}
+function resetQuiz(){
+  quizAnswers={};
+  buildQuiz();
+}
+
+/* ════════════════════════════════
+   마이크로비트 렌치 툴팁
+════════════════════════════════ */
+function showWrenchTip(){
+  const tip=document.getElementById('wrench-tip');
+  tip.style.display='block';
+  setTimeout(()=>tip.style.display='none',400);
+}
+</script>
+</body>
+</html>
